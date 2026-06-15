@@ -1,0 +1,22 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img" aria-label="Mangrove Grill dummy menu scan">
+  <rect width="900" height="1200" fill="#f8fafc"/>
+  <rect x="70" y="70" width="760" height="1060" rx="18" fill="#fff" stroke="#cbd5e1" stroke-width="4"/>
+  <rect x="110" y="112" width="680" height="120" rx="14" fill="#0e7490"/>
+  <text x="142" y="186" fill="#fff" font-family="Arial, sans-serif" font-size="46" font-weight="700">Mangrove Grill</text>
+  <text x="142" y="222" fill="#fb923c" font-family="Arial, sans-serif" font-size="24" font-weight="700">dummy messy source menu</text>
+  <g fill="#111827" font-family="Arial, sans-serif">
+    <text x="120" y="310" font-size="30" font-weight="700">SIGNATURES</text>
+    <text x="120" y="365" font-size="25">Local house plate .......... 98K</text>
+    <text x="120" y="415" font-size="25">Grilled seasonal special ... 145K</text>
+    <text x="120" y="465" font-size="25">Chef recommendation ....... 125K</text>
+    <text x="120" y="555" font-size="30" font-weight="700">NOTES</text>
+    <text x="120" y="610" font-size="24">spice can be adjusted / sambal separate</text>
+    <text x="120" y="660" font-size="24">ask staff for allergies and halal confirmation</text>
+    <text x="120" y="752" font-size="30" font-weight="700">DRINKS</text>
+    <text x="120" y="807" font-size="25">Fresh cooler ............... 42K</text>
+    <text x="120" y="857" font-size="25">House tea .................. 35K</text>
+  </g>
+  <path d="M645 590 l92 -38 l14 36 l-92 38z" fill="#fef3c7" stroke="#d97706" stroke-width="3" opacity="0.9"/>
+  <text x="664" y="603" fill="#92400e" font-family="Arial, sans-serif" font-size="20" font-weight="700" transform="rotate(-22 664 603)">review</text>
+  <path d="M104 970 C260 910 330 1040 492 972 S704 915 790 1008" fill="none" stroke="#fb923c" stroke-width="12" opacity="0.55"/>
+</svg>

@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+
+@theme {
+	--font-sans:
+		Inter, 'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK', system-ui, -apple-system,
+		BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--color-lingua-bg: #f8fafc;
+	--color-lingua-surface: #ffffff;
+	--color-lingua-muted: #f1f5f9;
+	--color-lingua-text: #111827;
+	--color-lingua-subtle: #64748b;
+	--color-lingua-border: #cbd5e1;
+	--color-lingua-primary: #0f766e;
+	--color-lingua-primary-strong: #115e59;
+	--color-lingua-primary-soft: #ccfbf1;
+	--color-lingua-accent: #f97316;
+	--color-lingua-accent-soft: #ffedd5;
+	--color-lingua-success: #16a34a;
+	--color-lingua-warning: #d97706;
+	--color-lingua-danger: #dc2626;
+	--color-lingua-info: #2563eb;
+}
+
+:root {
+	color: var(--color-lingua-text);
+	background: var(--color-lingua-bg);
+	font-family: var(--font-sans);
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	--app-shell-max: 1180px;
+}
+
+html {
+	min-width: 320px;
+	background: var(--color-lingua-bg);
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	background:
+		linear-gradient(180deg, rgba(204, 251, 241, 0.42), rgba(248, 250, 252, 0) 360px),
+		var(--color-lingua-bg);
+}
+
+button,
+input,
+textarea,
+select {
+	font: inherit;
+}
+
+button,
+a {
+	-webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+	outline: 3px solid rgba(15, 118, 110, 0.35);
+	outline-offset: 2px;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+.app-container {
+	width: min(100% - 24px, var(--app-shell-max));
+	margin-inline: auto;
+}
+
+.surface {
+	border: 1px solid rgba(203, 213, 225, 0.8);
+	background: rgba(255, 255, 255, 0.94);
+	box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.tap-target {
+	min-height: 44px;
+}
+
+.qr-pattern {
+	background:
+		linear-gradient(90deg, #111827 10px, transparent 10px) 0 0 / 22px 22px,
+		linear-gradient(#111827 10px, transparent 10px) 0 0 / 22px 22px,
+		linear-gradient(90deg, transparent 12px, #111827 12px 16px, transparent 16px) 0 0 / 28px 28px,
+		#fff;
+}

@@ -1,0 +1,93 @@
+export type LanguageTag = 'en' | 'id' | 'zh-Hans' | 'ko' | 'ja' | 'ar' | 'hi' | 'fr' | 'de';
+
+export type DietaryFlag =
+	| 'halal'
+	| 'vegetarian'
+	| 'vegan'
+	| 'gluten-free'
+	| 'contains-alcohol'
+	| 'spicy'
+	| 'seafood'
+	| 'nut-free';
+
+export type Allergen =
+	| 'nuts'
+	| 'dairy'
+	| 'egg'
+	| 'shellfish'
+	| 'seafood'
+	| 'soy'
+	| 'gluten'
+	| 'sesame';
+
+export type MenuSourceType =
+	| 'pdf-scan'
+	| 'photo'
+	| 'bilingual'
+	| 'handwritten'
+	| 'seasonal'
+	| 'spreadsheet';
+
+export type MenuItem = {
+	id: string;
+	category: string;
+	name: string;
+	localName?: string;
+	description: string;
+	price: number;
+	currency: 'IDR';
+	image: string;
+	spiceLevel: 0 | 1 | 2 | 3 | 4 | 5;
+	isAvailable: boolean;
+	isSignature: boolean;
+	dietaryFlags: DietaryFlag[];
+	allergens: Allergen[];
+	goodFor: string[];
+	confidence: 'verified' | 'needs-review' | 'staff-confirm';
+};
+
+export type MenuImportIssue = {
+	id: string;
+	sourceType: MenuSourceType;
+	label: string;
+	confidence: number;
+	issue: string;
+	status: 'needs-review' | 'approved' | 'blocked';
+};
+
+export type Restaurant = {
+	id: string;
+	name: string;
+	slug: string;
+	location: string;
+	segment: 'cafe' | 'casual-dining' | 'hotel-restaurant' | 'beach-club' | 'premium';
+	languages: LanguageTag[];
+	heroImage: string;
+	menuScan: string;
+	tableCount: number;
+	menuSourceType: MenuSourceType;
+	description: string;
+	knowledgeHighlights: string[];
+	categories: string[];
+	menuItems: MenuItem[];
+	importIssues: MenuImportIssue[];
+	analytics: {
+		scansToday: number;
+		helpfulRate: number;
+		fallbackRate: number;
+		topQuestion: string;
+		topItem: string;
+	};
+};
+
+export type StaffRequest = {
+	id: string;
+	restaurantSlug: string;
+	tableCode: string;
+	language: LanguageTag;
+	status: 'new' | 'in-progress' | 'resolved';
+	priority: 'normal' | 'high';
+	guestNeed: string;
+	summary: string;
+	lastMessageAt: string;
+};

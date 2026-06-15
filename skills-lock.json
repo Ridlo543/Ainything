@@ -1,0 +1,35 @@
+{
+	"version": 1,
+	"skills": {
+		"performance-investigation": {
+			"source": "sveltejs/svelte",
+			"sourceType": "github",
+			"skillPath": ".agents/skills/performance-investigation/SKILL.md",
+			"computedHash": "6fce6331096dd8847980d643ce3a315e9b4cf133a510e5bcf7b8f16c8105cdb6"
+		},
+		"svelte-code-writer": {
+			"source": "sveltejs/ai-tools",
+			"sourceType": "github",
+			"skillPath": "plugins/claude/svelte/skills/svelte-code-writer/SKILL.md",
+			"computedHash": "c0e2cce9855f8e312cbb0a05aef164b4659c672d7723e4e598ffa6bc94890542"
+		},
+		"svelte-core-bestpractices": {
+			"source": "sveltejs/ai-tools",
+			"sourceType": "github",
+			"skillPath": "plugins/claude/svelte/skills/svelte-core-bestpractices/SKILL.md",
+			"computedHash": "bec11e369679027edf9d4acbe6d9788f8da33dc14b48b874f231d3ba13705324"
+		},
+		"tailwind-best-practices": {
+			"source": "mastra-ai/mastra",
+			"sourceType": "github",
+			"skillPath": ".claude/skills/tailwind-best-practices/SKILL.md",
+			"computedHash": "b5720fe165b13c35122f15fa78cea523e9dda48e666fcc71daf1ba71827f0386"
+		},
+		"typescript-best-practices": {
+			"source": "0xbigboss/claude-code",
+			"sourceType": "github",
+			"skillPath": ".claude/skills/typescript-best-practices/SKILL.md",
+			"computedHash": "b73b69197553b711e02839015e6abca717eb2305e90de3cc86403c92d92b00d9"
+		}
+	}
+}

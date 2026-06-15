@@ -1,0 +1,14 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="Lotus Hotel cover">
+  <rect width="1200" height="760" fill="#1d4ed8"/>
+  <circle cx="990" cy="140" r="210" fill="#a7f3d0" opacity="0.28"/>
+  <circle cx="165" cy="650" r="240" fill="#ffffff" opacity="0.10"/>
+  <path d="M110 470 C260 330 405 585 560 430 S820 320 1085 462" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" opacity="0.24"/>
+  <rect x="92" y="86" width="520" height="128" rx="28" fill="#ffffff" opacity="0.92"/>
+  <text x="132" y="164" fill="#111827" font-family="Arial, sans-serif" font-size="58" font-weight="700">Lotus Hotel</text>
+  <text x="132" y="244" fill="#ffffff" font-family="Arial, sans-serif" font-size="35" font-weight="600">hotel dining</text>
+  <g transform="translate(760 340)">
+    <rect x="0" y="90" width="280" height="46" rx="23" fill="#ffffff" opacity="0.92"/>
+    <path d="M42 88 C70 24 214 24 242 88" fill="none" stroke="#ffffff" stroke-width="30" stroke-linecap="round"/>
+    <path d="M84 52 C78 22 98 7 112 0 M148 46 C142 16 162 3 176 -6 M204 54 C198 24 218 10 232 2" stroke="#a7f3d0" stroke-width="12" stroke-linecap="round" opacity="0.95"/>
+  </g>
+</svg>
