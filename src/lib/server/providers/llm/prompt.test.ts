@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildSystemPrompt, buildMenuSnapshot, extractSafetyJson, PROMPT_VERSION } from './prompt';
+import { buildSystemPrompt, buildMenuSnapshot, extractSafetyJson, stripReasoningTags, PROMPT_VERSION } from './prompt';
 import type { LlmChatContext, LlmMenuItem } from './types';
 
 const baseContext: LlmChatContext = {
@@ -114,10 +114,11 @@ describe('buildSystemPrompt', () => {
 
 	it('contains all mandatory guardrail rules', () => {
 		const prompt = buildSystemPrompt(baseContext);
-		expect(prompt).toContain('Do NOT invent');
-		expect(prompt).toContain('escalate to staff');
+		// Key guardrail phrases in v3 prompt
+		expect(prompt).toContain('NO INVENTION');
 		expect(prompt).toContain('needs-staff');
 		expect(prompt).toContain('blocked');
+		expect(prompt).toContain('ALLERGEN');
 	});
 });
 
@@ -162,5 +163,69 @@ describe('extractSafetyJson', () => {
 
 		expect(result.safety).toBe('blocked');
 		expect(result.suggestFallback).toBe(false);
+	});
+
+	it('strips <think> reasoning tags from the output', () => {
+		const raw =
+			'<think>\nThe guest is asking about halal certification.\n</think>\nBased on my data, I cannot confirm.\n{"safety":"needs-staff","suggest_fallback":true}';
+		const result = extractSafetyJson(raw);
+
+		expect(result.cleaned).not.toContain('<think>');
+		expect(result.cleaned).not.toContain('asking about halal certification');
+		expect(result.cleaned).toBe('Based on my data, I cannot confirm.');
+		expect(result.safety).toBe('needs-staff');
+	});
+
+	it('strips <reasoning> tags', () => {
+		const raw =
+			'<reasoning>Check allergen list</reasoning>\nThis dish contains egg.\n{"safety":"ok","suggest_fallback":false}';
+		const result = extractSafetyJson(raw);
+
+		expect(result.cleaned).not.toContain('<reasoning>');
+		expect(result.cleaned).toBe('This dish contains egg.');
+	});
+
+	it('strips [thinking] tags', () => {
+		const raw =
+			'[thinking]Price is in data[/thinking]\nThe price is 42,000 IDR.\n{"safety":"ok","suggest_fallback":false}';
+		const result = extractSafetyJson(raw);
+
+		expect(result.cleaned).not.toContain('[thinking]');
+		expect(result.cleaned).toBe('The price is 42,000 IDR.');
+	});
+});
+
+describe('stripReasoningTags', () => {
+	it('returns clean text unchanged', () => {
+		expect(stripReasoningTags('Hello world')).toBe('Hello world');
+	});
+
+	it('removes <think>...</think> blocks', () => {
+		const input = '<think>some reasoning</think>The answer.';
+		expect(stripReasoningTags(input)).toBe('The answer.');
+	});
+
+	it('removes <reasoning>...</reasoning> blocks', () => {
+		const input = '<reasoning>deep thought</reasoning>Result.';
+		expect(stripReasoningTags(input)).toBe('Result.');
+	});
+
+	it('removes [thinking]...[/thinking] blocks', () => {
+		const input = '[thinking]internal chain[/thinking]Answer.';
+		expect(stripReasoningTags(input)).toBe('Answer.');
+	});
+
+	it('removes [think]...[/think] blocks', () => {
+		const input = '[think]coT[/think]Final.';
+		expect(stripReasoningTags(input)).toBe('Final.');
+	});
+
+	it('handles multiple tag blocks', () => {
+		const input = '<think>first</think>Middle<reasoning>second</reasoning>End.';
+		expect(stripReasoningTags(input)).toBe('MiddleEnd.');
+	});
+
+	it('handles empty string', () => {
+		expect(stripReasoningTags('')).toBe('');
 	});
 });

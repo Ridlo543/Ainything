@@ -32,8 +32,8 @@ CREATE POLICY customer_sessions_public_insert ON customer_sessions
 			FROM restaurant_tables t
 			JOIN restaurants r ON r.id = t.restaurant_id
 			WHERE t.id = table_id
-				AND t.restaurant_id = restaurant_id
-				AND t.organization_id = organization_id
+				AND t.restaurant_id = customer_sessions.restaurant_id
+				AND t.organization_id = customer_sessions.organization_id
 				AND t.is_active = true
 				AND r.status = 'active'
 		)
@@ -53,8 +53,8 @@ CREATE POLICY fallback_requests_public_insert ON fallback_requests
 			FROM restaurant_tables t
 			JOIN restaurants r ON r.id = t.restaurant_id
 			WHERE t.id = table_id
-				AND t.restaurant_id = restaurant_id
-				AND t.organization_id = organization_id
+				AND t.restaurant_id = fallback_requests.restaurant_id
+				AND t.organization_id = fallback_requests.organization_id
 				AND t.is_active = true
 				AND r.status = 'active'
 		)
@@ -69,8 +69,8 @@ CREATE POLICY fallback_requests_public_insert ON fallback_requests
 					SELECT 1
 					FROM customer_sessions s
 					WHERE s.id = session_id
-						AND s.restaurant_id = restaurant_id
-						AND s.organization_id = organization_id
+						AND s.restaurant_id = fallback_requests.restaurant_id
+						AND s.organization_id = fallback_requests.organization_id
 				)
 			)
 		)
@@ -89,7 +89,7 @@ CREATE POLICY feedback_public_insert ON feedback
 			SELECT 1
 			FROM restaurants r
 			WHERE r.id = restaurant_id
-				AND r.organization_id = organization_id
+				AND r.organization_id = feedback.organization_id
 				AND r.status = 'active'
 		)
 		-- If a session is linked, it must match the server-set public_session_id
@@ -102,8 +102,8 @@ CREATE POLICY feedback_public_insert ON feedback
 					SELECT 1
 					FROM customer_sessions s
 					WHERE s.id = session_id
-						AND s.restaurant_id = restaurant_id
-						AND s.organization_id = organization_id
+						AND s.restaurant_id = feedback.restaurant_id
+						AND s.organization_id = feedback.organization_id
 				)
 			)
 		)

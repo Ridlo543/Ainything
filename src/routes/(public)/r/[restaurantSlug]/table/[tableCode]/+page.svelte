@@ -16,6 +16,8 @@
 	import MenuItemCard from '$lib/ui/menu/MenuItemCard.svelte';
 	import PreferenceChips from '$lib/ui/menu/PreferenceChips.svelte';
 	import SafetyBadges from '$lib/ui/menu/SafetyBadges.svelte';
+	import { t, tWithVars, setLanguage, languageDisplayName, isRtl } from '$lib/i18n';
+	import { LANGUAGES } from '$lib/i18n/languages';
 
 	let { data }: { data: PageData } = $props();
 
@@ -23,6 +25,11 @@
 	let sessionId = $state<string | null>(null);
 	let selectedLanguage = $state('en');
 	let selectedPreferences = $state<DietaryPreferenceCode[]>([]);
+
+	// Sync i18n state when language changes
+	$effect(() => {
+		setLanguage(selectedLanguage as never);
+	});
 
 	// Create a session on mount
 	$effect(() => {
@@ -70,7 +77,6 @@
 	);
 
 	// ── Allergen inference from dietary preferences ────────────────────────────
-	// Map DietaryPreferenceCode → Allergen[] so needsStaffConfirmation is accurate.
 	const PREF_TO_ALLERGENS: Partial<Record<DietaryPreferenceCode, Allergen[]>> = {
 		'nut-free': ['nuts'],
 		'gluten-free': ['gluten']
@@ -80,7 +86,6 @@
 		selectedPreferences.flatMap((p) => PREF_TO_ALLERGENS[p] ?? [])
 	);
 
-	// Subset of DietaryPreferenceCodes that map 1:1 to DietaryFlag for policy checks
 	const DIETARY_FLAG_CODES = new Set<string>([
 		'halal',
 		'vegetarian',
@@ -123,14 +128,13 @@
 			});
 			feedbackSent = true;
 		} catch {
-			// feedback failing is non-critical — still show local confirmation
 			feedbackSent = true;
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>{data.restaurant.name} - LinguaServe</title>
+	<title>{tWithVars('app.titlePage', { name: data.restaurant.name })}</title>
 </svelte:head>
 
 <main class="min-h-screen pb-24">
@@ -145,14 +149,14 @@
 				class="inline-flex items-center gap-2 text-sm font-semibold text-white/90"
 				href={resolve('/')}
 			>
-				<ArrowLeft size={16} /> LinguaServe
+				<ArrowLeft size={16} /> {t('app.backLink')}
 			</a>
 			<div class="mt-8 grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
 				<div>
 					<p
 						class="inline-flex items-center gap-2 rounded-md bg-white/14 px-3 py-1.5 text-sm font-semibold"
 					>
-						<QrCode size={15} /> Table {data.tableCode}
+						<QrCode size={15} /> {tWithVars('app.tableBadge', { code: data.tableCode })}
 					</p>
 					<h1 class="mt-4 text-3xl font-semibold sm:text-5xl">{data.restaurant.name}</h1>
 					<p class="mt-3 max-w-2xl text-base leading-7 text-white/88">
@@ -169,10 +173,8 @@
 			<div class="surface rounded-lg p-4">
 				<div class="flex items-center justify-between gap-3">
 					<div>
-						<p class="font-semibold text-lingua-text">Language and food preferences</p>
-						<p class="text-sm text-lingua-subtle">
-							No login required. Preferences stay in this session.
-						</p>
+						<p class="font-semibold text-lingua-text">{t('bootstrap.heading')}</p>
+						<p class="text-sm text-lingua-subtle">{t('bootstrap.subtitle')}</p>
 					</div>
 					<Languages class="text-lingua-primary" size={24} />
 				</div>
@@ -180,10 +182,11 @@
 					<select
 						class="tap-target rounded-lg border border-lingua-border bg-white px-3 text-sm"
 						bind:value={selectedLanguage}
-						aria-label="Language"
+						aria-label={t('language.selector.label')}
+						dir={isRtl(selectedLanguage) ? 'rtl' : 'ltr'}
 					>
 						{#each data.restaurant.languages as lang (lang)}
-							<option value={lang}>{lang}</option>
+							<option value={lang}>{languageDisplayName(lang, selectedLanguage as never)}</option>
 						{/each}
 					</select>
 					<PreferenceChips selected={prefAsDietaryFlags} onToggle={togglePreference} />
@@ -194,10 +197,8 @@
 			<div class="surface rounded-lg p-4">
 				<div class="flex items-center justify-between gap-3">
 					<div>
-						<p class="font-semibold text-lingua-text">Browse menu</p>
-						<p class="text-sm text-lingua-subtle">
-							Menu details are based on restaurant-approved data.
-						</p>
+						<p class="font-semibold text-lingua-text">{t('menu.browse.heading')}</p>
+						<p class="text-sm text-lingua-subtle">{t('menu.browse.subtitle')}</p>
 					</div>
 					<span
 						class="rounded-md bg-lingua-accent-soft px-3 py-1.5 text-sm font-semibold text-orange-800"
@@ -207,7 +208,7 @@
 				</div>
 
 				{#if categories.length === 0}
-					<p class="mt-4 text-sm text-lingua-subtle">No menu categories available yet.</p>
+					<p class="mt-4 text-sm text-lingua-subtle">{t('menu.categories.empty')}</p>
 				{:else}
 					<div class="mt-4 flex gap-2 overflow-x-auto pb-1">
 						{#each categories as category (category)}
@@ -227,9 +228,7 @@
 
 					<div class="mt-4 grid gap-3">
 						{#if filteredItems.length === 0}
-							<p class="py-4 text-center text-sm text-lingua-subtle">
-								No items in this category right now.
-							</p>
+							<p class="py-4 text-center text-sm text-lingua-subtle">{t('menu.items.empty')}</p>
 						{:else}
 							{#each filteredItems as item (item.id)}
 								<MenuItemCard
@@ -268,32 +267,31 @@
 						<SafetyBadges item={selectedItem} />
 					</div>
 					<div class="mt-4 rounded-lg bg-slate-50 p-3">
-						<p class="text-sm font-semibold text-lingua-text">Recommendation reason</p>
+						<p class="text-sm font-semibold text-lingua-text">{t('menu.detail.recommendation')}</p>
 						<p class="mt-1 text-sm leading-6 text-lingua-subtle">
 							{#if selectedItem.goodFor.length > 0}
-								Good for {selectedItem.goodFor.join(', ')}.
+								{tWithVars('menu.detail.goodFor', { tags: selectedItem.goodFor.join(', ') })}
 							{/if}
-							Spice level: {spiceLabel(selectedItem.spiceLevel)}.
+							{tWithVars('menu.detail.spice', { level: spiceLabel(selectedItem.spiceLevel) })}
 						</p>
 					</div>
 					{#if needsStaffConfirmation(selectedItem, prefAsDietaryFlags, inferredAllergens)}
 						<div
 							class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
 						>
-							Staff confirmation recommended for your preferences or dietary requirements.
+							{t('menu.detail.staffConfirm')}
 						</div>
 					{:else}
 						<div
 							class="mt-4 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm leading-6 text-green-900"
 						>
-							<ShieldCheck class="mt-0.5 shrink-0" size={18} /> Verified menu data available for this
-							item.
+							<ShieldCheck class="mt-0.5 shrink-0" size={18} /> {t('menu.detail.verified')}
 						</div>
 					{/if}
 				</section>
 			{:else}
 				<section class="surface rounded-lg p-4">
-					<p class="text-sm text-lingua-subtle">Select a menu item to see details.</p>
+					<p class="text-sm text-lingua-subtle">{t('menu.detail.selectPrompt')}</p>
 				</section>
 			{/if}
 
@@ -311,8 +309,8 @@
 				<div class="flex items-center gap-3">
 					<MessageCircle class="text-lingua-primary" size={22} />
 					<div>
-						<p class="font-semibold text-lingua-text">Quick feedback</p>
-						<p class="text-sm text-lingua-subtle">Tell the restaurant if this helped.</p>
+						<p class="font-semibold text-lingua-text">{t('feedback.heading')}</p>
+						<p class="text-sm text-lingua-subtle">{t('feedback.subtitle')}</p>
 					</div>
 				</div>
 				<div class="mt-4 grid grid-cols-2 gap-2">
@@ -326,7 +324,7 @@
 						onclick={() => sendFeedback('helpful')}
 						disabled={feedbackSent}
 					>
-						Helpful
+						{t('feedback.helpful')}
 					</button>
 					<button
 						type="button"
@@ -338,12 +336,12 @@
 						onclick={() => sendFeedback('unclear')}
 						disabled={feedbackSent}
 					>
-						Unclear
+						{t('feedback.unclear')}
 					</button>
 				</div>
 				{#if feedbackSent}
 					<p class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-lingua-primary">
-						<ThumbsUp size={16} /> Thank you for your feedback.
+						<ThumbsUp size={16} /> {t('feedback.thankYou')}
 					</p>
 				{/if}
 			</section>

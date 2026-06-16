@@ -1,8 +1,18 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import { browser } from '$app/environment';
+	import { getState, dir } from '$lib/i18n';
 
 	let { children } = $props();
+
+	$effect(() => {
+		if (browser) {
+			const { language } = getState();
+			document.documentElement.lang = language;
+			document.documentElement.dir = dir(language);
+		}
+	});
 </script>
 
 <svelte:head>

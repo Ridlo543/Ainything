@@ -43,7 +43,13 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 				`
 			);
 
-			expect(result.rows.map((row) => row.slug)).toEqual(['rempah-terrace', 'taman-sate']);
+			// The public_active_select policy exposes ALL active restaurants to lingua_app.
+			expect(result.rows.map((row) => row.slug).sort()).toEqual([
+				'rempah-terrace',
+				'senja-ramen-bali',
+				'taman-sate',
+				'uma-karang'
+			]);
 		});
 	});
 
@@ -67,21 +73,24 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 
 	it('rejects a guest fallback insert with a session from a different restaurant', async () => {
 		// Create a real session for Uma Karang.
-		const sessionResult = await query<{ id: string }>(
-			`
-				INSERT INTO customer_sessions (organization_id, restaurant_id, table_id, language_tag, preferences)
-				SELECT
-					'10000000-0000-0000-0000-000000000001',
-					'40000000-0000-0000-0000-000000000001',
-					t.id,
-					'en',
-					'{}'::jsonb
-				FROM restaurant_tables t
-				WHERE t.restaurant_id = '40000000-0000-0000-0000-000000000001'
-				LIMIT 1
-				RETURNING id::text
-			`
-		);
+		// Use withUserContext so the RETURNING clause's select policy passes.
+		const sessionResult = await withUserContext('user-owner-bali', async (client) => {
+			return client.query<{ id: string }>(
+				`
+					INSERT INTO customer_sessions (organization_id, restaurant_id, table_id, language_tag, preferences)
+					SELECT
+						'10000000-0000-0000-0000-000000000001',
+						'40000000-0000-0000-0000-000000000001',
+						t.id,
+						'en',
+						'{}'::jsonb
+					FROM restaurant_tables t
+					WHERE t.restaurant_id = '40000000-0000-0000-0000-000000000001'
+					LIMIT 1
+					RETURNING id::text
+				`
+			);
+		});
 
 		const sessionId = sessionResult.rows[0]?.id;
 		expect(sessionId).toBeDefined();

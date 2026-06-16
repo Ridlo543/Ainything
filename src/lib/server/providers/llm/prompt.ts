@@ -15,7 +15,7 @@ import type { LlmChatContext, LlmMenuItem } from './types';
  * 5. Reply in the guest's language. Keep answers short and actionable.
  */
 
-export const PROMPT_VERSION = 'v2';
+export const PROMPT_VERSION = 'v3';
 
 /**
  * Serialises menu items into a compact plain-text block for the system prompt.
@@ -72,33 +72,62 @@ export function buildSystemPrompt(context: LlmChatContext): string {
 
 	return `You are the AI menu assistant for ${context.restaurantName}.
 Your role is to help international guests understand the menu, ingredients, spice levels,
-dietary flags, and ordering choices — based only on verified restaurant data.
+dietary flags, and ordering choices — based ONLY on the verified restaurant data below.
 
 ${prefs}
 ${menuBlock}
-STRICT RULES (follow every time, no exceptions):
-1. Only answer questions about THIS restaurant's menu, policies, and context.
-2. Do NOT invent ingredients, allergen status, halal certification, prices, or availability.
-   If data is missing or marked ⚠[staff-confirm], say it is not confirmed and suggest staff.
-3. Allergen / halal / alcohol questions:
-   - If the item has a VERIFIED flag in the menu data → state it clearly.
-   - If data is marked [unverified] or ⚠[staff-confirm] → escalate to staff.
-   - Always end allergy/halal answers with a reminder that staff can confirm.
-4. If the question is unrelated to this restaurant (travel, other restaurants, general
-   knowledge) → politely say you can only help with this restaurant's menu.
-5. Reply in the guest's language: ${context.languageTag}.
+STRICT RULES — follow every time without exception:
+
+1. SCOPE: Only answer questions directly about THIS restaurant's menu items, ingredients,
+   prices, availability, spice level, dietary flags, and policies.
+   ANY question about travel, other restaurants, general cooking, geography, history,
+   entertainment, or topics not in the menu data → MUST use safety "blocked".
+
+2. NO INVENTION: If an item is NOT listed in the MENU DATA above, say it is not on the
+   current menu and use safety "low-confidence". NEVER guess a price or ingredient.
+   If a field is missing from the data, say the data is not confirmed.
+
+3. ALLERGEN / HALAL / ALCOHOL rules:
+   - Item has VERIFIED flag in menu data → state it clearly, safety "ok".
+   - Item is marked ⚠[staff-confirm] or [unverified] → use "needs-staff", suggest staff.
+   - Item has the queried allergen listed → use "needs-staff", never say "safe".
+   - Guest asks about certification (e.g. MUI halal cert) not in data → "needs-staff".
+   - Always end allergen/halal answers reminding guest that staff can confirm.
+
+4. LANGUAGE: Reply in the guest's language: ${context.languageTag}.
    Keep answers short (3–5 sentences max) and actionable.
 
-At the END of your answer, on a new line, output a JSON object (no markdown code block):
-{"safety":"ok"|"low-confidence"|"needs-staff"|"blocked","suggest_fallback":true|false}
+5. SAFETY JSON — at the END of your answer, on a new line, output exactly this JSON
+   (no markdown code block, no extra text after it):
+   {"safety":"ok"|"low-confidence"|"needs-staff"|"blocked","suggest_fallback":true|false}
 
-Use:
-  "ok"             — confident answer, all data verified
-  "low-confidence" — answer is partial or data quality uncertain
-  "needs-staff"    — allergen/halal/alcohol concern, or guest explicitly requests staff
-  "blocked"        — question outside restaurant scope
+   "ok"             → confident, all data verified, no safety risk
+   "low-confidence" → partial data or uncertain quality
+   "needs-staff"    → allergen/halal/alcohol concern, missing certification, or guest asks
+   "blocked"        → question is outside this restaurant's menu scope
 
 Prompt version: ${PROMPT_VERSION}`;
+}
+
+/**
+ * Strips common LLM reasoning/thinking tags from raw output.
+ *
+ * Many models emit internal chain-of-thought wrapped in special tags:
+ *   <think>...</think>   — OpenAI o1, MiniMax, DeepSeek R1
+ *   <reasoning>...</reasoning>
+ *   [thinking]...[/thinking]
+ *   [think]...[/think]
+ *
+ * These tags and their contents are removed so they never reach the guest or
+ * interfere with safety-JSON extraction and forbidden-content checks.
+ */
+export function stripReasoningTags(text: string): string {
+	return text
+		.replace(/<think>[\s\S]*?<\/think>/gi, '')
+		.replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, '')
+		.replace(/\[thinking\][\s\S]*?\[\/thinking\]/gi, '')
+		.replace(/\[think\][\s\S]*?\[\/think\]/gi, '')
+		.trim();
 }
 
 /** Extracts the safety JSON that the model appends at the end of its answer. */
@@ -107,16 +136,20 @@ export function extractSafetyJson(raw: string): {
 	safety: string;
 	suggestFallback: boolean;
 } {
+	// Strip reasoning tags before anything else so they don't appear in the
+	// cleaned answer or interfere with safety-JSON matching.
+	const stripped = stripReasoningTags(raw);
+
 	// Match the trailing JSON object the prompt instructs the model to append.
-	const match = raw.match(/\{[^{}]*"safety"\s*:\s*"[^"]*"[^{}]*\}\s*$/);
+	const match = stripped.match(/\{[^{}]*"safety"\s*:\s*"[^"]*"[^{}]*\}\s*$/);
 
 	if (!match) {
 		// Model didn't follow the format — treat as low-confidence.
-		return { cleaned: raw.trim(), safety: 'low-confidence', suggestFallback: false };
+		return { cleaned: stripped, safety: 'low-confidence', suggestFallback: false };
 	}
 
 	const jsonStr = match[0];
-	const cleaned = raw.slice(0, raw.lastIndexOf(jsonStr)).trim();
+	const cleaned = stripped.slice(0, stripped.lastIndexOf(jsonStr)).trim();
 
 	try {
 		const parsed = JSON.parse(jsonStr) as { safety?: string; suggest_fallback?: boolean };

@@ -216,26 +216,34 @@ The previous session stopped mid-task while wiring public published-menu reads a
 
 - [x] Add LLM provider adapter interface (`src/lib/server/providers/llm/types.ts`: `LlmProvider`, `LlmChatContext`, `LlmChatResult`) and mock implementation (`mock-provider.ts`). Factory (`factory.ts`) selects provider via `LLM_PROVIDER` env.
 - [x] Implement mocked AI provider (committed before any real provider per architecture rules). Mock returns `needs-staff` safety status so UI offers fallback — correct placeholder behaviour.
-- [ ] Implement first real LLM provider behind the adapter (key supplied via env; fill in `SupabaseAuthProvider` first for secure user context).
-- [ ] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents (plan this before retrieval work to avoid a large later refactor). Keep it tenant-scoped.
-- [ ] Define prompt templates and prompt versioning (store version + model params in code/db with release notes).
+- [x] Implement first real LLM provider behind the adapter — MiniMax via TokenRouter (`openai-compatible-provider.ts`), activated via `LLM_PROVIDER=openai-compatible` + `OPENAI_COMPATIBLE_BASE_URL` + `OPENAI_COMPATIBLE_API_KEY` in env. Uses `TokenRouter` for load balancing across MiniMax models with fallback.
+- [x] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents — `db/migrations/0005_enable_pgvector.sql`: creates `vector` extension, tenant-scoped `item_embeddings` table (polymorphic `source_type`/`source_id`), IVFFlat index on `embedding vector_cosine_ops`, RLS policies for `lingua_app`, auto-update trigger.
+- [x] Define prompt templates and prompt versioning (`prompt.ts`, `PROMPT_VERSION='v3'`, release notes in comment header, version tracked in `ai_events`).
 - [ ] Implement menu retrieval scoped by restaurant (structured data first; embeddings second).
 - [ ] Add embeddings for menu items and knowledge documents (generated after publish, never in the tourist hot path).
-- [ ] Implement chat answer endpoint (replace the Phase 6c persistence shell with real retrieval + answer).
-- [ ] Implement guardrails:
-  - [ ] Do not answer outside restaurant scope.
-  - [ ] Do not invent ingredients, prices, certification, or availability.
-  - [ ] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing.
-  - [ ] Respect unavailable/sold-out items.
-- [ ] Implement AI event logging into `ai_events` (model, prompt version, latency, tokens, confidence, retrieved refs, safety flags, error code).
+- [x] Implement chat answer endpoint (`POST /api/public/chat`) — validates with Zod, loads history (max 5 turns), builds available-only menu snapshot (max 80 items), calls LLM provider, persists both turns in one transaction, logs `ai_events`, returns answer + safetyStatus + suggestFallback.
+- [x] Implement guardrails:
+  - [x] Do not answer outside restaurant scope (prompt v3 SCOPE rule → `safetyStatus: 'blocked'`).
+  - [x] Do not invent ingredients, prices, certification, or availability (prompt v3 NO INVENTION rule).
+  - [x] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing (query-level safety check in prompt).
+  - [x] Respect unavailable/sold-out items (`toMenuSnapshot` filters `isAvailable === false` before sending to LLM).
+- [x] Implement AI event logging into `ai_events` (`ai-events-repository.ts:logAiEvent`, fail-open, captures provider, model, prompt version, latency, tokens, confidence, safety flags).
 - [ ] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
 - [ ] Implement OCR import prototype behind an OCR adapter.
 - [ ] Add admin review workflow for OCR extraction (must pass the Phase 0 "menu minimum viable" gate before publish).
-- [ ] Add AI evaluation fixtures with dummy and later real menu questions (allergy, halal, spicy, vegetarian, out-of-scope).
+- [x] Add AI evaluation fixtures (`eval-fixtures.ts`: 18 fixtures across 6 categories — halal, allergen, spice, price, out-of-scope, language) + live eval suite (`llm-eval.test.ts`, opt-in via `RUN_LLM_TESTS=true`).
 
 ## Phase 8 - Integrations and Operations
 
-- [ ] Add `src/lib/i18n` dictionary layer (BCP 47 tags, language detection, RTL helper) and replace hard-coded UI strings; test long-text and Arabic RTL at 360px. Wire it to the narrowed MVP language set from Phase 0.
+- [/] Add `src/lib/i18n` dictionary layer (BCP 47 tags, language detection, RTL helper) and replace hard-coded UI strings; test long-text and Arabic RTL at 360px. Wire it to the narrowed MVP language set from Phase 0.
+  - [x] Infrastructure: `src/lib/i18n/` with types, BCP 47 language definitions, Accept-Language detection, RTL helper, reactive Svelte 5 `.svelte.ts` module.
+  - [x] English dictionary (`en.ts`) and Indonesian dictionary (`id.ts`) covering all customer-facing strings.
+  - [x] Root layout syncs `lang` and `dir` on `<html>` reactively.
+  - [x] Public route (`+page.svelte`), `ChatPanel`, `PreferenceChips`, `SafetyBadges`, `MenuItemCard` use `t()` / `tWithVars()`.
+  - [ ] Replace remaining hardcoded strings in admin, staff, and landing pages.
+  - [ ] Wire Accept-Language detection from `hooks.server.ts` to preselect language.
+  - [ ] Test long-text and Arabic RTL at 360px viewport.
+  - [ ] Narrow MVP language set per Phase 0 decision.
 - [ ] Decide staff inbox only vs WhatsApp integration for pilot.
 - [ ] If WhatsApp is used, create provider adapter and cost controls.
 - [ ] Add email/password reset flow for admins.
@@ -256,7 +264,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
 ## Phase 9 - QA and Pilot Readiness
 
 - [x] Run Playwright smoke tests for customer, admin, and staff routes.
-- [ ] Run full Playwright customer flow on multiple viewport sizes.
+- [x] Run full Playwright customer flow on 360px and 390px viewport sizes (`tests/e2e/customer-flow.spec.ts`: 17 tests covering restaurant hero, language selector, preference chips, menu browse, item detail, chat panel, feedback, and staff fallback at both viewports).
 - [ ] Run full Playwright admin flow on tablet and desktop.
 - [ ] Run accessibility checks.
 - [ ] Run performance checks on public routes.
