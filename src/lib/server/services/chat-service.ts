@@ -1,6 +1,6 @@
 import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
 import { createChatMessageInputSchema } from '$lib/domain/session/schema';
-import { persistChatTurn } from '$lib/server/repositories/chat-repository';
+import { persistChatTurn, getRecentHistory } from '$lib/server/repositories/chat-repository';
 import { getLlmProvider } from '$lib/server/providers/llm/factory';
 
 export type ChatTurnResult = {
@@ -16,15 +16,13 @@ export type ChatTurnResult = {
  *
  * Responsibility chain:
  * 1. Validate input (Zod).
- * 2. Call the active LLM provider with restaurant-scoped context.
- * 3. Persist the customer question and AI answer in the same DB transaction.
- * 4. Return the answer payload to the route.
+ * 2. Load the last ≤5 conversation turns for context (history).
+ * 3. Call the active LLM provider with restaurant-scoped context + history.
+ * 4. Persist the customer question and AI answer in the same DB transaction.
+ * 5. Return the answer payload to the route.
  *
  * AI cost-cap enforcement is applied by the caller (the API route) before reaching
- * this service, so this service can remain focused on the chat turn.
- *
- * In Phase 7, step 2 will be expanded with retrieval (RAG), prompt versioning, and
- * AI event logging.
+ * this service. Phase 7 expands step 3 with RAG retrieval and AI event logging.
  */
 export async function handleChatTurn(
 	bootstrap: PublicMenuBootstrap,
@@ -32,17 +30,20 @@ export async function handleChatTurn(
 ): Promise<ChatTurnResult> {
 	const input = createChatMessageInputSchema.parse(rawInput);
 
-	// Call the LLM provider (mock in dev; real in production once LLM_PROVIDER is set).
+	// Load recent conversation history for this session (max 5 turns = 10 messages).
+	const history = await getRecentHistory(input.sessionId, 10);
+
 	const provider = getLlmProvider();
+
 	const llmResult = await provider.chat({
 		restaurantId: bootstrap.table.restaurantId,
 		restaurantName: bootstrap.restaurant.name,
 		languageTag: input.languageTag,
 		dietaryPreferences: bootstrap.restaurant.menuItems.flatMap((item) => item.dietaryFlags),
-		question: input.content
+		question: input.content,
+		history
 	});
 
-	// Persist both sides of the turn.
 	const { customerMessage, assistantMessage } = await persistChatTurn({
 		organizationId: bootstrap.table.organizationId,
 		restaurantId: bootstrap.table.restaurantId,

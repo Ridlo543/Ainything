@@ -1,4 +1,4 @@
-import { withPublicSessionContext, type DatabaseClient } from '$lib/server/db/postgres';
+import { withPublicSessionContext, query, type DatabaseClient } from '$lib/server/db/postgres';
 import type { ChatRole, ChatSafetyStatus } from '$lib/domain/session/schema';
 
 type ChatMessageRow = {
@@ -107,4 +107,35 @@ export async function persistChatTurn(input: PersistChatTurnInput): Promise<Pers
 
 		return { customerMessage, assistantMessage };
 	});
+}
+
+/**
+ * Loads the most recent `limit` chat messages for a session, ordered oldest-first
+ * so the LLM receives the conversation in natural reading order.
+ * Only customer and assistant messages are returned (not system/staff messages).
+ */
+export async function getRecentHistory(
+	sessionId: string,
+	limit: number
+): Promise<Array<{ role: 'customer' | 'assistant'; content: string }>> {
+	const result = await query<{ role: ChatRole; content: string }>(
+		`
+			SELECT role, content
+			FROM (
+				SELECT role, content, created_at
+				FROM chat_messages
+				WHERE session_id = $1::uuid
+					AND role IN ('customer', 'assistant')
+				ORDER BY created_at DESC
+				LIMIT $2
+			) recent
+			ORDER BY created_at ASC
+		`,
+		[sessionId, limit]
+	);
+
+	return result.rows.map((row) => ({
+		role: row.role as 'customer' | 'assistant',
+		content: row.content
+	}));
 }

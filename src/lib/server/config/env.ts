@@ -17,9 +17,27 @@ export const appEnv = {
 	databaseUrl: env.DATABASE_URL,
 	directUrl: env.DIRECT_URL,
 	redisUrl: env.REDIS_URL,
-	llmProvider: env.LLM_PROVIDER || 'mock',
-	aiDailyCap: env.AI_DAILY_CAP ? Number(env.AI_DAILY_CAP) : 500,
+
+	// Auth
 	authProvider: env.AUTH_PROVIDER || 'mock',
+
+	// LLM — provider selector and per-provider keys.
+	// LLM_PROVIDER values: 'mock' | 'tokenrouter' | 'openai' | 'anthropic'
+	llmProvider: env.LLM_PROVIDER || 'mock',
+	// Model to use. Defaults differ per provider; overridden by LLM_MODEL.
+	llmModel: env.LLM_MODEL,
+	// TokenRouter (OpenAI-compatible proxy — supports many models with one key)
+	tokenrouterApiKey: env.TOKENROUTER_API_KEY,
+	tokenrouterBaseUrl: env.TOKENROUTER_BASE_URL || 'https://api.tokenrouter.com/v1',
+	// Direct OpenAI key (used when LLM_PROVIDER=openai)
+	openaiApiKey: env.OPENAI_API_KEY,
+	// Direct Anthropic key (used when LLM_PROVIDER=anthropic)
+	anthropicApiKey: env.ANTHROPIC_API_KEY,
+
+	// Cost cap
+	aiDailyCap: env.AI_DAILY_CAP ? Number(env.AI_DAILY_CAP) : 500,
+
+	// Supabase (future managed backend)
 	supabaseUrl: publicEnv.PUBLIC_SUPABASE_URL,
 	supabaseAnonKey: publicEnv.PUBLIC_SUPABASE_ANON_KEY,
 	supabaseServiceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY

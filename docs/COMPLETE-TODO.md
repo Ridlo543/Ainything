@@ -99,11 +99,13 @@
 ## 2026-06-16 Items 1–5: Bootstrap endpoint, Chat, AI cap, Auth adapter, RLS tests
 
 **Item 1 — GET /api/public/bootstrap**
+
 - `src/routes/api/public/bootstrap/+server.ts`: returns restaurant + table + published menu
   from the server-side resolver. Cache-Control `public, s-maxage=60, stale-while-revalidate=300`.
   No auth required. 404 on unresolved slug/table.
 
 **Item 2 — POST /api/public/chat**
+
 - `src/lib/domain/session/schema.ts`: added `createChatMessageInputSchema`, `ChatRole`,
   `ChatSafetyStatus` types.
 - `src/lib/server/repositories/chat-repository.ts`: `persistChatTurn` — inserts customer
@@ -120,12 +122,14 @@
   before service call; graceful cap-exceeded response instead of error.
 
 **Item 3 — Per-restaurant daily AI-call cap**
+
 - `src/lib/server/services/ai-cost-cap.ts`: Redis fixed-window keyed by
   `ai-cap:<restaurantId>:<YYYY-MM-DD>`. TTL = seconds until UTC midnight. Fail-open.
   Configurable via `AI_DAILY_CAP` env (default 500 calls/restaurant/day).
 - `.env.example` + `appEnv`: added `AI_DAILY_CAP` and `LLM_PROVIDER`.
 
 **Item 4 — Auth provider adapter (production path)**
+
 - `src/lib/server/auth/types.ts`: `AuthProvider` interface (`getSessionUser`).
 - `src/lib/server/auth/mock-auth-provider.ts`: wraps existing mock cookie logic.
 - `src/lib/server/auth/supabase-auth-provider.ts`: stub with clear TODO comments
@@ -137,6 +141,7 @@
 - `.env.example` + `appEnv`: added `AUTH_PROVIDER`.
 
 **Item 5 — RLS isolation tests**
+
 - `tenant-repository.db.test.ts`: added two new opt-in DB tests (skipped without
   `RUN_DB_TESTS=true`):
   - Owner sees all restaurants in their own organization (closes Phase 5 TODO gap).

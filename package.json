@@ -23,7 +23,11 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
+		"@ai-sdk/anthropic": "^3.0.84",
+		"@ai-sdk/openai": "^3.0.71",
+		"@ai-sdk/openai-compatible": "^2.0.50",
 		"@lucide/svelte": "^1.18.0",
+		"ai": "^6.0.206",
 		"pg": "^8.21.0",
 		"redis": "^6.0.0",
 		"zod": "^4.4.3"
