@@ -11,7 +11,7 @@
 	<meta name="theme-color" content="#0f766e" />
 	<meta
 		name="description"
-		content="LinguaServe is a QR-based multilingual menu assistant prototype for restaurants."
+		content="LinguaServe is a multi-restaurant QR menu and guest support platform for tourist-heavy restaurants."
 	/>
 </svelte:head>
 {@render children()}

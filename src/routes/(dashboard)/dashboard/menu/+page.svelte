@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { CheckCircle2, Eye, Pencil, Search } from '@lucide/svelte';
-	import { restaurants } from '$lib/mock/restaurants';
 	import { formatPrice } from '$lib/domain/menu/policy';
+	import { organizations, restaurants } from '$lib/mock/restaurants';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
-	let selectedSlug = $state(restaurants[0].slug);
+	const activeOrganization = organizations[0];
+	const managedRestaurants = restaurants.filter(
+		(restaurant) => restaurant.organizationId === activeOrganization.id
+	);
+
+	let selectedSlug = $state(managedRestaurants[0].slug);
 	let search = $state('');
 	const selectedRestaurant = $derived(
-		restaurants.find((item) => item.slug === selectedSlug) ?? restaurants[0]
+		managedRestaurants.find((item) => item.slug === selectedSlug) ?? managedRestaurants[0]
 	);
 	const filteredItems = $derived(
 		selectedRestaurant.menuItems.filter((item) =>
@@ -19,23 +24,24 @@
 </script>
 
 <svelte:head>
-	<title>Menu Editor · LinguaServe</title>
+	<title>Menu Data - LinguaServe</title>
 </svelte:head>
 
 <section class="grid gap-5">
 	<div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
 		<div>
-			<p class="text-sm font-semibold text-lingua-primary">Admin menu editor</p>
-			<h1 class="mt-2 text-3xl font-semibold">Structured menu review</h1>
+			<p class="text-sm font-semibold text-lingua-primary">{activeOrganization.name}</p>
+			<h1 class="mt-2 text-3xl font-semibold">Menu data</h1>
 			<p class="mt-2 text-lingua-subtle">
-				Mock CRUD surface for categories, prices, flags, availability, and translations.
+				Choose a restaurant, then review prices, availability, dietary flags, and translations.
 			</p>
 		</div>
 		<select
 			class="tap-target rounded-lg border border-lingua-border bg-white px-3 text-sm"
 			bind:value={selectedSlug}
+			aria-label="Restaurant"
 		>
-			{#each restaurants as restaurant (restaurant.slug)}
+			{#each managedRestaurants as restaurant (restaurant.slug)}
 				<option value={restaurant.slug}>{restaurant.name}</option>
 			{/each}
 		</select>
@@ -45,7 +51,9 @@
 		<div class="grid gap-3 sm:grid-cols-[1fr_260px]">
 			<div>
 				<h2 class="font-semibold text-lingua-text">{selectedRestaurant.name}</h2>
-				<p class="mt-1 text-sm text-lingua-subtle">{selectedRestaurant.description}</p>
+				<p class="mt-1 text-sm text-lingua-subtle">
+					{selectedRestaurant.description} Public host: {selectedRestaurant.publicHost}.
+				</p>
 			</div>
 			<label class="relative block">
 				<Search class="absolute left-3 top-3 text-lingua-subtle" size={17} />

@@ -1,6 +1,6 @@
 # LinguaServe
 
-LinguaServe is a QR-based AI menu and guest assistant for restaurants that serve international tourists. The current repository contains the product docs plus a SvelteKit frontend prototype for customer, admin, and staff workflows.
+LinguaServe is a multi-restaurant QR menu and guest support platform for restaurants that serve international tourists. One shared SaaS deployment serves many organizations/restaurants; each restaurant gets scoped QR links, menu data, staff requests, and management views.
 
 ## Current Status
 
@@ -12,9 +12,10 @@ Frontend prototype completed for phases 1-5:
 - AI answer state mockups.
 - Human fallback request flow.
 - Quick feedback.
-- Admin overview, menu editor, import review, QR table manager, knowledge, analytics.
+- Multi-restaurant workspace overview, menu editor, import review, QR table manager, restaurant facts, reports.
 - Staff fallback inbox.
 - Dummy dataset for 10 realistic restaurant/menu sources.
+- Dummy tenant model with organizations, restaurant public hosts, and scoped QR routes.
 
 Backend, Supabase, real AI/RAG, OCR, auth, and persistence are not implemented yet.
 
@@ -52,9 +53,9 @@ pnpm run dev
 
 Useful routes:
 
-- `/`: prototype launcher.
+- `/`: multi-restaurant platform workspace entry.
 - `/r/uma-karang/table/T07`: customer QR flow.
-- `/dashboard`: admin dashboard.
+- `/dashboard`: management dashboard for an organization with many restaurants.
 - `/dashboard/menu`: menu editor.
 - `/dashboard/import`: dummy menu import review.
 - `/dashboard/tables`: QR table manager.
@@ -89,6 +90,8 @@ pnpm exec playwright install chromium
 
 - Public customer routes must be fast on mobile.
 - UI must work on small phones, tablets, desktop, and in-app browsers.
+- Tenant context must be explicit: organization, restaurant, optional location, and table.
+- QR links must resolve restaurant and table together.
 - AI must not invent ingredients, allergen safety, halal status, prices, or availability.
 - Tenant isolation must be tested before any pilot.
 - Domain logic should stay outside Svelte components.

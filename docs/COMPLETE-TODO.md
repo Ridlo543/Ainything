@@ -20,3 +20,14 @@
 - Added architecture folders under `src/lib/domain`, `src/lib/server`, `src/lib/ui`, and `src/lib/state`.
 - Added domain policy tests and Playwright smoke tests.
 - Updated `docs/TODO.md` to mark field-only work as skipped/deferred and phases 1-5 prototype work as complete.
+
+## 2026-06-16
+
+- Clarified product direction as one multi-tenant SaaS platform serving many restaurants, not one app per restaurant.
+- Updated dummy domain data with organizations, restaurant public hosts, and organization-scoped restaurant lists.
+- Revised frontend copy and dashboard surfaces to reduce "AI prototype" feel and emphasize restaurant operations:
+  - Platform entry now shows workspace, restaurants, guest QR view, management dashboard, and staff inbox.
+  - Dashboard overview now shows organization-scoped restaurant operations and public host routing.
+  - QR table manager now selects a restaurant before showing table QR links.
+  - Menu, restaurant facts, reports, and staff inbox now show clearer tenant/restaurant context.
+- Updated PRD, technical specification, architecture, context, README, and TODO with multi-tenant routing and tenant isolation rules.

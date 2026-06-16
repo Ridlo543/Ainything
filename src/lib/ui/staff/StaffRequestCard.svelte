@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { AlertTriangle, CheckCircle2, Clock3 } from '@lucide/svelte';
 	import type { StaffRequest } from '$lib/domain/menu/types';
+	import { getRestaurant } from '$lib/mock/restaurants';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
 	let {
@@ -12,6 +13,7 @@
 	const statusTone = $derived(
 		request.status === 'resolved' ? 'success' : request.status === 'new' ? 'warning' : 'info'
 	);
+	const restaurant = $derived(getRestaurant(request.restaurantSlug));
 </script>
 
 <button
@@ -23,7 +25,10 @@
 >
 	<div class="flex items-start justify-between gap-3">
 		<div>
-			<p class="font-semibold text-lingua-text">{request.tableCode} · {request.guestNeed}</p>
+			<p class="font-semibold text-lingua-text">{restaurant.name}</p>
+			<p class="mt-1 text-sm font-semibold text-lingua-text">
+				{request.tableCode} - {request.guestNeed}
+			</p>
 			<p class="mt-1 text-sm text-lingua-subtle">{request.summary}</p>
 		</div>
 		{#if request.priority === 'high'}

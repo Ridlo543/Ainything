@@ -67,7 +67,7 @@
 				class="inline-flex items-center gap-2 text-sm font-semibold text-white/90"
 				href={resolve('/')}
 			>
-				<ArrowLeft size={16} /> Prototype home
+				<ArrowLeft size={16} /> LinguaServe
 			</a>
 			<div class="mt-8 grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
 				<div>
@@ -119,7 +119,7 @@
 					<div>
 						<p class="font-semibold text-lingua-text">Browse menu</p>
 						<p class="text-sm text-lingua-subtle">
-							Structured dummy data from a messy source menu.
+							Menu details are based on restaurant-approved data.
 						</p>
 					</div>
 					<span
@@ -206,7 +206,7 @@
 					<MessageCircle class="text-lingua-primary" size={22} />
 					<div>
 						<p class="font-semibold text-lingua-text">Quick feedback</p>
-						<p class="text-sm text-lingua-subtle">Prototype-only local state.</p>
+						<p class="text-sm text-lingua-subtle">Tell the restaurant if this helped.</p>
 					</div>
 				</div>
 				<div class="mt-4 grid grid-cols-2 gap-2">

@@ -8,7 +8,7 @@ test('customer QR flow renders menu, chat, and feedback states', async ({ page }
 	await expect(page.getByText('Browse menu')).toBeVisible();
 	await expect(page.getByText('Ask about the menu')).toBeVisible();
 
-	await page.getByRole('button', { name: 'staff' }).click();
+	await page.getByRole('button', { name: 'Ask staff' }).click();
 	await expect(page.getByText('Staff request prepared for T07')).toBeVisible();
 
 	await page.getByRole('button', { name: 'Helpful' }).click();
@@ -18,20 +18,20 @@ test('customer QR flow renders menu, chat, and feedback states', async ({ page }
 test('admin dashboard renders mocked phase 5 surfaces', async ({ page }) => {
 	await page.goto('/dashboard');
 
-	await expect(page.getByRole('heading', { name: 'Operations overview' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Restaurant operations' })).toBeVisible();
 	await expect(page.getByText('Restaurant health')).toBeVisible();
 
-	await page.getByRole('link', { name: 'Menu' }).click();
-	await expect(page.getByRole('heading', { name: 'Structured menu review' })).toBeVisible();
+	await page.getByRole('link', { name: 'Menu data' }).click();
+	await expect(page.getByRole('heading', { name: 'Menu data' })).toBeVisible();
 
-	await page.getByRole('link', { name: 'Import review' }).click();
+	await page.getByRole('link', { name: 'Menu review' }).click();
 	await expect(page.getByRole('heading', { name: '10 restaurant source menus' })).toBeVisible();
 });
 
 test('staff inbox renders selected fallback detail', async ({ page }) => {
 	await page.goto('/staff/inbox');
 
-	await expect(page.getByRole('heading', { name: 'Fallback inbox' })).toBeVisible();
-	await expect(page.getByText('AI summary for staff')).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Help requests' })).toBeVisible();
+	await expect(page.getByText('Guest summary for staff')).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Open guest view' })).toBeVisible();
 });

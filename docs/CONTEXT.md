@@ -4,11 +4,11 @@ This file gives future agents fast context without replacing the PRD or technica
 
 ## One-Sentence Product Definition
 
-LinguaServe is a QR-based AI menu assistant that helps international tourists understand restaurant menus and helps staff handle only the questions that need human confirmation.
+LinguaServe is a multi-restaurant QR menu and guest support platform that helps international tourists understand restaurant menus and helps staff handle only the questions that need human confirmation.
 
 ## Current Product Decision
 
-The product starts as B2B SaaS for restaurants. It should not start as a POS, payment product, hotel management system, or travel super-app.
+The product starts as B2B SaaS for restaurants. One LinguaServe deployment serves many organizations and restaurants. It should not start as a POS, payment product, hotel management system, or travel super-app.
 
 ## Current Technical Decision
 
@@ -40,6 +40,7 @@ The web application should use SvelteKit + Svelte 5 + TypeScript, not Next.js, u
 
 - Organization: tenant/billing owner.
 - Restaurant: public customer-facing venue.
+- Restaurant Location: optional branch/location under a restaurant brand.
 - Table: QR-scoped entry point for a customer session.
 - Menu: versioned set of categories and items.
 - Menu Item: dish/drink with structured flags and translations.
@@ -52,6 +53,8 @@ The web application should use SvelteKit + Svelte 5 + TypeScript, not Next.js, u
 ## Product Non-Negotiables
 
 - Tourist flow must work without login.
+- This is not one app per restaurant. Dashboard, public QR routes, storage, AI retrieval, staff inbox, and analytics must be tenant-scoped inside one shared SaaS platform.
+- QR links must resolve both restaurant and table. `tableCode` alone is not a trusted global identifier.
 - AI must not invent ingredients, halal status, allergy safety, prices, or availability.
 - High-risk dietary/allergy questions should suggest staff confirmation.
 - Restaurant data must be tenant-isolated.
@@ -77,3 +80,4 @@ The web application should use SvelteKit + Svelte 5 + TypeScript, not Next.js, u
 - Designing only for English and Indonesian text lengths.
 - Forgetting poor connectivity and in-app browser limitations.
 - Making the admin dashboard too complex for small restaurants.
+- Designing dashboard screens as if there is only one restaurant.

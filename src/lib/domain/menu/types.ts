@@ -55,10 +55,21 @@ export type MenuImportIssue = {
 	status: 'needs-review' | 'approved' | 'blocked';
 };
 
-export type Restaurant = {
+export type Organization = {
 	id: string;
 	name: string;
 	slug: string;
+	workspaceHost: string;
+	plan: 'pilot' | 'starter' | 'pro' | 'enterprise';
+	restaurantIds: string[];
+};
+
+export type Restaurant = {
+	id: string;
+	organizationId: string;
+	name: string;
+	slug: string;
+	publicHost: string;
 	location: string;
 	segment: 'cafe' | 'casual-dining' | 'hotel-restaurant' | 'beach-club' | 'premium';
 	languages: LanguageTag[];

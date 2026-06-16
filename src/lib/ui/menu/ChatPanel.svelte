@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Bot, CircleAlert, Send, UserRoundCheck } from '@lucide/svelte';
+	import { CircleAlert, MessageCircleQuestion, Send, UserRoundCheck } from '@lucide/svelte';
 	import type { Restaurant } from '$lib/domain/menu/types';
 
 	let { restaurant, tableCode }: { restaurant: Restaurant; tableCode: string } = $props();
@@ -7,12 +7,18 @@
 	let draft = $state('');
 	let mode = $state<'confident' | 'low' | 'staff' | 'error'>('confident');
 
+	const answerOptions = [
+		{ id: 'confident', label: 'Menu answer' },
+		{ id: 'low', label: 'Not confirmed' },
+		{ id: 'staff', label: 'Ask staff' },
+		{ id: 'error', label: 'Retry later' }
+	] as const;
+
 	const answers = $derived({
-		confident: `The safest popular choice at ${restaurant.name} is ${restaurant.menuItems[0].name}. It is marked ${restaurant.menuItems[0].dietaryFlags.join(', ') || 'standard'} in the restaurant data.`,
-		low: 'I do not have enough verified ingredient data for that exact request. Please ask staff before ordering.',
+		confident: `A safe popular choice at ${restaurant.name} is ${restaurant.menuItems[0].name}. It is marked ${restaurant.menuItems[0].dietaryFlags.join(', ') || 'standard'} in the restaurant data.`,
+		low: 'The restaurant has not confirmed enough ingredient detail for that request. Please ask staff before ordering.',
 		staff: `Staff request prepared for ${tableCode}. Summary: guest needs confirmation before ordering.`,
-		error:
-			'The AI provider is unavailable in this prototype. The app keeps the fallback request available.'
+		error: 'Menu support is temporarily unavailable. You can still ask staff from this table.'
 	});
 </script>
 
@@ -20,25 +26,27 @@
 	<div class="flex items-center justify-between gap-3">
 		<div>
 			<p class="font-semibold text-lingua-text">Ask about the menu</p>
-			<p class="text-sm text-lingua-subtle">Prototype answer states are shown below.</p>
+			<p class="text-sm text-lingua-subtle">
+				Answers use restaurant data and ask staff when unsure.
+			</p>
 		</div>
 		<span class="rounded-lg bg-lingua-primary-soft p-2 text-lingua-primary">
-			<Bot size={22} />
+			<MessageCircleQuestion size={22} />
 		</span>
 	</div>
 
 	<div class="mt-4 flex flex-wrap gap-2">
-		{#each ['confident', 'low', 'staff', 'error'] as state (state)}
+		{#each answerOptions as option (option.id)}
 			<button
 				type="button"
 				class={`rounded-md border px-3 py-2 text-xs font-semibold ${
-					mode === state
+					mode === option.id
 						? 'border-lingua-primary bg-lingua-primary text-white'
 						: 'border-lingua-border bg-white'
 				}`}
-				onclick={() => (mode = state as typeof mode)}
+				onclick={() => (mode = option.id)}
 			>
-				{state}
+				{option.label}
 			</button>
 		{/each}
 	</div>
@@ -50,7 +58,7 @@
 			{:else if mode === 'error'}
 				<CircleAlert class="mt-0.5 text-lingua-danger" size={20} />
 			{:else}
-				<Bot class="mt-0.5 text-lingua-primary" size={20} />
+				<MessageCircleQuestion class="mt-0.5 text-lingua-primary" size={20} />
 			{/if}
 			<p class="text-sm leading-6 text-lingua-text">{answers[mode]}</p>
 		</div>
@@ -76,6 +84,6 @@
 		class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold text-lingua-text"
 		onclick={() => (mode = 'staff')}
 	>
-		<UserRoundCheck size={17} /> Speak to human
+		<UserRoundCheck size={17} /> Speak to staff
 	</button>
 </section>

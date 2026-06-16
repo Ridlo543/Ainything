@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { AlertTriangle, CheckCircle2, FileSearch, Image } from '@lucide/svelte';
-	import { getAllImportIssues, restaurants } from '$lib/mock/restaurants';
+	import { getAllImportIssues, getOrganization, restaurants } from '$lib/mock/restaurants';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
 	const issues = getAllImportIssues();
 </script>
 
 <svelte:head>
-	<title>Import Review · LinguaServe</title>
+	<title>Menu Review - LinguaServe</title>
 </svelte:head>
 
 <section class="grid gap-5">
@@ -16,7 +16,8 @@
 		<h1 class="mt-2 text-3xl font-semibold">10 restaurant source menus</h1>
 		<p class="mt-2 max-w-3xl text-lingua-subtle">
 			Realistic dummy files cover PDFs, phone photos, bilingual menus, handwritten notes, seasonal
-			pages, and spreadsheets.
+			pages, and spreadsheets. In production, each import job belongs to one organization and one
+			restaurant.
 		</p>
 	</div>
 
@@ -31,10 +32,12 @@
 					/>
 					<div>
 						<div class="flex flex-wrap items-center gap-2">
+							<Badge label={getOrganization(restaurant.organizationId).name} tone="neutral" />
 							<Badge label={restaurant.menuSourceType} tone="accent" />
 							<Badge label={`${restaurant.menuItems.length} items`} tone="neutral" />
 						</div>
 						<h2 class="mt-3 text-lg font-semibold text-lingua-text">{restaurant.name}</h2>
+						<p class="mt-1 text-sm text-lingua-subtle">{restaurant.publicHost}</p>
 						<p class="mt-2 text-sm leading-6 text-lingua-subtle">{restaurant.description}</p>
 						<div class="mt-4 grid gap-2">
 							{#each restaurant.importIssues as issue (issue.id)}
@@ -47,7 +50,7 @@
 										{/if}
 										<div>
 											<p class="text-sm font-semibold">
-												{issue.label} · {Math.round(issue.confidence * 100)}%
+												{issue.label} - {Math.round(issue.confidence * 100)}%
 											</p>
 											<p class="mt-1 text-sm text-lingua-subtle">{issue.issue}</p>
 										</div>

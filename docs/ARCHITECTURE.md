@@ -8,6 +8,8 @@ LinguaServe should feel light and fast to tourists, but its codebase must be str
 
 The key decision is to use SvelteKit for the web layer while keeping business logic outside components and route files.
 
+Product shape: one LinguaServe deployment serves many organizations and many restaurants. A restaurant receives scoped QR routes, dashboard data, and staff workflow. It does not receive a separate codebase or app build.
+
 ## 2. System Layers
 
 ```text
@@ -54,7 +56,9 @@ src/routes/
 Rules:
 
 - Tourist route must stay fast and minimal.
+- Tourist route must resolve restaurant/table scope before loading menu data.
 - Dashboard route can load heavier admin components.
+- Dashboard route must always carry organization/restaurant context from auth membership or URL state.
 - Staff route must be tablet/mobile friendly.
 - `+page.server.ts` is the default for private data.
 - `+page.ts` is allowed only for public browser-safe data.
@@ -67,7 +71,9 @@ Recommended domain modules:
 
 ```text
 src/lib/domain/
+  organization/
   restaurant/
+  location/
   menu/
   table/
   session/
@@ -88,6 +94,8 @@ Each module should contain:
 
 Domain examples:
 
+- Tenant resolution rule.
+- Membership role rule.
 - Menu item availability rule.
 - Allergen warning rule.
 - Halal confidence rule.
@@ -136,6 +144,32 @@ Rules:
 - Repositories do not call LLM/OCR/WhatsApp providers.
 - Repositories do not render UI or know route names.
 - Cross-tenant filtering must be explicit and tested.
+- Repository methods for tenant-owned records should accept `organizationId` and/or `restaurantId`; avoid unscoped `findById` helpers for private data.
+
+## 6.1 Tenant Resolution Rules
+
+Every request must resolve scope before touching tenant-owned data.
+
+Public customer route:
+
+```text
+host/path -> restaurant -> table -> published menu/session
+```
+
+Dashboard/staff route:
+
+```text
+auth user -> memberships -> organization -> selected restaurant -> data
+```
+
+Rules:
+
+- `tableCode` is unique only inside a restaurant, not globally.
+- Restaurant slug/subdomain is public identity, not authorization.
+- Organization membership controls dashboard and staff access.
+- Staff requests, chat messages, feedback, imports, storage paths, and AI events must store restaurant_id and organization_id where useful for fast filtering and audit.
+- Tenant context should be a typed server object, not a loose `{ slug: string }` object passed around UI components.
+- Tests must include "same table code in two restaurants" and "same user sees only assigned restaurants" cases.
 
 ## 7. Provider Adapters
 

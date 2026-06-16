@@ -2,8 +2,8 @@
 
 **Product Name:** LinguaServe  
 **Tagline:** Multilingual menu and guest assistant for tourist-heavy restaurants  
-**Version:** 1.1  
-**Date:** 15 Juni 2026  
+**Version:** 1.2  
+**Date:** 16 Juni 2026  
 **Primary Market:** Restoran dan cafe di destinasi wisata Indonesia, dimulai dari Bali dan Jakarta  
 **Business Model:** B2B SaaS untuk restoran, dengan wisatawan sebagai end user
 
@@ -23,17 +23,27 @@ Kritik utama:
 
 Keputusan produk setelah kritik:
 
-- MVP fokus pada **AI menu companion untuk restoran**, bukan travel super-app.
+- MVP fokus pada **platform menu dan guest support multi-restoran**, bukan travel super-app.
 - Turis tidak perlu login atau install app. Mereka scan QR meja dan langsung pakai.
 - Restoran menjadi pembayar dan admin data.
+- Satu deployment LinguaServe harus melayani banyak organisasi/restoran. Ini bukan aplikasi terpisah per restoran.
 - Rekomendasi harus berbasis menu restoran yang sudah diindeks, bukan hallucinated generic travel advice.
 - Voice, POS, reservation, payment, AR, dan travel planning masuk roadmap setelah restoran pilot terbukti.
 
 ## 1. Executive Summary
 
-LinguaServe adalah platform PWA + SaaS yang membantu restoran di area wisata melayani tamu internasional dengan menu multilingual, penjelasan bahan, filter diet, rekomendasi makanan, dan fallback ke staf ketika AI tidak yakin.
+LinguaServe adalah platform PWA + SaaS multi-tenant yang membantu banyak restoran di area wisata melayani tamu internasional dengan menu multilingual, penjelasan bahan, filter diet, rekomendasi makanan, dan fallback ke staf ketika sistem tidak yakin.
 
 Produk ini dirancang untuk mengurangi pertanyaan berulang seperti "apa ini?", "apakah halal?", "seberapa pedas?", "mengandung kacang?", "apa menu favorit?", dan "bagaimana cara makan hidangan ini?". Sistem menggunakan menu restoran, knowledge base restoran, dan AI guardrails agar jawaban tetap dalam konteks restoran.
+
+Klarifikasi model produk:
+
+- LinguaServe adalah satu platform untuk banyak tenant, bukan satu app per restoran.
+- Tenant utama adalah `Organization` atau pemilik billing. Satu organization dapat memiliki satu atau banyak restoran.
+- `Restaurant` adalah venue customer-facing yang punya menu, knowledge base, staff inbox, analytics, dan QR table sendiri.
+- `Restaurant Location` atau branch dipakai ketika satu brand memiliki beberapa cabang.
+- QR meja selalu mengarah ke konteks restoran dan meja tertentu, misalnya `/r/uma-karang/table/T07` atau subdomain publik seperti `uma-karang.linguaserve.app/table/T07`.
+- Dashboard admin/staff harus selalu scoped ke organization dan restaurant yang diizinkan membership.
 
 ## 2. Problem Statement
 
@@ -58,7 +68,7 @@ Produk ini dirancang untuk mengurangi pertanyaan berulang seperti "apa ini?", "a
 
 ## 3. Product Positioning
 
-**LinguaServe is a QR-based AI menu assistant for restaurants serving international guests.**
+**LinguaServe is a multi-restaurant QR menu and guest support platform for restaurants serving international guests.**
 
 Pembeda utama:
 
@@ -66,6 +76,7 @@ Pembeda utama:
 - Menjelaskan bahan, alergi, halal, pedas, dan konteks budaya.
 - Memberi rekomendasi yang bisa diaudit dari menu aktual.
 - Menghubungkan tamu ke staf dengan ringkasan percakapan ketika AI tidak cukup.
+- Mendukung banyak restoran dalam satu platform dengan tenant isolation, QR, dashboard, dan analytics per restoran.
 - Tidak memaksa restoran mengganti POS pada fase awal.
 
 ## 4. Target Users
@@ -75,6 +86,7 @@ Pembeda utama:
 - Restoran/cafe di area wisata dengan banyak tamu asing.
 - Punya menu bahasa Indonesia/Inggris yang sering ditanyakan.
 - Pain utama: waktu staf, salah order, conversion menu, dan review pelanggan.
+- Bisa berupa single restaurant atau operator dengan beberapa restoran/cabang.
 
 ### End User: International Tourist
 
@@ -185,10 +197,12 @@ Pembeda utama:
 ### Admin Dashboard
 
 - Harus multi-tenant: user hanya melihat restoran yang dia kelola.
+- Harus mendukung organization dengan banyak restoran dan restaurant selector yang jelas.
 - Harus punya workflow review data menu sebelum publish.
 - Harus bisa menonaktifkan item yang sold out atau tidak tersedia.
 - Harus punya preview customer view untuk bahasa tertentu.
 - Harus menampilkan QR code per meja.
+- Harus menampilkan public host/path QR per restoran agar owner tidak salah mencetak QR lintas restoran.
 
 ### AI Assistant
 

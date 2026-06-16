@@ -1,18 +1,23 @@
 <script lang="ts">
 	import { BarChart3, TrendingUp } from '@lucide/svelte';
-	import { restaurants } from '$lib/mock/restaurants';
+	import { organizations, restaurants } from '$lib/mock/restaurants';
+
+	const activeOrganization = organizations[0];
+	const scopedRestaurants = restaurants.filter(
+		(restaurant) => restaurant.organizationId === activeOrganization.id
+	);
 </script>
 
 <svelte:head>
-	<title>Analytics · LinguaServe</title>
+	<title>Reports - LinguaServe</title>
 </svelte:head>
 
 <section class="grid gap-5">
 	<div>
-		<p class="text-sm font-semibold text-lingua-primary">Mock analytics</p>
-		<h1 class="mt-2 text-3xl font-semibold">Pilot signal dashboard</h1>
+		<p class="text-sm font-semibold text-lingua-primary">{activeOrganization.name}</p>
+		<h1 class="mt-2 text-3xl font-semibold">Restaurant reports</h1>
 		<p class="mt-2 text-lingua-subtle">
-			Designed for early proof: scans, helpfulness, fallback, top questions, and top item interest.
+			Track scans, helpfulness, staff requests, top questions, and top menu interest per restaurant.
 		</p>
 	</div>
 
@@ -22,9 +27,9 @@
 			<h2 class="font-semibold">Restaurant comparison</h2>
 		</div>
 		<div class="mt-5 grid gap-4">
-			{#each restaurants as restaurant (restaurant.id)}
+			{#each scopedRestaurants as restaurant (restaurant.id)}
 				<div
-					class="grid gap-2 rounded-lg border border-lingua-border bg-white p-3 md:grid-cols-[210px_1fr_80px] md:items-center"
+					class="grid gap-2 rounded-lg border border-lingua-border bg-white p-3 md:grid-cols-[230px_1fr_80px] md:items-center"
 				>
 					<div>
 						<p class="font-semibold text-lingua-text">{restaurant.name}</p>

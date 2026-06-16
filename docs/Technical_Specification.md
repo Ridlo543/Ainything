@@ -1,7 +1,7 @@
 # LinguaServe Technical Specification
 
-**Version:** 2.0  
-**Date:** 15 Juni 2026  
+**Version:** 2.1  
+**Date:** 16 Juni 2026  
 **Status:** Planning baseline  
 **Primary Goal:** Build a fast, cross-device SvelteKit PWA with clean long-term architecture, strong UI quality, and backend/AI layers that can scale without coupling business logic to the framework.
 
@@ -22,6 +22,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **AI as assistant, not source of truth.** AI can explain, translate, and recommend based on verified data. It must fallback when confidence is low.
 - **Fast perceived performance.** Cached menu interactions should feel instant. Slow AI/OCR tasks need progress, streaming, and retry states.
 - **Multi-tenant by default.** Every backend table and API must be designed for multiple restaurants from day one.
+- **One deployment, many restaurants.** LinguaServe is a shared SaaS platform. A restaurant gets scoped data, QR links, and dashboards, not a separate app build.
 - **Provider adapters.** LLM, OCR, STT/TTS, and WhatsApp providers must be swappable.
 - **Explicit dependency policy.** Because Svelte's ecosystem is smaller than React's, every complex UI/provider dependency needs evaluation before adoption.
 
@@ -205,6 +206,43 @@ SvelteKit is a strong fit, but the project must be intentional about its weaker 
 - Published restaurant/menu data should be cacheable. Chat, fallback, admin, and staff data are dynamic.
 - Prerender can be used for static docs/marketing pages, not tenant-specific private data.
 
+## 8.1 Multi-Tenant Routing Strategy
+
+LinguaServe must support many organizations and restaurants in one deployment.
+
+Tenant entities:
+
+- `Organization`: billing and membership owner.
+- `Restaurant`: public venue under an organization.
+- `Restaurant Location`: optional branch/location layer for multi-branch brands.
+- `Table`: QR-scoped entry point under one restaurant or location.
+
+Public routing options:
+
+- Path fallback for MVP and local development: `/r/[restaurantSlug]/table/[tableCode]`.
+- Restaurant subdomain for production branding: `https://[restaurantSlug].linguaserve.app/table/[tableCode]`.
+- Custom domains can be added later for enterprise customers, for example `menu.restaurant.com/table/T07`.
+
+Admin routing options:
+
+- Shared dashboard path: `/dashboard`, with current organization and restaurant resolved from auth membership and URL/search state.
+- Optional organization workspace subdomain: `https://[organizationSlug].linguaserve.app/dashboard`.
+
+Resolution rules:
+
+1. Resolve organization from authenticated membership for dashboard/staff routes.
+2. Resolve restaurant from route params, subdomain, selected dashboard context, or explicit restaurant id.
+3. Resolve table only after restaurant is known. Table code alone is never globally trusted.
+4. Every server load, action, endpoint, repository query, realtime channel, storage path, and AI retrieval must include organization/restaurant scope.
+5. Public routes may read only published restaurant/menu data. Draft menu, imports, staff notes, and private analytics remain authenticated.
+
+SvelteKit implications:
+
+- Use `+page.server.ts` for public QR bootstrap so host/path tenant resolution stays server-controlled.
+- Add a server-only tenant resolver before Supabase integration.
+- Do not store the active tenant in a global client store as a source of truth.
+- Use URL/search state for dashboard restaurant selection until real auth and membership exist.
+
 ## 9. PWA and Offline Strategy
 
 - Add `static/manifest.webmanifest`.
@@ -260,8 +298,8 @@ Use UUID primary keys unless there is a clear reason not to.
 ### Core Tables
 
 - `organizations`: tenant owner entity.
-- `restaurants`: restaurant profile, slug, timezone, default language.
-- `restaurant_locations`: branches if needed.
+- `restaurants`: restaurant profile, organization_id, slug, public_host, timezone, default language.
+- `restaurant_locations`: branches/locations for multi-branch brands when needed.
 - `users`: app profile linked to Supabase Auth user.
 - `memberships`: user to organization/restaurant roles.
 - `tables`: table code, label, restaurant_id, QR metadata.
@@ -285,12 +323,16 @@ Use UUID primary keys unless there is a clear reason not to.
 - Public users can only read published restaurant/menu data through scoped public APIs or server load.
 - Admin/staff access requires Supabase Auth.
 - RLS must restrict tenant data by organization/restaurant membership.
+- RLS policies must join through memberships and restaurant ownership. Never trust a browser-provided restaurant id without membership validation.
+- Public table URLs must validate `(restaurant_slug, table_code)` together.
 - Service role keys must never reach the browser.
 
 ## 13. API Contract Baseline
 
 ### Public APIs
 
+- `GET /api/public/tenant/resolve?host=uma-karang.linguaserve.app`
+  - Optional production helper for host-based restaurant resolution.
 - `GET /api/public/restaurants/:slug/table/:tableCode/bootstrap`
   - Returns restaurant profile, table metadata, languages, published menu summary.
 - `GET /api/public/restaurants/:slug/menu?lang=en`

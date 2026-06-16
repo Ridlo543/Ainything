@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { BookOpenText, Plus } from '@lucide/svelte';
-	import { restaurants } from '$lib/mock/restaurants';
+	import { getOrganization, restaurants } from '$lib/mock/restaurants';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 </script>
 
 <svelte:head>
-	<title>Knowledge Base · LinguaServe</title>
+	<title>Restaurant Facts - LinguaServe</title>
 </svelte:head>
 
 <section class="grid gap-5">
 	<div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
 		<div>
-			<p class="text-sm font-semibold text-lingua-primary">Restaurant knowledge</p>
-			<h1 class="mt-2 text-3xl font-semibold">Facts AI can safely use</h1>
+			<p class="text-sm font-semibold text-lingua-primary">Restaurant facts</p>
+			<h1 class="mt-2 text-3xl font-semibold">Approved notes for guest answers</h1>
 			<p class="mt-2 text-lingua-subtle">
-				Keep verified operational facts separate from generated explanations.
+				Keep kitchen rules, dietary notes, promos, and service policies separate per restaurant.
 			</p>
 		</div>
 		<button
@@ -33,7 +33,9 @@
 					</span>
 					<div>
 						<h2 class="font-semibold text-lingua-text">{restaurant.name}</h2>
-						<p class="mt-1 text-sm text-lingua-subtle">{restaurant.location}</p>
+						<p class="mt-1 text-sm text-lingua-subtle">
+							{getOrganization(restaurant.organizationId).name} - {restaurant.location}
+						</p>
 					</div>
 				</div>
 				<div class="mt-4 grid gap-2">

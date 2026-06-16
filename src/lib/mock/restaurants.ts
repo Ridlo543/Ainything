@@ -1,4 +1,4 @@
-import type { Restaurant, StaffRequest } from '$lib/domain/menu/types';
+import type { Organization, Restaurant, StaffRequest } from '$lib/domain/menu/types';
 
 const sharedDescriptions = [
 	'Uploaded as a photographed board with mixed Indonesian and English labels.',
@@ -6,6 +6,33 @@ const sharedDescriptions = [
 	'Bilingual printed menu with handwritten sold-out marks.',
 	'Phone photo of laminated menu pages with glare and cropped edges.',
 	'Seasonal tasting menu with local dish names and staff annotations.'
+];
+
+export const organizations: Organization[] = [
+	{
+		id: 'org-bali-table-group',
+		name: 'Bali Table Group',
+		slug: 'bali-table-group',
+		workspaceHost: 'bali-table.linguaserve.app',
+		plan: 'pro',
+		restaurantIds: [
+			'rest-uma-karang',
+			'rest-sawah-lane',
+			'rest-nusa-noodle',
+			'rest-lotus-hotel',
+			'rest-mangrove-grill',
+			'rest-layang-vegan',
+			'rest-senja-ramen'
+		]
+	},
+	{
+		id: 'org-jakarta-hospitality',
+		name: 'Jakarta Hospitality Lab',
+		slug: 'jakarta-hospitality-lab',
+		workspaceHost: 'jakarta-hospitality.linguaserve.app',
+		plan: 'pilot',
+		restaurantIds: ['rest-rempah-terrace', 'rest-taman-sate', 'rest-kopi-pasar']
+	}
 ];
 
 function item(
@@ -45,8 +72,10 @@ function item(
 export const restaurants: Restaurant[] = [
 	{
 		id: 'rest-uma-karang',
+		organizationId: 'org-bali-table-group',
 		name: 'Uma Karang',
 		slug: 'uma-karang',
+		publicHost: 'uma-karang.linguaserve.app',
 		location: 'Canggu, Bali',
 		segment: 'casual-dining',
 		languages: ['en', 'id', 'zh-Hans', 'ko', 'ja', 'ar'],
@@ -123,8 +152,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-sawah-lane',
+		organizationId: 'org-bali-table-group',
 		name: 'Sawah Lane Cafe',
 		slug: 'sawah-lane-cafe',
+		publicHost: 'sawah-lane-cafe.linguaserve.app',
 		location: 'Ubud, Bali',
 		segment: 'cafe',
 		languages: ['en', 'id', 'fr', 'de', 'ja'],
@@ -203,8 +234,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-nusa-noodle',
+		organizationId: 'org-bali-table-group',
 		name: 'Nusa Noodle House',
 		slug: 'nusa-noodle-house',
+		publicHost: 'nusa-noodle-house.linguaserve.app',
 		location: 'Kuta, Bali',
 		segment: 'casual-dining',
 		languages: ['en', 'id', 'zh-Hans', 'ko', 'hi'],
@@ -282,8 +315,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-rempah-terrace',
+		organizationId: 'org-jakarta-hospitality',
 		name: 'Rempah Terrace',
 		slug: 'rempah-terrace',
+		publicHost: 'rempah-terrace.linguaserve.app',
 		location: 'Kemang, Jakarta',
 		segment: 'premium',
 		languages: ['en', 'id', 'ar', 'fr', 'de'],
@@ -357,8 +392,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-taman-sate',
+		organizationId: 'org-jakarta-hospitality',
 		name: 'Taman Sate',
 		slug: 'taman-sate',
+		publicHost: 'taman-sate.linguaserve.app',
 		location: 'Menteng, Jakarta',
 		segment: 'casual-dining',
 		languages: ['en', 'id', 'ar', 'hi', 'zh-Hans'],
@@ -436,8 +473,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-lotus-hotel',
+		organizationId: 'org-bali-table-group',
 		name: 'Lotus Hotel Kitchen',
 		slug: 'lotus-hotel-kitchen',
+		publicHost: 'lotus-hotel-kitchen.linguaserve.app',
 		location: 'Nusa Dua, Bali',
 		segment: 'hotel-restaurant',
 		languages: ['en', 'id', 'zh-Hans', 'ko', 'ja', 'ar', 'hi'],
@@ -515,8 +554,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-mangrove-grill',
+		organizationId: 'org-bali-table-group',
 		name: 'Mangrove Grill',
 		slug: 'mangrove-grill',
+		publicHost: 'mangrove-grill.linguaserve.app',
 		location: 'Sanur, Bali',
 		segment: 'beach-club',
 		languages: ['en', 'id', 'ja', 'ko', 'de'],
@@ -593,8 +634,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-kopi-pasar',
+		organizationId: 'org-jakarta-hospitality',
 		name: 'Kopi Pasar Baru',
 		slug: 'kopi-pasar-baru',
+		publicHost: 'kopi-pasar-baru.linguaserve.app',
 		location: 'Central Jakarta',
 		segment: 'cafe',
 		languages: ['en', 'id', 'zh-Hans', 'ja'],
@@ -672,8 +715,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-layang-vegan',
+		organizationId: 'org-bali-table-group',
 		name: 'Layang Vegan Warung',
 		slug: 'layang-vegan-warung',
+		publicHost: 'layang-vegan-warung.linguaserve.app',
 		location: 'Umalas, Bali',
 		segment: 'cafe',
 		languages: ['en', 'id', 'fr', 'de', 'ko'],
@@ -751,8 +796,10 @@ export const restaurants: Restaurant[] = [
 	},
 	{
 		id: 'rest-senja-ramen',
+		organizationId: 'org-bali-table-group',
 		name: 'Senja Ramen Bali',
 		slug: 'senja-ramen-bali',
+		publicHost: 'senja-ramen-bali.linguaserve.app',
 		location: 'Seminyak, Bali',
 		segment: 'casual-dining',
 		languages: ['en', 'id', 'ja', 'ko', 'zh-Hans'],
@@ -864,6 +911,14 @@ export const staffRequests: StaffRequest[] = [
 ];
 
 export const menuImportDescriptions = sharedDescriptions;
+
+export function getOrganization(id: string) {
+	return organizations.find((organization) => organization.id === id) ?? organizations[0];
+}
+
+export function getOrganizationRestaurants(organizationId: string) {
+	return restaurants.filter((restaurant) => restaurant.organizationId === organizationId);
+}
 
 export function getRestaurant(slug: string) {
 	return restaurants.find((restaurant) => restaurant.slug === slug) ?? restaurants[0];

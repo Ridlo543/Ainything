@@ -4,6 +4,7 @@ This plan starts with product/design/frontend, then backend, then AI. Field rese
 
 ## Phase 0 - Product Validation and Scope Control
 
+- [x] Clarify product model: one shared multi-tenant SaaS platform serving many restaurants, not one app per restaurant.
 - [~] Interview 15-25 restaurant owners/managers in Bali/Jakarta. Skipped for now; requires real user access.
 - [~] Observe at least 5 real tourist-staff menu interactions. Skipped for now; requires field access.
 - [x] Create dummy dataset replacing "collect 10 real messy menus" for prototype work.
@@ -29,6 +30,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
 
 ## Phase 2 - UX Flow and Wireframes
 
+- [x] Revise top-level UX to show workspace -> restaurants -> QR table routing.
 - [x] Customer flow prototype:
   - [x] QR entry.
   - [x] Language selection.
@@ -44,6 +46,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
   - [x] Status display: new, in progress, resolved.
 - [x] Admin flow prototype:
   - [x] Dashboard overview.
+  - [x] Multi-restaurant workspace context and restaurant selector copy.
   - [x] Menu editor.
   - [x] Menu import/review.
   - [x] Table QR manager.
@@ -101,6 +104,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
 ## Phase 5 - Frontend Admin and Staff Experience
 
 - [x] Build admin dashboard overview with mocked analytics.
+- [x] Clarify admin dashboard as organization-scoped management for many restaurants.
 - [x] Build menu editor:
   - [x] Category display.
   - [x] Item list/edit action surface.
@@ -109,8 +113,10 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
   - [x] Translation/local-name preview.
 - [x] Build menu import/review screen.
 - [x] Build table QR manager.
+- [x] Make table QR manager select restaurant before showing table links.
 - [x] Build knowledge base editor.
 - [x] Build staff inbox.
+- [x] Show restaurant context in staff inbox request list/detail.
 - [x] Build fallback request detail.
 - [x] Build analytics screens.
 - [x] Add role-aware navigation surface for admin and staff.
@@ -120,7 +126,12 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
 
 - [ ] Initialize Supabase project and migrations.
 - [ ] Create core tables from `docs/Technical_Specification.md`.
+- [ ] Implement server-only tenant resolver for host/path -> organization/restaurant/table.
 - [ ] Add Row Level Security policies.
+- [ ] Add RLS tests for:
+  - [ ] Same table code in two restaurants.
+  - [ ] User assigned to one restaurant cannot read another restaurant.
+  - [ ] Organization manager can see all restaurants in the organization.
 - [ ] Add seed data for local development.
 - [ ] Add Supabase Auth for admin/staff.
 - [ ] Add SvelteKit server-only Supabase client.
