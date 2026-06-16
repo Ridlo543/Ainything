@@ -29,7 +29,30 @@ const bootstrap: PublicMenuBootstrap = {
 		id: 'rest-1',
 		organizationId: 'org-1',
 		name: 'Uma Karang',
-		menuItems: [{ dietaryFlags: ['halal'] }, { dietaryFlags: ['vegetarian'] }]
+		menuItems: [
+			{
+				name: 'Nasi Goreng',
+				category: 'Main',
+				description: 'Fried rice',
+				price: 85000,
+				isAvailable: true,
+				spiceLevel: 2,
+				dietaryFlags: ['halal'],
+				allergens: ['egg'],
+				confidence: 'verified'
+			},
+			{
+				name: 'Gado-Gado',
+				category: 'Main',
+				description: 'Vegetable salad with peanut sauce',
+				price: 65000,
+				isAvailable: true,
+				spiceLevel: 0,
+				dietaryFlags: ['vegetarian', 'halal'],
+				allergens: ['nuts'],
+				confidence: 'verified'
+			}
+		]
 	} as PublicMenuBootstrap['restaurant'],
 	table: {
 		id: 'table-1',
@@ -104,7 +127,7 @@ describe('handleChatTurn — happy path', () => {
 		);
 	});
 
-	it('flattens menu item dietaryFlags into the LLM context', async () => {
+	it('flattens menu item dietaryFlags into the LLM context (deduplicated)', async () => {
 		await handleChatTurn(bootstrap, validInput);
 
 		expect(chatMock).toHaveBeenCalledWith(
@@ -112,6 +135,18 @@ describe('handleChatTurn — happy path', () => {
 				dietaryPreferences: expect.arrayContaining(['halal', 'vegetarian'])
 			})
 		);
+		// halal appears in both items but should only be listed once
+		const call = chatMock.mock.calls[0][0] as { dietaryPreferences: string[] };
+		expect(call.dietaryPreferences.filter((p: string) => p === 'halal')).toHaveLength(1);
+	});
+
+	it('passes menu items snapshot to the LLM', async () => {
+		await handleChatTurn(bootstrap, validInput);
+
+		const call = chatMock.mock.calls[0][0] as { menuItems: unknown[] };
+		expect(call.menuItems).toBeDefined();
+		expect(Array.isArray(call.menuItems)).toBe(true);
+		expect(call.menuItems.length).toBeGreaterThan(0);
 	});
 
 	it('passes conversation history from the repository to the LLM', async () => {

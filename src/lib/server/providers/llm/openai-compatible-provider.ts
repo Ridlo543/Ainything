@@ -59,8 +59,10 @@ export class OpenAICompatibleProvider implements LlmProvider {
 			content: msg.content
 		}));
 
+		const start = Date.now();
+
 		try {
-			const { text } = await generateText({
+			const { text, usage } = await generateText({
 				model: provider(this.opts.model),
 				system: systemPrompt,
 				messages: [...historyMessages, { role: 'user' as const, content: context.question }],
@@ -68,14 +70,23 @@ export class OpenAICompatibleProvider implements LlmProvider {
 				temperature: 0.3 // Low temp for factual menu answers
 			});
 
+			const latencyMs = Date.now() - start;
 			const { cleaned, safety, suggestFallback } = extractSafetyJson(text);
 
 			return {
 				answer: cleaned,
 				safetyStatus: toSafetyStatus(safety),
-				suggestFallback
+				suggestFallback,
+				provider: this.opts.name,
+				model: this.opts.model,
+				latencyMs,
+				usage: {
+					inputTokens: usage?.inputTokens,
+					outputTokens: usage?.outputTokens
+				}
 			};
 		} catch (err) {
+			const latencyMs = Date.now() - start;
 			console.error(`[${this.opts.name}] LLM call failed (prompt ${PROMPT_VERSION})`, err);
 
 			// Fail safely: tell the guest to ask staff.
@@ -83,7 +94,10 @@ export class OpenAICompatibleProvider implements LlmProvider {
 				answer:
 					'I was unable to process your question right now. Please ask our staff — they will be happy to help you.',
 				safetyStatus: 'needs-staff',
-				suggestFallback: true
+				suggestFallback: true,
+				provider: this.opts.name,
+				model: this.opts.model,
+				latencyMs
 			};
 		}
 	}
