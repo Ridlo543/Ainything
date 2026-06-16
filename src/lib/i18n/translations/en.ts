@@ -19,7 +19,8 @@ export const en: TranslationDict = {
 	'menu.detail.goodFor': 'Good for {tags}.',
 	'menu.detail.spice': 'Spice level: {level}.',
 	'menu.detail.verified': 'Verified menu data available for this item.',
-	'menu.detail.staffConfirm': 'Staff confirmation recommended for your preferences or dietary requirements.',
+	'menu.detail.staffConfirm':
+		'Staff confirmation recommended for your preferences or dietary requirements.',
 	'menu.detail.selectPrompt': 'Select a menu item to see details.',
 
 	'badge.signature': 'Signature',
@@ -42,7 +43,8 @@ export const en: TranslationDict = {
 	'chat.safety.staff': 'Staff confirmation recommended for this question.',
 	'chat.safety.lowConfidence': 'Answer may be partial — ask staff to confirm.',
 	'chat.loading': 'Checking menu data\u2026',
-	'chat.empty.prompt': 'Ask anything about the menu \u2014 ingredients, allergens, spice level, or halal status.',
+	'chat.empty.prompt':
+		'Ask anything about the menu \u2014 ingredients, allergens, spice level, or halal status.',
 	'chat.suggestion.halal': 'Is this halal?',
 	'chat.suggestion.nutFree': 'Any nut-free dishes?',
 	'chat.suggestion.spice': 'What is the spice level?',
@@ -71,7 +73,8 @@ export const en: TranslationDict = {
 
 	'page.landing.tagline': 'Multi-restaurant SaaS',
 	'page.landing.heading': 'One platform for many restaurant QR experiences.',
-	'page.landing.description': 'Each restaurant gets its own public QR route, tables, menu data, staff inbox, and dashboard scope. Operators can manage several restaurants from one workspace.',
+	'page.landing.description':
+		'Each restaurant gets its own public QR route, tables, menu data, staff inbox, and dashboard scope. Operators can manage several restaurants from one workspace.',
 	'page.landing.orgTitle': 'Organization',
 	'page.landing.orgDesc': 'Billing, members, roles, and restaurant access belong to one tenant.',
 	'page.landing.restTitle': 'Restaurant',
@@ -81,6 +84,7 @@ export const en: TranslationDict = {
 	'page.landing.workspaceLabel': 'Active workspace',
 	'page.landing.guestView': 'Open guest QR view',
 	'page.landing.dashboard': 'Open management dashboard',
-	'page.landing.dashboardDesc': 'Workspace metrics, restaurant menus, QR tables, and review queues.',
+	'page.landing.dashboardDesc':
+		'Workspace metrics, restaurant menus, QR tables, and review queues.',
 	'page.landing.staffInbox': 'Open staff inbox'
 };

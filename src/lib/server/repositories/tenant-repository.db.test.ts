@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { withUserContext, withPublicSessionContext, query } from '$lib/server/db/postgres';
+import { withUserContext, withPublicSessionContext } from '$lib/server/db/postgres';
 import { resolveTenantContextFromDatabase } from './tenant-repository';
 
 const runDbTests = process.env.RUN_DB_TESTS === 'true';

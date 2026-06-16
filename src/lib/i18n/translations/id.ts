@@ -19,7 +19,8 @@ export const id: TranslationDict = {
 	'menu.detail.goodFor': 'Cocok untuk {tags}.',
 	'menu.detail.spice': 'Tingkat kepedasan: {level}.',
 	'menu.detail.verified': 'Data menu terverifikasi tersedia untuk item ini.',
-	'menu.detail.staffConfirm': 'Konfirmasi staf dianjurkan untuk preferensi atau kebutuhan diet Anda.',
+	'menu.detail.staffConfirm':
+		'Konfirmasi staf dianjurkan untuk preferensi atau kebutuhan diet Anda.',
 	'menu.detail.selectPrompt': 'Pilih item menu untuk melihat detail.',
 
 	'badge.signature': 'Andalan',
@@ -42,7 +43,8 @@ export const id: TranslationDict = {
 	'chat.safety.staff': 'Konfirmasi staf dianjurkan untuk pertanyaan ini.',
 	'chat.safety.lowConfidence': 'Jawaban mungkin tidak lengkap — tanyakan ke staf untuk konfirmasi.',
 	'chat.loading': 'Memeriksa data menu\u2026',
-	'chat.empty.prompt': 'Tanyakan apa saja tentang menu \u2014 bahan, alergen, tingkat kepedasan, atau status halal.',
+	'chat.empty.prompt':
+		'Tanyakan apa saja tentang menu \u2014 bahan, alergen, tingkat kepedasan, atau status halal.',
 	'chat.suggestion.halal': 'Apakah ini halal?',
 	'chat.suggestion.nutFree': 'Ada hidangan bebas kacang?',
 	'chat.suggestion.spice': 'Seberapa pedas?',
@@ -71,7 +73,8 @@ export const id: TranslationDict = {
 
 	'page.landing.tagline': 'SaaS Multi-restoran',
 	'page.landing.heading': 'Satu platform untuk banyak pengalaman QR restoran.',
-	'page.landing.description': 'Setiap restoran memiliki rute QR publik, meja, data menu, kotak masuk staf, dan dashboard. Operator dapat mengelola beberapa restoran dari satu ruang kerja.',
+	'page.landing.description':
+		'Setiap restoran memiliki rute QR publik, meja, data menu, kotak masuk staf, dan dashboard. Operator dapat mengelola beberapa restoran dari satu ruang kerja.',
 	'page.landing.orgTitle': 'Organisasi',
 	'page.landing.orgDesc': 'Tagihan, anggota, peran, dan akses restoran milik satu penyewa.',
 	'page.landing.restTitle': 'Restoran',

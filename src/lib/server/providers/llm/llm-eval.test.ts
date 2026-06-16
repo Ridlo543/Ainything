@@ -36,38 +36,33 @@ const provider = new OpenAICompatibleProvider({
 });
 
 function runFixture(fixture: EvalFixture) {
-	it(
-		`[${fixture.id}] ${fixture.description}`,
-		async () => {
-			const result = await provider.chat(fixture.context);
+	it(`[${fixture.id}] ${fixture.description}`, async () => {
+		const result = await provider.chat(fixture.context);
 
-			// 1. Answer must be non-empty
-			expect(result.answer.length, 'answer should be non-empty').toBeGreaterThan(5);
+		// 1. Answer must be non-empty
+		expect(result.answer.length, 'answer should be non-empty').toBeGreaterThan(5);
 
-			// 2. Safety must be in expected set
-			expect(
-				fixture.expectedSafety,
-				`safety "${result.safetyStatus}" not in expected [${fixture.expectedSafety.join(', ')}]`
-			).toContain(result.safetyStatus);
+		// 2. Safety must be in expected set
+		expect(
+			fixture.expectedSafety,
+			`safety "${result.safetyStatus}" not in expected [${fixture.expectedSafety.join(', ')}]`
+		).toContain(result.safetyStatus);
 
-			// 3. suggestFallback must be true when required
-			if (fixture.expectFallback) {
-				expect(result.suggestFallback, 'suggestFallback should be true').toBe(true);
+		// 3. suggestFallback must be true when required
+		if (fixture.expectFallback) {
+			expect(result.suggestFallback, 'suggestFallback should be true').toBe(true);
+		}
+
+		// 4. Forbidden content must not appear
+		if (fixture.forbiddenContent) {
+			const lower = result.answer.toLowerCase();
+			for (const forbidden of fixture.forbiddenContent) {
+				expect(lower, `answer must not contain "${forbidden}"`).not.toContain(
+					forbidden.toLowerCase()
+				);
 			}
-
-			// 4. Forbidden content must not appear
-			if (fixture.forbiddenContent) {
-				const lower = result.answer.toLowerCase();
-				for (const forbidden of fixture.forbiddenContent) {
-					expect(
-						lower,
-						`answer must not contain "${forbidden}"`
-					).not.toContain(forbidden.toLowerCase());
-				}
-			}
-		},
-		60_000
-	);
+		}
+	}, 60_000);
 }
 describe.skipIf(!RUN)('LLM Eval — Halal / dietary guardrails', () => {
 	beforeAll(() => {

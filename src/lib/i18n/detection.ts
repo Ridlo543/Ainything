@@ -1,8 +1,6 @@
 import { LANGUAGES } from './languages';
 import type { LanguageTag } from './types';
 
-const SUPPORTED_BCP47 = new Set(LANGUAGES.map((l) => l.bcp47));
-
 const TAG_MAP: Record<string, LanguageTag> = {
 	en: 'en',
 	id: 'id',
@@ -27,7 +25,10 @@ function parseAcceptLanguage(header: string): string[] {
 		.filter(Boolean);
 }
 
-export function detectLanguage(acceptLanguage: string | null, fallback: LanguageTag = 'en'): LanguageTag {
+export function detectLanguage(
+	acceptLanguage: string | null,
+	fallback: LanguageTag = 'en'
+): LanguageTag {
 	if (!acceptLanguage) return fallback;
 
 	const candidates = parseAcceptLanguage(acceptLanguage);

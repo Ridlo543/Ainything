@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildSystemPrompt, buildMenuSnapshot, extractSafetyJson, stripReasoningTags, PROMPT_VERSION } from './prompt';
+import {
+	buildSystemPrompt,
+	buildMenuSnapshot,
+	extractSafetyJson,
+	stripReasoningTags,
+	PROMPT_VERSION
+} from './prompt';
 import type { LlmChatContext, LlmMenuItem } from './types';
 
 const baseContext: LlmChatContext = {

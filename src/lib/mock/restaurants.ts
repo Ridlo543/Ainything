@@ -921,7 +921,10 @@ export const restaurants: Restaurant[] = [
 export const staffRequests: StaffRequest[] = [
 	{
 		id: 'fr-1007',
+		restaurantId: 'rest-uma-karang',
 		restaurantSlug: 'uma-karang',
+		restaurantName: 'Uma Karang',
+		tableId: 'tbl-uma-t07',
 		tableCode: 'T07',
 		language: 'ko',
 		status: 'new',
@@ -933,7 +936,10 @@ export const staffRequests: StaffRequest[] = [
 	},
 	{
 		id: 'fr-1008',
+		restaurantId: 'rest-taman-sate',
 		restaurantSlug: 'taman-sate',
+		restaurantName: 'Taman Sate',
+		tableId: 'tbl-taman-b12',
 		tableCode: 'B12',
 		language: 'ar',
 		status: 'in-progress',
@@ -945,7 +951,10 @@ export const staffRequests: StaffRequest[] = [
 	},
 	{
 		id: 'fr-1009',
+		restaurantId: 'rest-lotus-hotel',
 		restaurantSlug: 'lotus-hotel-kitchen',
+		restaurantName: 'Lotus Hotel Kitchen',
+		tableId: 'tbl-lotus-l03',
 		tableCode: 'L03',
 		language: 'zh-Hans',
 		status: 'resolved',

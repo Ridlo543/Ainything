@@ -110,13 +110,18 @@ export type Restaurant = {
 
 export type StaffRequest = {
 	id: string;
+	restaurantId: string;
 	restaurantSlug: string;
+	restaurantName: string;
+	tableId: string;
 	tableCode: string;
 	language: LanguageTag;
+	/** DB allows 'cancelled'; staff inbox surfaces the operational subset. */
 	status: 'new' | 'in-progress' | 'resolved';
 	priority: 'normal' | 'high';
 	guestNeed: string;
 	summary: string;
+	/** ISO timestamp of the latest change (created_at or updated_at). */
 	lastMessageAt: string;
 };
 

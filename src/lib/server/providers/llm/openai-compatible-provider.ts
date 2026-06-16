@@ -1,5 +1,5 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { generateText } from 'ai';
+import { generateText, embedMany } from 'ai';
 import type { LlmProvider, LlmChatContext, LlmChatResult } from './types';
 import type { ChatSafetyStatus } from '$lib/domain/session/schema';
 import { buildSystemPrompt, extractSafetyJson, PROMPT_VERSION } from './prompt';
@@ -45,11 +45,7 @@ export class OpenAICompatibleProvider implements LlmProvider {
 	}
 
 	async chat(context: LlmChatContext): Promise<LlmChatResult> {
-		const provider = createOpenAICompatible({
-			name: this.opts.name,
-			apiKey: this.opts.apiKey,
-			baseURL: this.opts.baseURL
-		});
+		const provider = this.createProvider();
 
 		const systemPrompt = buildSystemPrompt(context);
 
@@ -100,5 +96,36 @@ export class OpenAICompatibleProvider implements LlmProvider {
 				latencyMs
 			};
 		}
+	}
+
+	/**
+	 * Generates embeddings using the OpenAI-compatible embeddings endpoint.
+	 *
+	 * Uses the Vercel AI SDK `embedMany` helper to batch multiple texts in one call.
+	 * Returns null if the API call fails, so callers can fall back gracefully.
+	 */
+	async embed(texts: string[], model?: string): Promise<number[][] | null> {
+		const embeddingModel = model ?? 'text-embedding-3-small';
+
+		try {
+			const provider = this.createProvider();
+			const { embeddings } = await embedMany({
+				model: provider.embeddingModel(embeddingModel),
+				values: texts
+			});
+
+			return embeddings;
+		} catch (err) {
+			console.error(`[${this.opts.name}] Embedding call failed for model ${embeddingModel}`, err);
+			return null;
+		}
+	}
+
+	private createProvider() {
+		return createOpenAICompatible({
+			name: this.opts.name,
+			apiKey: this.opts.apiKey,
+			baseURL: this.opts.baseURL
+		});
 	}
 }

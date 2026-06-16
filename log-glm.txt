@@ -1,0 +1,372 @@
+TODO: Phase 1A: Migration 0006 admin menu write RLS policies
+
+Phase 1B: Migration 0007 (audit cols) - SKIPPED, already exist
+
+Phase 3A: Migration 0008 fallback update policy
+
+Phase 1C: Domain admin-schema.ts Zod schemas
+
+Phase 1D: Domain policy.ts Data Quality Gate + StaffRequest type extend
+
+Phase 1E: admin-menu-repository.ts
+
+Phase 1F: menu-admin-service.ts
+
+Phase 1G: dashboard/menu/+page.server.ts form actions
+
+Phase 1H: dashboard/menu/+page.svelte UI refactor
+
+Phase 1 verify: check + test:unit + lint
+
+Phase 2A-C: LlmProvider.embed + embedding-repository
+
+Phase 2D-G: retrieval-repository + service + wire chat-service
+
+Phase 2 verify
+
+Phase 3B-F: Redis pub/sub + staff inbox repo/service/SSE
+
+Phase 3G-I: staff inbox UI + EventSource
+
+Phase 3 verify + commit all phases
+
+Plan 1
+Plan: Prioritas 1 + 2 + 3 — Menu CRUD, Retrieval, Staff Inbox Realtime
+Stack: SvelteKit + Svelte 5 runes + TS strict + Postgres (RLS) + Redis. Semua write DB lewat withUserContext(user.id) agar RLS app.has_restaurant_access jalan. Env & Docker sudah run. User chose: Direct edit + publish (P1) dan Redis pub/sub (P3).
+
+PHASE 1 — Menu CRUD + Publish/Data Quality Gate (P0 blocker pilot)
+1A. Migration 0006_admin_menu_write_policies.sql (security-critical)
+Saat ini TIDAK ADA INSERT/UPDATE/DELETE policy untuk tabel menu_* → RLS deny-all. Tambah:
+
+menu_categories: INSERT/UPDATE/DELETE USING (app.has_restaurant_access(restaurant_id)) + WITH CHECK (...).
+menu_items: sama, scoped restaurant_id.
+menu_item_translations, menu_item_dietary_flags, menu_item_allergens: scoped via EXISTS subquery ke menu_items.restaurant_id (join table tak punya kolom restaurant). Sama persis pola RLS SELECT yang sudah ada di 0001.
+Semua DROP POLICY IF EXISTS dulu (idempotent), CREATE POLICY. Grant tetap lingua_app.
+Catatan: menu_categories UNIQUE (menu_id, name) — tidak berubah.
+1B. Migration 0007_menu_item_audit_columns.sql
+Tambah updated_at timestamptz + trigger app.set_updated_at() di menu_items dan menu_categories (saat ini tidak punya — pakai pola trigger yang sudah ada di 0001 line 327-385). Audit + bantu debug apakah cache publik perlu di-invalidate. Idempotent (ADD COLUMN IF NOT EXISTS, DROP TRIGGER IF EXISTS).
+
+1C. Domain: src/lib/domain/menu/admin-schema.ts (Zod schemas)
+Konvensi mengikuti src/lib/domain/session/schema.ts (array as const + z.enum + z.object + z.infer). Tenant ids TIDAK di payload client (server-derived).
+
+updateMenuItemInputSchema: name (trim 1-200), localName (max 200, optional→default null), description (max 1000, default ''), price (int ≥0, max 10_000_000), spiceLevel (0-5), isAvailable (bool), confidence (enum verified/needs-review/staff-confirm), dietaryFlags (array of DietaryFlag codes, default []), allergens (array of Allergen codes, default []).
+publishMenuInputSchema: hanya restaurantId opsional (dari URL param). Tidak ada field bisnis di body.
+Export types UpdateMenuItemInput, PublishMenuInput.
+1D. Domain: src/lib/domain/menu/policy.ts — Data Quality Gate
+Tambah validateMenuItemForPublish(item) → { ok: boolean; issues: string[] }. Aturan (PRD §9 + Data Quality Gate):
+
+name non-empty, price >= 0.
+confidence !== 'verified' TIDAK memblokir publish, TAPI item dengan confidence staff-confirm yang punya allergen/alcohol/seafood flag → wajib ditandai "needs staff confirmation" (sudah otomatis via needsStaffConfirmation yang sudah ada).
+Tidak ada unknown di DB (hanya 3 nilai) — tidak perlu handle unknown. Tambah canPublishMenu(items) → list issues per item. Unit test di policy.test.ts.
+1E. Repository: src/lib/server/repositories/admin-menu-repository.ts (NEW)
+Semua method terima DatabaseClient. Pola SQL mengikuti menu-row-mapper.ts (snake_case columns).
+
+findMenuItemById(client, { organizationId, restaurantId, itemId }) — SELECT scoped (org+restaurant+item), JOIN category. Kembali null kalau tidak ada / cross-tenant.
+updateMenuItem(client, { organizationId, restaurantId, itemId, input }) — UPDATE menu_items SET name/local_name/description/price_amount/spice_level/is_available/confidence WHERE id+restaurant_id+org_id. Return updated row.
+updateMenuItemFlags(client, itemId, dietaryFlags, allergens) — dalam satu transaction: DELETE FROM menu_item_dietary_flags WHERE menu_item_id, INSERT baru; sama untuk menu_item_allergens. Pakai ON DELETE CASCADE sudah ada tapi eksplisit delete+insert lebih aman untuk diff.
+setMenuItemAvailability(client, { restaurantId, itemId, isAvailable }) — UPDATE cepat untuk sold-out toggle.
+getMenuForRestaurant(client, restaurantId) — load menu record (status draft/published), categories, items (semua, tidak hanya published). Buka admin editor butuh lihat draft juga.
+1F. Service: src/lib/server/services/menu-admin-service.ts (NEW)
+Orkestrasi domain + repository. Tenant scope dari parameter, BUKAN request body.
+
+updateMenuItem(user, { restaurantSlug, itemId, input }):
+resolveTenantContext(user, restaurantSlug) → cek activeRestaurant.id ada di membership.
+withUserContext(user.id, client => updateMenuItem(...)) agar RLS jalan.
+Return updated MenuItem (via mapMenuItemRow).
+Invalidate cache publik menu (Redis DEL menu:${restaurantSlug}:* atau set cache version key — dibahas di bagian cache).
+toggleAvailability(user, ...) — fast path untuk sold-out.
+publishMenu(user, restaurantSlug):
+Load menu + items.
+canPublishMenu(items) → kalau ada issues, throw typed MenuPublishValidationError(issues).
+BEGIN → UPDATE menu lama (status='published') jadi 'archived' WHERE restaurant_id (DB partial-unique-index sudah enforce 1 published); UPDATE menu target status='published', published_at=now(); COMMIT. withUserContext.
+Publish Redis event menu:published:<restaurantId> (untuk cache invalidation, pakai pola yang sama dengan P3).
+Unit test mock repository (pola ai-events-repository.test.ts).
+1G. Route: src/routes/(dashboard)/dashboard/menu/+page.server.ts (NEW — sebelumnya tidak ada)
+load({ locals, url }): resolve tenant, return { tenant, menuItemById? } jika ada ?edit=<itemId>. Cek membership.
+actions:
+edit — Zod updateMenuItemInputSchema + itemId + restaurant (slug dari form). Call service. Return fail(422, { issues }) atau invalidateAll via throw redirect(303, '?restaurant=<slug>'). Pakai SvelteKit form POST (progressive enhancement, tanpa JS pun jalan).
+toggleAvailability — minimal payload { itemId, restaurant }. Sold-out instan.
+publish — call publishMenu. Return fail(409, { issues }) kalau DQG gagal.
+Tidak ada rate limit (internal auth user, bukan anonymous publik).
+1H. UI: src/routes/(dashboard)/dashboard/menu/+page.svelte (refactor)
+Tombol Edit/Approve/Preview yang sekarang dead → bind ke form action pakai use:enhance dari $app/forms (progressive enhancement: tanpa JS = POST biasa, dengan JS = AJAX + optimistic).
+Sold-out toggle: switch di kolom Status, formaction="?/toggleAvailability".
+Tambah edit drawer/modal untuk field: name, localName, description, price, spiceLevel, confidence, dietaryFlags (chips), allergens (chips), isAvailable. Pakai komponen existing (Badge.svelte, pattern dari PreferenceChips.svelte).
+Publish button di header dengan konfirmasi DQG: kalau ada issues, tampilkan list issue per item (jangan publish sampai diperbaiki atau admin explicit override "publish anyway dengan staff-confirm flag").
+Empty/loading/error states (AGENTS.md mewajibkan ini).
+Accessibility: tap target ≥44px, label field, focus trap di modal.
+1I. Cache invalidation
+Publik bootstrap punya Cache-Control: public, s-maxage=60 (CDN) + mungkin cache di service-worker. Saat admin edit sold-out/price, tamu maksimal 60 detik melihat stale. Opsi:
+
+Minimal (recommended untuk pilot): terima stale ≤60 detik (cache CDN self-heal). Tidak perlu invalidasi aktif.
+Tambah Redis key menu:version:<restaurantId> yang di-increment saat publish/edit; publik +server.ts bisa ETag berdasarkan version. (Nice-to-have, bukan blocker.)
+PHASE 2 — Menu Retrieval Service (P2 chat quality)
+2A. Provider interface extension: LlmProvider.embed()
+src/lib/server/providers/llm/types.ts:
+
+
+ts
+export interface LlmProvider {
+  chat(context: LlmChatContext): Promise<LlmChatResult>;
+  embed?(input: EmbedInput): Promise<EmbedResult>;  // optional, mock tidak implement
+}
+Dibuat optional agar mock provider tidak patah. EmbedInput = { texts: string[]; model?: string }, EmbedResult = { vectors: number[][]; model: string; dimensions: number }.
+
+2B. Implementation di openai-compatible-provider.ts
+Pakai @ai-sdk/openai-compatible embedMany (sudah ada di node_modules). Default model text-embedding-3-small (dimensions 1536 — cocok dengan vector(1536) di 0005). Mock provider tetap tanpa embed (retrieval graceful-degrade ke structured-only kalau embed unavailable).
+
+2C. Repository: src/lib/server/repositories/embedding-repository.ts (NEW)
+upsertEmbeddings(client, { organizationId, restaurantId, sourceType, entries: [{sourceId, contentSnapshot, vector, model, dimensions}] }) — UPSERT via ON CONFLICT (source_type, source_id, model) DO UPDATE SET embedding, content_snapshot, updated_at. Pakai withUserContext.
+searchSimilarItems(client, { organizationId, restaurantId, sourceType, vector, limit }) — SELECT source_id, content_snapshot, 1-(embedding <=> $vector) AS score FROM item_embeddings WHERE ... ORDER BY embedding <=> $vector LIMIT $limit. pgvector cosine.
+deleteEmbeddingsForSource(client, { sourceType, sourceId }).
+2D. Repository: src/lib/server/repositories/retrieval-repository.ts (NEW) — structured filter
+Ganti toMenuSnapshot slice-naif. Pakai SQL terbatas (bukan full menu):
+
+retrieveMenuItemsByFilters(client, { organizationId, restaurantId, preferences, allergenExclude, spiceMax, category, limit }) — SQL dengan WHERE dinamis (hanya filter yang ada). Menghormati is_available=true selalu. Join ke menu_item_dietary_flags & menu_item_allergens. LIMIT 40.
+Plus retrieveMenuItemsByIds(client, { ids }) untuk inject hasil RAG ke LlmMenuItem snapshot.
+2E. Service: src/lib/server/services/retrieval-service.ts (NEW)
+retrieveMenuContext({ bootstrap, question, preferences }) → { items: LlmMenuItem[], refs: {source, id, score?}[] }:
+
+Structured pass (always): hitung filter dari preferences (halal → include flag halal, nut-free → exclude allergen nuts). Plus simple keyword match dari question (REGEXP/ILIKE di name/category). limit 40.
+Semantic pass (optional, kalau provider.embed ada): embed question → searchSimilarItems limit 10 → merge, dedupe by id.
+Gabung → top 40 LlmMenuItem. Refs untuk ai_events.retrieved_refs. Pola fail-open: kalau embedding error (provider/rate/cost), tetap kembalikan hasil structured. Log warning.
+2F. Worker: src/lib/server/services/embedding-worker.ts (NEW) — generate after publish
+generateEmbeddingsForRestaurant(user, restaurantId): load semua menu_items (+ nanti knowledge), build content_snapshot (${name} (${localName}). ${description}. flags:...), batch embed (50 per call), upsert. Dipanggil dari publishMenu (P1 1F) sebagai fire-and-forget (tidak block response; log error saja).
+DILARANG generate di hot path turis (spec §11). Hanya setelah publish.
+2G. Wire ke chat-service
+src/lib/server/services/chat-service.ts:
+
+Ganti toMenuSnapshot(bootstrap) dengan retrieveMenuContext({ bootstrap, question: input.content, preferences: input.dietaryPreferences }).
+Pass retrievedRefs ke logAiEvent (field sudah ada, sekarang diisi).
+Update chat-service.test.ts: mock retrieveMenuContext alih-alih assert naive slice; assert ai_events diberi refs.
+2H. Env & factory
+.env.example + appEnv: LLM_EMBEDDING_MODEL (default text-embedding-3-small), opsi EMBEDDING_ENABLED (default false di pilot awal — struktur jalan, embed off sampai cost dievaluasi). Factory tentukan apakah provider mendukung embed.
+
+PHASE 3 — Staff Inbox Realtime via Redis pub/sub
+3A. Migration 0008_fallback_requests_update_policy.sql (security-critical)
+Saat ini TIDAK ADA UPDATE policy di fallback_requests → deny-all. Tambah:
+
+fallback_requests_tenant_update USING (app.has_restaurant_access(restaurant_id)) WITH CHECK (...). Idempotent DROP+CREATE.
+Opsi: tambah updated_at + trigger (saat ini tidak ada) supaya polling/last-modified lebih akurat — atau skip kalau pub/sub cukup. Pilihan: tambah updated_at (audit + fallback jika pub/sub mati).
+3B. Redis helper: extend src/lib/server/cache/redis.ts
+publishFallbackEvent(payload) — getRedisClient().publish('fallback:events', JSON.stringify(payload)) di channel global lalu client subscribe filter by restaurant. Atau channel per-restaurant fallback:<restaurantId>. Pilih per-organization channel fallback:org:<orgId> (staff lihat semua restoran di orgnya, cocok dengan scope inbox sekarang).
+subscribeFallbackEvents(orgId, onMessage) — butuh dedicated subscriber client (node-redis: client di mode subscribe tidak bisa publish/command). Buat getRedisSubscriber() singleton terpisah dari getRedisClient(). Return unsubscribe fn.
+Fail-open: subscribe error → log, tidak crash page. Publikasi error → log (guest write tetap sukses, staff manual refresh).
+3C. Repository: extend src/lib/server/repositories/public-menu-repository.ts
+listFallbackRequests(client, { organizationId, restaurantIds, statusFilter? }) — SELECT fallback_requests JOIN restaurants (slug/name) JOIN restaurant_tables (code) WHERE restaurant_id = ANY($restaurantIds) ORDER BY created_at DESC LIMIT 100. Pakai withUserContext.
+updateFallbackStatus(client, { organizationId, restaurantId, fallbackId, status, membershipId }) — UPDATE ... WHERE id + restaurant_id + org_id. Set resolved_at = now() kalau status='resolved', assigned_membership_id kalau in-progress. Return updated row.
+3D. Repository: row mapper untuk fallback
+Tambah mapFallbackRequestRow di menu-row-mapper.ts (atau staff-repository.ts baru) → StaffRequest domain type. Tangani: DB restaurant_id→slug/name (join), table_id→code (join), created_at→lastMessageAt (format relative atau ISO biar client format). Update StaffRequest type: tambah field DB-level (createdAt: string, restaurantId, restaurantName, tableId) sambil keep field display.
+
+3E. Service: src/lib/server/services/staff-inbox-service.ts (NEW)
+listRequests(user, { restaurantSlug? }) — resolve tenant → restaurantIds membership → listFallbackRequests. Map ke StaffRequest.
+transitionStatus(user, { fallbackId, status, restaurantSlug }) — resolve tenant → validasi fallback termasuk scope → updateFallbackStatus di withUserContext. Setelah sukses, publish Redis event { type: 'status-changed', fallbackId, status, restaurantId, orgId }.
+Saat guest buat fallback (P sudah ada createFallbackForTable): tambahkan publishFallbackEvent({ type: 'new-request', fallbackId, restaurantId, orgId }) setelah insert sukses (fail-open).
+3F. SSE endpoint: src/routes/(staff)/staff/inbox/events/+server.ts (NEW)
+Server-Sent Events lebih cocok untuk SvelteKit one-way push daripada WebSocket (tidak butuh adapter khusus).
+
+GET handler: subscribe Redis channel org staff user → readableStream → text/event-stream. Set header Cache-Control: no-cache, Connection: keep-alive. Heartbeat tiap 15 detik (: ping\n\n) keep connection hidup.
+Resolve orgId dari locals.user (membership). Fail-open: kalau Redis down, koneksi tetap jalan (manual refresh).
+Cleanup: subscribe returns unsubscribe; stream cancel → unsubscribe.
+3G. Route: src/routes/(staff)/staff/inbox/+page.server.ts (NEW — sebelumnya mock-only)
+load({ locals, url }) → listRequests(user, ...). Return { requests, scopedRestaurants } (DB-backed, fallback ke mock di non-production via pola tenant-context).
+actions: transition — { fallbackId, status }. Call transitionStatus. Return updated. Tanpa JS: redirect; dengan use:enhance: optimistic update.
+3H. UI: src/routes/(staff)/staff/inbox/+page.svelte (refactor dari mock)
+Ganti import { staffRequests } → pakai data.requests.
+Wire "Mark in progress" / "Resolve request" ke form action (use:enhance, optimistic).
+EventSource client (new EventSource('/staff/inbox/events')): on message → invalidate('staff:inbox') atau langsung patch $state requests (append new, update status). Reconnect otomatis (browser EventSource built-in). Visible indicator "Live" / "Reconnecting".
+onMount subscribe, onDestroy close EventSource.
+Empty state ("No active requests"), error state, loading skeleton.
+3I. Mock backward-compat
+Staff inbox service harus fallback ke staffRequests mock kalau DB unavailable (pola sama tenant-context.ts: try DB, catch → mock di non-prod, throw di prod). Ini menjaga Playwright smoke test (yang pakai mock) tetap green.
+
+Cross-cutting
+Testing strategy
+Unit (Vitest): policy DQG (policy.test.ts), admin-menu-repository (mock DatabaseClient, pola ai-events-repository.test.ts), menu-admin-service (mock repo), retrieval-service (mock repo+provider), embedding-repository SQL assertions, staff-inbox-service.
+Update chat-service.test.ts: mock retrieval-service, assert refs ke ai_events.
+DB tests (opt-in RUN_DB_TESTS=true, pola tenant-repository.db.test.ts):
+Cross-tenant UPDATE menu item ditolak RLS (admin org A tidak bisa edit restaurant org B).
+Publish menu archives yang lama (partial-unique-index test).
+Fallback status transition oleh staff tanpa akses restoran → RLS deny.
+Integration: form action happy path (login as owner → edit item → lihat perubahan di DB → publish). Pakai Playwright yang sudah ada.
+SSE: manual + test bahwa endpoint me-return event-stream header.
+Verification gates (per phase)
+Setiap phase selesai wajib green:
+
+Phase 1: pnpm check + pnpm test:unit (policy + repo + service) + pnpm lint.
+Phase 2: sama + chat-service.test.ts updated.
+Phase 3: sama + Playwright staff smoke (pnpm test:e2e staff flow) + manual SSE test dengan curl.
+DB tests: RUN_DB_TESTS=true pnpm test:unit (env+docker sudah run).
+Dokumentasi (AGENTS.md wajib)
+Update docs/TODO.md: centang P1 (6c/6d publik sudah), tambah sub-task "Menu CRUD + DQG", "Retrieval service", "Staff inbox realtime" di phase 6e/7/8 yang relevan. Log di docs/COMPLETE-TODO.md.
+docs/ARCHITECTURE.md §6.1: catat RLS write policy baru untuk menu_* dan fallback_requests update.
+docs/Technical_Specification.md: catat pub/sub pattern + SSE untuk staff inbox, dan structured+RAG retrieval design.
+Tidak ubah PRD scope (semua masih dalam MVP P0).
+File baru (ringkasan)
+
+text
+db/migrations/0006_admin_menu_write_policies.sql
+db/migrations/0007_menu_item_audit_columns.sql
+db/migrations/0008_fallback_requests_update_policy.sql
+src/lib/domain/menu/admin-schema.ts
+src/lib/server/repositories/admin-menu-repository.ts
+src/lib/server/repositories/embedding-repository.ts
+src/lib/server/repositories/retrieval-repository.ts
+src/lib/server/services/menu-admin-service.ts (+ .test.ts)
+src/lib/server/services/retrieval-service.ts (+ .test.ts)
+src/lib/server/services/embedding-worker.ts
+src/lib/server/services/staff-inbox-service.ts (+ .test.ts)
+src/routes/(dashboard)/dashboard/menu/+page.server.ts
+src/routes/(staff)/staff/inbox/+page.server.ts
+src/routes/(staff)/staff/inbox/events/+server.ts
+Edit: policy.ts, prompt.ts(no change actually), types.ts (StaffRequest extend, LlmProvider.embed), openai-compatible-provider.ts, chat-service.ts, redis.ts, public-menu-repository.ts, menu-row-mapper.ts, guest-interaction-service.ts (publish event), factory.ts, .env.example, config/env.ts, 2 .svelte (dashboard menu, staff inbox), TODO.md, COMPLETE-TODO.md, ARCHITECTURE.md, Technical_Specification.md.
+
+Eksekusi berurutan
+Phase 1 (1A→1I) → verify green → commit.
+Phase 2 (2A→2H) → verify green → commit.
+Phase 3 (3A→3I) → verify green → commit.
+Setelah commit, request RUN_DB_TESTS=true pnpm test:unit untuk verifikasi RLS end-to-end, dan pnpm test:e2e untuk UI flows.
+
+Risk & fallback
+SSE + adapter-node: kalau deploy pakai Cloudflare Workers nanti SSE butuh adjustment; untuk lokal/pilot node adapter OK. Ditandai di TODO.
+Embedding cost: EMBEDDING_ENABLED=false default → retrieval structured-only dulu, RAG opt-in setelah cost review. Tidak block pilot.
+Menu cache staleness: terima ≤60 detik stale (cache CDN self-heal). Jika keluhan, tambah Redis version key + ETag.
+Catatan implementasi minor yang akan saya pegang saat coding: tidak ada unknown confidence (hanya 3 nilai); menu_items.price_amount integer rupiah; menu_item_dietary_flags/menu_item_allergens join table tanpa restaurant_id (RLS lewat EXISTS subquery); tenant scope via resolveTenantContext(locals.user, slug); semua write di withUserContext(user.id); success() helper tidak dipakai (konvensi fail() + redirect/json).
+
+Plan: Prioritas 1 + 2 + 3 — Menu CRUD, Retrieval, Staff Inbox Realtime
+Stack: SvelteKit + Svelte 5 runes + TS strict + Postgres (RLS) + Redis. Semua write DB lewat withUserContext(user.id) agar RLS app.has_restaurant_access jalan. Env & Docker sudah run. User chose: Direct edit + publish (P1) dan Redis pub/sub (P3).
+
+PHASE 1 — Menu CRUD + Publish/Data Quality Gate (P0 blocker pilot)
+1A. Migration 0006_admin_menu_write_policies.sql (security-critical)
+Saat ini TIDAK ADA INSERT/UPDATE/DELETE policy untuk tabel menu_* — RLS deny-all. Tambah:
+
+menu_categories: INSERT/UPDATE/DELETE USING (app.has_restaurant_access(restaurant_id)) + WITH CHECK (...).
+menu_items: sama, scoped restaurant_id.
+menu_item_translations, menu_item_dietary_flags, menu_item_allergens: scoped via EXISTS subquery ke menu_items.restaurant_id (join table tak punya kolom restaurant). Sama persis pola RLS SELECT yang sudah ada di 0001.
+Semua DROP POLICY IF EXISTS dulu (idempotent), CREATE POLICY. Grant tetap lingua_app.
+1B. Migration 0007_menu_item_audit_columns.sql
+Tambah updated_at timestamptz + trigger app.set_updated_at() di menu_items dan menu_categories (saat ini tidak punya — pakai pola trigger yang sudah ada di 0001). Idempotent (ADD COLUMN IF NOT EXISTS, DROP TRIGGER IF EXISTS).
+
+1C. Domain: src/lib/domain/menu/admin-schema.ts (Zod schemas)
+Konvensi mengikuti src/lib/domain/session/schema.ts (array as const + z.enum + z.object + z.infer). Tenant ids TIDAK di payload client (server-derived).
+
+updateMenuItemInputSchema: name (trim 1-200), localName (max 200, optional), description (max 1000, default ''), price (int >= 0, max 10_000_000), spiceLevel (0-5), isAvailable (bool), confidence (enum verified/needs-review/staff-confirm), dietaryFlags (array of DietaryFlag codes, default []), allergens (array of Allergen codes, default []).
+Export types UpdateMenuItemInput.
+1D. Domain: src/lib/domain/menu/policy.ts — Data Quality Gate
+Tambah validateMenuItemForPublish(item) dan canPublishMenu(items) mengembalikan { ok: boolean; issues: string[] }. Aturan dari PRD section 9 Data Quality Gate:
+
+name non-empty, price >= 0.
+confidence = 'staff-confirm' + punya allergen/alcohol/seafood flag = perlu ditandai needs-staff (otomatis via needsStaffConfirmation yang sudah ada).
+Tidak ada unknown di DB (hanya 3 nilai) — tidak perlu handle unknown. Unit test di policy.test.ts.
+1E. Repository: src/lib/server/repositories/admin-menu-repository.ts (NEW)
+Semua method terima DatabaseClient. Pola SQL mengikuti menu-row-mapper.ts (snake_case columns).
+
+findMenuItemById(client, { organizationId, restaurantId, itemId }) — SELECT scoped (org+restaurant+item), JOIN category. Return null kalau cross-tenant.
+updateMenuItem(client, { organizationId, restaurantId, itemId, input }) — UPDATE SET name/local_name/description/price_amount/spice_level/is_available/confidence WHERE id+restaurant_id+org_id.
+updateMenuItemFlags(client, itemId, dietaryFlags, allergens) — dalam satu transaction: DELETE + INSERT untuk dietary_flags dan allergens.
+setMenuItemAvailability(client, { restaurantId, itemId, isAvailable }) — UPDATE cepat untuk sold-out toggle.
+1F. Service: src/lib/server/services/menu-admin-service.ts (NEW)
+Orkestrasi domain + repository. Tenant scope dari parameter, BUKAN request body.
+
+updateMenuItem(user, { restaurantSlug, itemId, input }): resolveTenantContext → withUserContext → updateMenuItem → return updated MenuItem.
+toggleAvailability(user, ...) — fast path sold-out.
+publishMenu(user, restaurantSlug): load items → canPublishMenu → archive lama + publish baru (withUserContext transaction) → publish Redis event menu:published:<restaurantId>.
+Unit test mock repository (pola ai-events-repository.test.ts).
+1G. Route: src/routes/(dashboard)/dashboard/menu/+page.server.ts (NEW)
+load: resolve tenant, return { tenant, menuItemById? } jika ada ?edit=<itemId>.
+actions.edit: Zod validate + service call. Return fail(422, { issues }) atau redirect.
+actions.toggleAvailability: minimal payload. Instan.
+actions.publish: call publishMenu. Return fail(409, { issues }) kalau DQG gagal.
+1H. UI: src/routes/(dashboard)/dashboard/menu/+page.svelte (refactor)
+Dead buttons → bind ke form action via use:enhance ($app/forms).
+Sold-out toggle switch di kolom Status.
+Edit drawer/modal: name, localName, description, price, spiceLevel, confidence, dietaryFlags (chips), allergens (chips), isAvailable.
+Publish button: konfirmasi DQG. Tampilkan list issue per item. Override "publish anyway" untuk staff-confirm.
+Empty/loading/error states.
+1I. Cache invalidation
+Publik bootstrap punya Cache-Control: s-maxage=60. Terima stale <=60 detik (cache CDN self-heal). Opsi Redis version key + ETag (nice-to-have, bukan blocker).
+
+PHASE 2 — Menu Retrieval Service (P2 chat quality)
+2A. Provider interface extension: LlmProvider.embed()
+types.ts tambah optional embed?(input: EmbedInput): Promise<EmbedResult>. Mock tidak implement. EmbedInput = { texts: string[] }, EmbedResult = { vectors: number[][], model: string, dimensions: number }.
+
+2B. Implementation di openai-compatible-provider.ts
+Pakai @ai-sdk/openai-compatible embedMany. Default model text-embedding-3-small (1536 dim, cocok 0005).
+
+2C. Repository: src/lib/server/repositories/embedding-repository.ts (NEW)
+upsertEmbeddings: ON CONFLICT DO UPDATE set embedding + content_snapshot.
+searchSimilarItems: cosine distance query via <=> operator pgvector. LIMIT 10.
+2D. Repository: src/lib/server/repositories/retrieval-repository.ts (NEW)
+retrieveMenuItemsByFilters(client, { organizationId, restaurantId, preferences, allergenExclude, spiceMax, category, limit }) — SQL WHERE dinamis, honor is_available=true. LIMIT 40.
+2E. Service: src/lib/server/services/retrieval-service.ts (NEW)
+retrieveMenuContext({ bootstrap, question, preferences }):
+
+Structured pass (always): filter dari preferences + keyword match. LIMIT 40.
+Semantic pass (optional, kalau embed ada): embed question → searchSimilar → merge, dedupe.
+Return top 40 LlmMenuItem[] + refs untuk ai_events.
+2F. Worker: src/lib/server/services/embedding-worker.ts (NEW)
+generateEmbeddingsForRestaurant(restaurantId): load items, build content snapshot, batch embed, upsert. Dipanggil fire-and-forget dari publishMenu. DILARANG di hot path turis.
+
+2G. Wire ke chat-service
+Ganti toMenuSnapshot dengan retrieveMenuContext. Pass retrievedRefs ke logAiEvent. Update tests.
+
+2H. Env
+LLM_EMBEDDING_MODEL (default text-embedding-3-small), EMBEDDING_ENABLED (default false). Retrieval structured jalan tanpa embed.
+
+PHASE 3 — Staff Inbox Realtime via Redis pub/sub
+3A. Migration 0008_fallback_requests_update_policy.sql
+Tambah UPDATE RLS policy: USING (app.has_restaurant_access(restaurant_id)) WITH CHECK (...). Tambah updated_at + trigger. Idempotent.
+
+3B. Redis helper: extend src/lib/server/cache/redis.ts
+getRedisSubscriber() — dedicated singleton subscriber client (node-redis: mode subscribe tidak bisa publish/command).
+publishFallbackEvent(payload) — publish('fallback:org:<orgId>', JSON.stringify(payload)). Fail-open.
+subscribeFallbackEvents(orgId, onMessage) — return unsubscribe fn.
+3C. Repository: extend fallback reads/writes
+listFallbackRequests(client, { organizationId, restaurantIds, statusFilter? }) — SELECT JOIN restaurants + restaurant_tables, ORDER BY created_at DESC LIMIT 100.
+updateFallbackStatus(client, { organizationId, restaurantId, fallbackId, status, membershipId }) — UPDATE + set resolved_at/assigned_membership_id.
+3D. Row mapper fallback
+Map DB row → StaffRequest domain type (extend type dengan createdAt, restaurantId, restaurantName, tableId).
+
+3E. Service: src/lib/server/services/staff-inbox-service.ts (NEW)
+listRequests(user): resolve tenant → restaurantIds → listFallbackRequests.
+transitionStatus(user, { fallbackId, status }): resolve → updateFallbackStatus → publish Redis event.
+Guest write (guest-interaction-service.ts): tambah publish event setelah create fallback sukses (fail-open).
+3F. SSE endpoint: src/routes/(staff)/staff/inbox/events/+server.ts
+GET handler: subscribe Redis → ReadableStream → text/event-stream. Heartbeat 15s. Fail-open (Redis down = manual refresh). Cancel → unsubscribe.
+
+3G. Route: src/routes/(staff)/staff/inbox/+page.server.ts (NEW)
+load → listRequests(user). actions.transition → transitionStatus.
+
+3H. UI: src/routes/(staff)/staff/inbox/+page.svelte (refactor dari mock)
+Ganti mock import → data.requests.
+Wire buttons ke form action (use:enhance).
+EventSource client ke /staff/inbox/events → on message invalidate state atau patch.
+onMount subscribe, onDestroy close.
+Live indicator, empty state, error state.
+3I. Mock backward-compat
+Staff inbox service fallback ke mock kalau DB unavailable (pola tenant-context.ts). Playwright smoke test tetap green.
+
+Cross-cutting
+Testing
+Unit: policy DQG, admin-menu-repo (mock DB), menu-admin-service, retrieval-service, embedding-repo SQL, staff-inbox-service.
+DB tests (opt-in RUN_DB_TESTS=true): cross-tenant UPDATE menu deny, publish archives lama, fallback status transition RLS.
+Integration: Playwright admin (edit → publish → verify), staff (inbox → transition → SSE).
+Verification per phase
+pnpm check + pnpm test:unit + pnpm lint = green.
+DB tests: RUN_DB_TESTS=true pnpm test:unit.
+E2E: pnpm test:e2e.
+Documentation
+Update TODO.md, COMPLETE-TODO.md, ARCHITECTURE.md (new RLS write policies), Technical_Specification.md (pub/sub + retrieval design).
+Files baru
+3 migrations, admin-schema.ts, admin-menu-repository.ts, embedding-repository.ts, retrieval-repository.ts, menu-admin-service.ts (+test), retrieval-service.ts (+test), embedding-worker.ts, staff-inbox-service.ts (+test), 2 +page.server.ts, 1 events/+server.ts.
+
+Execution order
+Phase 1 (1A-1I) → verify → commit → Phase 2 (2A-2H) → verify → commit → Phase 3 (3A-3I) → verify → commit.
+
+Key constraints held
+confidence hanya 3 nilai (verified/needs-review/staff-confirm), tidak ada unknown.
+menu_items.price_amount integer rupiah.
+menu_item_dietary_flags / menu_item_allergens join table tanpa restaurant_id → RLS via EXISTS subquery.
+Tenant scope via resolveTenantContext(locals.user, slug).
+Semua DB write di withUserContext(user.id).
+success() helper tidak dipakai — konvensi fail() + redirect/json.

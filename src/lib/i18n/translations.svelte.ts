@@ -1,4 +1,4 @@
-import type { LanguageTag, TranslationDict, I18nState } from './types';
+import type { LanguageTag, I18nState } from './types';
 import { loadDict } from './translations';
 
 let current = $state<I18nState>({

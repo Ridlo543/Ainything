@@ -4,6 +4,32 @@ import {
 	createFallbackRequest,
 	createFeedback
 } from '$lib/server/repositories/public-menu-repository';
+import { getRedisClient } from '$lib/server/cache/redis';
+import { appEnv } from '$lib/server/config/env';
+
+// ---------------------------------------------------------------------------
+// Redis pub/sub helper
+// ---------------------------------------------------------------------------
+
+/**
+ * Publishes a JSON payload to the `fallback:{restaurantId}` channel so that
+ * connected SSE clients (staff inbox) receive near-real-time notifications.
+ *
+ * Failures are caught and logged — a Redis publish error must never break the
+ * guest-facing fallback creation path.
+ */
+async function publishFallbackEvent(restaurantId: string, payload: unknown): Promise<void> {
+	if (!appEnv.redisUrl) {
+		return; // Redis not configured in this environment — skip silently
+	}
+
+	try {
+		const redis = await getRedisClient();
+		await redis.publish(`fallback:${restaurantId}`, JSON.stringify(payload));
+	} catch (err) {
+		console.error('[guest-interaction-service] Failed to publish fallback event', err);
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Fallback request service
@@ -38,6 +64,18 @@ export async function createFallbackForTable(
 		guestNeed: input.guestNeed,
 		summary: input.summary,
 		priority: input.priority
+	});
+
+	// Publish event for staff inbox SSE (fire-and-forget; failure is non-fatal)
+	await publishFallbackEvent(bootstrap.table.restaurantId, {
+		fallbackId: created.id,
+		restaurantId: bootstrap.table.restaurantId,
+		tableId: bootstrap.table.id,
+		languageTag: input.languageTag,
+		guestNeed: input.guestNeed,
+		summary: input.summary,
+		priority: input.priority,
+		status: created.status
 	});
 
 	return {

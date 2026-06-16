@@ -43,7 +43,9 @@ test.describe('Customer flow at 360px', () => {
 		await page.goto(TEST_URL);
 
 		await expect(page.getByText('Browse menu')).toBeVisible();
-		await expect(page.getByText('Menu details are based on restaurant-approved data.')).toBeVisible();
+		await expect(
+			page.getByText('Menu details are based on restaurant-approved data.')
+		).toBeVisible();
 
 		const categoryTabs = page.locator('section >> button', { hasText: /Food|Drinks|Dessert/ });
 		await expect(categoryTabs.first()).toBeAttached();
@@ -52,7 +54,10 @@ test.describe('Customer flow at 360px', () => {
 	test('menu item card shows spice, price, and badges', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const firstCard = page.locator('section >> button').filter({ has: page.locator('img') }).first();
+		const firstCard = page
+			.locator('section >> button')
+			.filter({ has: page.locator('img') })
+			.first();
 		await expect(firstCard).toBeVisible();
 
 		await expect(firstCard.locator('text=RP')).toBeVisible();
@@ -61,7 +66,10 @@ test.describe('Customer flow at 360px', () => {
 	test('selecting a menu item opens detail panel', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const firstCard = page.locator('section >> button').filter({ has: page.locator('img') }).first();
+		const firstCard = page
+			.locator('section >> button')
+			.filter({ has: page.locator('img') })
+			.first();
 		await firstCard.click();
 
 		await expect(page.getByText('Recommendation reason')).toBeVisible();
@@ -71,7 +79,10 @@ test.describe('Customer flow at 360px', () => {
 	test('detail panel shows verified or staff-confirm state', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const firstCard = page.locator('section >> button').filter({ has: page.locator('img') }).first();
+		const firstCard = page
+			.locator('section >> button')
+			.filter({ has: page.locator('img') })
+			.first();
 		await firstCard.click();
 
 		const detail = page.locator('aside');
@@ -174,10 +185,15 @@ test.describe('Customer flow at 390px', () => {
 	test('item detail shows allergen and dietary badges', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const firstCard = page.locator('section >> button').filter({ has: page.locator('img') }).first();
+		const firstCard = page
+			.locator('section >> button')
+			.filter({ has: page.locator('img') })
+			.first();
 		await firstCard.click();
 
 		const aside = page.locator('aside');
-		await expect(aside.getByText(/Halal-friendly|Vegetarian|Vegan|Contains alcohol/).first()).toBeAttached();
+		await expect(
+			aside.getByText(/Halal-friendly|Vegetarian|Vegan|Contains alcohol/).first()
+		).toBeAttached();
 	});
 });

@@ -18,6 +18,19 @@ vi.mock('$lib/server/providers/llm/factory', () => ({
 	getLlmProvider: () => getLlmProviderMock()
 }));
 
+const retrieveMenuContextMock = vi.fn();
+
+vi.mock('$lib/server/services/retrieval-service', () => ({
+	retrieveMenuContext: (...args: unknown[]) => retrieveMenuContextMock(...args)
+}));
+
+vi.mock('$lib/server/config/env', () => ({
+	appEnv: {
+		embeddingEnabled: false,
+		llmEmbeddingModel: 'text-embedding-3-small'
+	}
+}));
+
 const { handleChatTurn } = await import('./chat-service');
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -76,6 +89,7 @@ function resetMocks() {
 	getRecentHistoryMock.mockReset();
 	persistChatTurnMock.mockReset();
 	chatMock.mockReset();
+	retrieveMenuContextMock.mockReset();
 
 	getRecentHistoryMock.mockResolvedValue([]);
 	chatMock.mockResolvedValue({
@@ -86,6 +100,37 @@ function resetMocks() {
 	persistChatTurnMock.mockResolvedValue({
 		customerMessage: { id: 'msg-customer-1' },
 		assistantMessage: { id: 'msg-assistant-1' }
+	});
+
+	// Default: retrieval returns the bootstrap menu items
+	retrieveMenuContextMock.mockResolvedValue({
+		items: [
+			{
+				id: 'item-1',
+				name: 'Nasi Goreng',
+				category: 'Main',
+				description: 'Fried rice',
+				price: 85000,
+				isAvailable: true,
+				spiceLevel: 2,
+				dietaryFlags: ['halal'],
+				allergens: ['egg'],
+				confidence: 'verified'
+			},
+			{
+				id: 'item-2',
+				name: 'Gado-Gado',
+				category: 'Main',
+				description: 'Vegetable salad with peanut sauce',
+				price: 65000,
+				isAvailable: true,
+				spiceLevel: 0,
+				dietaryFlags: ['vegetarian', 'halal'],
+				allergens: ['nuts'],
+				confidence: 'verified'
+			}
+		],
+		source: 'structured'
 	});
 }
 
@@ -177,6 +222,52 @@ describe('handleChatTurn — happy path', () => {
 				assistantSafety: 'ok'
 			})
 		);
+	});
+
+	it('calls retrieveMenuContext with the query and preferences', async () => {
+		await handleChatTurn(bootstrap, validInput);
+
+		expect(retrieveMenuContextMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				restaurantId: 'rest-1',
+				query: 'Is the nasi goreng halal?',
+				preferences: {
+					dietaryFlags: ['halal', 'vegetarian'],
+					allergenExcludes: undefined
+				}
+			})
+		);
+	});
+});
+
+describe('handleChatTurn — retrieval fallback', () => {
+	beforeEach(resetMocks);
+
+	it('falls back to bootstrap snapshot when retrieval service throws', async () => {
+		retrieveMenuContextMock.mockRejectedValue(new Error('DB connection failed'));
+
+		const result = await handleChatTurn(bootstrap, validInput);
+
+		// Should still work with the fallback snapshot
+		expect(result.answer).toBe('Yes, it is halal.');
+		expect(chatMock).toHaveBeenCalled();
+
+		const call = chatMock.mock.calls[0][0] as { menuItems: unknown[] };
+		expect(call.menuItems).toBeDefined();
+		expect(call.menuItems.length).toBeGreaterThan(0);
+	});
+
+	it('falls back to bootstrap snapshot when retrieval returns empty items', async () => {
+		retrieveMenuContextMock.mockResolvedValue({
+			items: [],
+			source: 'structured'
+		});
+
+		await handleChatTurn(bootstrap, validInput);
+
+		const call = chatMock.mock.calls[0][0] as { menuItems: unknown[] };
+		expect(call.menuItems).toBeDefined();
+		expect(call.menuItems.length).toBeGreaterThan(0);
 	});
 });
 

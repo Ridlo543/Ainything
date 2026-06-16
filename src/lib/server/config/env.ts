@@ -37,6 +37,10 @@ export const appEnv = {
 	// Cost cap
 	aiDailyCap: env.AI_DAILY_CAP ? Number(env.AI_DAILY_CAP) : 500,
 
+	// Embedding / RAG
+	embeddingEnabled: env.EMBEDDING_ENABLED === 'true',
+	llmEmbeddingModel: env.LLM_EMBEDDING_MODEL || 'text-embedding-3-small',
+
 	// Supabase (future managed backend)
 	supabaseUrl: publicEnv.PUBLIC_SUPABASE_URL,
 	supabaseAnonKey: publicEnv.PUBLIC_SUPABASE_ANON_KEY,

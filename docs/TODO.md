@@ -171,7 +171,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
   - `resolvePublicMenuBootstrap` SELECTs table columns aliased as `table_*` but the row type uses `RestaurantRow & TableRow` whose `TableRow` fields are `id/code/label`. Align the SQL aliases and the row type so they match.
   - `loadPublishedCategories`/`loadPublishedMenuItems` are called with `{ query }`; their parameter is a `DatabaseClient` (`{ query(text, params) }`). The exported `query` helper signature is not assignable to `pg.query`. Adapt `DatabaseClient` typing in `postgres.ts` (or pass a proper client wrapper) so the bare `query` helper is accepted.
   - Done: added a dedicated `BootstrapRow` type and reshaped `DatabaseClient` in `postgres.ts`; `pnpm check` is green.
-- [ ] Verify `db/migrations/0002_public_menu_and_guest_write_policies.sql` and `db/migrations/0003_seed_good_for_metadata.sql` are idempotent (`DROP POLICY IF EXISTS` present; data updates safe to re-run) and that `0003`'s changes are mirrored in `db/seeds/0001_demo_multi_tenant_data.sql` so `db:reset` keeps `goodFor`.
+- [x] Verify `db/migrations/0002_public_menu_and_guest_write_policies.sql` and `db/migrations/0003_seed_good_for_metadata.sql` are idempotent (`DROP POLICY IF EXISTS` present; data updates safe to re-run) and that `0003`'s changes are mirrored in `db/seeds/0001_demo_multi_tenant_data.sql` so `db:reset` keeps `goodFor`.
 - [x] Wire `(public)/r/[restaurantSlug]/table/[tableCode]/+page.server.ts` to `resolvePublicMenuBootstrap`, with an explicit mock fallback (`src/lib/server/tenant/public-context.ts`) when `USE_MOCK_BACKEND` is on or the DB is unavailable. Route returns 404 cleanly when slug+table do not resolve (DB path; mock keeps prototype fallback).
 - [ ] Confirm public reads return only published menu + active restaurant + active table and never draft/private data, both via SQL and via the `0002` RLS policies under the `lingua_app` role.
 - [ ] Commit the repaired WIP once `pnpm check` is green (currently 5 modified + 5 untracked files are uncommitted).
@@ -191,7 +191,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [x] Add fallback request persistence. Done: `createFallbackInputSchema` in domain, `createFallbackForTable` service, `POST /api/public/fallback` endpoint.
 - [x] Add feedback persistence. Done: `createFeedbackInputSchema` in domain, `createFeedbackForSession` service, `POST /api/public/feedback` endpoint.
 - [x] Add chat message persistence. Done: `POST /api/public/chat` — validates input with Zod, checks daily AI cap, calls LLM adapter (mock in dev), persists customer+assistant turn via `withPublicSessionContext`, returns answer + safetyStatus + suggestFallback.
-- [ ] Add staff inbox realtime/near-realtime updates (start with polling or Redis pub/sub; managed Realtime optional later).
+- [x] Add staff inbox realtime/near-realtime updates (start with polling or Redis pub/sub; managed Realtime optional later).
 - [ ] Add storage abstraction for menu imports and item images (provider adapter; local/dev may use filesystem or skip).
 
 ### Phase 6d - Abuse and cost protection for anonymous endpoints (security-critical)
@@ -218,15 +218,17 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [x] Implement mocked AI provider (committed before any real provider per architecture rules). Mock returns `needs-staff` safety status so UI offers fallback — correct placeholder behaviour.
 - [x] Implement first real LLM provider behind the adapter — MiniMax via TokenRouter (`openai-compatible-provider.ts`), activated via `LLM_PROVIDER=openai-compatible` + `OPENAI_COMPATIBLE_BASE_URL` + `OPENAI_COMPATIBLE_API_KEY` in env. Uses `TokenRouter` for load balancing across MiniMax models with fallback.
 - [x] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents — `db/migrations/0005_enable_pgvector.sql`: creates `vector` extension, tenant-scoped `item_embeddings` table (polymorphic `source_type`/`source_id`), IVFFlat index on `embedding vector_cosine_ops`, RLS policies for `lingua_app`, auto-update trigger.
+- [x] Switch `docker-compose.yml` postgres image to `pgvector/pgvector:pg16` (replaces `postgres:16-alpine`) so the `vector` extension is available at the OS level.
 - [x] Define prompt templates and prompt versioning (`prompt.ts`, `PROMPT_VERSION='v3'`, release notes in comment header, version tracked in `ai_events`).
-- [ ] Implement menu retrieval scoped by restaurant (structured data first; embeddings second).
-- [ ] Add embeddings for menu items and knowledge documents (generated after publish, never in the tourist hot path).
+- [x] Implement menu retrieval scoped by restaurant (structured data first; embeddings second).
+- [x] Add embeddings for menu items and knowledge documents (generated after publish, never in the tourist hot path).
 - [x] Implement chat answer endpoint (`POST /api/public/chat`) — validates with Zod, loads history (max 5 turns), builds available-only menu snapshot (max 80 items), calls LLM provider, persists both turns in one transaction, logs `ai_events`, returns answer + safetyStatus + suggestFallback.
 - [x] Implement guardrails:
   - [x] Do not answer outside restaurant scope (prompt v3 SCOPE rule → `safetyStatus: 'blocked'`).
   - [x] Do not invent ingredients, prices, certification, or availability (prompt v3 NO INVENTION rule).
   - [x] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing (query-level safety check in prompt).
   - [x] Respect unavailable/sold-out items (`toMenuSnapshot` filters `isAvailable === false` before sending to LLM).
+  - [x] Strip reasoning tags (`<think>`, `<reasoning>`, `[thinking]`, `[think]`) from model output so internal chain-of-thought never reaches the guest or triggers false-positives in forbidden-content eval checks (`stripReasoningTags` in `prompt.ts`, applied in `extractSafetyJson` before JSON extraction).
 - [x] Implement AI event logging into `ai_events` (`ai-events-repository.ts:logAiEvent`, fail-open, captures provider, model, prompt version, latency, tokens, confidence, safety flags).
 - [ ] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
 - [ ] Implement OCR import prototype behind an OCR adapter.

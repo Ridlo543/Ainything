@@ -46,14 +46,16 @@
 					<span
 						class="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2 py-1 text-xs font-semibold text-teal-800"
 					>
-						<Star size={13} /> {t('badge.signature')}
+						<Star size={13} />
+						{t('badge.signature')}
 					</span>
 				{/if}
 				{#if item.confidence !== 'verified'}
 					<span
 						class="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-800"
 					>
-						<ShieldAlert size={13} /> {t('badge.check')}
+						<ShieldAlert size={13} />
+						{t('badge.check')}
 					</span>
 				{/if}
 			</div>

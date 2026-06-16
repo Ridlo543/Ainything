@@ -73,4 +73,15 @@ export type LlmChatResult = {
  */
 export interface LlmProvider {
 	chat(context: LlmChatContext): Promise<LlmChatResult>;
+
+	/**
+	 * Generates embeddings for the given texts.
+	 *
+	 * Returns an array of embedding vectors (one per input text) or null if the
+	 * provider does not support embeddings (e.g. Anthropic). Optional so mock
+	 * and unsupported providers can skip implementation.
+	 *
+	 * Used by the embedding worker for RAG — never called in the tourist hot path.
+	 */
+	embed?(texts: string[], model?: string): Promise<number[][] | null>;
 }

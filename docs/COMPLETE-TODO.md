@@ -149,3 +149,44 @@
     `session_id` belongs to a different restaurant than the fallback row.
 
 **Verification:** `pnpm check` 0 errors · `pnpm test:unit --no-cache` 25/25 (5 skipped DB) · `pnpm lint` exit 0.
+
+## 2026-06-17
+
+- Fixed `organization_id` column ambiguity in `0002` and `0004` migration RLS policies that caused "column reference is ambiguous" errors when `restaurants` was joined with `restaurant_tables` (both have an `organization_id` column). Qualified all policy subquery references with the target table name (`customer_sessions.organization_id`, `fallback_requests.organization_id`, `feedback.organization_id`).
+- Applied `db:reset` after fix: all 5 migrations run clean on fresh schema.
+- Switched `docker-compose.yml` postgres image from `postgres:16-alpine` to `pgvector/pgvector:pg16` so the `vector` extension from migration 0005 is available. Removed and recreated containers with fresh data volumes.
+- Fixed `tenant-repository.db.test.ts`:
+  - "enforces restaurant access in direct app-role queries": updated to expect all 4 active restaurants (the `restaurants_public_active_select` policy exposes all active restaurants to `lingua_app`, not just org-scoped ones).
+  - "rejects a guest fallback insert with a session from a different restaurant": wrapped session INSERT in `withUserContext('user-owner-bali')` so the `RETURNING` clause passes the `customer_sessions_tenant_select` policy (which calls `app.has_restaurant_access()` requiring `app.user_external_id`).
+- Added `stripReasoningTags()` to `src/lib/server/providers/llm/prompt.ts`: strips `<think>`, `<reasoning>`, `[thinking]`, `[think]` blocks from raw LLM output before safety-JSON extraction. Prevents internal chain-of-thought from reaching the guest and eliminates false-positive forbidden-content checks in AI eval fixtures.
+- Added 10 unit tests for `stripReasoningTags` and tag-stripping in `extractSafetyJson` (`prompt.test.ts`).
+- **Verification:** `pnpm test:unit --run` → 168/168 passed (all DB + LLM eval + prompt tests).
+
+### Phase 6–7 Continuation (2026-06-17)
+
+**Migration 0007 — Audit columns:**
+- Created `db/migrations/0007_menu_item_audit_columns.sql`: adds `updated_at TIMESTAMPTZ` columns to `menu_items` and `menu_categories`, creates a reusable `set_updated_at()` trigger function, attaches to both tables.
+
+**Staff Inbox wired to database:**
+- Created `src/lib/server/repositories/staff-inbox-repository.ts`: `listFallbackRequests` (tenant-scoped SQL JOIN across fallback_requests, restaurants, restaurant_tables) and `updateFallbackStatus` (runs inside `withUserContext` so RLS policy 0008 applies).
+- Created `src/lib/server/services/staff-inbox-service.ts`: `listRequests` and `transitionStatus` with Zod input validation, explicit membership checks, and state machine enforcement (`new→in_progress→resolved`). Custom `StaffInboxAuthorizationError` and `StaffInboxTransitionError` classes.
+- Created `src/routes/(staff)/staff/inbox/+page.server.ts`: thin load function (calls service, returns `requests`), plus `claim` and `resolve` form actions with membership scope guard via `resolveTenantContext`.
+- Created `src/routes/(staff)/staff/inbox/events/+server.ts`: SSE endpoint subscribing to `fallback:{restaurantId}` Redis channels per membership. Duplicates the shared Redis client for pub/sub, sends 20s heartbeats, tears down cleanly on AbortSignal. Degrades gracefully when Redis is unconfigured.
+- Modified `src/lib/server/services/guest-interaction-service.ts`: publishes a JSON event to `fallback:{restaurantId}` via Redis after creating a fallback request. Fire-and-forget with error logging; Redis failures never break the guest flow.
+- Rewrote `src/routes/(staff)/staff/inbox/+page.svelte`: replaced mock data with `data.requests` prop, added `use:enhance` form actions for claim/resolve with optimistic local state updates, added `EventSource` SSE client that prepends new requests and calls `invalidateAll()` for full detail hydration.
+- Created `src/lib/server/services/staff-inbox-service.test.ts`: 12 unit tests covering `listRequests` and `transitionStatus` with repository mocked.
+
+**Embedding and Retrieval infrastructure:**
+- Created `src/lib/server/repositories/embedding-repository.ts`: `upsertEmbeddings` (pgvector ON CONFLICT upsert), `searchSimilarItems` (cosine similarity search, restaurant-scoped), `deleteEmbeddingsForSource`.
+- Created `src/lib/server/repositories/retrieval-repository.ts`: `retrieveMenuItemsByFilters` — structured SQL with optional dietary flags (AND), allergen excludes (NOT IN), category, availability, ILIKE text search. Always scoped to published menu + restaurant.
+- Created `src/lib/server/services/retrieval-service.ts`: `retrieveMenuContext` orchestrates structured filter first, then optionally semantic search when `embeddingEnabled=true`. Merges results, caps at 20 items. Falls back gracefully on any error.
+- Created `src/lib/server/services/embedding-worker.ts`: `generateEmbeddingsForRestaurant` — loads published menu items + knowledge docs, calls `embed()` in batches of 20, upserts results. Skips failed items and continues.
+- Modified `src/lib/server/providers/llm/types.ts`: added optional `embed?(texts: string[], model?: string): Promise<number[][] | null>` to LlmProvider interface.
+- Modified `src/lib/server/providers/llm/openai-compatible-provider.ts`: implemented `embed()` using Vercel AI SDK `embedMany`. Extracted `createProvider()` helper for reuse.
+- Modified `src/lib/server/providers/llm/anthropic-provider.ts`: `embed()` returns `null` with a warning (Anthropic doesn’t support embeddings natively).
+- Modified `src/lib/server/services/chat-service.ts`: replaced naive `toMenuSnapshot()` with `retrievalService.retrieveMenuContext()`. Falls back to legacy snapshot if retrieval fails or returns empty.
+- Modified `src/lib/server/config/env.ts`: added `embeddingEnabled` and `llmEmbeddingModel` config fields.
+- Modified `.env.example`: added `EMBEDDING_ENABLED=false` and `LLM_EMBEDDING_MODEL=text-embedding-3-small`.
+- Created `src/lib/server/services/retrieval-service.test.ts`: 10 unit tests covering structured-only, hybrid, and error fallback paths.
+- Updated `src/lib/server/services/chat-service.test.ts`: updated mocks for retrieval-service and env config. Added retrieval fallback tests (16 total tests, all passing).
+- **Verification:** `pnpm check` 0 errors · `pnpm test:unit` all pass · `pnpm lint` exit 0.

@@ -105,7 +105,11 @@
 
 	<!-- Conversation history -->
 	{#if messages.length > 0}
-		<div class="mt-4 flex flex-col gap-3" aria-live="polite" aria-label={t('chat.conversation.aria')}>
+		<div
+			class="mt-4 flex flex-col gap-3"
+			aria-live="polite"
+			aria-label={t('chat.conversation.aria')}
+		>
 			{#each messages as msg (msg)}
 				{#if msg.role === 'user'}
 					<div class="flex justify-end">
@@ -227,7 +231,8 @@
 				/* parent handles fallback flow */
 			}}
 		>
-			<UserRoundCheck size={17} aria-hidden="true" /> {t('chat.fallback.cta')}
+			<UserRoundCheck size={17} aria-hidden="true" />
+			{t('chat.fallback.cta')}
 		</button>
 	{:else}
 		<button
@@ -237,7 +242,8 @@
 				/* parent handles fallback flow */
 			}}
 		>
-			<UserRoundCheck size={17} aria-hidden="true" /> {t('chat.fallback.default')}
+			<UserRoundCheck size={17} aria-hidden="true" />
+			{t('chat.fallback.default')}
 		</button>
 	{/if}
 </section>

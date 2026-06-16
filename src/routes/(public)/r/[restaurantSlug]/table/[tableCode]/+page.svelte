@@ -17,7 +17,6 @@
 	import PreferenceChips from '$lib/ui/menu/PreferenceChips.svelte';
 	import SafetyBadges from '$lib/ui/menu/SafetyBadges.svelte';
 	import { t, tWithVars, setLanguage, languageDisplayName, isRtl } from '$lib/i18n';
-	import { LANGUAGES } from '$lib/i18n/languages';
 
 	let { data }: { data: PageData } = $props();
 
@@ -149,14 +148,16 @@
 				class="inline-flex items-center gap-2 text-sm font-semibold text-white/90"
 				href={resolve('/')}
 			>
-				<ArrowLeft size={16} /> {t('app.backLink')}
+				<ArrowLeft size={16} />
+				{t('app.backLink')}
 			</a>
 			<div class="mt-8 grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
 				<div>
 					<p
 						class="inline-flex items-center gap-2 rounded-md bg-white/14 px-3 py-1.5 text-sm font-semibold"
 					>
-						<QrCode size={15} /> {tWithVars('app.tableBadge', { code: data.tableCode })}
+						<QrCode size={15} />
+						{tWithVars('app.tableBadge', { code: data.tableCode })}
 					</p>
 					<h1 class="mt-4 text-3xl font-semibold sm:text-5xl">{data.restaurant.name}</h1>
 					<p class="mt-3 max-w-2xl text-base leading-7 text-white/88">
@@ -285,7 +286,8 @@
 						<div
 							class="mt-4 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm leading-6 text-green-900"
 						>
-							<ShieldCheck class="mt-0.5 shrink-0" size={18} /> {t('menu.detail.verified')}
+							<ShieldCheck class="mt-0.5 shrink-0" size={18} />
+							{t('menu.detail.verified')}
 						</div>
 					{/if}
 				</section>
@@ -341,7 +343,8 @@
 				</div>
 				{#if feedbackSent}
 					<p class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-lingua-primary">
-						<ThumbsUp size={16} /> {t('feedback.thankYou')}
+						<ThumbsUp size={16} />
+						{t('feedback.thankYou')}
 					</p>
 				{/if}
 			</section>
