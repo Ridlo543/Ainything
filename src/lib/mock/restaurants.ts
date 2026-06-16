@@ -967,7 +967,7 @@ export function getOrganizationRestaurants(organizationId: string) {
 }
 
 export function getRestaurant(slug: string) {
-	return restaurants.find((restaurant) => restaurant.slug === slug) ?? restaurants[0];
+	return restaurants.find((restaurant) => restaurant.slug === slug) ?? null;
 }
 
 export function getAllImportIssues() {

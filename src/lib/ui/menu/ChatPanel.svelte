@@ -1,25 +1,94 @@
 <script lang="ts">
-	import { CircleAlert, MessageCircleQuestion, Send, UserRoundCheck } from '@lucide/svelte';
+	import {
+		CircleAlert,
+		Loader2,
+		MessageCircleQuestion,
+		Send,
+		UserRoundCheck
+	} from '@lucide/svelte';
 	import type { Restaurant } from '$lib/domain/menu/types';
+	import type { DietaryPreferenceCode } from '$lib/domain/session/schema';
 
-	let { restaurant, tableCode }: { restaurant: Restaurant; tableCode: string } = $props();
+	let {
+		restaurant,
+		tableCode,
+		sessionId,
+		languageTag,
+		dietaryPreferences
+	}: {
+		restaurant: Restaurant;
+		tableCode: string;
+		sessionId: string | null;
+		languageTag: string;
+		dietaryPreferences: DietaryPreferenceCode[];
+	} = $props();
+
+	type ChatMessage = { role: 'user' | 'assistant'; content: string; safety?: string };
+	type UiState = 'idle' | 'loading' | 'error';
 
 	let draft = $state('');
-	let mode = $state<'confident' | 'low' | 'staff' | 'error'>('confident');
+	let uiState = $state<UiState>('idle');
+	let messages = $state<ChatMessage[]>([]);
+	let lastSuggestFallback = $state(false);
+	let errorMessage = $state('');
 
-	const answerOptions = [
-		{ id: 'confident', label: 'Menu answer' },
-		{ id: 'low', label: 'Not confirmed' },
-		{ id: 'staff', label: 'Ask staff' },
-		{ id: 'error', label: 'Retry later' }
-	] as const;
+	async function sendMessage() {
+		const question = draft.trim();
+		if (!question || uiState === 'loading') return;
 
-	const answers = $derived({
-		confident: `A safe popular choice at ${restaurant.name} is ${restaurant.menuItems[0].name}. It is marked ${restaurant.menuItems[0].dietaryFlags.join(', ') || 'standard'} in the restaurant data.`,
-		low: 'The restaurant has not confirmed enough ingredient detail for that request. Please ask staff before ordering.',
-		staff: `Staff request prepared for ${tableCode}. Summary: guest needs confirmation before ordering.`,
-		error: 'Menu support is temporarily unavailable. You can still ask staff from this table.'
-	});
+		if (!sessionId) {
+			errorMessage = 'Session not started. Reload the page to begin.';
+			uiState = 'error';
+			return;
+		}
+
+		messages = [...messages, { role: 'user', content: question }];
+		draft = '';
+		uiState = 'loading';
+		errorMessage = '';
+
+		try {
+			const res = await fetch('/api/public/chat', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					restaurantSlug: restaurant.slug,
+					tableCode,
+					sessionId,
+					content: question,
+					languageTag,
+					dietaryPreferences
+				})
+			});
+
+			if (!res.ok) {
+				throw new Error(`HTTP ${res.status}`);
+			}
+
+			const data = await res.json();
+
+			messages = [
+				...messages,
+				{ role: 'assistant', content: data.answer, safety: data.safetyStatus }
+			];
+			lastSuggestFallback = data.suggestFallback;
+			uiState = 'idle';
+		} catch {
+			errorMessage = 'Could not reach the assistant. Please try again or ask staff.';
+			uiState = 'error';
+		}
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			sendMessage();
+		}
+	}
+
+	function safetyIcon(safety: string | undefined) {
+		return safety === 'needs-staff' || safety === 'low-confidence' ? 'warn' : 'info';
+	}
 </script>
 
 <section class="surface rounded-lg p-4">
@@ -35,55 +104,143 @@
 		</span>
 	</div>
 
-	<div class="mt-4 flex flex-wrap gap-2">
-		{#each answerOptions as option (option.id)}
-			<button
-				type="button"
-				class={`rounded-md border px-3 py-2 text-xs font-semibold ${
-					mode === option.id
-						? 'border-lingua-primary bg-lingua-primary text-white'
-						: 'border-lingua-border bg-white'
-				}`}
-				onclick={() => (mode = option.id)}
-			>
-				{option.label}
-			</button>
-		{/each}
-	</div>
+	<!-- Conversation history -->
+	{#if messages.length > 0}
+		<div class="mt-4 flex flex-col gap-3" aria-live="polite" aria-label="Chat conversation">
+			{#each messages as msg (msg)}
+				{#if msg.role === 'user'}
+					<div class="flex justify-end">
+						<p
+							class="max-w-[85%] rounded-lg rounded-br-sm bg-lingua-primary px-3 py-2 text-sm text-white"
+						>
+							{msg.content}
+						</p>
+					</div>
+				{:else}
+					<div class="flex items-start gap-2">
+						{#if safetyIcon(msg.safety) === 'warn'}
+							<CircleAlert
+								class="mt-0.5 shrink-0 text-lingua-warning"
+								size={18}
+								aria-hidden="true"
+							/>
+						{:else}
+							<MessageCircleQuestion
+								class="mt-0.5 shrink-0 text-lingua-primary"
+								size={18}
+								aria-hidden="true"
+							/>
+						{/if}
+						<div
+							class="max-w-[85%] rounded-lg rounded-bl-sm border border-lingua-border bg-slate-50 px-3 py-2 text-sm leading-6 text-lingua-text"
+						>
+							{msg.content}
+							{#if msg.safety === 'needs-staff'}
+								<p class="mt-1 text-xs font-semibold text-lingua-warning">
+									Staff confirmation recommended for this question.
+								</p>
+							{:else if msg.safety === 'low-confidence'}
+								<p class="mt-1 text-xs text-lingua-subtle">
+									Answer may be partial — ask staff to confirm.
+								</p>
+							{/if}
+						</div>
+					</div>
+				{/if}
+			{/each}
 
-	<div class="mt-4 rounded-lg border border-lingua-border bg-slate-50 p-3">
-		<div class="flex items-start gap-3">
-			{#if mode === 'staff' || mode === 'low'}
-				<CircleAlert class="mt-0.5 text-lingua-warning" size={20} />
-			{:else if mode === 'error'}
-				<CircleAlert class="mt-0.5 text-lingua-danger" size={20} />
-			{:else}
-				<MessageCircleQuestion class="mt-0.5 text-lingua-primary" size={20} />
+			{#if uiState === 'loading'}
+				<div class="flex items-center gap-2 text-sm text-lingua-subtle">
+					<Loader2 class="animate-spin" size={16} aria-hidden="true" />
+					Checking menu data…
+				</div>
 			{/if}
-			<p class="text-sm leading-6 text-lingua-text">{answers[mode]}</p>
 		</div>
-	</div>
+	{:else}
+		<!-- Empty state with prompt suggestions -->
+		<div class="mt-4 rounded-lg border border-lingua-border bg-slate-50 p-3">
+			{#if uiState === 'loading'}
+				<div class="flex items-center gap-2 text-sm text-lingua-subtle">
+					<Loader2 class="animate-spin" size={16} aria-hidden="true" />
+					Checking menu data…
+				</div>
+			{:else}
+				<p class="text-sm text-lingua-subtle">
+					Ask anything about the menu — ingredients, allergens, spice level, or halal status.
+				</p>
+				<div class="mt-2 flex flex-wrap gap-2">
+					{#each ['Is this halal?', 'Any nut-free dishes?', 'What is the spice level?'] as suggestion (suggestion)}
+						<button
+							type="button"
+							class="rounded-md border border-lingua-border bg-white px-2 py-1 text-xs text-lingua-text hover:border-lingua-primary hover:text-lingua-primary"
+							onclick={() => {
+								draft = suggestion;
+							}}
+						>
+							{suggestion}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
+	{/if}
 
+	{#if uiState === 'error'}
+		<div
+			class="mt-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+			role="alert"
+		>
+			<CircleAlert class="mt-0.5 shrink-0" size={16} aria-hidden="true" />
+			{errorMessage}
+		</div>
+	{/if}
+
+	<!-- Input -->
 	<div class="mt-4 flex gap-2">
 		<input
-			class="tap-target min-w-0 flex-1 rounded-lg border border-lingua-border bg-white px-3 text-sm"
+			class="tap-target min-w-0 flex-1 rounded-lg border border-lingua-border bg-white px-3 text-sm disabled:opacity-50"
 			placeholder="Ask: Is this spicy? Does it contain nuts?"
 			bind:value={draft}
+			aria-label="Your question about the menu"
+			disabled={uiState === 'loading'}
+			onkeydown={handleKeydown}
 		/>
 		<button
 			type="button"
-			class="tap-target inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 text-sm font-semibold text-white"
-			onclick={() => (mode = draft.toLowerCase().includes('allergy') ? 'staff' : 'confident')}
+			class="tap-target inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
+			onclick={sendMessage}
+			disabled={uiState === 'loading' || !draft.trim()}
+			aria-label="Send question"
 		>
-			<Send size={16} /> Ask
+			{#if uiState === 'loading'}
+				<Loader2 class="animate-spin" size={16} aria-hidden="true" />
+			{:else}
+				<Send size={16} aria-hidden="true" />
+			{/if}
+			Ask
 		</button>
 	</div>
 
-	<button
-		type="button"
-		class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold text-lingua-text"
-		onclick={() => (mode = 'staff')}
-	>
-		<UserRoundCheck size={17} /> Speak to staff
-	</button>
+	<!-- Staff fallback CTA — shown when LLM suggests it or there's an error -->
+	{#if lastSuggestFallback || uiState === 'error'}
+		<button
+			type="button"
+			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-warning bg-amber-50 px-4 text-sm font-semibold text-amber-900"
+			onclick={() => {
+				/* parent handles fallback flow */
+			}}
+		>
+			<UserRoundCheck size={17} aria-hidden="true" /> Ask staff directly
+		</button>
+	{:else}
+		<button
+			type="button"
+			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold text-lingua-text"
+			onclick={() => {
+				/* parent handles fallback flow */
+			}}
+		>
+			<UserRoundCheck size={17} aria-hidden="true" /> Speak to staff
+		</button>
+	{/if}
 </section>

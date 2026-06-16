@@ -66,7 +66,8 @@ const bootstrap: PublicMenuBootstrap = {
 const validInput = {
 	sessionId: SESSION_ID,
 	content: 'Is the nasi goreng halal?',
-	languageTag: 'en'
+	languageTag: 'en',
+	dietaryPreferences: ['halal', 'vegetarian']
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -127,17 +128,14 @@ describe('handleChatTurn — happy path', () => {
 		);
 	});
 
-	it('flattens menu item dietaryFlags into the LLM context (deduplicated)', async () => {
+	it('passes guest dietary preferences from input to the LLM (not menu flags)', async () => {
 		await handleChatTurn(bootstrap, validInput);
 
 		expect(chatMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				dietaryPreferences: expect.arrayContaining(['halal', 'vegetarian'])
+				dietaryPreferences: ['halal', 'vegetarian']
 			})
 		);
-		// halal appears in both items but should only be listed once
-		const call = chatMock.mock.calls[0][0] as { dietaryPreferences: string[] };
-		expect(call.dietaryPreferences.filter((p: string) => p === 'halal')).toHaveLength(1);
 	});
 
 	it('passes menu items snapshot to the LLM', async () => {

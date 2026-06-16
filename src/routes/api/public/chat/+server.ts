@@ -83,6 +83,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			suggestFallback: result.suggestFallback,
 			capExceeded: false
 		},
-		{ status: 200 }
+		{ status: 201 }
 	);
 };

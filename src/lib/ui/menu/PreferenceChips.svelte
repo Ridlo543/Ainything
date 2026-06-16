@@ -8,7 +8,7 @@
 		{ label: 'Vegan', value: 'vegan' },
 		{ label: 'Gluten-free', value: 'gluten-free' },
 		{ label: 'Nut-free', value: 'nut-free' },
-		{ label: 'Low spice', value: 'spicy' }
+		{ label: 'No alcohol', value: 'contains-alcohol' }
 	];
 
 	let {

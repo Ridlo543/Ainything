@@ -66,7 +66,7 @@ export async function handleChatTurn(
 		restaurantId: bootstrap.table.restaurantId,
 		restaurantName: bootstrap.restaurant.name,
 		languageTag: input.languageTag,
-		dietaryPreferences: [...new Set(bootstrap.restaurant.menuItems.flatMap((i) => i.dietaryFlags))],
+		dietaryPreferences: input.dietaryPreferences,
 		menuItems,
 		question: input.content,
 		history

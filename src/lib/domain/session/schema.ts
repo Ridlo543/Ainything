@@ -117,7 +117,9 @@ export type ChatSafetyStatus = (typeof CHAT_SAFETY_CODES)[number];
 export const createChatMessageInputSchema = z.object({
 	sessionId: z.string().uuid(),
 	content: z.string().trim().min(1).max(1000),
-	languageTag: languageTagSchema
+	languageTag: languageTagSchema,
+	/** Guest dietary preferences from the session — used to personalise the LLM context. */
+	dietaryPreferences: z.array(z.enum(DIETARY_PREFERENCE_CODES)).max(12).default([])
 });
 
 export type CreateChatMessageInput = z.infer<typeof createChatMessageInputSchema>;

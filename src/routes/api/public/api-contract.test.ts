@@ -313,7 +313,8 @@ describe('POST /api/public/chat — handleChatTurn', () => {
 		tableCode: 'T07',
 		sessionId: SESSION_ID,
 		content: 'Is the nasi goreng halal?',
-		languageTag: 'en'
+		languageTag: 'en',
+		dietaryPreferences: ['halal']
 	};
 
 	it('returns answer, safetyStatus, suggestFallback, message ids', async () => {

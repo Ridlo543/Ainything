@@ -45,7 +45,7 @@ function resolveMockPublicMenu(
 		table: {
 			id: `${restaurant.id}-${tableCode}`,
 			code: tableCode,
-			label: tableCode,
+			label: `Table ${tableCode}`,
 			restaurantId: restaurant.id,
 			organizationId: restaurant.organizationId
 		}

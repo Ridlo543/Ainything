@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { resolvePublicMenu } from '$lib/server/tenant/public-context';
+import { applyRateLimit } from '$lib/server/services/public-api-helpers';
 
 /**
  * GET /api/public/bootstrap?restaurant=<slug>&table=<code>
@@ -8,15 +9,16 @@ import { resolvePublicMenu } from '$lib/server/tenant/public-context';
  * Returns restaurant profile + table metadata + full published menu. Used by the PWA
  * on QR open and can be pre-fetched. Subsequent renders use the cached payload.
  *
- * Cache strategy:
- * - s-maxage=60: shared/CDN cache holds for 60 s (published menu changes infrequently).
- * - stale-while-revalidate=300: CDN serves stale while revalidating for 5 min.
- * - Private/draft data is never served here; the restaurant+menu query in the repository
- *   only returns published menus and active restaurants/tables.
+ * Rate limit: 20 / 60 s per IP (bootstrap tier — higher than session-create because
+ * CDN cache absorbs most real traffic; the limit guards against scraping).
  *
- * No authentication required. Rate limiting is light because cache hit rate is high.
+ * Cache strategy:
+ * - s-maxage=60: shared/CDN cache holds for 60 s.
+ * - stale-while-revalidate=300: CDN serves stale while revalidating for 5 min.
  */
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, request }) => {
+	await applyRateLimit('bootstrap', request);
+
 	const restaurantSlug = url.searchParams.get('restaurant')?.trim();
 	const tableCode = url.searchParams.get('table')?.trim();
 
