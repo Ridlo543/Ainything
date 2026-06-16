@@ -31,3 +31,34 @@
   - QR table manager now selects a restaurant before showing table QR links.
   - Menu, restaurant facts, reports, and staff inbox now show clearer tenant/restaurant context.
 - Updated PRD, technical specification, architecture, context, README, and TODO with multi-tenant routing and tenant isolation rules.
+
+## 2026-06-16 Continued
+
+- Added local demo authentication foundation:
+  - `hooks.server.ts` reads a HttpOnly demo session cookie into `event.locals.user`.
+  - `/login` provides owner/staff demo account selection through a SvelteKit form action.
+  - `/logout` clears the demo session cookie.
+- Added server-side tenant resolver using mock users, memberships, organizations, and restaurants.
+- Protected dashboard and staff routes with server load redirects to `/login`.
+- Updated dashboard, menu, QR table, knowledge, reports, and staff inbox pages to consume server-provided tenant data instead of hard-coded organization data.
+- Added tenant resolver unit tests for membership-scoped restaurant access.
+- Added local backend infrastructure foundation:
+  - `.env.example` for app URL, PostgreSQL, Redis, and session secret.
+  - `docker-compose.yml` for PostgreSQL 16 and Redis 7.
+  - server-side env loader and `/api/health/backend` endpoint for backend configuration checks.
+
+## 2026-06-16 Backend Foundation
+
+- Added committed SQL migrations under `db/migrations` for the core multi-tenant PostgreSQL schema:
+  - organizations, users, memberships, restaurants, locations, tables, menus, categories, items, translations, dietary flags, allergens, import issues, knowledge documents, customer sessions, chat messages, fallback requests, feedback, and AI events.
+  - tenant indexes, `(restaurant_id, table_code)` uniqueness, published-menu uniqueness, and `updated_at` triggers.
+  - baseline Row Level Security policies using an app role and `app.user_external_id` request context.
+- Added demo seed data under `db/seeds` with two organizations, multiple restaurants, duplicated table codes across restaurants, published menus, knowledge docs, sessions, and fallback requests.
+- Added `scripts/db.mjs` and package scripts for `pnpm db:migrate`, `pnpm db:seed`, and `pnpm db:reset`.
+- Added server-only PostgreSQL and Redis clients:
+  - `src/lib/server/db/postgres.ts`
+  - `src/lib/server/cache/redis.ts`
+- Updated `/api/health/backend` to ping actual PostgreSQL and Redis dependencies without exposing secrets.
+- Added `src/lib/server/repositories/tenant-repository.ts` for database-backed tenant context resolution.
+- Updated protected dashboard/staff layouts to resolve tenant context asynchronously from PostgreSQL, with an explicit local mock fallback outside production.
+- Added opt-in database/RLS tests for tenant isolation in `src/lib/server/repositories/tenant-repository.db.test.ts`.

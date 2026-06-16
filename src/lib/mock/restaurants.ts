@@ -1,4 +1,10 @@
-import type { Organization, Restaurant, StaffRequest } from '$lib/domain/menu/types';
+import type {
+	AppUser,
+	Membership,
+	Organization,
+	Restaurant,
+	StaffRequest
+} from '$lib/domain/menu/types';
 
 const sharedDescriptions = [
 	'Uploaded as a photographed board with mixed Indonesian and English labels.',
@@ -32,6 +38,46 @@ export const organizations: Organization[] = [
 		workspaceHost: 'jakarta-hospitality.linguaserve.app',
 		plan: 'pilot',
 		restaurantIds: ['rest-rempah-terrace', 'rest-taman-sate', 'rest-kopi-pasar']
+	}
+];
+
+export const demoUsers: AppUser[] = [
+	{
+		id: 'user-owner-bali',
+		email: 'owner@bali-table.test',
+		name: 'Made Restaurant Owner',
+		defaultOrganizationId: 'org-bali-table-group'
+	},
+	{
+		id: 'user-staff-jakarta',
+		email: 'staff@jakarta-hospitality.test',
+		name: 'Jakarta Service Staff',
+		defaultOrganizationId: 'org-jakarta-hospitality'
+	}
+];
+
+export const memberships: Membership[] = [
+	{
+		id: 'membership-owner-bali',
+		userId: 'user-owner-bali',
+		organizationId: 'org-bali-table-group',
+		restaurantIds: [
+			'rest-uma-karang',
+			'rest-sawah-lane',
+			'rest-nusa-noodle',
+			'rest-lotus-hotel',
+			'rest-mangrove-grill',
+			'rest-layang-vegan',
+			'rest-senja-ramen'
+		],
+		role: 'owner'
+	},
+	{
+		id: 'membership-staff-jakarta',
+		userId: 'user-staff-jakarta',
+		organizationId: 'org-jakarta-hospitality',
+		restaurantIds: ['rest-rempah-terrace', 'rest-taman-sate', 'rest-kopi-pasar'],
+		role: 'staff'
 	}
 ];
 

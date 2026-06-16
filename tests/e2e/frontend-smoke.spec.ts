@@ -18,6 +18,9 @@ test('customer QR flow renders menu, chat, and feedback states', async ({ page }
 test('admin dashboard renders mocked phase 5 surfaces', async ({ page }) => {
 	await page.goto('/dashboard');
 
+	await expect(page).toHaveURL(/\/login/);
+	await page.getByRole('button', { name: 'Continue' }).click();
+	await expect(page).toHaveURL(/\/dashboard/);
 	await expect(page.getByRole('heading', { name: 'Restaurant operations' })).toBeVisible();
 	await expect(page.getByText('Restaurant health')).toBeVisible();
 
@@ -31,6 +34,9 @@ test('admin dashboard renders mocked phase 5 surfaces', async ({ page }) => {
 test('staff inbox renders selected fallback detail', async ({ page }) => {
 	await page.goto('/staff/inbox');
 
+	await expect(page).toHaveURL(/\/login/);
+	await page.getByRole('button', { name: 'Continue' }).click();
+	await expect(page).toHaveURL(/\/staff\/inbox/);
 	await expect(page.getByRole('heading', { name: 'Help requests' })).toBeVisible();
 	await expect(page.getByText('Guest summary for staff')).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Open guest view' })).toBeVisible();

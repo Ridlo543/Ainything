@@ -1,27 +1,33 @@
 <script lang="ts">
 	import { Activity, AlertTriangle, Building2, MessageCircle, QrCode } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
-	import { organizations, restaurants, staffRequests } from '$lib/mock/restaurants';
+	import type { PageData } from './$types';
+	import { staffRequests } from '$lib/mock/restaurants';
 	import StatTile from '$lib/ui/primitives/StatTile.svelte';
 
-	const activeOrganization = organizations[0];
-	const scopedRestaurants = restaurants.filter(
-		(restaurant) => restaurant.organizationId === activeOrganization.id
+	let { data }: { data: PageData } = $props();
+
+	const activeOrganization = $derived(data.tenant.organization);
+	const scopedRestaurants = $derived(data.tenant.restaurants);
+	const activeRestaurants = $derived(scopedRestaurants.length);
+	const scansToday = $derived(
+		scopedRestaurants.reduce((sum, restaurant) => sum + restaurant.analytics.scansToday, 0)
 	);
-	const activeRestaurants = scopedRestaurants.length;
-	const scansToday = scopedRestaurants.reduce(
-		(sum, restaurant) => sum + restaurant.analytics.scansToday,
-		0
+	const fallbackRate = $derived(
+		Math.round(
+			scopedRestaurants.reduce((sum, restaurant) => sum + restaurant.analytics.fallbackRate, 0) /
+				scopedRestaurants.length
+		)
 	);
-	const fallbackRate = Math.round(
-		scopedRestaurants.reduce((sum, restaurant) => sum + restaurant.analytics.fallbackRate, 0) /
-			scopedRestaurants.length
+	const needsReview = $derived(
+		scopedRestaurants.reduce((sum, restaurant) => {
+			return sum + restaurant.importIssues.filter((issue) => issue.status !== 'approved').length;
+		}, 0)
 	);
-	const needsReview = scopedRestaurants.reduce((sum, restaurant) => {
-		return sum + restaurant.importIssues.filter((issue) => issue.status !== 'approved').length;
-	}, 0);
-	const scopedRequests = staffRequests.filter((request) =>
-		scopedRestaurants.some((restaurant) => restaurant.slug === request.restaurantSlug)
+	const scopedRequests = $derived(
+		staffRequests.filter((request) =>
+			scopedRestaurants.some((restaurant) => restaurant.slug === request.restaurantSlug)
+		)
 	);
 </script>
 

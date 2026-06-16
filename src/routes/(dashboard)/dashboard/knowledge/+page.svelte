@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { BookOpenText, Plus } from '@lucide/svelte';
-	import { getOrganization, restaurants } from '$lib/mock/restaurants';
+	import type { PageData } from './$types';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
+
+	let { data }: { data: PageData } = $props();
+
+	const organization = $derived(data.tenant.organization);
+	const restaurants = $derived(data.tenant.restaurants);
 </script>
 
 <svelte:head>
@@ -34,7 +39,7 @@
 					<div>
 						<h2 class="font-semibold text-lingua-text">{restaurant.name}</h2>
 						<p class="mt-1 text-sm text-lingua-subtle">
-							{getOrganization(restaurant.organizationId).name} - {restaurant.location}
+							{organization.name} - {restaurant.location}
 						</p>
 					</div>
 				</div>

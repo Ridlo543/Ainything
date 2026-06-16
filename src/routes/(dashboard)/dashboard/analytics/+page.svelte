@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { BarChart3, TrendingUp } from '@lucide/svelte';
-	import { organizations, restaurants } from '$lib/mock/restaurants';
+	import type { PageData } from './$types';
 
-	const activeOrganization = organizations[0];
-	const scopedRestaurants = restaurants.filter(
-		(restaurant) => restaurant.organizationId === activeOrganization.id
-	);
+	let { data }: { data: PageData } = $props();
+
+	const activeOrganization = $derived(data.tenant.organization);
+	const scopedRestaurants = $derived(data.tenant.restaurants);
 </script>
 
 <svelte:head>

@@ -1,19 +1,23 @@
 <script lang="ts">
 	import { AlertTriangle, CheckCircle2, Clock3 } from '@lucide/svelte';
-	import type { StaffRequest } from '$lib/domain/menu/types';
-	import { getRestaurant } from '$lib/mock/restaurants';
+	import type { Restaurant, StaffRequest } from '$lib/domain/menu/types';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
 	let {
 		request,
+		restaurant,
 		selected = false,
 		onclick
-	}: { request: StaffRequest; selected?: boolean; onclick?: () => void } = $props();
+	}: {
+		request: StaffRequest;
+		restaurant: Restaurant;
+		selected?: boolean;
+		onclick?: () => void;
+	} = $props();
 
 	const statusTone = $derived(
 		request.status === 'resolved' ? 'success' : request.status === 'new' ? 'warning' : 'info'
 	);
-	const restaurant = $derived(getRestaurant(request.restaurantSlug));
 </script>
 
 <button

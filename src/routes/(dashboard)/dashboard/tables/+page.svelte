@@ -1,15 +1,14 @@
 <script lang="ts">
 	import { Download, QrCode } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
-	import { organizations, restaurants } from '$lib/mock/restaurants';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 
 	const tables = Array.from({ length: 12 }, (_, index) => `T${String(index + 1).padStart(2, '0')}`);
-	const activeOrganization = organizations[0];
-	const managedRestaurants = restaurants.filter(
-		(restaurant) => restaurant.organizationId === activeOrganization.id
-	);
+	const managedRestaurants = $derived(data.tenant.restaurants);
 
-	let selectedSlug = $state(managedRestaurants[0].slug);
+	const selectedSlug = $derived(data.tenant.activeRestaurant.slug);
 	const selectedRestaurant = $derived(
 		managedRestaurants.find((restaurant) => restaurant.slug === selectedSlug) ??
 			managedRestaurants[0]
@@ -34,7 +33,12 @@
 			Restaurant
 			<select
 				class="tap-target min-w-64 rounded-lg border border-lingua-border bg-white px-3 text-sm font-normal"
-				bind:value={selectedSlug}
+				value={selectedSlug}
+				onchange={(event) => {
+					const url = new URL(location.href);
+					url.searchParams.set('restaurant', event.currentTarget.value);
+					location.href = `${url.pathname}${url.search}`;
+				}}
 			>
 				{#each managedRestaurants as restaurant (restaurant.slug)}
 					<option value={restaurant.slug}>{restaurant.name}</option>

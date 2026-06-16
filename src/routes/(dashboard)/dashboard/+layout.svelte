@@ -10,9 +10,9 @@
 		Utensils
 	} from '@lucide/svelte';
 	import { resolve } from '$app/paths';
-	import { organizations, restaurants } from '$lib/mock/restaurants';
+	import type { LayoutData } from './$types';
 
-	let { children } = $props();
+	let { children, data }: { children: import('svelte').Snippet; data: LayoutData } = $props();
 
 	type AdminRoute =
 		| '/dashboard'
@@ -31,10 +31,10 @@
 		{ href: '/dashboard/analytics', label: 'Reports', icon: BarChart3 }
 	];
 
-	const activeOrganization = organizations[0];
-	const managedRestaurants = restaurants.filter(
-		(restaurant) => restaurant.organizationId === activeOrganization.id
-	);
+	const tenant = $derived(data.tenant);
+	const activeOrganization = $derived(tenant.organization);
+	const managedRestaurants = $derived(tenant.restaurants);
+	const activeRestaurant = $derived(tenant.activeRestaurant);
 </script>
 
 <main class="min-h-screen">
@@ -55,13 +55,19 @@
 				<select
 					class="tap-target mt-3 w-full rounded-lg border border-lingua-border bg-white px-3 text-sm"
 					aria-label="Current restaurant"
+					value={activeRestaurant.slug}
+					onchange={(event) => {
+						const url = new URL(location.href);
+						url.searchParams.set('restaurant', event.currentTarget.value);
+						location.href = `${url.pathname}${url.search}`;
+					}}
 				>
 					{#each managedRestaurants as restaurant (restaurant.id)}
-						<option>{restaurant.name}</option>
+						<option value={restaurant.slug}>{restaurant.name}</option>
 					{/each}
 				</select>
 				<p class="mt-2 text-xs leading-5 text-lingua-subtle">
-					Later this will come from membership and tenant permissions.
+					Signed in as {tenant.user.name} ({tenant.membership.role}).
 				</p>
 			</div>
 			<nav class="mt-3 grid gap-1">
@@ -81,6 +87,14 @@
 			>
 				<ClipboardList size={18} /> Staff inbox
 			</a>
+			<form method="POST" action={resolve('/logout')}>
+				<button
+					class="tap-target mt-2 w-full rounded-lg border border-lingua-border px-3 text-left text-sm font-semibold text-lingua-subtle"
+					type="submit"
+				>
+					Sign out
+				</button>
+			</form>
 		</aside>
 		<div class="min-w-0">{@render children()}</div>
 	</div>

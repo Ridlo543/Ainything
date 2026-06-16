@@ -10,14 +10,22 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write .",
+		"lint": "prettier --check . --ignore-unknown && eslint .",
+		"format": "prettier --write . --ignore-unknown",
+		"infra:up": "docker compose up -d",
+		"infra:down": "docker compose down",
+		"infra:logs": "docker compose logs -f",
+		"db:migrate": "node scripts/db.mjs migrate",
+		"db:seed": "node scripts/db.mjs seed",
+		"db:reset": "node scripts/db.mjs reset",
 		"test:unit": "vitest",
 		"test": "pnpm run test:unit -- --run && pnpm run test:e2e",
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"@lucide/svelte": "^1.18.0"
+		"@lucide/svelte": "^1.18.0",
+		"pg": "^8.21.0",
+		"redis": "^6.0.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -27,6 +35,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^24",
+		"@types/pg": "^8.20.0",
 		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",

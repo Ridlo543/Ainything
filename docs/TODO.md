@@ -124,17 +124,26 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
 
 ## Phase 6 - Backend Foundation
 
-- [ ] Initialize Supabase project and migrations.
-- [ ] Create core tables from `docs/Technical_Specification.md`.
-- [ ] Implement server-only tenant resolver for host/path -> organization/restaurant/table.
-- [ ] Add Row Level Security policies.
-- [ ] Add RLS tests for:
-  - [ ] Same table code in two restaurants.
-  - [ ] User assigned to one restaurant cannot read another restaurant.
+- [x] Add local demo login with HttpOnly cookie for protected management routes.
+- [x] Add server-side tenant context resolver using mock memberships and restaurants.
+- [x] Protect dashboard and staff routes with SvelteKit server load redirects.
+- [x] Add `.env.example` for local backend configuration.
+- [x] Add Docker Compose for PostgreSQL and Redis.
+- [x] Add server-side backend env loader and backend health endpoint.
+- [x] Initialize local PostgreSQL schema and SQL migrations.
+- [x] Create core tables from `docs/Technical_Specification.md`.
+- [x] Add database access layer for local PostgreSQL.
+- [x] Add Redis integration for backend health and future cache/queue/realtime use.
+- [x] Add seed data for local development.
+- [x] Add PostgreSQL-backed tenant resolver for authenticated dashboard/staff context.
+- [x] Keep explicit mock fallback for local frontend work when DB is not configured or unavailable.
+- [x] Add Row Level Security baseline policies for tenant reads through the app role.
+- [x] Add opt-in RLS tests for:
+  - [x] Same table code in two restaurants.
+  - [x] User assigned to one restaurant cannot read another restaurant.
   - [ ] Organization manager can see all restaurants in the organization.
-- [ ] Add seed data for local development.
-- [ ] Add Supabase Auth for admin/staff.
-- [ ] Add SvelteKit server-only Supabase client.
+- [ ] Add public PostgreSQL-backed host/path -> restaurant/table resolver.
+- [ ] Replace local demo auth with production auth integration.
 - [ ] Add public scoped API/server load for published menu.
 - [ ] Add customer session creation.
 - [ ] Add chat message persistence.

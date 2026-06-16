@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { AlertTriangle, CheckCircle2, FileSearch, Image } from '@lucide/svelte';
-	import { getAllImportIssues, getOrganization, restaurants } from '$lib/mock/restaurants';
+	import type { PageData } from './$types';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
-	const issues = getAllImportIssues();
+	let { data }: { data: PageData } = $props();
+
+	const organization = $derived(data.tenant.organization);
+	const restaurants = $derived(data.tenant.restaurants);
+	const issues = $derived(restaurants.flatMap((restaurant) => restaurant.importIssues));
 </script>
 
 <svelte:head>
@@ -32,7 +36,7 @@
 					/>
 					<div>
 						<div class="flex flex-wrap items-center gap-2">
-							<Badge label={getOrganization(restaurant.organizationId).name} tone="neutral" />
+							<Badge label={organization.name} tone="neutral" />
 							<Badge label={restaurant.menuSourceType} tone="accent" />
 							<Badge label={`${restaurant.menuItems.length} items`} tone="neutral" />
 						</div>

@@ -64,6 +64,23 @@ export type Organization = {
 	restaurantIds: string[];
 };
 
+export type UserRole = 'owner' | 'manager' | 'staff';
+
+export type AppUser = {
+	id: string;
+	email: string;
+	name: string;
+	defaultOrganizationId: string;
+};
+
+export type Membership = {
+	id: string;
+	userId: string;
+	organizationId: string;
+	restaurantIds: string[];
+	role: UserRole;
+};
+
 export type Restaurant = {
 	id: string;
 	organizationId: string;
@@ -101,4 +118,12 @@ export type StaffRequest = {
 	guestNeed: string;
 	summary: string;
 	lastMessageAt: string;
+};
+
+export type TenantContext = {
+	user: AppUser;
+	membership: Membership;
+	organization: Organization;
+	restaurants: Restaurant[];
+	activeRestaurant: Restaurant;
 };

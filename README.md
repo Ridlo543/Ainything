@@ -16,8 +16,9 @@ Frontend prototype completed for phases 1-5:
 - Staff fallback inbox.
 - Dummy dataset for 10 realistic restaurant/menu sources.
 - Dummy tenant model with organizations, restaurant public hosts, and scoped QR routes.
+- Local demo login with HttpOnly cookie and server-resolved tenant context for dashboard/staff routes.
 
-Backend, Supabase, real AI/RAG, OCR, auth, and persistence are not implemented yet.
+Backend database/cache services now run locally with Docker Postgres + Redis. The repo includes SQL migrations, demo seed data, a PostgreSQL access layer, Redis health integration, and a database-backed tenant resolver with mock fallback for local development. Production auth, CRUD persistence beyond tenant/menu bootstrap, and AI/OCR integrations are still not implemented.
 
 ## Tech Stack
 
@@ -27,10 +28,13 @@ Backend, Supabase, real AI/RAG, OCR, auth, and persistence are not implemented y
 - Vitest.
 - Playwright.
 - `@lucide/svelte` icons.
+- `pg` for server-side PostgreSQL access.
+- `redis` for server-side Redis access.
 
 Planned backend:
 
-- Supabase Postgres/Auth/RLS/Storage/Realtime.
+- Local development: PostgreSQL + Redis via Docker.
+- Production path: Supabase Auth/RLS/Storage/Realtime can replace or complement the local stack later.
 - Provider adapters for LLM, OCR, WhatsApp, telemetry.
 
 ## Documentation Map
@@ -51,10 +55,27 @@ pnpm install
 pnpm run dev
 ```
 
+Local infrastructure:
+
+```sh
+pnpm infra:up
+pnpm db:migrate
+pnpm db:seed
+```
+
+Environment:
+
+```sh
+copy .env.example .env
+```
+
+`DATABASE_URL` should use the app role (`lingua_app`) created by migrations. `DIRECT_URL` should use the local migration/owner role from Docker Compose.
+
 Useful routes:
 
 - `/`: multi-restaurant platform workspace entry.
 - `/r/uma-karang/table/T07`: customer QR flow.
+- `/login`: local demo login.
 - `/dashboard`: management dashboard for an organization with many restaurants.
 - `/dashboard/menu`: menu editor.
 - `/dashboard/import`: dummy menu import review.
@@ -72,6 +93,12 @@ pnpm build
 pnpm run test:e2e
 ```
 
+Database/RLS tests are opt-in because they require Docker infra, migrations, and seed data:
+
+```sh
+$env:RUN_DB_TESTS='true'; pnpm run test:unit -- --run src/lib/server/repositories/tenant-repository.db.test.ts
+```
+
 If Playwright browsers are missing:
 
 ```sh
@@ -81,7 +108,8 @@ pnpm exec playwright install chromium
 ## Build Order
 
 1. Frontend prototype with mock data. Done.
-2. Backend foundation with Supabase schema, auth, RLS, storage, and realtime.
+2. Backend foundation with PostgreSQL schema, RLS baseline, Redis health, tenant repositories, auth, storage, and realtime.
+   Current local-first bridge uses Docker PostgreSQL + Redis before managed services.
 3. AI/RAG layer with mocked provider first, then real provider.
 4. OCR import and admin review workflow.
 5. Pilot readiness and operational checks.
@@ -92,6 +120,7 @@ pnpm exec playwright install chromium
 - UI must work on small phones, tablets, desktop, and in-app browsers.
 - Tenant context must be explicit: organization, restaurant, optional location, and table.
 - QR links must resolve restaurant and table together.
+- Dashboard/staff routes must read tenant context from server load, not a trusted browser global.
 - AI must not invent ingredients, allergen safety, halal status, prices, or availability.
 - Tenant isolation must be tested before any pilot.
 - Domain logic should stay outside Svelte components.

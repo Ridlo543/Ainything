@@ -10,6 +10,10 @@ The key decision is to use SvelteKit for the web layer while keeping business lo
 
 Product shape: one LinguaServe deployment serves many organizations and many restaurants. A restaurant receives scoped QR routes, dashboard data, and staff workflow. It does not receive a separate codebase or app build.
 
+Current local backend baseline: PostgreSQL and Redis run through Docker Compose for development. Managed services remain optional later, but local architecture must not depend on a vendor dashboard to boot the app.
+
+Runtime database access must use the app role from `DATABASE_URL`, not the migration owner from `DIRECT_URL`. The app role is expected to be constrained by Row Level Security. Migration and seed scripts may use `DIRECT_URL`.
+
 ## 2. System Layers
 
 ```text
@@ -145,6 +149,7 @@ Rules:
 - Repositories do not render UI or know route names.
 - Cross-tenant filtering must be explicit and tested.
 - Repository methods for tenant-owned records should accept `organizationId` and/or `restaurantId`; avoid unscoped `findById` helpers for private data.
+- PostgreSQL-backed tenant queries must set `app.user_external_id` inside the same transaction before reading RLS-protected tables.
 
 ## 6.1 Tenant Resolution Rules
 
@@ -170,6 +175,8 @@ Rules:
 - Staff requests, chat messages, feedback, imports, storage paths, and AI events must store restaurant_id and organization_id where useful for fast filtering and audit.
 - Tenant context should be a typed server object, not a loose `{ slug: string }` object passed around UI components.
 - Tests must include "same table code in two restaurants" and "same user sees only assigned restaurants" cases.
+- During frontend/backend bridging, a mock session cookie may be used only as a local development stand-in. Production auth must replace it with Supabase Auth sessions and RLS-enforced memberships.
+- Mock tenant fallback is allowed for local UI work when the database is unavailable. It must not hide database authorization errors in production.
 
 ## 7. Provider Adapters
 

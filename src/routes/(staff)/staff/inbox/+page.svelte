@@ -1,17 +1,28 @@
 <script lang="ts">
 	import { CheckCircle2, Clock3, Store, UserRoundCheck } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
-	import { getOrganization, restaurants, staffRequests } from '$lib/mock/restaurants';
+	import type { PageData } from './$types';
+	import { staffRequests } from '$lib/mock/restaurants';
 	import StaffRequestCard from '$lib/ui/staff/StaffRequestCard.svelte';
 
-	let selectedId = $state(staffRequests[0].id);
+	let { data }: { data: PageData } = $props();
+
+	const scopedRestaurants = $derived(data.tenant.restaurants);
+	const scopedRequests = $derived(
+		staffRequests.filter((request) =>
+			scopedRestaurants.some((restaurant) => restaurant.slug === request.restaurantSlug)
+		)
+	);
+
+	let selectedId = $state(staffRequests[0]?.id ?? '');
 	const selected = $derived(
-		staffRequests.find((request) => request.id === selectedId) ?? staffRequests[0]
+		scopedRequests.find((request) => request.id === selectedId) ?? scopedRequests[0]
 	);
 	const restaurant = $derived(
-		restaurants.find((item) => item.slug === selected.restaurantSlug) ?? restaurants[0]
+		scopedRestaurants.find((item) => item.slug === selected.restaurantSlug) ??
+			data.tenant.activeRestaurant
 	);
-	const organization = $derived(getOrganization(restaurant.organizationId));
+	const organization = $derived(data.tenant.organization);
 </script>
 
 <svelte:head>
@@ -36,9 +47,11 @@
 					tenants or locations.
 				</p>
 			</div>
-			{#each staffRequests as request (request.id)}
+			{#each scopedRequests as request (request.id)}
 				<StaffRequestCard
 					{request}
+					restaurant={scopedRestaurants.find((item) => item.slug === request.restaurantSlug) ??
+						data.tenant.activeRestaurant}
 					selected={selectedId === request.id}
 					onclick={() => (selectedId = request.id)}
 				/>

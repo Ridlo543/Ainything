@@ -44,13 +44,15 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 
 ### Backend
 
-- **Database:** Supabase Postgres.
-- **Auth:** Supabase Auth for admin/staff accounts.
-- **Authorization:** Supabase Row Level Security on every tenant-owned table.
-- **Storage:** Supabase Storage for menu PDFs/images and generated QR assets.
-- **Realtime:** Supabase Realtime for staff inbox and fallback request status.
-- **API Layer:** SvelteKit `+server.ts` endpoints and server-only service modules. Supabase Edge Functions are allowed only for provider webhooks or long-running work that should not live in the web runtime.
-- **Migrations:** Supabase migrations committed to the repo.
+- **Database:** PostgreSQL. Local development runs in Docker first.
+- **Cache / Queue Base:** Redis. Local development runs in Docker first.
+- **Auth:** Local mock session during frontend-first development, then Supabase Auth or equivalent production auth.
+- **Authorization:** Tenant-aware server checks now; PostgreSQL Row Level Security is committed in local migrations and remains mandatory for the managed/Supabase path.
+- **Storage:** Local/dev can defer file storage; production path can use Supabase Storage or S3-compatible storage.
+- **Realtime:** Can start with app polling or local Redis-backed pub/sub patterns; Supabase Realtime remains an optional managed path later.
+- **API Layer:** SvelteKit `+server.ts` endpoints and server-only service modules.
+- **Migrations:** SQL migrations should be committed to the repo. Do not depend on dashboard-only schema changes.
+- **Connection Roles:** `DIRECT_URL` is for migration/seed owner access. `DATABASE_URL` is for the app runtime role and must be subject to RLS.
 
 ### AI and Search
 
@@ -63,7 +65,8 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 ### Deployment
 
 - **Preferred Web Runtime:** Cloudflare Pages/Workers or Vercel with the matching SvelteKit adapter.
-- **Backend:** Supabase managed services.
+- **Local Infra:** Docker Compose for PostgreSQL and Redis.
+- **Managed Backend Path:** Supabase or equivalent managed Postgres/Auth/Storage stack later.
 - **Async Work:** Queue/background job provider to be selected before OCR/translation bulk processing.
 - **Monitoring:** Sentry for frontend/backend errors, provider usage logs, Supabase logs, and web vitals.
 
@@ -242,6 +245,7 @@ SvelteKit implications:
 - Add a server-only tenant resolver before Supabase integration.
 - Do not store the active tenant in a global client store as a source of truth.
 - Use URL/search state for dashboard restaurant selection until real auth and membership exist.
+- Local demo auth can use a HttpOnly mock session cookie while backend is absent. It must be treated as scaffolding and replaced by Supabase Auth before pilot.
 
 ## 9. PWA and Offline Strategy
 
@@ -441,6 +445,14 @@ Required dashboards:
 - API/action contract tests.
 - AI guardrail tests with unsafe allergen/halal prompts.
 - Provider adapter tests with mocked providers.
+
+Current local backend implementation baseline:
+
+- `db/migrations/0001_core_multi_tenant_schema.sql` creates the core schema, indexes, updated-at triggers, an app role, and baseline read RLS.
+- `db/seeds/0001_demo_multi_tenant_data.sql` creates deterministic demo tenants, restaurants, duplicated table codes, published menus, and fallback requests.
+- `scripts/db.mjs` runs `db:migrate`, `db:seed`, and `db:reset` through `DIRECT_URL`.
+- Runtime server code uses `src/lib/server/db/postgres.ts` and sets `app.user_external_id` inside a transaction before tenant-scoped reads.
+- Redis is integrated first for dependency health and reserved for cache/queue/realtime work once a concrete use case lands.
 
 ### Performance
 

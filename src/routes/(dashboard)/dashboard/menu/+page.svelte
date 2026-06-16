@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { CheckCircle2, Eye, Pencil, Search } from '@lucide/svelte';
+	import type { PageData } from './$types';
 	import { formatPrice } from '$lib/domain/menu/policy';
-	import { organizations, restaurants } from '$lib/mock/restaurants';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
-	const activeOrganization = organizations[0];
-	const managedRestaurants = restaurants.filter(
-		(restaurant) => restaurant.organizationId === activeOrganization.id
-	);
+	let { data }: { data: PageData } = $props();
 
-	let selectedSlug = $state(managedRestaurants[0].slug);
+	const activeOrganization = $derived(data.tenant.organization);
+	const managedRestaurants = $derived(data.tenant.restaurants);
+
 	let search = $state('');
+	const selectedSlug = $derived(data.tenant.activeRestaurant.slug);
 	const selectedRestaurant = $derived(
 		managedRestaurants.find((item) => item.slug === selectedSlug) ?? managedRestaurants[0]
 	);
@@ -38,7 +38,12 @@
 		</div>
 		<select
 			class="tap-target rounded-lg border border-lingua-border bg-white px-3 text-sm"
-			bind:value={selectedSlug}
+			value={selectedSlug}
+			onchange={(event) => {
+				const url = new URL(location.href);
+				url.searchParams.set('restaurant', event.currentTarget.value);
+				location.href = `${url.pathname}${url.search}`;
+			}}
 			aria-label="Restaurant"
 		>
 			{#each managedRestaurants as restaurant (restaurant.slug)}
