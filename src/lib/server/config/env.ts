@@ -17,6 +17,9 @@ export const appEnv = {
 	databaseUrl: env.DATABASE_URL,
 	directUrl: env.DIRECT_URL,
 	redisUrl: env.REDIS_URL,
+	llmProvider: env.LLM_PROVIDER || 'mock',
+	aiDailyCap: env.AI_DAILY_CAP ? Number(env.AI_DAILY_CAP) : 500,
+	authProvider: env.AUTH_PROVIDER || 'mock',
 	supabaseUrl: publicEnv.PUBLIC_SUPABASE_URL,
 	supabaseAnonKey: publicEnv.PUBLIC_SUPABASE_ANON_KEY,
 	supabaseServiceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY

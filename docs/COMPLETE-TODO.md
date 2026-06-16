@@ -95,3 +95,52 @@
 - Applied rate limiting to all three live public endpoints (sessions, fallback, feedback) via `applyRateLimit`.
 - Added unit tests for `guest-interaction-service` (12 tests: tenant-spoof rejection, field validation, UUID validation, result shape) and `rate-limiter` (4 tests: test-env bypass, all endpoint types, description format).
 - Verified green: `pnpm check` (0 errors), `pnpm test:unit --no-cache` (25 passed, 3 DB tests skipped), `pnpm lint` (prettier + eslint exit 0).
+
+## 2026-06-16 Items 1–5: Bootstrap endpoint, Chat, AI cap, Auth adapter, RLS tests
+
+**Item 1 — GET /api/public/bootstrap**
+- `src/routes/api/public/bootstrap/+server.ts`: returns restaurant + table + published menu
+  from the server-side resolver. Cache-Control `public, s-maxage=60, stale-while-revalidate=300`.
+  No auth required. 404 on unresolved slug/table.
+
+**Item 2 — POST /api/public/chat**
+- `src/lib/domain/session/schema.ts`: added `createChatMessageInputSchema`, `ChatRole`,
+  `ChatSafetyStatus` types.
+- `src/lib/server/repositories/chat-repository.ts`: `persistChatTurn` — inserts customer
+  question and assistant answer in one `withPublicSessionContext` transaction.
+- `src/lib/server/providers/llm/types.ts`: `LlmProvider` interface, `LlmChatContext`,
+  `LlmChatResult`. Provider adapters implement this; services depend only on the interface.
+- `src/lib/server/providers/llm/mock-provider.ts`: `MockLlmProvider` — returns a clear
+  "not yet connected" placeholder with `needs-staff` safety so the UI offers a fallback.
+- `src/lib/server/providers/llm/factory.ts`: selects provider via `LLM_PROVIDER` env
+  (default 'mock'). No callers need to change when a real provider is added.
+- `src/lib/server/services/chat-service.ts`: `handleChatTurn` — validates, calls LLM
+  adapter, persists turn, returns answer payload.
+- `src/routes/api/public/chat/+server.ts`: rate limit (chat tier) + daily AI cap check
+  before service call; graceful cap-exceeded response instead of error.
+
+**Item 3 — Per-restaurant daily AI-call cap**
+- `src/lib/server/services/ai-cost-cap.ts`: Redis fixed-window keyed by
+  `ai-cap:<restaurantId>:<YYYY-MM-DD>`. TTL = seconds until UTC midnight. Fail-open.
+  Configurable via `AI_DAILY_CAP` env (default 500 calls/restaurant/day).
+- `.env.example` + `appEnv`: added `AI_DAILY_CAP` and `LLM_PROVIDER`.
+
+**Item 4 — Auth provider adapter (production path)**
+- `src/lib/server/auth/types.ts`: `AuthProvider` interface (`getSessionUser`).
+- `src/lib/server/auth/mock-auth-provider.ts`: wraps existing mock cookie logic.
+- `src/lib/server/auth/supabase-auth-provider.ts`: stub with clear TODO comments
+  for Phase 7 wiring. Returns null until Supabase is configured.
+- `src/lib/server/auth/auth-factory.ts`: singleton factory, selects via `AUTH_PROVIDER`
+  env ('mock' | 'supabase'). Default 'mock'.
+- `src/hooks.server.ts`: updated to call `authProvider.getSessionUser()`; no longer
+  imports mock-session directly. Auth switch = env change only.
+- `.env.example` + `appEnv`: added `AUTH_PROVIDER`.
+
+**Item 5 — RLS isolation tests**
+- `tenant-repository.db.test.ts`: added two new opt-in DB tests (skipped without
+  `RUN_DB_TESTS=true`):
+  - Owner sees all restaurants in their own organization (closes Phase 5 TODO gap).
+  - Cross-tenant guest fallback insert is rejected by the 0004 RLS policy when
+    `session_id` belongs to a different restaurant than the fallback row.
+
+**Verification:** `pnpm check` 0 errors · `pnpm test:unit --no-cache` 25/25 (5 skipped DB) · `pnpm lint` exit 0.

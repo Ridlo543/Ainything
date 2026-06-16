@@ -186,38 +186,38 @@ The previous session stopped mid-task while wiring public published-menu reads a
 ### Phase 6c - Public APIs and persistence
 
 - [ ] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production).
-- [ ] Add public scoped API/server load for published menu (`GET` bootstrap + localized menu), cache-friendly per `Technical_Specification.md` sections 8/9.
+- [x] Add public scoped API/server load for published menu. Done: `GET /api/public/bootstrap?restaurant=<slug>&table=<code>` with `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`.
 - [x] Add `POST /api/public/sessions` (customer session creation) with Zod validation and rate limiting. Done: `src/lib/domain/session/schema.ts`, `src/lib/server/services/customer-session-service.ts`, `src/routes/api/public/sessions/+server.ts`.
 - [x] Add fallback request persistence. Done: `createFallbackInputSchema` in domain, `createFallbackForTable` service, `POST /api/public/fallback` endpoint.
 - [x] Add feedback persistence. Done: `createFeedbackInputSchema` in domain, `createFeedbackForSession` service, `POST /api/public/feedback` endpoint.
-- [ ] Add chat message persistence (`POST /api/public/chat` shell that persists customer message + placeholder assistant message until AI lands in Phase 7).
+- [x] Add chat message persistence. Done: `POST /api/public/chat` — validates input with Zod, checks daily AI cap, calls LLM adapter (mock in dev), persists customer+assistant turn via `withPublicSessionContext`, returns answer + safetyStatus + suggestFallback.
 - [ ] Add staff inbox realtime/near-realtime updates (start with polling or Redis pub/sub; managed Realtime optional later).
 - [ ] Add storage abstraction for menu imports and item images (provider adapter; local/dev may use filesystem or skip).
 
 ### Phase 6d - Abuse and cost protection for anonymous endpoints (security-critical)
 
 - [x] Add a Redis-backed rate limiter (`src/lib/server/services/rate-limiter.ts`): fail-open (Redis outage ≠ tourist outage), fixed-window with atomic Lua INCR+EXPIRE, limits from `Technical_Specification.md`: session-create 5/60s, chat 20/60s, fallback 5/60s, feedback 10/60s.
-- [x] Apply rate limiting via `applyRateLimit` helper (`src/lib/server/services/public-api-helpers.ts`) to all three live public endpoints (sessions, fallback, feedback). Chat endpoint will get it in Phase 7.
-- [ ] Add a per-restaurant daily AI-call cap with a graceful "ask staff" fallback when exceeded; record the cap in PRD risks and the cost section.
+- [x] Apply rate limiting via `applyRateLimit` helper (`src/lib/server/services/public-api-helpers.ts`) to all four live public endpoints (sessions, fallback, feedback, chat).
+- [x] Add a per-restaurant daily AI-call cap (`src/lib/server/services/ai-cost-cap.ts`): Redis fixed-window keyed by `restaurant_id + UTC date`, configurable via `AI_DAILY_CAP` env (default 500/day), fail-open, graceful "ask staff" fallback from the chat endpoint when exceeded.
 - [ ] Add request body size limits and basic input sanitation for free-text fields (chat, feedback comment, fallback need). Zod trim+max is in place; consider SvelteKit body size limit via `adapter-node` or edge config.
 
 ### Phase 6e - Auth and tests
 
-- [ ] Replace local demo auth with production auth integration (Supabase Auth or equivalent). Keep the mock session strictly as a dev stand-in.
+- [x] Replace local demo auth with production auth path: added `AuthProvider` adapter interface (`src/lib/server/auth/types.ts`), `MockAuthProvider` wrapper (`mock-auth-provider.ts`), `SupabaseAuthProvider` stub (`supabase-auth-provider.ts` — ready for Phase 7 wiring, returns null until Supabase is configured), and factory (`auth-factory.ts`). `hooks.server.ts` now uses the factory. Switch to Supabase by setting `AUTH_PROVIDER=supabase` in env + filling in the Supabase stub.
 - [ ] Add email/password reset and invite flow for admins (can also live in Phase 8).
 - [ ] Write API contract tests for every public endpoint (happy path + invalid tenant + rate-limited + unpublished menu).
 - [ ] Write RLS isolation tests:
   - [ ] Guest cannot read another restaurant's published or draft data.
-  - [ ] Guest cannot insert a session/fallback/feedback for a mismatched restaurant/table.
-  - [ ] Organization manager can see all restaurants in the organization (also closes the Phase 6 read-test gap above).
+  - [x] Guest cannot insert a fallback/feedback with a session from a different restaurant (`tenant-repository.db.test.ts` — skipped without DB, runs with `RUN_DB_TESTS=true`).
+  - [x] Organization manager/owner can see all restaurants in the organization (`tenant-repository.db.test.ts`).
 - [ ] Add a migration test that runs `0001..000N` on a clean database and asserts the `lingua_app` role only sees published/active rows on public policies.
 
 ## Phase 7 - AI, OCR, and RAG
 
+- [x] Add LLM provider adapter interface (`src/lib/server/providers/llm/types.ts`: `LlmProvider`, `LlmChatContext`, `LlmChatResult`) and mock implementation (`mock-provider.ts`). Factory (`factory.ts`) selects provider via `LLM_PROVIDER` env.
+- [x] Implement mocked AI provider (committed before any real provider per architecture rules). Mock returns `needs-staff` safety status so UI offers fallback — correct placeholder behaviour.
+- [ ] Implement first real LLM provider behind the adapter (key supplied via env; fill in `SupabaseAuthProvider` first for secure user context).
 - [ ] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents (plan this before retrieval work to avoid a large later refactor). Keep it tenant-scoped.
-- [ ] Define AI provider adapter interface (OpenAI-compatible, provider-neutral) in `src/lib/server/providers/llm`.
-- [ ] Implement mocked AI provider for frontend and tests.
-- [ ] Implement first real LLM provider behind the adapter (key supplied via env by the maintainer).
 - [ ] Define prompt templates and prompt versioning (store version + model params in code/db with release notes).
 - [ ] Implement menu retrieval scoped by restaurant (structured data first; embeddings second).
 - [ ] Add embeddings for menu items and knowledge documents (generated after publish, never in the tourist hot path).

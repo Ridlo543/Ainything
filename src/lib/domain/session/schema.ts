@@ -99,3 +99,25 @@ export const createFeedbackInputSchema = z.object({
 });
 
 export type CreateFeedbackInput = z.infer<typeof createFeedbackInputSchema>;
+
+// ---------------------------------------------------------------------------
+// Chat message
+// ---------------------------------------------------------------------------
+
+export const CHAT_ROLE_CODES = ['customer', 'assistant', 'staff', 'system'] as const;
+export type ChatRole = (typeof CHAT_ROLE_CODES)[number];
+
+export const CHAT_SAFETY_CODES = ['ok', 'low-confidence', 'needs-staff', 'blocked'] as const;
+export type ChatSafetyStatus = (typeof CHAT_SAFETY_CODES)[number];
+
+/**
+ * Body sent by the guest to ask a question in the chat.
+ * Tenant scope is always server-derived from the QR bootstrap + session token.
+ */
+export const createChatMessageInputSchema = z.object({
+	sessionId: z.string().uuid(),
+	content: z.string().trim().min(1).max(1000),
+	languageTag: languageTagSchema
+});
+
+export type CreateChatMessageInput = z.infer<typeof createChatMessageInputSchema>;
