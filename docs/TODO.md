@@ -2,6 +2,26 @@
 
 This plan starts with product/design/frontend, then backend, then AI. Field research items that cannot be executed by an agent are marked as deferred/skipped for now.
 
+Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in progress, `[!]` started but currently broken/blocked.
+
+## How To Use This File
+
+- Work top to bottom inside the active phase. Do not skip ahead unless a task is explicitly marked parallel-safe.
+- Every backend/AI task must end green on `pnpm check`, relevant `pnpm test`, and (where touched) `pnpm lint` before it is marked `[x]`.
+- Any task touching RLS policies, public APIs, allergen/halal logic, auth/session, provider adapters, or the public route bundle requires the review discipline in `docs/ARCHITECTURE.md` section 13.
+- When a task changes product scope, stack, data model, or module boundaries, update the matching doc (`PRD_Lingua.md`, `Technical_Specification.md`, `ARCHITECTURE.md`, `CONTEXT.md`) in the same change and log it in `docs/COMPLETE-TODO.md`.
+
+## Cross-Cutting Engineering Guardrails (apply to every phase)
+
+- [x] Keep domain logic out of `.svelte` files and out of route files; routes orchestrate only.
+- [x] No repository or provider import from UI components.
+- [ ] Public customer route owns the performance budget; admin/AI code must be lazy-loaded and must not bloat the public bundle.
+- [ ] Every tenant-owned query must be scoped by `organization_id` and/or `restaurant_id`; never trust a browser-supplied tenant id without server validation.
+- [ ] Guest-derived tenant ids (organization/restaurant) must be resolved server-side from the QR resolution result, never read from the request body.
+- [ ] Every new server input boundary (form action, `+server.ts`, public API) validates with a Zod schema in `src/lib/domain/*/schema.ts` or `src/lib/validation`.
+- [ ] Every external provider (LLM, OCR, WhatsApp, storage, telemetry) sits behind an adapter interface with a mock implementation committed before the real one.
+- [ ] Secrets stay server-only; never expose `SUPABASE_SERVICE_ROLE_KEY`, DB URLs, or session secret to the browser.
+
 ## Phase 0 - Product Validation and Scope Control
 
 - [x] Clarify product model: one shared multi-tenant SaaS platform serving many restaurants, not one app per restaurant.
@@ -14,8 +34,8 @@ This plan starts with product/design/frontend, then backend, then AI. Field rese
 - [~] Confirm whether WhatsApp fallback is required for pilot or internal staff inbox is enough. Deferred.
 - [x] Confirm initial prototype language list in dummy data: English, Indonesian, Chinese, Korean, Japanese, Arabic, Hindi, French, German.
 - [~] Document willingness-to-pay range from interviews. Deferred until real interviews.
-
-Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
+- [ ] Narrow MVP launch language set to a verifiable list (recommend EN, ID, ZH-Hans + one pilot-location language); keep the remaining tags as P1 precomputed-translation work. Update PRD section 4 and `Technical_Specification.md` section 15 with the decision and rationale.
+- [ ] Define the "menu minimum viable to go live" gate: required fields per item (name, price, availability, allergen/halal confidence), minimum item count, and which `confidence` values block publish. Record in PRD section 9 and Architecture menu policy.
 
 ## Phase 1 - Design Foundation
 
@@ -142,39 +162,80 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred.
   - [x] Same table code in two restaurants.
   - [x] User assigned to one restaurant cannot read another restaurant.
   - [ ] Organization manager can see all restaurants in the organization.
-- [ ] Add public PostgreSQL-backed host/path -> restaurant/table resolver.
-- [ ] Replace local demo auth with production auth integration.
-- [ ] Add public scoped API/server load for published menu.
-- [ ] Add customer session creation.
-- [ ] Add chat message persistence.
-- [ ] Add fallback request persistence.
-- [ ] Add feedback persistence.
-- [ ] Add Realtime staff inbox.
-- [ ] Add Storage bucket for menu imports and item images.
-- [ ] Write API contract tests.
-- [ ] Write RLS isolation tests.
+
+### Phase 6a - Finish the in-flight public-menu work left by the previous agent (do first)
+
+The previous session stopped mid-task while wiring public published-menu reads and anonymous guest writes. The code exists but does not compile and is not connected. Close this out before anything new.
+
+- [!] Repair `src/lib/server/repositories/public-menu-repository.ts` type errors (7). Root causes:
+  - `resolvePublicMenuBootstrap` SELECTs table columns aliased as `table_*` but the row type uses `RestaurantRow & TableRow` whose `TableRow` fields are `id/code/label`. Align the SQL aliases and the row type so they match.
+  - `loadPublishedCategories`/`loadPublishedMenuItems` are called with `{ query }`; their parameter is a `DatabaseClient` (`{ query(text, params) }`). The exported `query` helper signature is not assignable to `pg.query`. Adapt `DatabaseClient` typing in `postgres.ts` (or pass a proper client wrapper) so the bare `query` helper is accepted.
+  - Done: added a dedicated `BootstrapRow` type and reshaped `DatabaseClient` in `postgres.ts`; `pnpm check` is green.
+- [ ] Verify `db/migrations/0002_public_menu_and_guest_write_policies.sql` and `db/migrations/0003_seed_good_for_metadata.sql` are idempotent (`DROP POLICY IF EXISTS` present; data updates safe to re-run) and that `0003`'s changes are mirrored in `db/seeds/0001_demo_multi_tenant_data.sql` so `db:reset` keeps `goodFor`.
+- [x] Wire `(public)/r/[restaurantSlug]/table/[tableCode]/+page.server.ts` to `resolvePublicMenuBootstrap`, with an explicit mock fallback (`src/lib/server/tenant/public-context.ts`) when `USE_MOCK_BACKEND` is on or the DB is unavailable. Route returns 404 cleanly when slug+table do not resolve (DB path; mock keeps prototype fallback).
+- [ ] Confirm public reads return only published menu + active restaurant + active table and never draft/private data, both via SQL and via the `0002` RLS policies under the `lingua_app` role.
+- [ ] Commit the repaired WIP once `pnpm check` is green (currently 5 modified + 5 untracked files are uncommitted).
+
+### Phase 6b - Harden anonymous guest writes (security-critical)
+
+- [x] Establish a signed/opaque public session token issued server-side on QR bootstrap; persist it and set `app.public_session_id` via `withPublicSessionContext` for all guest inserts.
+- [x] Make `0002` guest-write policies actually use `app.public_session_id`: done in `db/migrations/0004_harden_guest_write_rls.sql` — added `app.current_public_session_id()` PG helper and replaced fallback/feedback INSERT policies to require `session_id = app.current_public_session_id()` inside the DB transaction (idempotent, `DROP POLICY IF EXISTS` safe).
+- [x] Derive `organizationId`/`restaurantId` for guest writes from the server-side bootstrap result, not from the request body — enforced in both service layer and repository.
+- [x] Add a `customer-session-service.ts` (routes never call the repository directly; tenant scope enforced in one place). Done; same pattern applied to `guest-interaction-service.ts` for fallback and feedback.
+
+### Phase 6c - Public APIs and persistence
+
+- [ ] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production).
+- [ ] Add public scoped API/server load for published menu (`GET` bootstrap + localized menu), cache-friendly per `Technical_Specification.md` sections 8/9.
+- [x] Add `POST /api/public/sessions` (customer session creation) with Zod validation and rate limiting. Done: `src/lib/domain/session/schema.ts`, `src/lib/server/services/customer-session-service.ts`, `src/routes/api/public/sessions/+server.ts`.
+- [x] Add fallback request persistence. Done: `createFallbackInputSchema` in domain, `createFallbackForTable` service, `POST /api/public/fallback` endpoint.
+- [x] Add feedback persistence. Done: `createFeedbackInputSchema` in domain, `createFeedbackForSession` service, `POST /api/public/feedback` endpoint.
+- [ ] Add chat message persistence (`POST /api/public/chat` shell that persists customer message + placeholder assistant message until AI lands in Phase 7).
+- [ ] Add staff inbox realtime/near-realtime updates (start with polling or Redis pub/sub; managed Realtime optional later).
+- [ ] Add storage abstraction for menu imports and item images (provider adapter; local/dev may use filesystem or skip).
+
+### Phase 6d - Abuse and cost protection for anonymous endpoints (security-critical)
+
+- [x] Add a Redis-backed rate limiter (`src/lib/server/services/rate-limiter.ts`): fail-open (Redis outage ≠ tourist outage), fixed-window with atomic Lua INCR+EXPIRE, limits from `Technical_Specification.md`: session-create 5/60s, chat 20/60s, fallback 5/60s, feedback 10/60s.
+- [x] Apply rate limiting via `applyRateLimit` helper (`src/lib/server/services/public-api-helpers.ts`) to all three live public endpoints (sessions, fallback, feedback). Chat endpoint will get it in Phase 7.
+- [ ] Add a per-restaurant daily AI-call cap with a graceful "ask staff" fallback when exceeded; record the cap in PRD risks and the cost section.
+- [ ] Add request body size limits and basic input sanitation for free-text fields (chat, feedback comment, fallback need). Zod trim+max is in place; consider SvelteKit body size limit via `adapter-node` or edge config.
+
+### Phase 6e - Auth and tests
+
+- [ ] Replace local demo auth with production auth integration (Supabase Auth or equivalent). Keep the mock session strictly as a dev stand-in.
+- [ ] Add email/password reset and invite flow for admins (can also live in Phase 8).
+- [ ] Write API contract tests for every public endpoint (happy path + invalid tenant + rate-limited + unpublished menu).
+- [ ] Write RLS isolation tests:
+  - [ ] Guest cannot read another restaurant's published or draft data.
+  - [ ] Guest cannot insert a session/fallback/feedback for a mismatched restaurant/table.
+  - [ ] Organization manager can see all restaurants in the organization (also closes the Phase 6 read-test gap above).
+- [ ] Add a migration test that runs `0001..000N` on a clean database and asserts the `lingua_app` role only sees published/active rows on public policies.
 
 ## Phase 7 - AI, OCR, and RAG
 
-- [ ] Define AI provider adapter interface.
+- [ ] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents (plan this before retrieval work to avoid a large later refactor). Keep it tenant-scoped.
+- [ ] Define AI provider adapter interface (OpenAI-compatible, provider-neutral) in `src/lib/server/providers/llm`.
 - [ ] Implement mocked AI provider for frontend and tests.
-- [ ] Implement first real LLM provider.
-- [ ] Define prompt templates and prompt versioning.
-- [ ] Implement menu retrieval scoped by restaurant.
-- [ ] Add embeddings for menu items and knowledge documents.
-- [ ] Implement chat answer endpoint.
+- [ ] Implement first real LLM provider behind the adapter (key supplied via env by the maintainer).
+- [ ] Define prompt templates and prompt versioning (store version + model params in code/db with release notes).
+- [ ] Implement menu retrieval scoped by restaurant (structured data first; embeddings second).
+- [ ] Add embeddings for menu items and knowledge documents (generated after publish, never in the tourist hot path).
+- [ ] Implement chat answer endpoint (replace the Phase 6c persistence shell with real retrieval + answer).
 - [ ] Implement guardrails:
   - [ ] Do not answer outside restaurant scope.
-  - [ ] Do not invent ingredients.
-  - [ ] Escalate allergy/halal uncertainty.
+  - [ ] Do not invent ingredients, prices, certification, or availability.
+  - [ ] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing.
   - [ ] Respect unavailable/sold-out items.
-- [ ] Implement AI event logging.
-- [ ] Implement OCR import prototype.
-- [ ] Add admin review workflow for OCR extraction.
-- [ ] Add AI evaluation fixtures with dummy and later real menu questions.
+- [ ] Implement AI event logging into `ai_events` (model, prompt version, latency, tokens, confidence, retrieved refs, safety flags, error code).
+- [ ] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
+- [ ] Implement OCR import prototype behind an OCR adapter.
+- [ ] Add admin review workflow for OCR extraction (must pass the Phase 0 "menu minimum viable" gate before publish).
+- [ ] Add AI evaluation fixtures with dummy and later real menu questions (allergy, halal, spicy, vegetarian, out-of-scope).
 
 ## Phase 8 - Integrations and Operations
 
+- [ ] Add `src/lib/i18n` dictionary layer (BCP 47 tags, language detection, RTL helper) and replace hard-coded UI strings; test long-text and Arabic RTL at 360px. Wire it to the narrowed MVP language set from Phase 0.
 - [ ] Decide staff inbox only vs WhatsApp integration for pilot.
 - [ ] If WhatsApp is used, create provider adapter and cost controls.
 - [ ] Add email/password reset flow for admins.

@@ -25,7 +25,8 @@
 	"dependencies": {
 		"@lucide/svelte": "^1.18.0",
 		"pg": "^8.21.0",
-		"redis": "^6.0.0"
+		"redis": "^6.0.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

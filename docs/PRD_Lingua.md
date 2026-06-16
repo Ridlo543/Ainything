@@ -211,6 +211,13 @@ Pembeda utama:
 - Harus memberi confidence/fallback signal untuk kasus alergi, halal, dan bahan yang tidak pasti.
 - Harus menyimpan trace minimal untuk debugging: model, prompt version, retrieved documents, latency, dan fallback reason.
 
+### Data Quality Gate (publish requirement)
+
+- Sebuah menu hanya boleh dipublish jika tiap item punya nama, harga, dan status ketersediaan.
+- Field alergi dan halal punya nilai `confidence` eksplisit. Jika data tidak ada, default-nya adalah "unknown -> staff confirm", bukan kosong atau ditebak.
+- Item dengan `confidence = staff-confirm` boleh tampil tetapi harus memicu saran konfirmasi staf untuk pertanyaan berisiko (alergi/halal/alkohol).
+- Restoran tetap satu-satunya sumber kebenaran untuk flag alergi/halal. AI tidak boleh menaikkan tingkat kepastian melebihi data yang diverifikasi restoran.
+
 ## 10. Success Metrics
 
 ### Pilot Metrics
@@ -229,6 +236,23 @@ Pembeda utama:
 - Fallback rate target awal 10-25%. Terlalu tinggi berarti AI kurang membantu; terlalu rendah bisa berarti AI overconfident.
 - Customer helpful feedback >= 80% untuk jawaban menu.
 - Admin menu publish time <= 30 menit untuk menu <= 80 item setelah data awal tersedia.
+
+### Measurement Method
+
+Metrik produk di atas hanya valid jika terinstrumentasi. Setiap metrik diikat ke event konkret:
+
+- Fallback rate = jumlah `fallback_requests` (atau `ai_events` dengan safety flag staff) dibagi total sesi chat.
+- Helpful feedback = `feedback.helpful = true` dibagi total `feedback` untuk jawaban menu.
+- Latency p95 = persentil `ai_events.latency_ms` per tipe (cached vs fresh).
+- Scan/sesi aktif = jumlah `customer_sessions` per restoran per periode.
+
+Jika sebuah metrik belum bisa dihitung dari tabel yang ada, instrumentasinya dianggap belum selesai dan menjadi blocker pilot.
+
+### Cost Control Baseline
+
+- Setiap restoran punya cap harian AI-call. Saat tercapai, sistem fallback ke "tanya staf", bukan memanggil LLM.
+- Endpoint publik anonim memakai rate limit per sesi dan per IP untuk mencegah abuse dan ledakan biaya.
+- Cap dan rate limit awal didefinisikan di `docs/Technical_Specification.md` dan ditinjau ulang setelah pilot.
 
 ### Business Metrics
 

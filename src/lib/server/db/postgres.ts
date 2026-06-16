@@ -8,7 +8,14 @@ type QueryResultRow = pg.QueryResultRow;
 type QueryValue = string | number | boolean | Date | null | string[] | Record<string, unknown>;
 type QueryParams = QueryValue[];
 
-export type DatabaseClient = Pick<pg.PoolClient, 'query'>;
+/**
+ * Minimal query surface shared by the pool-level `query` helper and a checked-out
+ * `pg.PoolClient`. Repositories depend on this instead of the full `pg` types so the
+ * bare `query` helper and a transaction client are interchangeable.
+ */
+export type DatabaseClient = {
+	query<T extends QueryResultRow>(text: string, params?: QueryParams): Promise<pg.QueryResult<T>>;
+};
 
 let pool: pg.Pool | null = null;
 
@@ -62,6 +69,16 @@ export async function withUserContext<T>(
 ) {
 	return withTransaction(async (client) => {
 		await client.query(`SELECT set_config('app.user_external_id', $1, true)`, [userExternalId]);
+		return callback(client);
+	});
+}
+
+export async function withPublicSessionContext<T>(
+	sessionId: string,
+	callback: (client: pg.PoolClient) => Promise<T>
+) {
+	return withTransaction(async (client) => {
+		await client.query(`SELECT set_config('app.public_session_id', $1, true)`, [sessionId]);
 		return callback(client);
 	});
 }

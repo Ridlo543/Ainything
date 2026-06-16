@@ -120,6 +120,19 @@ export type StaffRequest = {
 	lastMessageAt: string;
 };
 
+export type RestaurantTable = {
+	id: string;
+	code: string;
+	label: string;
+	restaurantId: string;
+	organizationId: string;
+};
+
+export type PublicMenuBootstrap = {
+	restaurant: Restaurant;
+	table: RestaurantTable;
+};
+
 export type TenantContext = {
 	user: AppUser;
 	membership: Membership;

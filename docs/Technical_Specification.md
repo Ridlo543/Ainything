@@ -322,6 +322,11 @@ Use UUID primary keys unless there is a clear reason not to.
 - `feedback`: helpfulness, issue type, free text.
 - `ai_events`: model, prompt version, latency, token usage, retrieved docs, confidence.
 
+### Vector Search
+
+- `pgvector` is enabled via a dedicated migration before retrieval work begins. Embedding columns/tables for `menu_items` and `knowledge_documents` are tenant-scoped (`organization_id`, `restaurant_id`).
+- Embeddings are generated after admin publish, never inside the tourist request path.
+
 ### Authorization
 
 - Public users can only read published restaurant/menu data through scoped public APIs or server load.
@@ -355,6 +360,22 @@ Use UUID primary keys unless there is a clear reason not to.
 - Prefer SvelteKit form actions for dashboard CRUD when possible.
 - Use `+server.ts` APIs for JSON-heavy interactions, import jobs, chat, realtime support, and webhooks.
 - Keep API request/response schemas in `src/lib/domain` or `src/lib/validation`.
+
+### Public Endpoint Abuse and Cost Controls
+
+Anonymous public endpoints (`/api/public/sessions`, `/api/public/chat`, `/api/public/fallback`, `/api/public/feedback`) are the highest abuse and cost-exposure surface. They must enforce:
+
+- Rate limiting backed by Redis, keyed by both the server-issued public session token and client IP. Suggested starting limits: session create 5/min/IP, chat 20/min/session, fallback 5/min/session, feedback 10/min/session. Tune during pilot.
+- A per-restaurant daily AI-call cap. When exceeded, return a graceful "please ask staff" fallback instead of calling the LLM.
+- Request body size limits and basic sanitation on free-text fields.
+- Server-derived tenant scope only. `organization_id` and `restaurant_id` for guest writes are resolved from the QR bootstrap result server-side, never read from the request body.
+
+### Anonymous Guest-Write Trust Model
+
+- On QR bootstrap the server issues an opaque public session token and stores it on `customer_sessions`.
+- Guest inserts run inside a transaction that sets `app.public_session_id`; RLS guest-write policies validate the row against that context, not against app-supplied ids alone.
+- `customer_sessions` insert is allowed only when `(table_id, restaurant_id, organization_id)` are mutually consistent and the table/restaurant are active.
+- `fallback_requests` and `feedback` inserts must reference a `session_id` that matches the active `app.public_session_id`.
 
 ## 14. AI/RAG Design
 
