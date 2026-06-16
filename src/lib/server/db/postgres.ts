@@ -3,9 +3,10 @@ import pg from 'pg';
 import { appEnv } from '$lib/server/config/env';
 
 const { Pool } = pg;
+type QueryResultRow = pg.QueryResultRow;
 
 type QueryValue = string | number | boolean | Date | null | string[] | Record<string, unknown>;
-type QueryParams = readonly QueryValue[];
+type QueryParams = QueryValue[];
 
 export type DatabaseClient = Pick<pg.PoolClient, 'query'>;
 
@@ -30,7 +31,7 @@ export function getPool() {
 	return pool;
 }
 
-export async function query<T>(text: string, params: QueryParams = []) {
+export async function query<T extends QueryResultRow>(text: string, params: QueryParams = []) {
 	return getPool().query<T>(text, params);
 }
 
