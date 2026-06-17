@@ -157,5 +157,19 @@ export const id: TranslationDict = {
 	'analytics.breakdown.heading': 'Rincian per restoran',
 	'analytics.breakdown.chats': '{n} obrolan',
 	'analytics.breakdown.p95': 'p95 {ms}ms',
-	'analytics.breakdown.feedback': '{helpful}/{total} membantu'
+	'analytics.breakdown.feedback': '{helpful}/{total} membantu',
+
+	// Knowledge / Restaurant Facts
+	'knowledge.title': 'Fakta Restoran - LinguaServe',
+	'knowledge.heading': 'Catatan yang disetujui untuk jawaban tamu',
+	'knowledge.description':
+		'Atur aturan dapur, catatan diet, promosi, dan kebijakan layanan secara terpisah per restoran.',
+	'knowledge.addNote': 'Tambah catatan',
+	'knowledge.reindex': 'Indeks ulang',
+	'knowledge.reindex.loading': 'Mengindeks ulang embedding\u2026',
+	'knowledge.reindex.success': 'Mengindeks ulang {generated} item. {skipped} dilewati.',
+	'knowledge.reindex.disabled':
+		'Embedding tidak diaktifkan. Atur EMBEDDING_ENABLED=true untuk menggunakan fitur ini.',
+	'knowledge.reindex.error': 'Indeks ulang gagal.',
+	'knowledge.reindex.networkError': 'Jaringan error \u2014 tidak dapat menghubungi server.'
 };

@@ -209,24 +209,29 @@
 ## 2026-06-17 Items 1–6: Admin menu wiring, Metrics, Auto-embed, i18n, RLS test, Host resolver
 
 **Item 1 — Admin menu route wiring:**
+
 - The admin menu route was already fully wired by previous work (form actions `edit`, `toggleAvailability`, `publish`; the `+page.svelte` already had a complete edit drawer + publish confirmation modal). The dashboard `+page.svelte` had a leftover `import { staffRequests } from '$lib/mock/restaurants'` which is now removed.
 - Replaced mock staff requests on the dashboard with real DB-backed data via `dashboard/+page.server.ts` calling `listRequests` from `staff-inbox-service.ts`. The 5 most recent open requests are shown in the "Live staff queue" panel.
 
 **Item 2 — Metrics endpoint:**
+
 - Created `src/lib/server/repositories/metrics-repository.ts` with `getRestaurantMetrics` and `getOrganizationMetrics`. Computes totalChats, helpfulRate, fallbackRate (via `safety_flags && ARRAY['needs-staff','blocked']`), p95 latency (via `PERCENTILE_CONT(0.95)`), and feedback ratio. Fail-open on DB error.
 - Created `src/routes/api/internal/metrics/+server.ts` — GET endpoint scoped by tenant, query param `window` (default 7 days, max 90). Authenticated via session cookie; not part of the public API surface.
 - Added `dashboard/analytics/+page.server.ts` that loads real metrics for the active tenant; updates `dashboard/analytics/+page.svelte` to show summary tiles, per-restaurant breakdown with helpful/fallback bars, chat counts, p95 latency chips, and feedback ratio. Window selector (1/7/30/90 days) preserves the `window` URL param.
 
 **Item 3 — Embedding auto-trigger:**
+
 - `menu-admin-service.ts:publishDraftMenu` now triggers `generateEmbeddingsForRestaurant` fire-and-forget after a successful publish, but only when `EMBEDDING_ENABLED=true`. Errors are logged but never propagate. Captures the publish return value before kicking off the async work, so the caller still gets the new menu id immediately.
 
 **Item 4a–4d — i18n for staff and admin pages:**
+
 - Added 60+ new translation keys to `src/lib/i18n/translations/en.ts` and `id.ts` covering: staff inbox (heading, workflow label, action buttons, detail labels), dashboard (heading, description, stat tiles, table headers, queue), analytics (heading, window selector, summary tiles, per-restaurant breakdown).
 - Wired `staff/inbox/+page.svelte` to use `t()` / `tWithVars()` for all user-facing strings.
 - Wired `dashboard/+page.svelte` and `dashboard/analytics/+page.svelte` to use `t()` / `tWithVars()` for all user-facing strings.
 - `hooks.server.ts` now resolves the `Accept-Language` header via `detectLanguage()` and stores the result in `event.locals.language` (typed in `app.d.ts` as `LanguageTag`). This sets up the foundation for pre-selecting language on first visit; the customer-side `+layout.svelte` will read it next.
 
 **Item 5 — Guest read isolation RLS test:**
+
 - Created `src/lib/server/repositories/public-menu-repository.db.test.ts` with 7 tests, all opt-in via `RUN_DB_TESTS=true`:
   1. Only published items are returned via the public path.
   2. Non-existent restaurant slug → null.
@@ -238,6 +243,7 @@
 - Tests use the bare pool connection (no `withUserContext`) to simulate what a guest connection actually looks like, proving the public policy is sufficient.
 
 **Item 6 — Host/path resolver:**
+
 - Created `src/lib/server/tenant/host-resolver.ts` with two functions:
   - `resolveRestaurantFromRequest` — extracts the slug from either the path (priority) or the `Host` header (subdomain of `linguaserve.app`). Handles port stripping, IPv6 hosts, and rejects nested subdomains.
   - `hostMatchesRestaurant` — validates the request host matches a stored `public_host` value. Case-insensitive, port-tolerant. Used by routes to prevent Host-header spoofing attacks.
@@ -278,3 +284,22 @@
 - `pnpm run infra:doctor` reports `podman 5.8.2`, `rootful` (default for `podman-machine-default`), and the active compose provider.
 - `pnpm run infra:up` pulls `pgvector/pgvector:pg16` and `redis:7-alpine`, starts `lingua-postgres` and `lingua-redis` (both `healthy`).
 - `pnpm db:migrate` applies all 8 migrations; `pnpm db:seed` loads the demo multi-tenant data.
+
+## 2026-06-17 Admin Embedding Re-index Button
+
+**Admin embedding re-index endpoint:**
+- Created `src/routes/api/admin/embeddings/+server.ts`: `POST /api/admin/embeddings` — authenticated admin endpoint that triggers embedding re-index for the active restaurant. Accepts `{ restaurantSlug }` in body, resolves tenant context from the authenticated user, calls `generateEmbeddingsForRestaurant()`, returns `{ generated, skipped, embeddingEnabled, message }`. Returns early with a flag when `EMBEDDING_ENABLED=false`.
+
+**Knowledge page re-index UI:**
+- Updated `src/routes/(dashboard)/dashboard/knowledge/+page.svelte`: added a "Re-index" button with loading spinner, success/error/info state banner, and `fetch()` call to the new endpoint. Uses `$state()` for mutable reindex state. Wired all page strings to `t()` i18n.
+
+**i18n keys:**
+- Added 8 new translation keys to `src/lib/i18n/translations/en.ts` and `id.ts` covering: knowledge page title, heading, description, add-note button, re-index button, loading/success/error/disabled/network-error messages.
+
+**Tests:**
+- Created `src/routes/api/admin/embeddings/embeddings.test.ts`: 5 contract tests covering auth requirement, tenant scope derivation, embedding-enabled guard, result shape, and worker invocation.
+
+**Metrics wiring verification:**
+- Confirmed the full metrics pipeline is connected: `ai_events` → `metrics-repository.ts` (helpfulRate, fallbackRate, latencyP95, feedbackRatio) → `GET /api/internal/metrics` → `dashboard/analytics/+page.svelte`. No gaps remain.
+
+**Verification:** `pnpm check` 0 errors · `pnpm test:unit --run` 220/220 passed (21 test files) · `pnpm lint` exit 0.

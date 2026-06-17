@@ -240,8 +240,8 @@ The previous session stopped mid-task while wiring public published-menu reads a
   - [x] Strip reasoning tags (`<think>`, `<reasoning>`, `[thinking]`, `[think]`) from model output so chain-of-thought never reaches the guest or triggers false-positives in eval (`stripReasoningTags` in `prompt.ts`).
 - [x] Implement AI event logging into `ai_events` (`ai-events-repository.ts:logAiEvent`, fail-open, captures provider, model, prompt version, latency, tokens, confidence, safety flags).
 - [x] Add AI evaluation fixtures (`eval-fixtures.ts`: 18 fixtures across 6 categories — halal, allergen, spice, price, out-of-scope, language) + live eval suite (`llm-eval.test.ts`, opt-in via `RUN_LLM_TESTS=true`). 168/168 tests passing including DB + LLM eval.
-- [ ] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
-- [ ] Expose embedding generation trigger for admins (currently only callable programmatically; needs an admin API endpoint or post-publish hook).
+- [x] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
+- [x] Expose embedding generation trigger for admins (currently only callable programmatically; needs an admin API endpoint or post-publish hook).
 - [ ] Implement OCR import prototype behind an OCR adapter.
 - [ ] Add admin review workflow for OCR extraction (must pass the Phase 0 "menu minimum viable" gate before publish).
 

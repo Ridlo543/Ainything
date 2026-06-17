@@ -157,5 +157,19 @@ export const en: TranslationDict = {
 	'analytics.breakdown.heading': 'Per-restaurant breakdown',
 	'analytics.breakdown.chats': '{n} chat{plural}',
 	'analytics.breakdown.p95': 'p95 {ms}ms',
-	'analytics.breakdown.feedback': '{helpful}/{total} helpful'
+	'analytics.breakdown.feedback': '{helpful}/{total} helpful',
+
+	// Knowledge / Restaurant Facts
+	'knowledge.title': 'Restaurant Facts - LinguaServe',
+	'knowledge.heading': 'Approved notes for guest answers',
+	'knowledge.description':
+		'Keep kitchen rules, dietary notes, promos, and service policies separate per restaurant.',
+	'knowledge.addNote': 'Add note',
+	'knowledge.reindex': 'Re-index',
+	'knowledge.reindex.loading': 'Re-indexing embeddings\u2026',
+	'knowledge.reindex.success': 'Re-indexed {generated} item(s). {skipped} skipped.',
+	'knowledge.reindex.disabled':
+		'Embedding is not enabled. Set EMBEDDING_ENABLED=true to use this feature.',
+	'knowledge.reindex.error': 'Re-index failed.',
+	'knowledge.reindex.networkError': 'Network error \u2014 could not reach server.'
 };
