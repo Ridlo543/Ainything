@@ -1,3 +1,8 @@
+# Single-package workspace. The explicit (empty) `packages` list keeps pnpm 10+
+# happy; the `onlyBuiltDependencies` allowlist restricts which postinstall
+# scripts may run (anything else is rejected by default in pnpm 10).
+packages: []
+
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - esbuild

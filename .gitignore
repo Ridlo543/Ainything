@@ -34,3 +34,13 @@ playwright-report
 
 # Supabase local
 .supabase/
+
+# Container runtime artifacts
+# Podman: machine state, container storage, image registries
+.podman/
+podman-machine-*
+containers/storage/
+# Docker: scratch builds and stray compose overrides
+docker-compose.*.yml
+!compose.yml
+

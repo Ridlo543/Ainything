@@ -10,7 +10,7 @@ The key decision is to use SvelteKit for the web layer while keeping business lo
 
 Product shape: one LinguaServe deployment serves many organizations and many restaurants. A restaurant receives scoped QR routes, dashboard data, and staff workflow. It does not receive a separate codebase or app build.
 
-Current local backend baseline: PostgreSQL and Redis run through Docker Compose for development. Managed services remain optional later, but local architecture must not depend on a vendor dashboard to boot the app.
+Current local backend baseline: PostgreSQL and Redis run through a vendor-neutral `compose.yml` driven by `scripts/infra.mjs` (Podman preferred, Docker fallback, rootless by default). Managed services remain optional later, but local architecture must not depend on a vendor dashboard to boot the app.
 
 Runtime database access must use the app role from `DATABASE_URL`, not the migration owner from `DIRECT_URL`. The app role is expected to be constrained by Row Level Security. Migration and seed scripts may use `DIRECT_URL`.
 

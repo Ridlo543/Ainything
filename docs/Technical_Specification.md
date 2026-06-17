@@ -44,8 +44,8 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 
 ### Backend
 
-- **Database:** PostgreSQL. Local development runs in Docker first.
-- **Cache / Queue Base:** Redis. Local development runs in Docker first.
+- **Database:** PostgreSQL. Local development runs in Podman (rootless) first, Docker fallback.
+- **Cache / Queue Base:** Redis. Local development runs in Podman (rootless) first, Docker fallback.
 - **Auth:** Local mock session during frontend-first development, then Supabase Auth or equivalent production auth.
 - **Authorization:** Tenant-aware server checks now; PostgreSQL Row Level Security is committed in local migrations and remains mandatory for the managed/Supabase path.
 - **Storage:** Local/dev can defer file storage; production path can use Supabase Storage or S3-compatible storage.
@@ -53,6 +53,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **API Layer:** SvelteKit `+server.ts` endpoints and server-only service modules.
 - **Migrations:** SQL migrations should be committed to the repo. Do not depend on dashboard-only schema changes.
 - **Connection Roles:** `DIRECT_URL` is for migration/seed owner access. `DATABASE_URL` is for the app runtime role and must be subject to RLS.
+- **Container Runtime:** Vendor-neutral `compose.yml` (Compose Spec v2) driven by `scripts/infra.mjs`, which prefers Podman and falls back to Docker. Override with `CONTAINER_RUNTIME=docker` when needed.
 
 ### AI and Search
 
@@ -65,7 +66,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 ### Deployment
 
 - **Preferred Web Runtime:** Cloudflare Pages/Workers or Vercel with the matching SvelteKit adapter.
-- **Local Infra:** Docker Compose for PostgreSQL and Redis.
+- **Local Infra:** Vendor-neutral `compose.yml` (Podman preferred, Docker fallback) for PostgreSQL and Redis.
 - **Managed Backend Path:** Supabase or equivalent managed Postgres/Auth/Storage stack later.
 - **Async Work:** Queue/background job provider to be selected before OCR/translation bulk processing.
 - **Monitoring:** Sentry for frontend/backend errors, provider usage logs, Supabase logs, and web vitals.

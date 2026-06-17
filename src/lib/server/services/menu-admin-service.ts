@@ -25,6 +25,8 @@ import {
 	publishMenu as repoPublishMenu
 } from '$lib/server/repositories/admin-menu-repository';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
+import { generateEmbeddingsForRestaurant } from '$lib/server/services/embedding-worker';
+import { appEnv } from '$lib/server/config/env';
 import type { MenuItem } from '$lib/domain/menu/types';
 
 // ---------------------------------------------------------------------------
@@ -159,7 +161,7 @@ export async function publishDraftMenu(
 	const tenant = await resolveTenantContext(user, restaurantSlug);
 	const { activeRestaurant } = tenant;
 
-	return withUserContext(user.id, async (client) => {
+	const publishedId = await withUserContext(user.id, async (client) => {
 		// Load menu records for this restaurant.
 		const menus = await loadMenusForRestaurant(client, activeRestaurant.id);
 
@@ -200,6 +202,19 @@ export async function publishDraftMenu(
 
 		return publishedId;
 	});
+
+	// Fire-and-forget embedding generation after publish.
+	// Only runs when EMBEDDING_ENABLED=true; errors are logged but never propagate.
+	if (appEnv.embeddingEnabled) {
+		generateEmbeddingsForRestaurant(activeRestaurant.id).catch((err) => {
+			console.error(
+				`[menu-admin-service] Embedding generation failed post-publish for ${activeRestaurant.id}:`,
+				err
+			);
+		});
+	}
+
+	return publishedId;
 }
 
 /**

@@ -1,0 +1,44 @@
+# Build context exclusions for `docker build` / `podman build`.
+# Mirrors .gitignore so the build context stays small and free of secrets.
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+.output
+.vercel
+.netlify
+.wrangler
+.svelte-kit
+build
+dist
+
+# Tests + artefacts
+coverage
+test-results
+playwright-report
+**/*.tsbuildinfo
+
+# Local config / secrets
+.env
+.env.*
+!.env.example
+!.env.test
+.agents/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Container-specific
+**/*.containerignore
+Containerfile
+compose.yml
+docker-compose.yml
+docker-compose.*.yml
+
+# Local infra state
+.supabase/

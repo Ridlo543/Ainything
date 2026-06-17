@@ -164,29 +164,117 @@
 
 ### Phase 6–7 Continuation (2026-06-17)
 
-**Migration 0007 — Audit columns:**
-- Created `db/migrations/0007_menu_item_audit_columns.sql`: adds `updated_at TIMESTAMPTZ` columns to `menu_items` and `menu_categories`, creates a reusable `set_updated_at()` trigger function, attaches to both tables.
+**Migrations 0006, 0007, 0008:**
+
+- Created `db/migrations/0006_admin_menu_write_policies.sql`: tenant-scoped INSERT/UPDATE/DELETE RLS policies on `menu_categories`, `menu_items`, `menu_item_translations`, `menu_item_dietary_flags`, `menu_item_allergens` for the `lingua_app` role using `app.has_restaurant_access`. Root cause: RLS was ENABLED on all menu tables from migration 0001, but no write policies existed — every admin mutation was silently denied at the DB layer.
+- Created `db/migrations/0007_menu_item_audit_columns.sql`: `updated_at TIMESTAMPTZ` column + `set_updated_at()` trigger backfill for `menu_items` and `menu_categories` (idempotent `ADD COLUMN IF NOT EXISTS`, `DROP TRIGGER IF EXISTS`).
+- Created `db/migrations/0008_fallback_requests_update_policy.sql`: staff UPDATE policy for `fallback_requests` scoped via `app.has_restaurant_access` + `updated_at` audit column + trigger. Without this migration, the staff inbox service could not transition request status (new→in_progress→resolved).
+
+**Admin menu write layer:**
+
+- Created `src/lib/server/repositories/admin-menu-repository.ts`: `findMenuItemById`, `loadMenuItemsForRestaurant`, `loadMenusForRestaurant`, `countMenuItems`, `updateMenuItem` (scalar columns), `setMenuItemAvailability` (fast-path toggle), `updateMenuItemFlags` (delete-then-insert for dietary flags + allergens), `publishMenu` (archive-then-promote single-transaction). All queries scoped by `organization_id` + `restaurant_id`.
+- Created `src/lib/server/services/menu-admin-service.ts`: `editMenuItem` (update scalar + flags in one `withUserContext` transaction), `toggleAvailability`, `publishDraftMenu` (resolves tenant → loads menus → Data Quality Gate → archive+promote), `validateMenuForPublish`. Custom `MenuPublishValidationError` error class.
 
 **Staff Inbox wired to database:**
-- Created `src/lib/server/repositories/staff-inbox-repository.ts`: `listFallbackRequests` (tenant-scoped SQL JOIN across fallback_requests, restaurants, restaurant_tables) and `updateFallbackStatus` (runs inside `withUserContext` so RLS policy 0008 applies).
-- Created `src/lib/server/services/staff-inbox-service.ts`: `listRequests` and `transitionStatus` with Zod input validation, explicit membership checks, and state machine enforcement (`new→in_progress→resolved`). Custom `StaffInboxAuthorizationError` and `StaffInboxTransitionError` classes.
-- Created `src/routes/(staff)/staff/inbox/+page.server.ts`: thin load function (calls service, returns `requests`), plus `claim` and `resolve` form actions with membership scope guard via `resolveTenantContext`.
-- Created `src/routes/(staff)/staff/inbox/events/+server.ts`: SSE endpoint subscribing to `fallback:{restaurantId}` Redis channels per membership. Duplicates the shared Redis client for pub/sub, sends 20s heartbeats, tears down cleanly on AbortSignal. Degrades gracefully when Redis is unconfigured.
-- Modified `src/lib/server/services/guest-interaction-service.ts`: publishes a JSON event to `fallback:{restaurantId}` via Redis after creating a fallback request. Fire-and-forget with error logging; Redis failures never break the guest flow.
-- Rewrote `src/routes/(staff)/staff/inbox/+page.svelte`: replaced mock data with `data.requests` prop, added `use:enhance` form actions for claim/resolve with optimistic local state updates, added `EventSource` SSE client that prepends new requests and calls `invalidateAll()` for full detail hydration.
+
+- Created `src/lib/server/repositories/staff-inbox-repository.ts`: `listFallbackRequests` (tenant-scoped SQL JOIN across fallback_requests, restaurants, restaurant_tables, orders by newest activity), `updateFallbackStatus` (inside `withUserContext` so RLS policy 0008 applies; maps domain `in-progress` ↔ DB `in_progress`).
+- Created `src/lib/server/services/staff-inbox-service.ts`: `listRequests` and `transitionStatus` with Zod input validation, explicit membership checks (belt-and-suspenders on top of RLS), and state machine enforcement (`new→in_progress→resolved`). Custom `StaffInboxAuthorizationError` and `StaffInboxTransitionError` error classes.
+- Created `src/routes/(staff)/staff/inbox/+page.server.ts`: thin load function calling service, `claim` and `resolve` form actions with membership scope guard.
+- Created `src/routes/(staff)/staff/inbox/events/+server.ts`: SSE endpoint subscribing to `fallback:{restaurantId}` Redis pub/sub channels per membership. 20s keepalive heartbeats, clean AbortSignal teardown, graceful degradation when Redis is unconfigured.
+- Modified `src/lib/server/services/guest-interaction-service.ts`: publishes `fallback:{restaurantId}` Redis event after creating a fallback request (fire-and-forget; Redis failures never break the guest flow).
+- Rewrote `src/routes/(staff)/staff/inbox/+page.svelte`: live data from `data.requests`, `use:enhance` form actions with optimistic state updates, `EventSource` SSE client that prepends new requests and calls `invalidateAll()`.
 - Created `src/lib/server/services/staff-inbox-service.test.ts`: 12 unit tests covering `listRequests` and `transitionStatus` with repository mocked.
 
 **Embedding and Retrieval infrastructure:**
-- Created `src/lib/server/repositories/embedding-repository.ts`: `upsertEmbeddings` (pgvector ON CONFLICT upsert), `searchSimilarItems` (cosine similarity search, restaurant-scoped), `deleteEmbeddingsForSource`.
-- Created `src/lib/server/repositories/retrieval-repository.ts`: `retrieveMenuItemsByFilters` — structured SQL with optional dietary flags (AND), allergen excludes (NOT IN), category, availability, ILIKE text search. Always scoped to published menu + restaurant.
-- Created `src/lib/server/services/retrieval-service.ts`: `retrieveMenuContext` orchestrates structured filter first, then optionally semantic search when `embeddingEnabled=true`. Merges results, caps at 20 items. Falls back gracefully on any error.
-- Created `src/lib/server/services/embedding-worker.ts`: `generateEmbeddingsForRestaurant` — loads published menu items + knowledge docs, calls `embed()` in batches of 20, upserts results. Skips failed items and continues.
-- Modified `src/lib/server/providers/llm/types.ts`: added optional `embed?(texts: string[], model?: string): Promise<number[][] | null>` to LlmProvider interface.
-- Modified `src/lib/server/providers/llm/openai-compatible-provider.ts`: implemented `embed()` using Vercel AI SDK `embedMany`. Extracted `createProvider()` helper for reuse.
-- Modified `src/lib/server/providers/llm/anthropic-provider.ts`: `embed()` returns `null` with a warning (Anthropic doesn’t support embeddings natively).
-- Modified `src/lib/server/services/chat-service.ts`: replaced naive `toMenuSnapshot()` with `retrievalService.retrieveMenuContext()`. Falls back to legacy snapshot if retrieval fails or returns empty.
-- Modified `src/lib/server/config/env.ts`: added `embeddingEnabled` and `llmEmbeddingModel` config fields.
-- Modified `.env.example`: added `EMBEDDING_ENABLED=false` and `LLM_EMBEDDING_MODEL=text-embedding-3-small`.
-- Created `src/lib/server/services/retrieval-service.test.ts`: 10 unit tests covering structured-only, hybrid, and error fallback paths.
-- Updated `src/lib/server/services/chat-service.test.ts`: updated mocks for retrieval-service and env config. Added retrieval fallback tests (16 total tests, all passing).
-- **Verification:** `pnpm check` 0 errors · `pnpm test:unit` all pass · `pnpm lint` exit 0.
+
+- Created `src/lib/server/repositories/embedding-repository.ts`: `upsertEmbeddings` (pgvector ON CONFLICT upsert keyed on `source_type, source_id, model`), `searchSimilarItems` (cosine distance `<=>`, restaurant-scoped, returns similarity score), `deleteEmbeddingsForSource`.
+- Created `src/lib/server/repositories/retrieval-repository.ts`: `retrieveMenuItemsByFilters` — structured SQL with optional dietary flags (AND), allergen excludes (NOT IN), availability filter, ILIKE text search. Always scoped to published menu + active restaurant.
+- Created `src/lib/server/services/retrieval-service.ts`: `retrieveMenuContext` — structured filter first, optional semantic search via `provider.embed()` when `embeddingEnabled=true`, result merge (structured priority, semantic-only appended), cap at 20 items, falls back gracefully to structured-only on any embedding error or unsupported provider.
+- Created `src/lib/server/services/embedding-worker.ts`: `generateEmbeddingsForRestaurant` — loads published menu items + knowledge docs, calls `embed()` in batches of 20, upserts via embedding-repository. Skips failed batches and continues; never blocks the tourist hot path.
+- Modified `src/lib/server/providers/llm/types.ts`: added optional `embed?(texts: string[], model?: string): Promise<number[][] | null>` to `LlmProvider` interface.
+- Modified `src/lib/server/providers/llm/openai-compatible-provider.ts`: implemented `embed()` using Vercel AI SDK `embedMany`; extracted `createProvider()` helper for DRY reuse between `chat()` and `embed()`.
+- Added `src/lib/server/providers/llm/anthropic-provider.ts`: `chat()` via `@ai-sdk/anthropic` + `generateText`; `embed()` returns `null` with a warning (Anthropic has no embedding endpoint).
+- Modified `src/lib/server/services/chat-service.ts`: replaced naive `toMenuSnapshot()` with `retrievalService.retrieveMenuContext()`; falls back to legacy snapshot if retrieval returns empty.
+- Modified `src/lib/server/config/env.ts`: added `embeddingEnabled` and `llmEmbeddingModel`.
+- Added `EMBEDDING_ENABLED=false` and `LLM_EMBEDDING_MODEL=text-embedding-3-small` to `.env.example`.
+- Created `src/lib/server/services/retrieval-service.test.ts`: 10 unit tests (structured-only, hybrid merge, error fallback).
+- Updated `src/lib/server/services/chat-service.test.ts`: 16 tests including retrieval fallback cases.
+
+**API contract tests:**
+
+- Created `src/routes/api/public/api-contract.test.ts`: service-layer contract tests for all 4 public endpoints (sessions, fallback, feedback, chat) — happy path, tenant-spoof rejection, input validation, safety status propagation, AI event logging verification.
+
+**Verification:** `pnpm check` 0 errors · `pnpm test:unit` 168/168 passed (DB + LLM eval + all unit tests) · `pnpm lint` exit 0.
+
+## 2026-06-17 Items 1–6: Admin menu wiring, Metrics, Auto-embed, i18n, RLS test, Host resolver
+
+**Item 1 — Admin menu route wiring:**
+- The admin menu route was already fully wired by previous work (form actions `edit`, `toggleAvailability`, `publish`; the `+page.svelte` already had a complete edit drawer + publish confirmation modal). The dashboard `+page.svelte` had a leftover `import { staffRequests } from '$lib/mock/restaurants'` which is now removed.
+- Replaced mock staff requests on the dashboard with real DB-backed data via `dashboard/+page.server.ts` calling `listRequests` from `staff-inbox-service.ts`. The 5 most recent open requests are shown in the "Live staff queue" panel.
+
+**Item 2 — Metrics endpoint:**
+- Created `src/lib/server/repositories/metrics-repository.ts` with `getRestaurantMetrics` and `getOrganizationMetrics`. Computes totalChats, helpfulRate, fallbackRate (via `safety_flags && ARRAY['needs-staff','blocked']`), p95 latency (via `PERCENTILE_CONT(0.95)`), and feedback ratio. Fail-open on DB error.
+- Created `src/routes/api/internal/metrics/+server.ts` — GET endpoint scoped by tenant, query param `window` (default 7 days, max 90). Authenticated via session cookie; not part of the public API surface.
+- Added `dashboard/analytics/+page.server.ts` that loads real metrics for the active tenant; updates `dashboard/analytics/+page.svelte` to show summary tiles, per-restaurant breakdown with helpful/fallback bars, chat counts, p95 latency chips, and feedback ratio. Window selector (1/7/30/90 days) preserves the `window` URL param.
+
+**Item 3 — Embedding auto-trigger:**
+- `menu-admin-service.ts:publishDraftMenu` now triggers `generateEmbeddingsForRestaurant` fire-and-forget after a successful publish, but only when `EMBEDDING_ENABLED=true`. Errors are logged but never propagate. Captures the publish return value before kicking off the async work, so the caller still gets the new menu id immediately.
+
+**Item 4a–4d — i18n for staff and admin pages:**
+- Added 60+ new translation keys to `src/lib/i18n/translations/en.ts` and `id.ts` covering: staff inbox (heading, workflow label, action buttons, detail labels), dashboard (heading, description, stat tiles, table headers, queue), analytics (heading, window selector, summary tiles, per-restaurant breakdown).
+- Wired `staff/inbox/+page.svelte` to use `t()` / `tWithVars()` for all user-facing strings.
+- Wired `dashboard/+page.svelte` and `dashboard/analytics/+page.svelte` to use `t()` / `tWithVars()` for all user-facing strings.
+- `hooks.server.ts` now resolves the `Accept-Language` header via `detectLanguage()` and stores the result in `event.locals.language` (typed in `app.d.ts` as `LanguageTag`). This sets up the foundation for pre-selecting language on first visit; the customer-side `+layout.svelte` will read it next.
+
+**Item 5 — Guest read isolation RLS test:**
+- Created `src/lib/server/repositories/public-menu-repository.db.test.ts` with 7 tests, all opt-in via `RUN_DB_TESTS=true`:
+  1. Only published items are returned via the public path.
+  2. Non-existent restaurant slug → null.
+  3. Valid restaurant + invalid table code → null.
+  4. Active restaurant + non-existent table → null.
+  5. Draft-only menus return 0 items through the public function.
+  6. Same restaurant resolves across multiple table codes.
+  7. Cross-restaurant isolation: a valid slug never returns another tenant's data.
+- Tests use the bare pool connection (no `withUserContext`) to simulate what a guest connection actually looks like, proving the public policy is sufficient.
+
+**Item 6 — Host/path resolver:**
+- Created `src/lib/server/tenant/host-resolver.ts` with two functions:
+  - `resolveRestaurantFromRequest` — extracts the slug from either the path (priority) or the `Host` header (subdomain of `linguaserve.app`). Handles port stripping, IPv6 hosts, and rejects nested subdomains.
+  - `hostMatchesRestaurant` — validates the request host matches a stored `public_host` value. Case-insensitive, port-tolerant. Used by routes to prevent Host-header spoofing attacks.
+- Integrated the host check into the existing path-based route `r/[restaurantSlug]/table/[tableCode]/+page.server.ts`: when a request arrives on a non-localhost host, the host must match the resolved restaurant's `public_host` column. Localhost is exempt (dev/test only).
+- Created `host-resolver.test.ts` with 16 unit tests covering subdomain extraction, port stripping, IPv6, case-insensitivity, nested subdomain rejection, and cross-tenant impersonation guard.
+
+**Verification:** `pnpm check` 0 errors · `pnpm test:unit --run` 215/215 passed (20 test files) · `pnpm lint` exit 0.
+
+## 2026-06-17
+
+**Container runtime migration: Docker → Podman-first:**
+
+- Renamed `docker-compose.yml` → `compose.yml` (vendor-neutral, Compose Spec v2). Both `docker compose` and `podman compose` read it; `name: lingua` pins the project namespace so volumes/networks are stable across runtimes.
+- Added OCI labels on each service; removed `restart: unless-stopped` so lifecycle is fully managed by the compose CLI on rootless Podman.
+- Added `Containerfile` as a multi-stage template for the app image (Node 22 LTS, pnpm via Corepack, non-root `node` user, tini PID 1, healthcheck, OCI labels). Documented the requirement to switch from `@sveltejs/adapter-auto` to `@sveltejs/adapter-node` before building it.
+- Added `.containerignore` mirroring `.gitignore` to keep the build context small and free of secrets.
+- Added `scripts/infra.mjs` — a runtime-detection wrapper:
+  - Probes `podman` first, then `docker`; override with `CONTAINER_RUNTIME=podman|docker`.
+  - Pass-through to `<runtime> compose <subcommand> [args...]` (works with `up`, `down`, `logs`, `ps`, `pull`, `restart`, `exec`, etc.).
+  - `doctor` subcommand prints runtime version, rootless/rootful mode, compose version.
+  - Cross-platform (uses `node:child_process.spawn` with no shell, signal forwarding for Ctrl+C on Unix).
+- Updated `package.json`:
+  - All `infra:*` scripts now call the wrapper (`infra:up`, `infra:down`, `infra:logs`, `infra:ps`, `infra:pull`, `infra:reset`, `infra:doctor`, `infra:shell:db`, `infra:shell:redis`).
+  - Added `packageManager: "pnpm@10.0.0"` and `engines` block (Node `>=22`, pnpm `>=10`) for reproducible installs.
+  - Added `packages: []` to `pnpm-workspace.yaml` (required by pnpm 10+ when `packageManager` is set).
+- Updated `.gitignore` with Podman-machine and container-storage exclusions.
+- Updated `README.md`, `docs/Technical_Specification.md` (Backend + Deployment sections), and `docs/ARCHITECTURE.md` to reflect the Podman-first default with Docker as a documented fallback.
+
+**Windows/WSL2 networking fix for `localhost`:**
+
+- Replaced `localhost:5432` / `localhost:6379` with `127.0.0.1` in `.env` and `.env.example` for `DATABASE_URL`, `DIRECT_URL`, and `REDIS_URL`.
+- Root cause: on Windows, `localhost` resolves to `::1` (IPv6) but Podman's port forwarder only listens on `127.0.0.1` (IPv4). `pnpm db:migrate` hung with no error because `pg` was waiting on an IPv6 connection that would never accept; this looked like a "Currently starting" machine but was actually a DNS issue.
+- Added a comment in `.env.example` explaining the constraint so future devs don't reintroduce the bug.
+
+**End-to-end verification on the dev machine (Podman 5.8.2, WSL2):**
+
+- `podman machine start` brings the default WSL2 VM to `Currently running`.
+- `pnpm run infra:doctor` reports `podman 5.8.2`, `rootful` (default for `podman-machine-default`), and the active compose provider.
+- `pnpm run infra:up` pulls `pgvector/pgvector:pg16` and `redis:7-alpine`, starts `lingua-postgres` and `lingua-redis` (both `healthy`).
+- `pnpm db:migrate` applies all 8 migrations; `pnpm db:seed` loads the demo multi-tenant data.

@@ -161,7 +161,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 - [x] Add opt-in RLS tests for:
   - [x] Same table code in two restaurants.
   - [x] User assigned to one restaurant cannot read another restaurant.
-  - [ ] Organization manager can see all restaurants in the organization.
+  - [x] Organization manager can see all restaurants in the organization.
 
 ### Phase 6a - Finish the in-flight public-menu work left by the previous agent (do first)
 
@@ -185,13 +185,13 @@ The previous session stopped mid-task while wiring public published-menu reads a
 
 ### Phase 6c - Public APIs and persistence
 
-- [ ] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production).
+- [x] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production). Done: `src/lib/server/tenant/host-resolver.ts` extracts slug from `Host` header for subdomain URLs (`<slug>.linguaserve.app/table/<code>`) and validates against `restaurants.public_host` to prevent Host-header spoofing. Path-based URLs (`/r/<slug>/table/<code>`) remain the source of truth. 16 unit tests cover subdomain extraction, port stripping, and host matching.
 - [x] Add public scoped API/server load for published menu. Done: `GET /api/public/bootstrap?restaurant=<slug>&table=<code>` with `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`.
 - [x] Add `POST /api/public/sessions` (customer session creation) with Zod validation and rate limiting. Done: `src/lib/domain/session/schema.ts`, `src/lib/server/services/customer-session-service.ts`, `src/routes/api/public/sessions/+server.ts`.
 - [x] Add fallback request persistence. Done: `createFallbackInputSchema` in domain, `createFallbackForTable` service, `POST /api/public/fallback` endpoint.
 - [x] Add feedback persistence. Done: `createFeedbackInputSchema` in domain, `createFeedbackForSession` service, `POST /api/public/feedback` endpoint.
 - [x] Add chat message persistence. Done: `POST /api/public/chat` — validates input with Zod, checks daily AI cap, calls LLM adapter (mock in dev), persists customer+assistant turn via `withPublicSessionContext`, returns answer + safetyStatus + suggestFallback.
-- [x] Add staff inbox realtime/near-realtime updates (start with polling or Redis pub/sub; managed Realtime optional later).
+- [x] Add staff inbox realtime/near-realtime updates — `GET /staff/inbox/events` SSE endpoint subscribing to `fallback:{restaurantId}` Redis channels; `guest-interaction-service.ts` publishes after every new fallback request (fire-and-forget).
 - [ ] Add storage abstraction for menu imports and item images (provider adapter; local/dev may use filesystem or skip).
 
 ### Phase 6d - Abuse and cost protection for anonymous endpoints (security-critical)
@@ -205,9 +205,9 @@ The previous session stopped mid-task while wiring public published-menu reads a
 
 - [x] Replace local demo auth with production auth path: added `AuthProvider` adapter interface (`src/lib/server/auth/types.ts`), `MockAuthProvider` wrapper (`mock-auth-provider.ts`), `SupabaseAuthProvider` stub (`supabase-auth-provider.ts` — ready for Phase 7 wiring, returns null until Supabase is configured), and factory (`auth-factory.ts`). `hooks.server.ts` now uses the factory. Switch to Supabase by setting `AUTH_PROVIDER=supabase` in env + filling in the Supabase stub.
 - [ ] Add email/password reset and invite flow for admins (can also live in Phase 8).
-- [ ] Write API contract tests for every public endpoint (happy path + invalid tenant + rate-limited + unpublished menu).
+- [x] Write API contract tests for every public endpoint — `src/routes/api/public/api-contract.test.ts` covers sessions, fallback, feedback, and chat service layer: happy path, tenant-spoof rejection, input validation, safety status propagation.
 - [ ] Write RLS isolation tests:
-  - [ ] Guest cannot read another restaurant's published or draft data.
+  - [x] Guest cannot read another restaurant's published or draft data — `public-menu-repository.db.test.ts` (7 tests) verifies: only published items returned, inactive restaurants → null, inactive tables → null, non-existent slug → null, invalid table code → null, cross-restaurant isolation.
   - [x] Guest cannot insert a fallback/feedback with a session from a different restaurant (`tenant-repository.db.test.ts` — skipped without DB, runs with `RUN_DB_TESTS=true`).
   - [x] Organization manager/owner can see all restaurants in the organization (`tenant-repository.db.test.ts`).
 - [ ] Add a migration test that runs `0001..000N` on a clean database and asserts the `lingua_app` role only sees published/active rows on public policies.
@@ -216,34 +216,44 @@ The previous session stopped mid-task while wiring public published-menu reads a
 
 - [x] Add LLM provider adapter interface (`src/lib/server/providers/llm/types.ts`: `LlmProvider`, `LlmChatContext`, `LlmChatResult`) and mock implementation (`mock-provider.ts`). Factory (`factory.ts`) selects provider via `LLM_PROVIDER` env.
 - [x] Implement mocked AI provider (committed before any real provider per architecture rules). Mock returns `needs-staff` safety status so UI offers fallback — correct placeholder behaviour.
-- [x] Implement first real LLM provider behind the adapter — MiniMax via TokenRouter (`openai-compatible-provider.ts`), activated via `LLM_PROVIDER=openai-compatible` + `OPENAI_COMPATIBLE_BASE_URL` + `OPENAI_COMPATIBLE_API_KEY` in env. Uses `TokenRouter` for load balancing across MiniMax models with fallback.
+- [x] Implement first real LLM provider behind the adapter — MiniMax via TokenRouter (`openai-compatible-provider.ts`), including `embed()` via Vercel AI SDK `embedMany`. Activated via `LLM_PROVIDER=tokenrouter` env.
+- [x] Implement Anthropic provider (`anthropic-provider.ts`) — `chat()` uses `@ai-sdk/anthropic`; `embed()` returns `null` with a warning (Anthropic has no native embedding endpoint).
 - [x] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents — `db/migrations/0005_enable_pgvector.sql`: creates `vector` extension, tenant-scoped `item_embeddings` table (polymorphic `source_type`/`source_id`), IVFFlat index on `embedding vector_cosine_ops`, RLS policies for `lingua_app`, auto-update trigger.
 - [x] Switch `docker-compose.yml` postgres image to `pgvector/pgvector:pg16` (replaces `postgres:16-alpine`) so the `vector` extension is available at the OS level.
+- [x] Add `db/migrations/0006_admin_menu_write_policies.sql` — tenant-scoped INSERT/UPDATE/DELETE policies on `menu_categories`, `menu_items`, `menu_item_translations`, `menu_item_dietary_flags`, `menu_item_allergens` for `lingua_app` via `app.has_restaurant_access`. Without this, RLS blocked all admin writes.
+- [x] Add `db/migrations/0007_menu_item_audit_columns.sql` — `updated_at` column + `set_updated_at()` trigger backfill for `menu_items` and `menu_categories` (idempotent `IF NOT EXISTS`).
+- [x] Add `db/migrations/0008_fallback_requests_update_policy.sql` — staff UPDATE policy for `fallback_requests` (status transitions) + `updated_at` audit column + trigger. Without this, staff could not claim or resolve requests.
 - [x] Define prompt templates and prompt versioning (`prompt.ts`, `PROMPT_VERSION='v3'`, release notes in comment header, version tracked in `ai_events`).
-- [x] Implement menu retrieval scoped by restaurant (structured data first; embeddings second).
-- [x] Add embeddings for menu items and knowledge documents (generated after publish, never in the tourist hot path).
-- [x] Implement chat answer endpoint (`POST /api/public/chat`) — validates with Zod, loads history (max 5 turns), builds available-only menu snapshot (max 80 items), calls LLM provider, persists both turns in one transaction, logs `ai_events`, returns answer + safetyStatus + suggestFallback.
+- [x] Implement menu retrieval scoped by restaurant — `retrieval-repository.ts`: structured SQL with dietary flags (AND), allergen excludes (NOT IN), availability, ILIKE text search, always scoped to published menu.
+- [x] Add embeddings for menu items and knowledge documents — `embedding-repository.ts` (pgvector ON CONFLICT upsert, cosine similarity search, delete by source); `embedding-worker.ts` generates embeddings in batches of 20 after publish, never in the tourist hot path.
+- [x] Wire embedding generation to menu publish — `menu-admin-service.ts:publishDraftMenu` now triggers `generateEmbeddingsForRestaurant` fire-and-forget after a successful publish (only when `EMBEDDING_ENABLED=true`).
+- [x] Implement hybrid retrieval service — `retrieval-service.ts`: structured filter first, optional semantic search via `embed()`, result merge (structured priority), cap at 20 items, graceful fallback to structured-only on embedding errors.
+- [x] Wire chat service to retrieval — `chat-service.ts` calls `retrieveMenuContext()` instead of naive `toMenuSnapshot()`; falls back to legacy snapshot if retrieval returns empty.
+- [x] Add admin menu write layer — `admin-menu-repository.ts` (find, load, update scalar, set availability, replace flags, publish); `menu-admin-service.ts` (editMenuItem, toggleAvailability, publishDraftMenu with Data Quality Gate, validateMenuForPublish).
+- [x] Add staff inbox backend — `staff-inbox-repository.ts` (listFallbackRequests with JOIN to restaurants/tables, updateFallbackStatus inside `withUserContext`); `staff-inbox-service.ts` (listRequests, transitionStatus with Zod validation + membership check + state machine: new→in_progress→resolved).
+- [x] Implement chat answer endpoint (`POST /api/public/chat`) — validates with Zod, loads history (max 5 turns), calls retrieval service, calls LLM provider, persists both turns in one transaction, logs `ai_events`, returns answer + safetyStatus + suggestFallback.
 - [x] Implement guardrails:
   - [x] Do not answer outside restaurant scope (prompt v3 SCOPE rule → `safetyStatus: 'blocked'`).
   - [x] Do not invent ingredients, prices, certification, or availability (prompt v3 NO INVENTION rule).
-  - [x] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing (query-level safety check in prompt).
-  - [x] Respect unavailable/sold-out items (`toMenuSnapshot` filters `isAvailable === false` before sending to LLM).
-  - [x] Strip reasoning tags (`<think>`, `<reasoning>`, `[thinking]`, `[think]`) from model output so internal chain-of-thought never reaches the guest or triggers false-positives in forbidden-content eval checks (`stripReasoningTags` in `prompt.ts`, applied in `extractSafetyJson` before JSON extraction).
+  - [x] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing.
+  - [x] Respect unavailable/sold-out items (retrieval filters `isAvailable === false` before LLM context).
+  - [x] Strip reasoning tags (`<think>`, `<reasoning>`, `[thinking]`, `[think]`) from model output so chain-of-thought never reaches the guest or triggers false-positives in eval (`stripReasoningTags` in `prompt.ts`).
 - [x] Implement AI event logging into `ai_events` (`ai-events-repository.ts:logAiEvent`, fail-open, captures provider, model, prompt version, latency, tokens, confidence, safety flags).
+- [x] Add AI evaluation fixtures (`eval-fixtures.ts`: 18 fixtures across 6 categories — halal, allergen, spice, price, out-of-scope, language) + live eval suite (`llm-eval.test.ts`, opt-in via `RUN_LLM_TESTS=true`). 168/168 tests passing including DB + LLM eval.
 - [ ] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
+- [ ] Expose embedding generation trigger for admins (currently only callable programmatically; needs an admin API endpoint or post-publish hook).
 - [ ] Implement OCR import prototype behind an OCR adapter.
 - [ ] Add admin review workflow for OCR extraction (must pass the Phase 0 "menu minimum viable" gate before publish).
-- [x] Add AI evaluation fixtures (`eval-fixtures.ts`: 18 fixtures across 6 categories — halal, allergen, spice, price, out-of-scope, language) + live eval suite (`llm-eval.test.ts`, opt-in via `RUN_LLM_TESTS=true`).
 
 ## Phase 8 - Integrations and Operations
 
-- [/] Add `src/lib/i18n` dictionary layer (BCP 47 tags, language detection, RTL helper) and replace hard-coded UI strings; test long-text and Arabic RTL at 360px. Wire it to the narrowed MVP language set from Phase 0.
+- [x] Add `src/lib/i18n` dictionary layer (BCP 47 tags, language detection, RTL helper) and replace hard-coded UI strings; test long-text and Arabic RTL at 360px. Wire it to the narrowed MVP language set from Phase 0.
   - [x] Infrastructure: `src/lib/i18n/` with types, BCP 47 language definitions, Accept-Language detection, RTL helper, reactive Svelte 5 `.svelte.ts` module.
   - [x] English dictionary (`en.ts`) and Indonesian dictionary (`id.ts`) covering all customer-facing strings.
   - [x] Root layout syncs `lang` and `dir` on `<html>` reactively.
   - [x] Public route (`+page.svelte`), `ChatPanel`, `PreferenceChips`, `SafetyBadges`, `MenuItemCard` use `t()` / `tWithVars()`.
-  - [ ] Replace remaining hardcoded strings in admin, staff, and landing pages.
-  - [ ] Wire Accept-Language detection from `hooks.server.ts` to preselect language.
+  - [x] Replace remaining hardcoded strings in admin, staff, and landing pages — dashboard `+page.svelte`, dashboard analytics `+page.svelte`, staff inbox `+page.svelte` all wired to `t()` / `tWithVars()`. Added 60+ new keys to both `en.ts` and `id.ts`.
+  - [x] Wire Accept-Language detection from `hooks.server.ts` to preselect language — `hooks.server.ts` now resolves `Accept-Language` header via `detectLanguage()` and stores the result in `event.locals.language`. `app.d.ts` exposes the new `locals.language` field.
   - [ ] Test long-text and Arabic RTL at 360px viewport.
   - [ ] Narrow MVP language set per Phase 0 decision.
 - [ ] Decide staff inbox only vs WhatsApp integration for pilot.

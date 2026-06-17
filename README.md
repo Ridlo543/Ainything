@@ -18,7 +18,7 @@ Frontend prototype completed for phases 1-5:
 - Dummy tenant model with organizations, restaurant public hosts, and scoped QR routes.
 - Local demo login with HttpOnly cookie and server-resolved tenant context for dashboard/staff routes.
 
-Backend database/cache services now run locally with Docker Postgres + Redis. The repo includes SQL migrations, demo seed data, a PostgreSQL access layer, Redis health integration, and a database-backed tenant resolver with mock fallback for local development. Production auth, CRUD persistence beyond tenant/menu bootstrap, and AI/OCR integrations are still not implemented.
+Backend database/cache services now run locally with Podman (rootless by default; Docker also supported). The repo includes SQL migrations, demo seed data, a PostgreSQL access layer, Redis health integration, and a database-backed tenant resolver with mock fallback for local development. Production auth, CRUD persistence beyond tenant/menu bootstrap, and AI/OCR integrations are still not implemented.
 
 ## Tech Stack
 
@@ -33,7 +33,7 @@ Backend database/cache services now run locally with Docker Postgres + Redis. Th
 
 Planned backend:
 
-- Local development: PostgreSQL + Redis via Docker.
+- Local development: PostgreSQL + Redis via Podman (or Docker — auto-detected).
 - Production path: Supabase Auth/RLS/Storage/Realtime can replace or complement the local stack later.
 - Provider adapters for LLM, OCR, WhatsApp, telemetry.
 
@@ -58,10 +58,13 @@ pnpm run dev
 Local infrastructure:
 
 ```sh
-pnpm infra:up
+pnpm infra:doctor   # verify podman/docker + machine status
+pnpm infra:up       # start postgres + redis (detached)
 pnpm db:migrate
 pnpm db:seed
 ```
+
+`pnpm infra:*` scripts use a runtime-agnostic wrapper (`scripts/infra.mjs`) that prefers Podman and falls back to Docker. Override with `CONTAINER_RUNTIME=docker pnpm infra:up` if needed. On Windows, run `podman machine start` once before the first `pnpm infra:up` (the machine auto-stops on reboot). On Windows/WSL2 use `127.0.0.1` (not `localhost`) for `DATABASE_URL` / `REDIS_URL` — see `.env.example` for details.
 
 Environment:
 
@@ -69,7 +72,7 @@ Environment:
 copy .env.example .env
 ```
 
-`DATABASE_URL` should use the app role (`lingua_app`) created by migrations. `DIRECT_URL` should use the local migration/owner role from Docker Compose.
+`DATABASE_URL` should use the app role (`lingua_app`) created by migrations. `DIRECT_URL` should use the local migration/owner role from the compose file (`compose.yml`).
 
 Useful routes:
 
@@ -93,7 +96,7 @@ pnpm build
 pnpm run test:e2e
 ```
 
-Database/RLS tests are opt-in because they require Docker infra, migrations, and seed data:
+Database/RLS tests are opt-in because they require the local container runtime, migrations, and seed data:
 
 ```sh
 $env:RUN_DB_TESTS='true'; pnpm run test:unit -- --run src/lib/server/repositories/tenant-repository.db.test.ts
@@ -109,7 +112,7 @@ pnpm exec playwright install chromium
 
 1. Frontend prototype with mock data. Done.
 2. Backend foundation with PostgreSQL schema, RLS baseline, Redis health, tenant repositories, auth, storage, and realtime.
-   Current local-first bridge uses Docker PostgreSQL + Redis before managed services.
+   Current local-first bridge uses Podman (rootless) PostgreSQL + Redis before managed services.
 3. AI/RAG layer with mocked provider first, then real provider.
 4. OCR import and admin review workflow.
 5. Pilot readiness and operational checks.
