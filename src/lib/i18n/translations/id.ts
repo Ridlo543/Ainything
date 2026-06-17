@@ -71,6 +71,68 @@ export const id: TranslationDict = {
 	'app.backLink': 'LinguaServe',
 	'app.tableBadge': 'Meja {code}',
 
+	// Landing Page (Marketing)
+	'page.landing.hero.tagline': 'Asisten Menu QR untuk Restoran Wisatawan',
+	'page.landing.hero.heading': 'Layani setiap tamu dengan percaya diri, dalam bahasa apa pun',
+	'page.landing.hero.description':
+		'Kurangi salah pesan, jawab pertanyaan diet secara instan, dan biarkan AI menangani pertanyaan tamu yang berulang sementara staf Anda fokus pada hospitality.',
+	'page.landing.hero.cta.primary': 'Mulai uji coba gratis',
+	'page.landing.hero.cta.secondary': 'Lihat demo langsung',
+	'page.landing.hero.trust': 'Tidak perlu kartu kredit · Setup 15 menit · Bekerja di semua ponsel',
+
+	'page.landing.value.title': 'Mengapa restoran memilih LinguaServe',
+	'page.landing.value.multilingual.title': 'Menu yang berbicara dalam bahasa mereka',
+	'page.landing.value.multilingual.description':
+		'Terjemahan otomatis dalam 10+ bahasa. Turis scan QR dan langsung melihat menu Anda dalam Bahasa Inggris, Mandarin, Korea, Jepang, Arab, dan lainnya.',
+	'page.landing.value.ai.title': 'Jawab pertanyaan 24/7',
+	'page.landing.value.ai.description':
+		'Tamu bertanya tentang bahan, alergen, tingkat kepedasan, dan status halal. AI menjawab dari data menu terverifikasi Anda dan meneruskan ke staf saat tidak yakin.',
+	'page.landing.value.staff.title': 'Kotak masuk staf, bukan kekacauan',
+	'page.landing.value.staff.description':
+		'Terima permintaan bantuan terstruktur dengan nomor meja, bahasa tamu, dan ringkasan percakapan. Selesaikan lebih cepat tanpa hambatan bahasa.',
+
+	'page.landing.how.title': 'Cara kerja',
+	'page.landing.how.step1.title': 'Upload menu Anda',
+	'page.landing.how.step1.description': 'PDF, foto, atau entri manual',
+	'page.landing.how.step2.title': 'Kami siapkan terjemahan',
+	'page.landing.how.step2.description': 'Dibantu AI dengan review Anda',
+	'page.landing.how.step3.title': 'Cetak kode QR',
+	'page.landing.how.step3.description': 'Satu per meja, siap dalam hitungan menit',
+	'page.landing.how.step4.title': 'Tamu scan & pesan dengan percaya diri',
+	'page.landing.how.step4.description': 'Multibahasa, aman diet, dibantu AI',
+
+	'page.landing.features.title': 'Fitur platform',
+	'page.landing.features.multiRestaurant': 'Manajemen multi-restoran',
+	'page.landing.features.multiRestaurant.desc': 'Kelola beberapa venue dari satu ruang kerja',
+	'page.landing.features.dietary': 'Keamanan diet & alergen',
+	'page.landing.features.dietary.desc': 'Flag terverifikasi dengan level kepercayaan',
+	'page.landing.features.analytics': 'Analitik real-time',
+	'page.landing.features.analytics.desc': 'Lacak scan, item populer, tingkat fallback',
+	'page.landing.features.workflow': 'Alur kerja staf',
+	'page.landing.features.workflow.desc': 'Kotak masuk, pelacakan status, konteks percakapan',
+	'page.landing.features.knowledge': 'Basis pengetahuan',
+	'page.landing.features.knowledge.desc':
+		'Catatan khusus restoran untuk jawaban AI yang lebih baik',
+	'page.landing.features.pwa': 'PWA-first',
+	'page.landing.features.pwa.desc': 'Tidak perlu instalasi aplikasi, bekerja offline-capable',
+
+	'page.landing.social.title': 'Dipercaya oleh restoran di Bali, Jakarta, dan sekitarnya',
+	'page.landing.social.cta': 'Lihat langsung →',
+
+	'page.landing.pricing.title': 'Harga sederhana dan transparan',
+	'page.landing.pricing.starter.name': 'Starter',
+	'page.landing.pricing.starter.features': 'Menu + QR + Analitik dasar',
+	'page.landing.pricing.pro.name': 'Pro',
+	'page.landing.pricing.pro.features': 'Chat AI + Kotak masuk staf + Fitur lanjutan',
+	'page.landing.pricing.enterprise.name': 'Enterprise',
+	'page.landing.pricing.enterprise.features': 'Multi-cabang + Integrasi kustom',
+	'page.landing.pricing.cta': 'Lihat harga lengkap',
+
+	'page.landing.final.heading': 'Siap melayani tamu internasional dengan lebih baik?',
+	'page.landing.final.cta': 'Mulai uji coba gratis Anda',
+	'page.landing.final.secondary': 'Hubungi kami untuk program pilot',
+
+	// Legacy landing page keys (kept for compatibility)
 	'page.landing.tagline': 'SaaS Multi-restoran',
 	'page.landing.heading': 'Satu platform untuk banyak pengalaman QR restoran.',
 	'page.landing.description':

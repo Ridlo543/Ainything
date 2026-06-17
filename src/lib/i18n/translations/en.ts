@@ -71,6 +71,67 @@ export const en: TranslationDict = {
 	'app.backLink': 'LinguaServe',
 	'app.tableBadge': 'Table {code}',
 
+	// Landing Page (Marketing)
+	'page.landing.hero.tagline': 'QR Menu Assistant for Tourist-Heavy Restaurants',
+	'page.landing.hero.heading': 'Serve every guest confidently, in any language',
+	'page.landing.hero.description':
+		'Reduce misorders, answer dietary questions instantly, and let AI handle repetitive guest queries while your staff focuses on hospitality.',
+	'page.landing.hero.cta.primary': 'Start free trial',
+	'page.landing.hero.cta.secondary': 'See live demo',
+	'page.landing.hero.trust': 'No credit card required · Setup in 15 minutes · Works on any phone',
+
+	'page.landing.value.title': 'Why restaurants choose LinguaServe',
+	'page.landing.value.multilingual.title': 'Menu that speaks their language',
+	'page.landing.value.multilingual.description':
+		'Automatic translation in 10+ languages. Tourists scan QR and instantly see your menu in English, Chinese, Korean, Japanese, Arabic, and more.',
+	'page.landing.value.ai.title': 'Answer questions 24/7',
+	'page.landing.value.ai.description':
+		'Guests ask about ingredients, allergens, spice levels, and halal status. AI answers from your verified menu data and escalates to staff when uncertain.',
+	'page.landing.value.staff.title': 'Staff inbox, not chaos',
+	'page.landing.value.staff.description':
+		'Receive structured help requests with table number, guest language, and conversation summary. Resolve faster without language barriers.',
+
+	'page.landing.how.title': 'How it works',
+	'page.landing.how.step1.title': 'Upload your menu',
+	'page.landing.how.step1.description': 'PDF, photo, or manual entry',
+	'page.landing.how.step2.title': 'We prepare translations',
+	'page.landing.how.step2.description': 'AI-assisted with your review',
+	'page.landing.how.step3.title': 'Print QR codes',
+	'page.landing.how.step3.description': 'One per table, ready in minutes',
+	'page.landing.how.step4.title': 'Guests scan & order confidently',
+	'page.landing.how.step4.description': 'Multilingual, dietary-safe, AI-assisted',
+
+	'page.landing.features.title': 'Platform features',
+	'page.landing.features.multiRestaurant': 'Multi-restaurant management',
+	'page.landing.features.multiRestaurant.desc': 'Manage multiple venues from one workspace',
+	'page.landing.features.dietary': 'Dietary & allergen safety',
+	'page.landing.features.dietary.desc': 'Verified flags with confidence levels',
+	'page.landing.features.analytics': 'Real-time analytics',
+	'page.landing.features.analytics.desc': 'Track scans, popular items, fallback rates',
+	'page.landing.features.workflow': 'Staff workflow',
+	'page.landing.features.workflow.desc': 'Inbox, status tracking, conversation context',
+	'page.landing.features.knowledge': 'Knowledge base',
+	'page.landing.features.knowledge.desc': 'Restaurant-specific notes for better AI answers',
+	'page.landing.features.pwa': 'PWA-first',
+	'page.landing.features.pwa.desc': 'No app install required, works offline-capable',
+
+	'page.landing.social.title': 'Trusted by restaurants in Bali, Jakarta, and beyond',
+	'page.landing.social.cta': 'See it in action →',
+
+	'page.landing.pricing.title': 'Simple, transparent pricing',
+	'page.landing.pricing.starter.name': 'Starter',
+	'page.landing.pricing.starter.features': 'Menu + QR + Basic analytics',
+	'page.landing.pricing.pro.name': 'Pro',
+	'page.landing.pricing.pro.features': 'AI chat + Staff inbox + Advanced features',
+	'page.landing.pricing.enterprise.name': 'Enterprise',
+	'page.landing.pricing.enterprise.features': 'Multi-branch + Custom integrations',
+	'page.landing.pricing.cta': 'View full pricing',
+
+	'page.landing.final.heading': 'Ready to serve international guests better?',
+	'page.landing.final.cta': 'Start your free trial',
+	'page.landing.final.secondary': 'Contact us for pilot program',
+
+	// Legacy landing page keys (kept for compatibility)
 	'page.landing.tagline': 'Multi-restaurant SaaS',
 	'page.landing.heading': 'One platform for many restaurant QR experiences.',
 	'page.landing.description':

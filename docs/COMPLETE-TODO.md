@@ -288,18 +288,23 @@
 ## 2026-06-17 Admin Embedding Re-index Button
 
 **Admin embedding re-index endpoint:**
+
 - Created `src/routes/api/admin/embeddings/+server.ts`: `POST /api/admin/embeddings` — authenticated admin endpoint that triggers embedding re-index for the active restaurant. Accepts `{ restaurantSlug }` in body, resolves tenant context from the authenticated user, calls `generateEmbeddingsForRestaurant()`, returns `{ generated, skipped, embeddingEnabled, message }`. Returns early with a flag when `EMBEDDING_ENABLED=false`.
 
 **Knowledge page re-index UI:**
+
 - Updated `src/routes/(dashboard)/dashboard/knowledge/+page.svelte`: added a "Re-index" button with loading spinner, success/error/info state banner, and `fetch()` call to the new endpoint. Uses `$state()` for mutable reindex state. Wired all page strings to `t()` i18n.
 
 **i18n keys:**
+
 - Added 8 new translation keys to `src/lib/i18n/translations/en.ts` and `id.ts` covering: knowledge page title, heading, description, add-note button, re-index button, loading/success/error/disabled/network-error messages.
 
 **Tests:**
+
 - Created `src/routes/api/admin/embeddings/embeddings.test.ts`: 5 contract tests covering auth requirement, tenant scope derivation, embedding-enabled guard, result shape, and worker invocation.
 
 **Metrics wiring verification:**
+
 - Confirmed the full metrics pipeline is connected: `ai_events` → `metrics-repository.ts` (helpfulRate, fallbackRate, latencyP95, feedbackRatio) → `GET /api/internal/metrics` → `dashboard/analytics/+page.svelte`. No gaps remain.
 
 **Verification:** `pnpm check` 0 errors · `pnpm test:unit --run` 220/220 passed (21 test files) · `pnpm lint` exit 0.
