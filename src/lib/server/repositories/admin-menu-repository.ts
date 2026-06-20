@@ -480,6 +480,126 @@ export async function publishMenu(
 }
 
 // ---------------------------------------------------------------------------
+// Insert (OCR import path)
+// ---------------------------------------------------------------------------
+
+/**
+ * Ensures a category exists for a menu, creating one if it doesn't.
+ * Returns the category id — either the existing one or the newly created one.
+ */
+export async function ensureCategory(
+	client: DatabaseClient,
+	{
+		organizationId,
+		restaurantId,
+		menuId,
+		name
+	}: { organizationId: string; restaurantId: string; menuId: string; name: string }
+): Promise<string> {
+	await client.query(
+		`
+			INSERT INTO menu_categories (organization_id, restaurant_id, menu_id, name)
+			VALUES ($1::uuid, $2::uuid, $3::uuid, $4)
+			ON CONFLICT (menu_id, name) DO NOTHING
+		`,
+		[organizationId, restaurantId, menuId, name]
+	);
+
+	const result = await client.query<{ id: string }>(
+		`SELECT id::text FROM menu_categories WHERE menu_id = $1::uuid AND name = $2`,
+		[menuId, name]
+	);
+
+	return result.rows[0]!.id;
+}
+
+/**
+ * Inserts a single menu item with dietary flags, allergens, and source_metadata
+ * (used to store OCR confidence scores). Runs within the caller's transaction.
+ * All items imported via OCR start with confidence='needs-review'.
+ */
+export async function insertMenuItem(
+	client: DatabaseClient,
+	{
+		organizationId,
+		restaurantId,
+		menuId,
+		categoryId,
+		name,
+		localName,
+		description,
+		price,
+		spiceLevel,
+		isSignature,
+		dietaryFlags,
+		allergens,
+		sourceMetadata,
+		sortOrder
+	}: {
+		organizationId: string;
+		restaurantId: string;
+		menuId: string;
+		categoryId: string;
+		name: string;
+		localName?: string;
+		description: string;
+		price: number;
+		spiceLevel: number;
+		isSignature: boolean;
+		dietaryFlags: string[];
+		allergens: string[];
+		sourceMetadata?: Record<string, unknown>;
+		sortOrder?: number;
+	}
+): Promise<MenuItem> {
+	const result = await client.query<{ id: string }>(
+		`
+			INSERT INTO menu_items (
+				organization_id, restaurant_id, menu_id, category_id,
+				name, local_name, description, price_amount,
+				spice_level, is_signature, confidence, sort_order, source_metadata
+			) VALUES (
+				$1::uuid, $2::uuid, $3::uuid, $4::uuid,
+				$5, $6, $7, $8,
+				$9, $10, 'needs-review', $11, $12::jsonb
+			)
+			RETURNING id::text
+		`,
+		[
+			organizationId,
+			restaurantId,
+			menuId,
+			categoryId,
+			name,
+			localName ?? null,
+			description,
+			price,
+			spiceLevel,
+			isSignature,
+			sortOrder ?? 0,
+			JSON.stringify(sourceMetadata ?? {})
+		]
+	);
+
+	const itemId = result.rows[0]!.id;
+
+	for (const code of dietaryFlags) {
+		await client.query(
+			`INSERT INTO menu_item_dietary_flags (menu_item_id, flag_code) VALUES ($1::uuid, $2)`,
+			[itemId, code]
+		);
+	}
+	for (const code of allergens) {
+		await client.query(
+			`INSERT INTO menu_item_allergens (menu_item_id, allergen_code) VALUES ($1::uuid, $2)`,
+			[itemId, code]
+		);
+	}
+
+	return (await reloadItemFlags(client, { organizationId, restaurantId, itemId }))!;
+}
+
+// ---------------------------------------------------------------------------
 // Internal
 // ---------------------------------------------------------------------------
 
