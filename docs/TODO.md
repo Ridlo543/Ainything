@@ -210,7 +210,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
   - [x] Guest cannot read another restaurant's published or draft data — `public-menu-repository.db.test.ts` (7 tests) verifies: only published items returned, inactive restaurants → null, inactive tables → null, non-existent slug → null, invalid table code → null, cross-restaurant isolation.
   - [x] Guest cannot insert a fallback/feedback with a session from a different restaurant (`tenant-repository.db.test.ts` — skipped without DB, runs with `RUN_DB_TESTS=true`).
   - [x] Organization manager/owner can see all restaurants in the organization (`tenant-repository.db.test.ts`).
-- [ ] Add a migration test that runs `0001..000N` on a clean database and asserts the `lingua_app` role only sees published/active rows on public policies.
+- [x] Add a migration test that runs `0001..000N` on a clean database and asserts the `lingua_app` role only sees published/active rows on public policies. Created `src/lib/server/db/migrations.db.test.ts` with 7 tests verifying: only active restaurants visible, only active tables visible, only published menus visible, menus from inactive restaurants hidden, only published knowledge docs visible, knowledge docs from inactive restaurants hidden, all seed data restaurants are active. Tests use `withUserContext` for setup and raw `query()` for assertions (simulating anonymous access). Run with `RUN_DB_TESTS=true`.
 
 ## Phase 7 - AI, OCR, and RAG
 
