@@ -10,11 +10,11 @@
 
 # CLAUDE.md
 
-Project-specific instructions for coding agents working on LinguaServe.
+Project-specific instructions for coding agents working on Lingua.
 
 ## Repository Context
 
-LinguaServe is a documentation-first project for a QR-based AI menu assistant for tourist-heavy restaurants. The repo currently contains planning documents and may later contain the web app, backend, migrations, and tests.
+Lingua is a documentation-first project for a QR-based AI menu assistant for tourist-heavy restaurants. The repo currently contains planning documents and may later contain the web app, backend, migrations, and tests.
 
 Read these files before making product or technical changes:
 

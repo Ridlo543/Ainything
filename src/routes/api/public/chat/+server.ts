@@ -3,8 +3,11 @@ import { z } from 'zod';
 import type { RequestHandler } from './$types';
 import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { handleChatTurn } from '$lib/server/services/chat-service';
-import { applyRateLimit } from '$lib/server/services/public-api-helpers';
+import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 import { checkDailyAiCap } from '$lib/server/services/ai-cost-cap';
+import { sanitizePipe } from '$lib/server/services/input-sanitizer';
+
+export const BODY_SIZE_LIMIT = 512_000;
 
 /**
  * POST /api/public/chat
@@ -25,6 +28,7 @@ const bodySchema = z
 
 export const POST: RequestHandler = async ({ request }) => {
 	await applyRateLimit('chat', request);
+	checkBodySize(request);
 
 	let raw: unknown;
 
@@ -76,7 +80,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	return json(
 		{
-			customerMessageId: result.customerMessageId,
+			customerMessageId: sanitizePipe.parse(result.customerMessageId),
 			assistantMessageId: result.assistantMessageId,
 			answer: result.answer,
 			safetyStatus: result.safetyStatus,

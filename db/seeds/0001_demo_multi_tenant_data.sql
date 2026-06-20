@@ -48,14 +48,14 @@ INSERT INTO organizations (id, name, slug, workspace_host, plan) VALUES
 		'10000000-0000-0000-0000-000000000001',
 		'Bali Table Group',
 		'bali-table-group',
-		'bali-table.linguaserve.app',
+		'bali-table.lingua.app',
 		'pro'
 	),
 	(
 		'10000000-0000-0000-0000-000000000002',
 		'Jakarta Hospitality Lab',
 		'jakarta-hospitality-lab',
-		'jakarta-hospitality.linguaserve.app',
+		'jakarta-hospitality.lingua.app',
 		'pilot'
 	);
 
@@ -111,10 +111,10 @@ INSERT INTO restaurants (
 		'10000000-0000-0000-0000-000000000001',
 		'Uma Karang',
 		'uma-karang',
-		'uma-karang.linguaserve.app',
+		'uma-karang.lingua.app',
 		'Canggu, Bali',
 		'casual-dining',
-		ARRAY['en', 'id', 'zh-Hans', 'ko', 'ja', 'ar']::text[],
+		ARRAY['en', 'id', 'zh-Hans', 'ja']::text[],
 		'/assets/covers/uma-karang.svg',
 		'/assets/menu-scans/uma-karang-menu.svg',
 		24,
@@ -134,10 +134,10 @@ INSERT INTO restaurants (
 		'10000000-0000-0000-0000-000000000002',
 		'Taman Sate',
 		'taman-sate',
-		'taman-sate.linguaserve.app',
+		'taman-sate.lingua.app',
 		'Menteng, Jakarta',
 		'casual-dining',
-		ARRAY['en', 'id', 'ar', 'hi', 'zh-Hans']::text[],
+		ARRAY['en', 'id', 'zh-Hans', 'ja']::text[],
 		'/assets/covers/taman-sate.svg',
 		'/assets/menu-scans/taman-sate-menu.svg',
 		36,
@@ -157,10 +157,10 @@ INSERT INTO restaurants (
 		'10000000-0000-0000-0000-000000000001',
 		'Senja Ramen Bali',
 		'senja-ramen-bali',
-		'senja-ramen-bali.linguaserve.app',
+		'senja-ramen-bali.lingua.app',
 		'Seminyak, Bali',
 		'casual-dining',
-		ARRAY['en', 'id', 'ja', 'ko', 'zh-Hans']::text[],
+		ARRAY['en', 'id', 'zh-Hans', 'ja']::text[],
 		'/assets/covers/senja-ramen-bali.svg',
 		'/assets/menu-scans/senja-ramen-bali-menu.svg',
 		28,
@@ -180,10 +180,10 @@ INSERT INTO restaurants (
 		'10000000-0000-0000-0000-000000000002',
 		'Rempah Terrace',
 		'rempah-terrace',
-		'rempah-terrace.linguaserve.app',
+		'rempah-terrace.lingua.app',
 		'Kemang, Jakarta',
 		'premium',
-		ARRAY['en', 'id', 'ar', 'fr', 'de']::text[],
+		ARRAY['en', 'id', 'zh-Hans', 'ja']::text[],
 		'/assets/covers/rempah-terrace.svg',
 		'/assets/menu-scans/rempah-terrace-menu.svg',
 		42,
@@ -506,7 +506,7 @@ INSERT INTO customer_sessions (
 			SELECT id FROM restaurant_tables
 			WHERE restaurant_id = '40000000-0000-0000-0000-000000000001' AND code = 'T07'
 		),
-		'ko',
+		'ja',
 		'{"allergens":["shellfish"],"spice":"medium"}'::jsonb
 	),
 	(
@@ -517,7 +517,7 @@ INSERT INTO customer_sessions (
 			SELECT id FROM restaurant_tables
 			WHERE restaurant_id = '40000000-0000-0000-0000-000000000002' AND code = 'B12'
 		),
-		'ar',
+		'ja',
 		'{"allergens":["nuts"],"dietary":["halal"]}'::jsonb
 	);
 
@@ -544,7 +544,7 @@ INSERT INTO fallback_requests (
 		),
 		'new',
 		'high',
-		'ko',
+		'ja',
 		'Allergy confirmation',
 		'Guest asks whether Jimbaran grilled fish touches shellfish on the grill.'
 	),
@@ -559,7 +559,7 @@ INSERT INTO fallback_requests (
 		),
 		'in-progress',
 		'high',
-		'ar',
+		'ja',
 		'Peanut-free option',
 		'Guest wants chicken satay without peanut sauce and asks if cross-contact is possible.'
 	);

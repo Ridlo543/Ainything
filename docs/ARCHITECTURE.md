@@ -1,14 +1,14 @@
-# LinguaServe Architecture and Engineering Rules
+# Lingua Architecture and Engineering Rules
 
 **Status:** Baseline architecture for a long-term SvelteKit implementation.
 
 ## 1. Architecture Goal
 
-LinguaServe should feel light and fast to tourists, but its codebase must be structured for a larger product: customer PWA, admin dashboard, staff workflow, AI/RAG, onboarding, analytics, and future integrations.
+Lingua should feel light and fast to tourists, but its codebase must be structured for a larger product: customer PWA, admin dashboard, staff workflow, AI/RAG, onboarding, analytics, and future integrations.
 
 The key decision is to use SvelteKit for the web layer while keeping business logic outside components and route files.
 
-Product shape: one LinguaServe deployment serves many organizations and many restaurants. A restaurant receives scoped QR routes, dashboard data, and staff workflow. It does not receive a separate codebase or app build.
+Product shape: one Lingua deployment serves many organizations and many restaurants. A restaurant receives scoped QR routes, dashboard data, and staff workflow. It does not receive a separate codebase or app build.
 
 Current local backend baseline: PostgreSQL and Redis run through a vendor-neutral `compose.yml` driven by `scripts/infra.mjs` (Podman preferred, Docker fallback, rootless by default). Managed services remain optional later, but local architecture must not depend on a vendor dashboard to boot the app.
 

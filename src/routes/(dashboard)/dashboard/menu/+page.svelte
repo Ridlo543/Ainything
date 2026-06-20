@@ -101,7 +101,7 @@
 </script>
 
 <svelte:head>
-	<title>Menu Data - LinguaServe</title>
+	<title>Menu Data - Lingua</title>
 </svelte:head>
 
 <section class="grid gap-5">

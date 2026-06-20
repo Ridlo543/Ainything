@@ -208,6 +208,59 @@ export async function loadMenusForRestaurant(
 }
 
 /**
+ * Loads menu items for a specific menu (draft or published), including flags +
+ * allergens. Used by the publish DQG gate to validate all items before going
+ * live.
+ */
+export async function loadMenuItemsForMenu(
+	client: DatabaseClient,
+	{ menuId, restaurantId, organizationId }: { menuId: string; restaurantId: string; organizationId: string }
+): Promise<MenuItem[]> {
+	const result = await client.query<AdminMenuItemRow>(
+		`
+			SELECT
+				mi.id::text,
+				mi.restaurant_id::text,
+				mi.menu_id::text,
+				mi.category_id::text,
+				mc.name AS category,
+				mi.name,
+				mi.local_name,
+				mi.description,
+				mi.price_amount,
+				mi.currency,
+				mi.image_url,
+				mi.spice_level,
+				mi.is_available,
+				mi.is_signature,
+				mi.confidence,
+				mi.sort_order,
+				mi.source_metadata,
+				COALESCE(
+					ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
+					ARRAY[]::text[]
+				) AS dietary_flags,
+				COALESCE(
+					ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
+					ARRAY[]::text[]
+				) AS allergens
+			FROM menu_items mi
+			JOIN menu_categories mc ON mc.id = mi.category_id
+			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
+			LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
+			WHERE mi.menu_id = $1::uuid
+				AND mi.restaurant_id = $2::uuid
+				AND mi.organization_id = $3::uuid
+			GROUP BY mi.id, mc.name
+			ORDER BY mi.sort_order, mi.name
+		`,
+		[menuId, restaurantId, organizationId]
+	);
+
+	return result.rows.map(mapRowToMenuItem);
+}
+
+/**
  * Loads the count of menu items in a given menu (for publish validation).
  */
 export async function countMenuItems(client: DatabaseClient, menuId: string): Promise<number> {

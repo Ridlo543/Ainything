@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Login - LinguaServe</title>
+	<title>Login - Lingua</title>
 </svelte:head>
 
 <main class="min-h-screen py-6 sm:py-10">
@@ -17,7 +17,7 @@
 					<Building2 size={26} />
 				</span>
 				<div>
-					<p class="text-sm font-semibold text-lingua-primary">LinguaServe management</p>
+					<p class="text-sm font-semibold text-lingua-primary">Lingua management</p>
 					<h1 class="mt-1 text-3xl font-semibold text-lingua-text">
 						Sign in to manage restaurants
 					</h1>

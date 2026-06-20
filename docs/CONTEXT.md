@@ -1,14 +1,14 @@
-# LinguaServe Agent Context
+# Lingua Agent Context
 
 This file gives future agents fast context without replacing the PRD or technical specification.
 
 ## One-Sentence Product Definition
 
-LinguaServe is a multi-restaurant QR menu and guest support platform that helps international tourists understand restaurant menus and helps staff handle only the questions that need human confirmation.
+Lingua is a multi-restaurant QR menu and guest support platform that helps international tourists understand restaurant menus and helps staff handle only the questions that need human confirmation.
 
 ## Current Product Decision
 
-The product starts as B2B SaaS for restaurants. One LinguaServe deployment serves many organizations and restaurants. It should not start as a POS, payment product, hotel management system, or travel super-app.
+The product starts as B2B SaaS for restaurants. One Lingua deployment serves many organizations and restaurants. It should not start as a POS, payment product, hotel management system, or travel super-app.
 
 ## Current Technical Decision
 

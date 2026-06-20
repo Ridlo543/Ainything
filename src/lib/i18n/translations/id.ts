@@ -66,9 +66,9 @@ export const id: TranslationDict = {
 	'bootstrap.heading': 'Bahasa dan preferensi makanan',
 	'bootstrap.subtitle': 'Tidak perlu login. Preferensi disimpan di sesi ini.',
 
-	'app.title': 'LinguaServe',
-	'app.titlePage': '{name} - LinguaServe',
-	'app.backLink': 'LinguaServe',
+	'app.title': 'Lingua',
+	'app.titlePage': '{name} - Lingua',
+	'app.backLink': 'Lingua',
 	'app.tableBadge': 'Meja {code}',
 
 	// Landing Page (Marketing)
@@ -80,7 +80,7 @@ export const id: TranslationDict = {
 	'page.landing.hero.cta.secondary': 'Lihat demo langsung',
 	'page.landing.hero.trust': 'Tidak perlu kartu kredit · Setup 15 menit · Bekerja di semua ponsel',
 
-	'page.landing.value.title': 'Mengapa restoran memilih LinguaServe',
+	'page.landing.value.title': 'Mengapa restoran memilih Lingua',
 	'page.landing.value.multilingual.title': 'Menu yang berbicara dalam bahasa mereka',
 	'page.landing.value.multilingual.description':
 		'Terjemahan otomatis dalam 10+ bahasa. Turis scan QR dan langsung melihat menu Anda dalam Bahasa Inggris, Mandarin, Korea, Jepang, Arab, dan lainnya.',
@@ -119,6 +119,20 @@ export const id: TranslationDict = {
 	'page.landing.social.title': 'Dipercaya oleh restoran di Bali, Jakarta, dan sekitarnya',
 	'page.landing.social.cta': 'Lihat langsung →',
 
+	'page.landing.testimonial.title': 'Kata pemilik restoran',
+	'page.landing.testimonial.1.quote':
+		'Tamu asing kami dulu kesulitan memesan. Sekarang mereka scan, tanya dalam bahasa mereka, dan memesan dengan percaya diri. Staf bisa fokus melayani, bukan menerjemahkan.',
+	'page.landing.testimonial.1.name': 'Made Wijaya',
+	'page.landing.testimonial.1.role': 'Pemilik, Warung Nusantara Bali',
+	'page.landing.testimonial.2.quote':
+		'Pertanyaan halal dan alergen adalah masalah terbesar kami. Lingua menjawab langsung dari data menu kami. Tidak ada lagi miskomunikasi, tidak ada lagi keadaan darurat dapur.',
+	'page.landing.testimonial.2.name': 'Sarah Tanaka',
+	'page.landing.testimonial.2.role': 'Manajer, Spice Garden Jakarta',
+	'page.landing.testimonial.3.quote':
+		'Setup hanya butuh 20 menit. Kode QR sudah di setiap meja di hari yang sama. Ulasan Google kami yang menyebut "language barrier" turun 60% di bulan pertama.',
+	'page.landing.testimonial.3.name': 'Chen Wei Lin',
+	'page.landing.testimonial.3.role': 'Pemilik, Golden Lotus Dim Sum',
+
 	'page.landing.pricing.title': 'Harga sederhana dan transparan',
 	'page.landing.pricing.starter.name': 'Starter',
 	'page.landing.pricing.starter.features': 'Menu + QR + Analitik dasar',
@@ -150,7 +164,7 @@ export const id: TranslationDict = {
 	'page.landing.staffInbox': 'Buka kotak masuk staf',
 
 	// Staff inbox
-	'staff.inbox.title': 'Kotak Masuk Staf - LinguaServe',
+	'staff.inbox.title': 'Kotak Masuk Staf - Lingua',
 	'staff.inbox.workflow': 'Alur kerja staf',
 	'staff.inbox.heading': 'Permintaan bantuan',
 	'staff.inbox.description':
@@ -171,7 +185,7 @@ export const id: TranslationDict = {
 	'staff.inbox.table': 'Meja {code} —',
 
 	// Dashboard
-	'dashboard.title': 'Dashboard Manajemen - LinguaServe',
+	'dashboard.title': 'Dashboard Manajemen - Lingua',
 	'dashboard.heading': 'Operasional restoran',
 	'dashboard.description':
 		'Kelola banyak pengalaman QR restoran dari satu ruang kerja. Setiap baris tercakup ke satu restoran sehingga data menu, permintaan staf, dan laporan tidak bercampur.',
@@ -200,7 +214,7 @@ export const id: TranslationDict = {
 	'dashboard.queue.openInbox': 'Buka kotak masuk staf →',
 
 	// Analytics
-	'analytics.title': 'Laporan - LinguaServe',
+	'analytics.title': 'Laporan - Lingua',
 	'analytics.heading': 'Laporan restoran',
 	'analytics.description.live': 'Metrik langsung dari {days} hari terakhir.',
 	'analytics.description.preview':
@@ -222,7 +236,7 @@ export const id: TranslationDict = {
 	'analytics.breakdown.feedback': '{helpful}/{total} membantu',
 
 	// Knowledge / Restaurant Facts
-	'knowledge.title': 'Fakta Restoran - LinguaServe',
+	'knowledge.title': 'Fakta Restoran - Lingua',
 	'knowledge.heading': 'Catatan yang disetujui untuk jawaban tamu',
 	'knowledge.description':
 		'Atur aturan dapur, catatan diet, promosi, dan kebijakan layanan secara terpisah per restoran.',
@@ -233,5 +247,47 @@ export const id: TranslationDict = {
 	'knowledge.reindex.disabled':
 		'Embedding tidak diaktifkan. Atur EMBEDDING_ENABLED=true untuk menggunakan fitur ini.',
 	'knowledge.reindex.error': 'Indeks ulang gagal.',
-	'knowledge.reindex.networkError': 'Jaringan error \u2014 tidak dapat menghubungi server.'
+	'knowledge.reindex.networkError': 'Jaringan error \u2014 tidak dapat menghubungi server.',
+	'knowledge.form.createTitle': 'Tambah catatan pengetahuan',
+	'knowledge.form.editTitle': 'Edit catatan pengetahuan',
+	'knowledge.form.title': 'Judul',
+	'knowledge.form.titlePlaceholder': 'mis. Kebijakan dapur halal',
+	'knowledge.form.content': 'Isi',
+	'knowledge.form.contentPlaceholder': 'Catatan yang membantu AI menjawab pertanyaan tamu.',
+	'knowledge.form.visibility': 'Visibilitas',
+	'knowledge.form.cancel': 'Batal',
+	'knowledge.form.save': 'Simpan catatan',
+	'knowledge.form.update': 'Simpan perubahan',
+	'knowledge.editNote': 'Edit catatan',
+	'knowledge.deleteNote': 'Hapus catatan',
+	'knowledge.confirmDelete': 'Hapus catatan pengetahuan ini?',
+	'knowledge.empty.title': 'Belum ada catatan pengetahuan',
+	'knowledge.empty.db':
+		'Tambahkan aturan dapur, catatan diet, atau kebijakan layanan untuk membantu AI menjawab tamu.',
+	'knowledge.empty.mock':
+		'Hubungkan database untuk menyimpan catatan \u2014 tampilan ini hanya data contoh.',
+	'knowledge.visibility.published': 'Dipublikasikan',
+	'knowledge.visibility.draft': 'Draf',
+	'knowledge.visibility.internal': 'Internal',
+	'knowledge.tenantsLabel': 'Cakupan tenant:',
+
+	// QR Tables
+	'tables.title': 'Meja QR - Lingua',
+	'tables.eyebrow': 'Manajer meja QR',
+	'tables.heading': 'Kartu QR siap cetak',
+	'tables.description':
+		'Pilih restoran, lalu buat tautan meja khusus untuk venue itu saja. Kode meja yang sama tidak boleh bocor ke tenant restoran lain di produksi.',
+	'tables.restaurantLabel': 'Restoran',
+	'tables.printAll': 'Cetak semua',
+	'tables.physicalTables': 'meja fisik',
+	'tables.openUrl': 'Buka URL QR',
+	'tables.host': 'Host publik: {host}.',
+	'tables.pathExample': 'Fallback path: {path}.',
+	'tables.mockNotice':
+		'Menampilkan meja contoh. Hubungkan database untuk melihat daftar meja restoran aktif yang sebenarnya.',
+
+	'offline.banner': 'Anda sedang offline \u2014 menampilkan data cache.',
+	'menu.unpublished.heading': 'Menu belum tersedia',
+	'menu.unpublished.description':
+		'Restoran ini belum menerbitkan menu. Silakan tanya staf untuk bantuan.'
 };

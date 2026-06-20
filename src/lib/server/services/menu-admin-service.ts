@@ -18,6 +18,7 @@ import { withUserContext } from '$lib/server/db/postgres';
 import {
 	findMenuItemById,
 	loadMenusForRestaurant,
+	loadMenuItemsForMenu,
 	countMenuItems,
 	updateMenuItem as repoUpdateMenuItem,
 	setMenuItemAvailability as repoSetAvailability,
@@ -186,9 +187,16 @@ export async function publishDraftMenu(
 			});
 		}
 
-		// TODO: load items for DQG validation once admin loads items from draft menus.
-		// For now, the publish gate only checks item count. Full DQG runs when the
-		// admin loads items from all menus (draft + published) — follow up task.
+		// Load items from the draft menu and run the Data Quality Gate.
+		const draftItems = await loadMenuItemsForMenu(client, {
+			menuId: draft.id,
+			organizationId: activeRestaurant.organizationId,
+			restaurantId: activeRestaurant.id
+		});
+		const validation = canPublishMenu(draftItems);
+		if (!validation.ok) {
+			throw new MenuPublishValidationError(validation);
+		}
 
 		// Archive published, promote draft.
 		const publishedId = await repoPublishMenu(client, {

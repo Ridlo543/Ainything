@@ -7,12 +7,7 @@ const TAG_MAP: Record<string, LanguageTag> = {
 	'zh-hans': 'zh-Hans',
 	'zh-cn': 'zh-Hans',
 	'zh-sg': 'zh-Hans',
-	ko: 'ko',
-	ja: 'ja',
-	ar: 'ar',
-	hi: 'hi',
-	fr: 'fr',
-	de: 'de'
+	ja: 'ja'
 };
 
 function parseAcceptLanguage(header: string): string[] {
@@ -52,12 +47,7 @@ export function languageDisplayName(tag: LanguageTag, displayLang: LanguageTag):
 			en: 'Inggris',
 			id: 'Indonesia',
 			'zh-Hans': 'Tionghoa Sederhana',
-			ko: 'Korea',
-			ja: 'Jepang',
-			ar: 'Arab',
-			hi: 'Hindi',
-			fr: 'Prancis',
-			de: 'Jerman'
+			ja: 'Jepang'
 		};
 		return NAMES_IN_ID[tag] ?? lang.name;
 	}

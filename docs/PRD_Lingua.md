@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-**Product Name:** LinguaServe  
+**Product Name:** Lingua  
 **Tagline:** Multilingual menu and guest assistant for tourist-heavy restaurants  
 **Version:** 1.2  
 **Date:** 16 Juni 2026  
@@ -26,23 +26,23 @@ Keputusan produk setelah kritik:
 - MVP fokus pada **platform menu dan guest support multi-restoran**, bukan travel super-app.
 - Turis tidak perlu login atau install app. Mereka scan QR meja dan langsung pakai.
 - Restoran menjadi pembayar dan admin data.
-- Satu deployment LinguaServe harus melayani banyak organisasi/restoran. Ini bukan aplikasi terpisah per restoran.
+- Satu deployment Lingua harus melayani banyak organisasi/restoran. Ini bukan aplikasi terpisah per restoran.
 - Rekomendasi harus berbasis menu restoran yang sudah diindeks, bukan hallucinated generic travel advice.
 - Voice, POS, reservation, payment, AR, dan travel planning masuk roadmap setelah restoran pilot terbukti.
 
 ## 1. Executive Summary
 
-LinguaServe adalah platform PWA + SaaS multi-tenant yang membantu banyak restoran di area wisata melayani tamu internasional dengan menu multilingual, penjelasan bahan, filter diet, rekomendasi makanan, dan fallback ke staf ketika sistem tidak yakin.
+Lingua adalah platform PWA + SaaS multi-tenant yang membantu banyak restoran di area wisata melayani tamu internasional dengan menu multilingual, penjelasan bahan, filter diet, rekomendasi makanan, dan fallback ke staf ketika sistem tidak yakin.
 
 Produk ini dirancang untuk mengurangi pertanyaan berulang seperti "apa ini?", "apakah halal?", "seberapa pedas?", "mengandung kacang?", "apa menu favorit?", dan "bagaimana cara makan hidangan ini?". Sistem menggunakan menu restoran, knowledge base restoran, dan AI guardrails agar jawaban tetap dalam konteks restoran.
 
 Klarifikasi model produk:
 
-- LinguaServe adalah satu platform untuk banyak tenant, bukan satu app per restoran.
+- Lingua adalah satu platform untuk banyak tenant, bukan satu app per restoran.
 - Tenant utama adalah `Organization` atau pemilik billing. Satu organization dapat memiliki satu atau banyak restoran.
 - `Restaurant` adalah venue customer-facing yang punya menu, knowledge base, staff inbox, analytics, dan QR table sendiri.
 - `Restaurant Location` atau branch dipakai ketika satu brand memiliki beberapa cabang.
-- QR meja selalu mengarah ke konteks restoran dan meja tertentu, misalnya `/r/uma-karang/table/T07` atau subdomain publik seperti `uma-karang.linguaserve.app/table/T07`.
+- QR meja selalu mengarah ke konteks restoran dan meja tertentu, misalnya `/r/uma-karang/table/T07` atau subdomain publik seperti `uma-karang.lingua.app/table/T07`.
 - Dashboard admin/staff harus selalu scoped ke organization dan restaurant yang diizinkan membership.
 
 ## 2. Problem Statement
@@ -68,7 +68,7 @@ Klarifikasi model produk:
 
 ## 3. Product Positioning
 
-**LinguaServe is a multi-restaurant QR menu and guest support platform for restaurants serving international guests.**
+**Lingua is a multi-restaurant QR menu and guest support platform for restaurants serving international guests.**
 
 Pembeda utama:
 

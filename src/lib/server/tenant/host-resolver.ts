@@ -3,7 +3,7 @@
  *
  * Supports two URL strategies for MVP:
  *   1. Path-based:  /r/<slug>/table/<code>     (default in dev/test)
- *   2. Host-based:  <slug>.linguaserve.app/table/<code>   (production)
+ *   2. Host-based:  <slug>.lingua.app/table/<code>   (production)
  *
  * Strategy 1 is the source of truth: we always read the slug from the path.
  * Strategy 2 is a validation layer: when a guest arrives via a custom host
@@ -17,7 +17,7 @@
  *   // slug: the restaurant slug to use; source: 'path' | 'host' | null
  */
 
-const DEFAULT_DOMAIN = 'linguaserve.app';
+const DEFAULT_DOMAIN = 'lingua.app';
 
 export type ResolvedRestaurant = {
 	slug: string | null;
@@ -25,7 +25,7 @@ export type ResolvedRestaurant = {
 };
 
 /**
- * Strips the port from a Host header. `uma-karang.linguaserve.app:443` → `uma-karang.linguaserve.app`.
+ * Strips the port from a Host header. `uma-karang.lingua.app:443` → `uma-karang.lingua.app`.
  * IPv6 hosts in brackets are preserved: `[::1]:5173` → `[::1]`.
  */
 function stripPort(host: string): string {
@@ -41,12 +41,12 @@ function stripPort(host: string): string {
 
 /**
  * Extracts a possible subdomain slug from a host. For example:
- *   uma-karang.linguaserve.app → 'uma-karang'
- *   linguaserve.app            → null  (apex domain)
+ *   uma-karang.lingua.app → 'uma-karang'
+ *   lingua.app            → null  (apex domain)
  *   localhost                  → null
  *
  * The base domain is configurable to support different deployment targets
- * (linguaserve.app, linguaserve-staging.app, etc.).
+ * (lingua.app, lingua-staging.app, etc.).
  */
 function extractSubdomain(host: string, baseDomain: string): string | null {
 	if (host === baseDomain) return null;
@@ -56,7 +56,7 @@ function extractSubdomain(host: string, baseDomain: string): string | null {
 
 	const prefix = host.slice(0, -suffix.length);
 	if (prefix.length === 0 || prefix.includes('.')) {
-		// Nested subdomains (e.g. staging.uma-karang.linguaserve.app) are
+		// Nested subdomains (e.g. staging.uma-karang.lingua.app) are
 		// not supported in MVP — treat as null.
 		return null;
 	}

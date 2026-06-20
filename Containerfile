@@ -1,5 +1,5 @@
 # =============================================================================
-# LinguaServe app image (template — switch to @sveltejs/adapter-node to use it).
+# Lingua app image (template — switch to @sveltejs/adapter-node to use it).
 # Build:  podman build -t lingua-app -f Containerfile .
 # Run:    podman run --rm -p 3000:3000 --env-file .env lingua-app
 # Compose works with both `docker build` and `podman build`; OCI labels and
@@ -52,6 +52,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 LABEL org.opencontainers.image.title="lingua-app" \
-      org.opencontainers.image.description="LinguaServe SvelteKit app (container template)" \
+      org.opencontainers.image.description="Lingua SvelteKit app (container template)" \
       org.opencontainers.image.source="https://github.com/lingua/lingua" \
       org.opencontainers.image.licenses="UNLICENSED"

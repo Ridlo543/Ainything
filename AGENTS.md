@@ -8,11 +8,11 @@
 
 # AGENTS.md
 
-Project-specific instructions for coding agents working on LinguaServe.
+Project-specific instructions for coding agents working on Lingua.
 
 ## Repository Context
 
-LinguaServe is a documentation-first project for a QR-based AI menu assistant for tourist-heavy restaurants. The repo currently contains planning documents and may later contain the web app, backend, migrations, and tests.
+Lingua is a documentation-first project for a QR-based AI menu assistant for tourist-heavy restaurants. The repo currently contains planning documents and may later contain the web app, backend, migrations, and tests.
 
 Read these files before making product or technical changes:
 
@@ -87,6 +87,22 @@ If implementation chooses different tools, update `docs/Technical_Specification.
 - Do not expose Supabase service role keys to the browser.
 - Run the narrowest relevant verification available.
 - If no app exists yet, verify documentation changes by reading the files and checking git diff.
+
+## ⚠️ CRITICAL: VERIFICATION BEFORE ANSWER
+
+**The user has explicitly called out that I (the assistant) tend to guess/make things up instead of checking first. This must stop.**
+
+**Rules for every technical/config question:**
+
+1. **Schema ≠ Implementation.** Just because a config key exists in a Zod/JSON schema doesn't mean it works at runtime. Check the actual execution logic first.
+2. **Check source code or documentation before answering.** If the answer depends on how a tool, library, or config actually works, I must read the relevant source code or official docs first.
+3. **If unsure, say "saya cek dulu"** — do not speculate, do not guess, do not "probably" or "maybe."
+4. **Verify claims with the actual source.** Every claim like "this feature exists" or "X supports Y" must be backed by either:
+   - Source code (grep/read the actual files)
+   - Official documentation
+   - Tool output (verified with a real command)
+5. **When reading code: read the full function, not just the signature.** Many bugs/incorrect answers come from reading a function name or schema and assuming what it does.
+6. **Admit when wrong immediately.** If the user catches me making something up, I must verify the correct answer and fix it — no defensiveness.
 
 ## Documentation Rules
 

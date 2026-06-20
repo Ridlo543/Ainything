@@ -4,7 +4,38 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
-		<meta name="color-scheme" content="light" />
+		<meta name="color-scheme" content="light dark" />
+		<script>
+			(function () {
+				try {
+					var mode = 'system';
+					var cookies = document.cookie.split('; ');
+					for (var i = 0; i < cookies.length; i++) {
+						var parts = cookies[i].split('=');
+						if (parts[0] === 'lingua-theme') {
+							mode = parts[1];
+							break;
+						}
+					}
+					if (mode !== 'light' && mode !== 'dark' && mode !== 'system') {
+						try {
+							var ls = localStorage.getItem('lingua-theme');
+							if (ls === 'light' || ls === 'dark' || ls === 'system') mode = ls;
+						} catch (e) {}
+					}
+					var resolved =
+						mode === 'dark'
+							? 'dark'
+							: mode === 'light'
+								? 'light'
+								: window.matchMedia('(prefers-color-scheme: dark)').matches
+									? 'dark'
+									: 'light';
+					document.documentElement.dataset.theme = resolved;
+					document.documentElement.style.colorScheme = resolved;
+				} catch (e) {}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

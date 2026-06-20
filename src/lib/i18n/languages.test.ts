@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { isRtl, dir, getLanguageInfo } from './languages';
 
 describe('isRtl', () => {
-	it('returns true for Arabic', () => {
+	it('returns true for Arabic (RTL_CODES fallback)', () => {
 		expect(isRtl('ar')).toBe(true);
 	});
 
@@ -10,29 +10,29 @@ describe('isRtl', () => {
 		expect(isRtl('en')).toBe(false);
 	});
 
-	it('returns false for Indonesian', () => {
-		expect(isRtl('id')).toBe(false);
+	it('returns false for Japanese', () => {
+		expect(isRtl('ja')).toBe(false);
 	});
 });
 
 describe('dir', () => {
-	it('returns rtl for Arabic', () => {
+	it('returns rtl for Arabic (RTL_CODES fallback)', () => {
 		expect(dir('ar')).toBe('rtl');
 	});
 
-	it('returns ltr for English', () => {
-		expect(dir('en')).toBe('ltr');
+	it('returns ltr for Japanese', () => {
+		expect(dir('ja')).toBe('ltr');
 	});
 });
 
 describe('getLanguageInfo', () => {
 	it('returns info for known language', () => {
-		const info = getLanguageInfo('ar');
-		expect(info?.nativeName).toBe('العربية');
-		expect(info?.direction).toBe('rtl');
+		const info = getLanguageInfo('ja');
+		expect(info?.nativeName).toBe('日本語');
+		expect(info?.direction).toBe('ltr');
 	});
 
 	it('returns undefined for unknown language', () => {
-		expect(getLanguageInfo('xx')).toBeUndefined();
+		expect(getLanguageInfo('ko')).toBeUndefined();
 	});
 });

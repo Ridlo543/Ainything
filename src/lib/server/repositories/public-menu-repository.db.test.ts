@@ -16,12 +16,28 @@
  * policy is sufficient.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, afterAll } from 'vitest';
+import pg from 'pg';
 import { query } from '$lib/server/db/postgres';
 import { resolvePublicMenuBootstrap } from './public-menu-repository';
 
 const runDbTests = process.env.RUN_DB_TESTS === 'true';
 const describeDb = runDbTests ? describe : describe.skip;
+
+/**
+ * Returns a pg Client connected as the migration/seed owner (DIRECT_URL).
+ * This bypasses RLS so the test can insert draft/inactive data that would
+ * be rejected by the lingua_app role. Caller must end() the client.
+ */
+function createOwnerClient() {
+	const directUrl = process.env.DIRECT_URL;
+	if (!directUrl) throw new Error('DIRECT_URL must be set to run RLS rejection tests');
+	return new pg.Client({ connectionString: directUrl });
+}
+
+/** Cleanup tracker: UUIDs inserted during tests that need deletion. */
+const cleanupMenuIds: string[] = [];
+const cleanupRestaurantIds: string[] = [];
 
 describeDb('public menu repository — RLS isolation', () => {
 	it('exposes only published menu items via the public path', async () => {
@@ -100,4 +116,154 @@ describeDb('public menu repository — RLS isolation', () => {
 		expect(bootstrap!.restaurant.slug).toBe('uma-karang');
 		expect(bootstrap!.restaurant.id).toBe('40000000-0000-0000-0000-000000000001');
 	});
+
+	// ── RLS rejection tests — verify lingua_app CANNOT read non-public data ──
+
+	it('lingua_app role cannot read draft menu items via raw SQL', async () => {
+		const owner = createOwnerClient();
+		await owner.connect();
+
+		const draftMenuId = '60000000-0000-0000-0000-000000000099';
+		const draftCatId = '60000000-0000-0000-0000-000000000100';
+		const draftItemId = '60000000-0000-0000-0000-000000000101';
+		const restaurantId = '40000000-0000-0000-0000-000000000001'; // uma-karang
+		const orgId = '10000000-0000-0000-0000-000000000001'; // Bali Table Group
+
+		try {
+			// Insert draft menu as owner (bypasses RLS)
+			await owner.query(
+				`INSERT INTO menus (id, organization_id, restaurant_id, version, status)
+				 VALUES ($1::uuid, $2::uuid, $3::uuid, 99, 'draft')`,
+				[draftMenuId, orgId, restaurantId]
+			);
+			cleanupMenuIds.push(draftMenuId);
+
+			await owner.query(
+				`INSERT INTO menu_categories (id, organization_id, restaurant_id, menu_id, name, sort_order)
+				 VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, 'RLS Draft Category', 1)`,
+				[draftCatId, orgId, restaurantId, draftMenuId]
+			);
+
+			await owner.query(
+				`INSERT INTO menu_items (id, organization_id, restaurant_id, menu_id, category_id, name, description, price_amount)
+				 VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::uuid, 'RLS Draft Item', 'Should be invisible', 50000)`,
+				[draftItemId, orgId, restaurantId, draftMenuId, draftCatId]
+			);
+
+			// Now read as lingua_app — the 0002 RLS policy must hide draft menu rows.
+			// The policy chains: menu_items -> menus.status = 'published'.
+			const result = await query<{ id: string }>(
+				`SELECT id::text FROM menu_items WHERE id = $1::uuid`,
+				[draftItemId]
+			);
+			expect(result.rows).toHaveLength(0);
+		} finally {
+			// Clean up in reverse order
+			await owner.query('DELETE FROM menu_items WHERE id = $1::uuid', [draftItemId]);
+			await owner.query('DELETE FROM menu_categories WHERE id = $1::uuid', [draftCatId]);
+			await owner.query('DELETE FROM menus WHERE id = $1::uuid', [draftMenuId]);
+			await owner.end();
+		}
+
+		// confirm resolvePublicMenuBootstrap still works (draft didn't break reads)
+		const bootstrap = await resolvePublicMenuBootstrap('uma-karang', 'T01');
+		expect(bootstrap).not.toBeNull();
+	});
+
+	it('lingua_app role cannot resolve an inactive restaurant', async () => {
+		const owner = createOwnerClient();
+		await owner.connect();
+
+		const inactiveRestaurantId = '40000000-0000-0000-0000-000000000099';
+		const inactiveTableId = '70000000-0000-0000-0000-000000000099';
+		const orgId = '10000000-0000-0000-0000-000000000001';
+
+		try {
+			await owner.query(
+				`INSERT INTO restaurants (id, organization_id, name, slug, status, segment)
+				 VALUES ($1::uuid, $2::uuid, 'RLS Inactive Restaurant', 'rls-inactive-test', 'archived', 'cafe')`,
+				[inactiveRestaurantId, orgId]
+			);
+			cleanupRestaurantIds.push(inactiveRestaurantId);
+
+			await owner.query(
+				`INSERT INTO restaurant_tables (id, organization_id, restaurant_id, code, label, is_active)
+				 VALUES ($1::uuid, $2::uuid, $3::uuid, 'T01', 'Table 1', true)`,
+				[inactiveTableId, orgId, inactiveRestaurantId]
+			);
+
+			// lingua_app's RLS policy filters by r.status = 'active'
+			const bootstrap = await resolvePublicMenuBootstrap('rls-inactive-test', 'T01');
+			expect(bootstrap).toBeNull();
+		} finally {
+			await owner.query('DELETE FROM restaurant_tables WHERE id = $1::uuid', [inactiveTableId]);
+			await owner.query('DELETE FROM restaurants WHERE id = $1::uuid', [inactiveRestaurantId]);
+			await owner.end();
+		}
+	});
+
+	it('lingua_app role cannot resolve an inactive table', async () => {
+		const owner = createOwnerClient();
+		await owner.connect();
+
+		const restaurantSlug = 'uma-karang';
+		const tableCode = 'T03';
+
+		// restaurant_tables ids are gen_random_uuid() — look up the real row.
+		const tableRow = await owner.query<{ id: string }>(
+			`SELECT id::text
+			 FROM restaurant_tables
+			 WHERE restaurant_id = (SELECT id FROM restaurants WHERE slug = $1)
+			   AND code = $2`,
+			[restaurantSlug, tableCode]
+		);
+		const tableId = tableRow.rows[0]?.id;
+
+		if (!tableId) {
+			await owner.end();
+			return; // table doesn't exist — nothing to deactivate
+		}
+
+		try {
+			await owner.query(
+				`UPDATE restaurant_tables SET is_active = false WHERE id = $1::uuid`,
+				[tableId]
+			);
+
+			// lingua_app's RLS policy filters by t.is_active = true
+			const bootstrap = await resolvePublicMenuBootstrap(restaurantSlug, tableCode);
+			expect(bootstrap).toBeNull();
+		} finally {
+			await owner.query(
+				`UPDATE restaurant_tables SET is_active = true WHERE id = $1::uuid`,
+				[tableId]
+			);
+			await owner.end();
+		}
+	});
+});
+
+afterAll(async () => {
+	// Best-effort cleanup for any test that crashed mid-insert.
+	if (cleanupMenuIds.length > 0 || cleanupRestaurantIds.length > 0) {
+		const owner = createOwnerClient();
+		try {
+			await owner.connect();
+			for (const id of cleanupMenuIds) {
+				try {
+					await owner.query('DELETE FROM menu_items WHERE menu_id = $1::uuid', [id]);
+					await owner.query('DELETE FROM menu_categories WHERE menu_id = $1::uuid', [id]);
+					await owner.query('DELETE FROM menus WHERE id = $1::uuid', [id]);
+				} catch { /* already cleaned */ }
+			}
+			for (const id of cleanupRestaurantIds) {
+				try {
+					await owner.query('DELETE FROM restaurant_tables WHERE restaurant_id = $1::uuid', [id]);
+					await owner.query('DELETE FROM restaurants WHERE id = $1::uuid', [id]);
+				} catch { /* already cleaned */ }
+			}
+		} finally {
+			await owner.end();
+		}
+	}
 });

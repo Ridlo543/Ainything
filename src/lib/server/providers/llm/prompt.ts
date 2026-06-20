@@ -1,7 +1,7 @@
 import type { LlmChatContext, LlmMenuItem } from './types';
 
 /**
- * Prompt versioning for LinguaServe.
+ * Prompt versioning for Lingua.
  *
  * Bump PROMPT_VERSION whenever guardrail rules, answer format, or the menu snapshot
  * format changes so ai_events can scope regression testing by version.

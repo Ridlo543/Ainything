@@ -41,7 +41,7 @@
 	<div class="app-container grid gap-5 py-5 lg:grid-cols-[250px_1fr]">
 		<aside class="surface rounded-lg p-3 lg:sticky lg:top-5 lg:h-[calc(100vh-40px)]">
 			<div class="rounded-lg bg-lingua-primary p-4 text-white">
-				<p class="text-sm font-semibold text-white/75">LinguaServe workspace</p>
+				<p class="text-sm font-semibold text-white/75">Lingua workspace</p>
 				<p class="mt-1 text-xl font-semibold">{activeOrganization.name}</p>
 				<p class="mt-2 text-xs font-semibold uppercase tracking-wide text-white/70">
 					{managedRestaurants.length} restaurants

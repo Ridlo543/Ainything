@@ -3,7 +3,9 @@ import { z } from 'zod';
 import type { RequestHandler } from './$types';
 import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { createFallbackForTable } from '$lib/server/services/guest-interaction-service';
-import { applyRateLimit } from '$lib/server/services/public-api-helpers';
+import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
+
+export const BODY_SIZE_LIMIT = 64_000;
 
 /**
  * POST /api/public/fallback
@@ -23,6 +25,7 @@ const bodySchema = z
 
 export const POST: RequestHandler = async ({ request }) => {
 	await applyRateLimit('fallback', request);
+	checkBodySize(request);
 
 	let raw: unknown;
 

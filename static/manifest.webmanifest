@@ -1,6 +1,6 @@
 {
-	"name": "LinguaServe",
-	"short_name": "LinguaServe",
+	"name": "Lingua",
+	"short_name": "Lingua",
 	"description": "QR-based multilingual menu assistant for tourist-heavy restaurants.",
 	"start_url": "/",
 	"display": "standalone",

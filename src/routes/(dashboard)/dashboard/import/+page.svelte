@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-	<title>Menu Review - LinguaServe</title>
+	<title>Menu Review - Lingua</title>
 </svelte:head>
 
 <section class="grid gap-5">

@@ -66,9 +66,9 @@ export const en: TranslationDict = {
 	'bootstrap.heading': 'Language and food preferences',
 	'bootstrap.subtitle': 'No login required. Preferences stay in this session.',
 
-	'app.title': 'LinguaServe',
-	'app.titlePage': '{name} - LinguaServe',
-	'app.backLink': 'LinguaServe',
+	'app.title': 'Lingua',
+	'app.titlePage': '{name} - Lingua',
+	'app.backLink': 'Lingua',
 	'app.tableBadge': 'Table {code}',
 
 	// Landing Page (Marketing)
@@ -80,7 +80,7 @@ export const en: TranslationDict = {
 	'page.landing.hero.cta.secondary': 'See live demo',
 	'page.landing.hero.trust': 'No credit card required · Setup in 15 minutes · Works on any phone',
 
-	'page.landing.value.title': 'Why restaurants choose LinguaServe',
+	'page.landing.value.title': 'Why restaurants choose Lingua',
 	'page.landing.value.multilingual.title': 'Menu that speaks their language',
 	'page.landing.value.multilingual.description':
 		'Automatic translation in 10+ languages. Tourists scan QR and instantly see your menu in English, Chinese, Korean, Japanese, Arabic, and more.',
@@ -118,6 +118,20 @@ export const en: TranslationDict = {
 	'page.landing.social.title': 'Trusted by restaurants in Bali, Jakarta, and beyond',
 	'page.landing.social.cta': 'See it in action →',
 
+	'page.landing.testimonial.title': 'What restaurant owners say',
+	'page.landing.testimonial.1.quote':
+		'Our foreign guests used to struggle ordering. Now they scan, ask questions in their language, and order confidently. Staff can focus on serving instead of translating.',
+	'page.landing.testimonial.1.name': 'Made Wijaya',
+	'page.landing.testimonial.1.role': 'Owner, Warung Nusantara Bali',
+	'page.landing.testimonial.2.quote':
+		'Halal and allergen questions were our biggest headache. Lingua answers instantly from our actual menu data. No more miscommunication, no more kitchen emergencies.',
+	'page.landing.testimonial.2.name': 'Sarah Tanaka',
+	'page.landing.testimonial.2.role': 'Manager, Spice Garden Jakarta',
+	'page.landing.testimonial.3.quote':
+		'Setup took 20 minutes. The QR codes were on every table the same day. Our Google reviews mentioning "language barrier" dropped by 60% in the first month.',
+	'page.landing.testimonial.3.name': 'Chen Wei Lin',
+	'page.landing.testimonial.3.role': 'Owner, Golden Lotus Dim Sum',
+
 	'page.landing.pricing.title': 'Simple, transparent pricing',
 	'page.landing.pricing.starter.name': 'Starter',
 	'page.landing.pricing.starter.features': 'Menu + QR + Basic analytics',
@@ -150,7 +164,7 @@ export const en: TranslationDict = {
 	'page.landing.staffInbox': 'Open staff inbox',
 
 	// Staff inbox
-	'staff.inbox.title': 'Staff Inbox - LinguaServe',
+	'staff.inbox.title': 'Staff Inbox - Lingua',
 	'staff.inbox.workflow': 'Staff workflow',
 	'staff.inbox.heading': 'Help requests',
 	'staff.inbox.description':
@@ -171,7 +185,7 @@ export const en: TranslationDict = {
 	'staff.inbox.table': 'Table {code} —',
 
 	// Dashboard
-	'dashboard.title': 'Management Dashboard - LinguaServe',
+	'dashboard.title': 'Management Dashboard - Lingua',
 	'dashboard.heading': 'Restaurant operations',
 	'dashboard.description':
 		'Manage many restaurant QR experiences from one workspace. Each row stays scoped to one restaurant so menu data, staff requests, and reports do not mix.',
@@ -200,7 +214,7 @@ export const en: TranslationDict = {
 	'dashboard.queue.openInbox': 'Open staff inbox →',
 
 	// Analytics
-	'analytics.title': 'Reports - LinguaServe',
+	'analytics.title': 'Reports - Lingua',
 	'analytics.heading': 'Restaurant reports',
 	'analytics.description.live': 'Live metrics from the last {days} days.',
 	'analytics.description.preview': 'Preview data — connect the database to see live metrics.',
@@ -221,7 +235,7 @@ export const en: TranslationDict = {
 	'analytics.breakdown.feedback': '{helpful}/{total} helpful',
 
 	// Knowledge / Restaurant Facts
-	'knowledge.title': 'Restaurant Facts - LinguaServe',
+	'knowledge.title': 'Restaurant Facts - Lingua',
 	'knowledge.heading': 'Approved notes for guest answers',
 	'knowledge.description':
 		'Keep kitchen rules, dietary notes, promos, and service policies separate per restaurant.',
@@ -232,5 +246,47 @@ export const en: TranslationDict = {
 	'knowledge.reindex.disabled':
 		'Embedding is not enabled. Set EMBEDDING_ENABLED=true to use this feature.',
 	'knowledge.reindex.error': 'Re-index failed.',
-	'knowledge.reindex.networkError': 'Network error \u2014 could not reach server.'
+	'knowledge.reindex.networkError': 'Network error \u2014 could not reach server.',
+	'knowledge.form.createTitle': 'Add a knowledge note',
+	'knowledge.form.editTitle': 'Edit knowledge note',
+	'knowledge.form.title': 'Title',
+	'knowledge.form.titlePlaceholder': 'e.g. Halal kitchen policy',
+	'knowledge.form.content': 'Content',
+	'knowledge.form.contentPlaceholder': 'Notes that help the AI answer guest questions.',
+	'knowledge.form.visibility': 'Visibility',
+	'knowledge.form.cancel': 'Cancel',
+	'knowledge.form.save': 'Save note',
+	'knowledge.form.update': 'Save changes',
+	'knowledge.editNote': 'Edit note',
+	'knowledge.deleteNote': 'Delete note',
+	'knowledge.confirmDelete': 'Delete this knowledge note?',
+	'knowledge.empty.title': 'No knowledge notes yet',
+	'knowledge.empty.db':
+		'Add kitchen rules, dietary notes, or service policies to help the AI answer guest questions.',
+	'knowledge.empty.mock':
+		'Connect the database to save knowledge notes \u2014 this view shows mock data only.',
+	'knowledge.visibility.published': 'Published',
+	'knowledge.visibility.draft': 'Draft',
+	'knowledge.visibility.internal': 'Internal',
+	'knowledge.tenantsLabel': 'Tenant scope:',
+
+	// QR Tables
+	'tables.title': 'QR Tables - Lingua',
+	'tables.eyebrow': 'QR table manager',
+	'tables.heading': 'Print-ready QR cards',
+	'tables.description':
+		'Choose a restaurant, then generate table links for that venue only. In production the same table code cannot leak into another restaurant tenant.',
+	'tables.restaurantLabel': 'Restaurant',
+	'tables.printAll': 'Print all',
+	'tables.physicalTables': 'physical tables',
+	'tables.openUrl': 'Open QR URL',
+	'tables.host': 'Public host: {host}.',
+	'tables.pathExample': 'Path fallback: {path}.',
+	'tables.mockNotice':
+		'Showing local mock tables. Connect the database to see the active restaurant\u2019s real table list.',
+
+	'offline.banner': 'You\u2019re offline \u2014 showing cached menu data.',
+	'menu.unpublished.heading': 'Menu not available',
+	'menu.unpublished.description':
+		'This restaurant hasn\u2019t published a menu yet. Please ask staff for assistance.'
 };

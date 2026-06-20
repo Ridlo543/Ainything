@@ -1,4 +1,4 @@
-# LinguaServe Design System Baseline
+# Lingua Design System Baseline
 
 **Status:** Initial direction for design and frontend implementation.
 

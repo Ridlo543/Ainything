@@ -1,5 +1,5 @@
 /**
- * AI Evaluation Fixtures — LinguaServe menu Q&A
+ * AI Evaluation Fixtures — Lingua menu Q&A
  *
  * Each fixture defines a realistic guest question, the menu context it should be
  * answered against, and the expected safety behavior. These are used in:

@@ -1,4 +1,4 @@
-# LinguaServe TODO
+# Lingua TODO
 
 This plan starts with product/design/frontend, then backend, then AI. Field research items that cannot be executed by an agent are marked as deferred/skipped for now.
 
@@ -34,8 +34,8 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 - [~] Confirm whether WhatsApp fallback is required for pilot or internal staff inbox is enough. Deferred.
 - [x] Confirm initial prototype language list in dummy data: English, Indonesian, Chinese, Korean, Japanese, Arabic, Hindi, French, German.
 - [~] Document willingness-to-pay range from interviews. Deferred until real interviews.
-- [ ] Narrow MVP launch language set to a verifiable list (recommend EN, ID, ZH-Hans + one pilot-location language); keep the remaining tags as P1 precomputed-translation work. Update PRD section 4 and `Technical_Specification.md` section 15 with the decision and rationale.
-- [ ] Define the "menu minimum viable to go live" gate: required fields per item (name, price, availability, allergen/halal confidence), minimum item count, and which `confidence` values block publish. Record in PRD section 9 and Architecture menu policy.
+- [x] Narrow MVP launch language set to a verifiable list (EN, ID, ZH-Hans, JA). `src/lib/i18n/languages.ts` now exports exactly 4 languages; `detection.ts` and seed SQL narrowed to match. Remaining tags deferred to P1 precomputed-translation work.
+- [x] Define the "menu minimum viable to go live" gate: `src/lib/domain/menu/policy.ts:canPublishMenu` enforces blocking issues (empty name, negative price) and surfaces warnings (unverified + risk flags). Wired into `menu-admin-service.ts:publishDraftMenu` via `loadMenuItemsForMenu` + `MenuPublishValidationError`. 9 policy tests cover the gate.
 
 ## Phase 1 - Design Foundation
 
@@ -173,7 +173,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
   - Done: added a dedicated `BootstrapRow` type and reshaped `DatabaseClient` in `postgres.ts`; `pnpm check` is green.
 - [x] Verify `db/migrations/0002_public_menu_and_guest_write_policies.sql` and `db/migrations/0003_seed_good_for_metadata.sql` are idempotent (`DROP POLICY IF EXISTS` present; data updates safe to re-run) and that `0003`'s changes are mirrored in `db/seeds/0001_demo_multi_tenant_data.sql` so `db:reset` keeps `goodFor`.
 - [x] Wire `(public)/r/[restaurantSlug]/table/[tableCode]/+page.server.ts` to `resolvePublicMenuBootstrap`, with an explicit mock fallback (`src/lib/server/tenant/public-context.ts`) when `USE_MOCK_BACKEND` is on or the DB is unavailable. Route returns 404 cleanly when slug+table do not resolve (DB path; mock keeps prototype fallback).
-- [ ] Confirm public reads return only published menu + active restaurant + active table and never draft/private data, both via SQL and via the `0002` RLS policies under the `lingua_app` role.
+- [x] Confirm public reads return only published menu + active restaurant + active table and never draft/private data, both via SQL and via the `0002` RLS policies under the `lingua_app` role.
 - [ ] Commit the repaired WIP once `pnpm check` is green (currently 5 modified + 5 untracked files are uncommitted).
 
 ### Phase 6b - Harden anonymous guest writes (security-critical)
@@ -185,7 +185,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
 
 ### Phase 6c - Public APIs and persistence
 
-- [x] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production). Done: `src/lib/server/tenant/host-resolver.ts` extracts slug from `Host` header for subdomain URLs (`<slug>.linguaserve.app/table/<code>`) and validates against `restaurants.public_host` to prevent Host-header spoofing. Path-based URLs (`/r/<slug>/table/<code>`) remain the source of truth. 16 unit tests cover subdomain extraction, port stripping, and host matching.
+- [x] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production). Done: `src/lib/server/tenant/host-resolver.ts` extracts slug from `Host` header for subdomain URLs (`<slug>.lingua.app/table/<code>`) and validates against `restaurants.public_host` to prevent Host-header spoofing. Path-based URLs (`/r/<slug>/table/<code>`) remain the source of truth. 16 unit tests cover subdomain extraction, port stripping, and host matching.
 - [x] Add public scoped API/server load for published menu. Done: `GET /api/public/bootstrap?restaurant=<slug>&table=<code>` with `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`.
 - [x] Add `POST /api/public/sessions` (customer session creation) with Zod validation and rate limiting. Done: `src/lib/domain/session/schema.ts`, `src/lib/server/services/customer-session-service.ts`, `src/routes/api/public/sessions/+server.ts`.
 - [x] Add fallback request persistence. Done: `createFallbackInputSchema` in domain, `createFallbackForTable` service, `POST /api/public/fallback` endpoint.
@@ -199,7 +199,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [x] Add a Redis-backed rate limiter (`src/lib/server/services/rate-limiter.ts`): fail-open (Redis outage ≠ tourist outage), fixed-window with atomic Lua INCR+EXPIRE, limits from `Technical_Specification.md`: session-create 5/60s, chat 20/60s, fallback 5/60s, feedback 10/60s.
 - [x] Apply rate limiting via `applyRateLimit` helper (`src/lib/server/services/public-api-helpers.ts`) to all four live public endpoints (sessions, fallback, feedback, chat).
 - [x] Add a per-restaurant daily AI-call cap (`src/lib/server/services/ai-cost-cap.ts`): Redis fixed-window keyed by `restaurant_id + UTC date`, configurable via `AI_DAILY_CAP` env (default 500/day), fail-open, graceful "ask staff" fallback from the chat endpoint when exceeded.
-- [ ] Add request body size limits and basic input sanitation for free-text fields (chat, feedback comment, fallback need). Zod trim+max is in place; consider SvelteKit body size limit via `adapter-node` or edge config.
+- [x] Add request body size limits and basic input sanitation for free-text fields. checkBodySize validates Content-Length early, input-sanitizer.ts provides sanitizeText with Zod pipe. All 4 public API routes have BODY_SIZE_LIMIT exports. NOTE: sanitizer should be wired into domain Zod schemas for user input.
 
 ### Phase 6e - Auth and tests
 
@@ -242,7 +242,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [x] Add AI evaluation fixtures (`eval-fixtures.ts`: 18 fixtures across 6 categories — halal, allergen, spice, price, out-of-scope, language) + live eval suite (`llm-eval.test.ts`, opt-in via `RUN_LLM_TESTS=true`). 168/168 tests passing including DB + LLM eval.
 - [x] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
 - [x] Expose embedding generation trigger for admins (currently only callable programmatically; needs an admin API endpoint or post-publish hook).
-- [ ] Implement OCR import prototype behind an OCR adapter.
+- [/] Implement OCR import prototype behind an OCR adapter. DONE: src/lib/server/providers/ocr/ with types.ts, mock-provider.ts, factory.ts. OcrProvider interface, OcrMenuItem with per-field confidence, 4 fixture items, 10 tests. TODO: Admin review workflow for OCR extraction before publish.
 - [ ] Add admin review workflow for OCR extraction (must pass the Phase 0 "menu minimum viable" gate before publish).
 
 ## Phase 8 - Integrations and Operations
@@ -260,24 +260,21 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [ ] If WhatsApp is used, create provider adapter and cost controls.
 - [ ] Add email/password reset flow for admins.
 - [ ] Add restaurant onboarding checklist.
-- [ ] Add QR code generation and print-ready export.
+- [x] Add QR code generation and print-ready export.
 - [ ] Add usage limits per restaurant.
 - [ ] Add provider cost tracking per restaurant.
 - [ ] Add error monitoring.
 - [ ] Add web vitals collection.
 - [ ] Add deployment environments: local, staging, production.
-- [ ] Choose and document SvelteKit adapter target:
-  - [ ] Cloudflare Pages/Workers, or
-  - [ ] Vercel, or
-  - [ ] Node adapter for custom server.
-- [ ] Add bundle size checks for public QR route.
+- [x] Choose and document SvelteKit adapter target: adapter-node. vite.config.ts uses @sveltejs/adapter-node. Dockerfile added (multi-stage, node:22-alpine, pnpm, non-root user). NOTE: Dockerfile missing HEALTHCHECK, ORIGIN env hardcoded.
+- [/] Add bundle size checks for public QR route. scripts/check-bundle-size.mjs added with JS 256KB / CSS 80KB budgets. BUG: measures entire build dir (including server code), not just client assets; should walk client/ subdir only; not wired into CI.
 - [ ] Add dependency audit workflow for Svelte ecosystem risk.
 
 ## Phase 9 - QA and Pilot Readiness
 
 - [x] Run Playwright smoke tests for customer, admin, and staff routes.
 - [x] Run full Playwright customer flow on 360px and 390px viewport sizes (`tests/e2e/customer-flow.spec.ts`: 17 tests covering restaurant hero, language selector, preference chips, menu browse, item detail, chat panel, feedback, and staff fallback at both viewports).
-- [ ] Run full Playwright admin flow on tablet and desktop.
+- [/] Run full Playwright admin flow on tablet and desktop. tests/e2e/admin-flow.spec.ts added (10 tests: login 3, dashboard overview 3, menu 2, knowledge 2). CONCERNS: login boilerplate repeated, only smoke tests (no CRUD operations), no viewport specification, test.skip pattern non-idiomatic.
 - [ ] Run accessibility checks.
 - [ ] Run performance checks on public routes.
 - [ ] Run RLS and API tests after backend exists.

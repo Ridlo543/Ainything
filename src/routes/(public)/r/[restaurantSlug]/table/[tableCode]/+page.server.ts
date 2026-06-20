@@ -8,11 +8,11 @@ import { hostMatchesRestaurant } from '$lib/server/tenant/host-resolver';
  *
  * Two URL strategies for MVP:
  *   1. Path-based:  /r/<slug>/table/<code>     (default in dev/test)
- *   2. Host-based:  <slug>.linguaserve.app/table/<code>   (production)
+ *   2. Host-based:  <slug>.lingua.app/table/<code>   (production)
  *
  * For both, the slug always comes from the path. The host header is
  * validated AFTER resolution to prevent cross-tenant impersonation:
- * if a guest arrives at a custom host (e.g. uma-karang.linguaserve.app)
+ * if a guest arrives at a custom host (e.g. uma-karang.lingua.app)
  * with a path that doesn't match the host's tenant, we 404.
  */
 export const load: PageServerLoad = async ({ params, request }) => {

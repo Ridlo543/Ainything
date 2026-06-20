@@ -18,8 +18,8 @@ describe('detectLanguage', () => {
 		expect(detectLanguage('zh-CN,zh;q=0.9')).toBe('zh-Hans');
 	});
 
-	it('returns ar for Arabic', () => {
-		expect(detectLanguage('ar-SA,ar;q=0.9,en;q=0.5')).toBe('ar');
+	it('returns en for unsupported language code (Korean)', () => {
+		expect(detectLanguage('ko,en;q=0.5')).toBe('en');
 	});
 
 	it('falls back to en for unsupported language', () => {
@@ -34,16 +34,16 @@ describe('detectLanguage', () => {
 describe('languageDisplayName', () => {
 	it('returns English name when display is en', () => {
 		expect(languageDisplayName('id', 'en')).toBe('Indonesian');
-		expect(languageDisplayName('ar', 'en')).toBe('Arabic');
+		expect(languageDisplayName('ja', 'en')).toBe('Japanese');
 	});
 
 	it('returns Indonesian name when display is id', () => {
 		expect(languageDisplayName('en', 'id')).toBe('Inggris');
-		expect(languageDisplayName('de', 'id')).toBe('Jerman');
+		expect(languageDisplayName('ja', 'id')).toBe('Jepang');
 	});
 
 	it('returns nativeName for other display languages', () => {
-		expect(languageDisplayName('zh-Hans', 'fr')).toBe('简体中文');
+		expect(languageDisplayName('zh-Hans', 'ja')).toBe('简体中文');
 	});
 
 	it('returns raw tag for unknown language', () => {

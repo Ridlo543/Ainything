@@ -1,4 +1,4 @@
-# LinguaServe Technical Specification
+# Lingua Technical Specification
 
 **Version:** 2.1  
 **Date:** 16 Juni 2026  
@@ -7,9 +7,9 @@
 
 ## 1. Technical Decision
 
-LinguaServe will use **SvelteKit + Svelte 5 + TypeScript** as the primary web framework.
+Lingua will use **SvelteKit + Svelte 5 + TypeScript** as the primary web framework.
 
-This replaces the earlier Next.js recommendation. The reason is product fit: LinguaServe depends heavily on mobile QR performance, low-JS customer flows, polished interactions, and PWA behavior. SvelteKit gives SSR, file-based routing, server-only load functions, form actions, API endpoints, adapters, prerendering, and service worker support while keeping the runtime lean.
+This replaces the earlier Next.js recommendation. The reason is product fit: Lingua depends heavily on mobile QR performance, low-JS customer flows, polished interactions, and PWA behavior. SvelteKit gives SSR, file-based routing, server-only load functions, form actions, API endpoints, adapters, prerendering, and service worker support while keeping the runtime lean.
 
 This is not a "small app only" choice. The architecture must keep SvelteKit as the web delivery layer and keep domain, data, AI, provider, and policy logic in framework-independent modules.
 
@@ -22,7 +22,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **AI as assistant, not source of truth.** AI can explain, translate, and recommend based on verified data. It must fallback when confidence is low.
 - **Fast perceived performance.** Cached menu interactions should feel instant. Slow AI/OCR tasks need progress, streaming, and retry states.
 - **Multi-tenant by default.** Every backend table and API must be designed for multiple restaurants from day one.
-- **One deployment, many restaurants.** LinguaServe is a shared SaaS platform. A restaurant gets scoped data, QR links, and dashboards, not a separate app build.
+- **One deployment, many restaurants.** Lingua is a shared SaaS platform. A restaurant gets scoped data, QR links, and dashboards, not a separate app build.
 - **Provider adapters.** LLM, OCR, STT/TTS, and WhatsApp providers must be swappable.
 - **Explicit dependency policy.** Because Svelte's ecosystem is smaller than React's, every complex UI/provider dependency needs evaluation before adoption.
 
@@ -212,7 +212,7 @@ SvelteKit is a strong fit, but the project must be intentional about its weaker 
 
 ## 8.1 Multi-Tenant Routing Strategy
 
-LinguaServe must support many organizations and restaurants in one deployment.
+Lingua must support many organizations and restaurants in one deployment.
 
 Tenant entities:
 
@@ -224,13 +224,13 @@ Tenant entities:
 Public routing options:
 
 - Path fallback for MVP and local development: `/r/[restaurantSlug]/table/[tableCode]`.
-- Restaurant subdomain for production branding: `https://[restaurantSlug].linguaserve.app/table/[tableCode]`.
+- Restaurant subdomain for production branding: `https://[restaurantSlug].lingua.app/table/[tableCode]`.
 - Custom domains can be added later for enterprise customers, for example `menu.restaurant.com/table/T07`.
 
 Admin routing options:
 
 - Shared dashboard path: `/dashboard`, with current organization and restaurant resolved from auth membership and URL/search state.
-- Optional organization workspace subdomain: `https://[organizationSlug].linguaserve.app/dashboard`.
+- Optional organization workspace subdomain: `https://[organizationSlug].lingua.app/dashboard`.
 
 Resolution rules:
 
@@ -341,7 +341,7 @@ Use UUID primary keys unless there is a clear reason not to.
 
 ### Public APIs
 
-- `GET /api/public/tenant/resolve?host=uma-karang.linguaserve.app`
+- `GET /api/public/tenant/resolve?host=uma-karang.lingua.app`
   - Optional production helper for host-based restaurant resolution.
 - `GET /api/public/restaurants/:slug/table/:tableCode/bootstrap`
   - Returns restaurant profile, table metadata, languages, published menu summary.

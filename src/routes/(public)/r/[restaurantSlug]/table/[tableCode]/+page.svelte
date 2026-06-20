@@ -109,6 +109,26 @@
 	let feedback = $state<'helpful' | 'unclear' | null>(null);
 	let feedbackSent = $state(false);
 
+	// ── Offline detection ──────────────────────────────────────────────────────
+	let isOnline = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+	$effect(() => {
+		const onOnline = () => (isOnline = true);
+		const onOffline = () => (isOnline = false);
+		window.addEventListener('online', onOnline);
+		window.addEventListener('offline', onOffline);
+
+		return () => {
+			window.removeEventListener('online', onOnline);
+			window.removeEventListener('offline', onOffline);
+		};
+	});
+
+	const hasMenu = $derived.by(() => {
+		const items = data.restaurant.menuItems;
+		return Array.isArray(items) && items.length > 0;
+	});
+
 	async function sendFeedback(value: 'helpful' | 'unclear') {
 		feedback = value;
 		if (!sessionId) return;
@@ -135,6 +155,12 @@
 <svelte:head>
 	<title>{tWithVars('app.titlePage', { name: data.restaurant.name })}</title>
 </svelte:head>
+
+{#if !isOnline}
+	<div class="sticky top-0 z-50 bg-amber-100 px-3 py-1.5 text-center text-xs font-semibold text-amber-900" role="alert">
+		{t('offline.banner')}
+	</div>
+{/if}
 
 <main class="min-h-screen pb-24">
 	<section class="relative overflow-hidden bg-lingua-primary text-white">
@@ -194,6 +220,7 @@
 				</div>
 			</div>
 
+			{#if hasMenu}
 			<!-- Menu browse -->
 			<div class="surface rounded-lg p-4">
 				<div class="flex items-center justify-between gap-3">
@@ -242,6 +269,12 @@
 					</div>
 				{/if}
 			</div>
+			{:else}
+				<div class="surface rounded-lg p-6 text-center">
+					<p class="font-semibold text-lingua-text">{t('menu.unpublished.heading')}</p>
+					<p class="mt-2 text-sm text-lingua-subtle">{t('menu.unpublished.description')}</p>
+				</div>
+			{/if}
 		</section>
 
 		<aside class="grid content-start gap-5">

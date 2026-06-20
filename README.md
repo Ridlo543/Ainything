@@ -1,6 +1,6 @@
-# LinguaServe
+# Lingua
 
-LinguaServe is a multi-restaurant QR menu and guest support platform for restaurants that serve international tourists. One shared SaaS deployment serves many organizations/restaurants; each restaurant gets scoped QR links, menu data, staff requests, and management views.
+Lingua is a multi-restaurant QR menu and guest support platform for restaurants that serve international tourists. One shared SaaS deployment serves many organizations/restaurants; each restaurant gets scoped QR links, menu data, staff requests, and management views.
 
 ## Current Status
 

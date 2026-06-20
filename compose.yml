@@ -1,4 +1,4 @@
-# LinguaServe local infrastructure.
+# Lingua local infrastructure.
 # Works with both `docker compose` and `podman compose` (Compose Spec v2).
 # Podman is the default runtime used by `pnpm infra:*` scripts. See scripts/infra.mjs
 # for the runtime-detection wrapper, and docs/Technical_Specification.md §3 for
@@ -24,7 +24,7 @@ services:
       retries: 5
     labels:
       org.opencontainers.image.title: lingua-postgres
-      org.opencontainers.image.description: Local PostgreSQL 16 with pgvector for LinguaServe
+      org.opencontainers.image.description: Local PostgreSQL 16 with pgvector for Lingua
 
   redis:
     image: redis:7-alpine
@@ -41,7 +41,7 @@ services:
       retries: 5
     labels:
       org.opencontainers.image.title: lingua-redis
-      org.opencontainers.image.description: Local Redis 7 cache/queue for LinguaServe
+      org.opencontainers.image.description: Local Redis 7 cache/queue for Lingua
 
 # Named volumes are managed by the runtime:
 #   - Docker:  docker volume ls       (in the default `lingua` engine)

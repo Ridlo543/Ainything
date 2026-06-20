@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Demo - LinguaServe</title>
+	<title>Demo - Lingua</title>
 </svelte:head>
 
 <main class="min-h-screen py-6 sm:py-10">
