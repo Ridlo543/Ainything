@@ -1,14 +1,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 /**
  * Bundle size budget checker for Lingua PWA.
  *
  * Usage: node scripts/check-bundle-size.mjs [--build-dir <path>]
  *
- * Reads the adapter-node build output (default: 'build') and checks that the
- * total gzipped client-side JS + CSS stays within a budget suitable for slow
- * mobile connections on tourist hotspots (hotels, remote cafes, etc.).
+ * Reads the adapter-node build output (default: 'build/client') and checks that
+ * the total gzipped client-side JS + CSS stays within budgets suitable for slow
+ * mobile connections in tourist hotspots (hotels, remote cafes, etc.).
+ *
+ * Measures actual gzipped sizes (using Node's zlib with default compression)
+ * to simulate real-world network transfer costs.
  *
  * Exits with code 0 if within budget, 1 if over budget.
  */
@@ -18,27 +22,17 @@ const BUILD_DIR = process.argv.includes('--build-dir')
 	: 'build';
 
 const MAX_KB = {
-	js: 256,
-	css: 80
+	js: 100, // gzipped budget for initial client JS bundle
+	css: 30 // gzipped budget for critical CSS
 };
 
-const CLIENT_ASSETS_GLOB = 'client/**/immutable/**';
-
-function collectSizes(dir, ext) {
-	const entries = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
-	let total = 0;
-	const files = [];
-
-	for (const entry of entries) {
-		if (!entry.isFile()) continue;
-		if (path.extname(entry.name) !== ext) continue;
-		const fullPath = path.join(entry.parentPath ?? entry.path, entry.name);
-		const stat = fs.statSync(fullPath);
-		total += stat.size;
-		files.push({ name: path.relative(dir, fullPath), size: stat.size });
-	}
-
-	return { total, files };
+/**
+ * Returns the gzipped size of a file in bytes.
+ */
+function getGzippedSize(filePath) {
+	const content = fs.readFileSync(filePath);
+	const compressed = gzipSync(content);
+	return compressed.length;
 }
 
 function formatKB(bytes) {
@@ -48,18 +42,23 @@ function formatKB(bytes) {
 function check() {
 	if (!fs.existsSync(BUILD_DIR)) {
 		console.log(`[bundle-check] Build directory '${BUILD_DIR}' not found — skipping.`);
-		console.log('[bundle-check] Run `pnpm build` first to generate bundle output.');
+		console.log('[bundle-check] Run \`pnpm build\` first to generate bundle output.');
 		process.exit(0);
 	}
 
-	const clientPath = path.join(BUILD_DIR, CLIENT_ASSETS_GLOB);
-	const assetRoot = path.dirname(path.dirname(clientPath));
+	const clientDir = path.join(BUILD_DIR, 'client');
 
-	// Walk the build directory to find client immutable assets.
-	const { total: jsTotal, files: jsFiles } = walkCollect(BUILD_DIR, '.js');
-	const { total: cssTotal, files: cssFiles } = walkCollect(BUILD_DIR, '.css');
+	if (!fs.existsSync(clientDir)) {
+		console.log(`[bundle-check] Client directory '${clientDir}' not found.`);
+		console.log('[bundle-check] Verify adapter-node is configured correctly.');
+		process.exit(1);
+	}
 
-	console.log(`\nBundle size report (${BUILD_DIR}):`);
+	// Measure gzipped sizes of client-side assets only
+	const { total: jsTotal, files: jsFiles } = walkCollect(clientDir, '.js');
+	const { total: cssTotal, files: cssFiles } = walkCollect(clientDir, '.css');
+
+	console.log(`\nBundle size report (${clientDir}, gzipped):`);
 	console.log(`  JS:  ${formatKB(jsTotal)}  (budget: ${formatKB(MAX_KB.js * 1024)})`);
 	console.log(`  CSS: ${formatKB(cssTotal)}  (budget: ${formatKB(MAX_KB.css * 1024)})`);
 
@@ -97,9 +96,9 @@ function walkCollect(root, ext) {
 			if (entry.isDirectory()) {
 				walk(fullPath);
 			} else if (entry.isFile() && path.extname(entry.name) === ext) {
-				const stat = fs.statSync(fullPath);
-				total += stat.size;
-				files.push({ name: path.relative(root, fullPath), size: stat.size });
+				const gzippedSize = getGzippedSize(fullPath);
+				total += gzippedSize;
+				files.push({ name: path.relative(root, fullPath), size: gzippedSize });
 			}
 		}
 	};

@@ -5,7 +5,6 @@ import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { handleChatTurn } from '$lib/server/services/chat-service';
 import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 import { checkDailyAiCap } from '$lib/server/services/ai-cost-cap';
-import { sanitizePipe } from '$lib/server/services/input-sanitizer';
 
 export const BODY_SIZE_LIMIT = 512_000;
 
@@ -80,7 +79,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	return json(
 		{
-			customerMessageId: sanitizePipe.parse(result.customerMessageId),
+			customerMessageId: result.customerMessageId,
 			assistantMessageId: result.assistantMessageId,
 			answer: result.answer,
 			safetyStatus: result.safetyStatus,

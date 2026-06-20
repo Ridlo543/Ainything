@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { LanguageTag } from '$lib/domain/menu/types';
+import { createSanitizePipe } from '$lib/server/services/input-sanitizer';
 
 /**
  * Languages the platform accepts at the customer boundary. Kept in sync with
@@ -42,7 +43,7 @@ export const languageTagSchema = z.enum(LANGUAGE_TAGS);
 export const createSessionInputSchema = z.object({
 	languageTag: languageTagSchema,
 	dietaryPreferences: z.array(z.enum(DIETARY_PREFERENCE_CODES)).max(12).default([]),
-	allergenNotes: z.string().trim().max(280).optional()
+	allergenNotes: z.string().max(280).pipe(createSanitizePipe(280)).optional()
 });
 
 export type CreateSessionInput = z.infer<typeof createSessionInputSchema>;
@@ -67,8 +68,12 @@ export type FallbackPriority = (typeof FALLBACK_PRIORITY_CODES)[number];
 export const createFallbackInputSchema = z.object({
 	sessionId: z.string().uuid().optional(),
 	languageTag: languageTagSchema,
-	guestNeed: z.string().trim().min(1).max(500),
-	summary: z.string().trim().max(1000).default(''),
+	guestNeed: z
+		.string()
+		.max(500)
+		.pipe(createSanitizePipe(500))
+		.refine((val) => val.length >= 1, { message: 'Guest need must not be empty' }),
+	summary: z.string().max(1000).pipe(createSanitizePipe(1000)).default(''),
 	priority: z.enum(FALLBACK_PRIORITY_CODES).default('normal')
 });
 
@@ -95,7 +100,7 @@ export const createFeedbackInputSchema = z.object({
 	sessionId: z.string().uuid().optional(),
 	helpful: z.boolean().optional(),
 	issueType: z.enum(FEEDBACK_ISSUE_TYPES).optional(),
-	comment: z.string().trim().max(500).optional()
+	comment: z.string().max(500).pipe(createSanitizePipe(500)).optional()
 });
 
 export type CreateFeedbackInput = z.infer<typeof createFeedbackInputSchema>;
@@ -116,7 +121,11 @@ export type ChatSafetyStatus = (typeof CHAT_SAFETY_CODES)[number];
  */
 export const createChatMessageInputSchema = z.object({
 	sessionId: z.string().uuid(),
-	content: z.string().trim().min(1).max(1000),
+	content: z
+		.string()
+		.max(1000)
+		.pipe(createSanitizePipe(1000))
+		.refine((val) => val.length >= 1, { message: 'Chat message must not be empty' }),
 	languageTag: languageTagSchema,
 	/** Guest dietary preferences from the session — used to personalise the LLM context. */
 	dietaryPreferences: z.array(z.enum(DIETARY_PREFERENCE_CODES)).max(12).default([])
