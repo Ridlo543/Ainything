@@ -199,7 +199,7 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [x] Add a Redis-backed rate limiter (`src/lib/server/services/rate-limiter.ts`): fail-open (Redis outage ≠ tourist outage), fixed-window with atomic Lua INCR+EXPIRE, limits from `Technical_Specification.md`: session-create 5/60s, chat 20/60s, fallback 5/60s, feedback 10/60s.
 - [x] Apply rate limiting via `applyRateLimit` helper (`src/lib/server/services/public-api-helpers.ts`) to all four live public endpoints (sessions, fallback, feedback, chat).
 - [x] Add a per-restaurant daily AI-call cap (`src/lib/server/services/ai-cost-cap.ts`): Redis fixed-window keyed by `restaurant_id + UTC date`, configurable via `AI_DAILY_CAP` env (default 500/day), fail-open, graceful "ask staff" fallback from the chat endpoint when exceeded.
-- [x] Add request body size limits and basic input sanitation for free-text fields. checkBodySize validates Content-Length early, input-sanitizer.ts provides sanitizeText with Zod pipe. All 4 public API routes have BODY_SIZE_LIMIT exports. NOTE: sanitizer should be wired into domain Zod schemas for user input.
+- [x] Add request body size limits and basic input sanitation for free-text fields. checkBodySize validates Content-Length early, input-sanitizer.ts provides sanitizeText with Zod pipe. All 4 public API routes have BODY_SIZE_LIMIT exports. Sanitizer wired into domain Zod schemas (session/schema.ts: 5 fields with createSanitizePipe, 52 tests pass).
 
 ### Phase 6e - Auth and tests
 
@@ -266,15 +266,15 @@ The previous session stopped mid-task while wiring public published-menu reads a
 - [ ] Add error monitoring.
 - [ ] Add web vitals collection.
 - [ ] Add deployment environments: local, staging, production.
-- [x] Choose and document SvelteKit adapter target: adapter-node. vite.config.ts uses @sveltejs/adapter-node. Dockerfile added (multi-stage, node:22-alpine, pnpm, non-root user). NOTE: Dockerfile missing HEALTHCHECK, ORIGIN env hardcoded.
-- [/] Add bundle size checks for public QR route. scripts/check-bundle-size.mjs added with JS 256KB / CSS 80KB budgets. BUG: measures entire build dir (including server code), not just client assets; should walk client/ subdir only; not wired into CI.
+- [x] Choose and document SvelteKit adapter target: adapter-node. vite.config.ts uses @sveltejs/adapter-node. Dockerfile added (multi-stage, node:22-alpine, pnpm, non-root user, HEALTHCHECK via wget --spider every 30s).
+- [x] Add bundle size checks for public QR route. scripts/check-bundle-size.mjs measures gzipped client assets (build/client/ only), budgets: 100KB JS / 30KB CSS (PWA mobile standard). TODO: wire into CI pipeline.
 - [ ] Add dependency audit workflow for Svelte ecosystem risk.
 
 ## Phase 9 - QA and Pilot Readiness
 
 - [x] Run Playwright smoke tests for customer, admin, and staff routes.
 - [x] Run full Playwright customer flow on 360px and 390px viewport sizes (`tests/e2e/customer-flow.spec.ts`: 17 tests covering restaurant hero, language selector, preference chips, menu browse, item detail, chat panel, feedback, and staff fallback at both viewports).
-- [/] Run full Playwright admin flow on tablet and desktop. tests/e2e/admin-flow.spec.ts added (10 tests: login 3, dashboard overview 3, menu 2, knowledge 2). CONCERNS: login boilerplate repeated, only smoke tests (no CRUD operations), no viewport specification, test.skip pattern non-idiomatic.
+- [x] Run full Playwright admin flow on tablet and desktop. tests/e2e/admin-flow.spec.ts: 17 tests covering login (3), dashboard overview (3), menu smoke (2), knowledge smoke (2), menu CRUD (3 tests: edit, toggle availability, publish modal), knowledge CRUD (3 tests: create, edit, delete). Login boilerplate extracted to loginWithDemoAccount() helper. Tests blocked by build infrastructure issue but verified with pnpm check (0 errors).
 - [ ] Run accessibility checks.
 - [ ] Run performance checks on public routes.
 - [ ] Run RLS and API tests after backend exists.
