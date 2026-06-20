@@ -193,16 +193,17 @@ export async function loadMenuItemsForRestaurant(
  */
 export async function loadMenusForRestaurant(
 	client: DatabaseClient,
-	restaurantId: string
+	{ organizationId, restaurantId }: { organizationId: string; restaurantId: string }
 ): Promise<MenuRow[]> {
 	const result = await client.query<MenuRow>(
 		`
 			SELECT id::text, restaurant_id::text, version, status, published_at::text
 			FROM menus
 			WHERE restaurant_id = $1::uuid
+				AND organization_id = $2::uuid
 			ORDER BY version DESC
 		`,
-		[restaurantId]
+		[restaurantId, organizationId]
 	);
 	return result.rows;
 }
@@ -263,10 +264,17 @@ export async function loadMenuItemsForMenu(
 /**
  * Loads the count of menu items in a given menu (for publish validation).
  */
-export async function countMenuItems(client: DatabaseClient, menuId: string): Promise<number> {
+export async function countMenuItems(
+	client: DatabaseClient,
+	{
+		organizationId,
+		restaurantId,
+		menuId
+	}: { organizationId: string; restaurantId: string; menuId: string }
+): Promise<number> {
 	const result = await client.query<{ count: string }>(
-		`SELECT COUNT(*)::text AS count FROM menu_items WHERE menu_id = $1::uuid`,
-		[menuId]
+		`SELECT COUNT(*)::text AS count FROM menu_items WHERE menu_id = $1::uuid AND restaurant_id = $2::uuid AND organization_id = $3::uuid`,
+		[menuId, restaurantId, organizationId]
 	);
 	return Number(result.rows[0]?.count ?? 0);
 }
@@ -359,20 +367,22 @@ export async function updateMenuItem(
 export async function setMenuItemAvailability(
 	client: DatabaseClient,
 	{
+		organizationId,
 		restaurantId,
 		itemId,
 		isAvailable
-	}: { restaurantId: string; itemId: string; isAvailable: boolean }
+	}: { organizationId: string; restaurantId: string; itemId: string; isAvailable: boolean }
 ): Promise<boolean> {
 	const result = await client.query<{ id: string }>(
 		`
 			UPDATE menu_items
-			SET is_available = $3
+			SET is_available = $4
 			WHERE id = $1::uuid
 				AND restaurant_id = $2::uuid
+				AND organization_id = $3::uuid
 			RETURNING id::text
 		`,
-		[itemId, restaurantId, isAvailable]
+		[itemId, restaurantId, organizationId, isAvailable]
 	);
 	return result.rows.length > 0;
 }
@@ -440,12 +450,16 @@ export async function updateMenuItemFlags(
  */
 export async function publishMenu(
 	client: DatabaseClient,
-	{ restaurantId, menuId }: { restaurantId: string; menuId: string }
+	{
+		organizationId,
+		restaurantId,
+		menuId
+	}: { organizationId: string; restaurantId: string; menuId: string }
 ): Promise<string | null> {
 	// Archive the current published menu (if any) for this restaurant.
 	await client.query(
-		`UPDATE menus SET status = 'archived' WHERE restaurant_id = $1::uuid AND status = 'published'`,
-		[restaurantId]
+		`UPDATE menus SET status = 'archived' WHERE restaurant_id = $1::uuid AND organization_id = $2::uuid AND status = 'published'`,
+		[restaurantId, organizationId]
 	);
 
 	// Promote the draft menu.
@@ -455,10 +469,11 @@ export async function publishMenu(
 			SET status = 'published', published_at = now()
 			WHERE id = $1::uuid
 				AND restaurant_id = $2::uuid
+				AND organization_id = $3::uuid
 				AND status = 'draft'
 			RETURNING id::text
 		`,
-		[menuId, restaurantId]
+		[menuId, restaurantId, organizationId]
 	);
 
 	return result.rows[0]?.id ?? null;

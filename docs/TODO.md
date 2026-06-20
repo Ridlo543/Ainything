@@ -16,8 +16,8 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 - [x] Keep domain logic out of `.svelte` files and out of route files; routes orchestrate only.
 - [x] No repository or provider import from UI components.
 - [ ] Public customer route owns the performance budget; admin/AI code must be lazy-loaded and must not bloat the public bundle.
-- [ ] Every tenant-owned query must be scoped by `organization_id` and/or `restaurant_id`; never trust a browser-supplied tenant id without server validation.
-- [ ] Guest-derived tenant ids (organization/restaurant) must be resolved server-side from the QR resolution result, never read from the request body.
+- [x] Every tenant-owned query must be scoped by `organization_id` and/or `restaurant_id`; never trust a browser-supplied tenant id without server validation. All admin repository queries now properly scope by both tenant dimensions. Fixed 4 queries (`loadMenusForRestaurant`, `countMenuItems`, `setMenuItemAvailability`, `publishMenu`) that were missing `organization_id`. RLS provides defense-in-depth via `app.has_restaurant_access()`.
+- [x] Guest-derived tenant ids (organization/restaurant) must be resolved server-side from the QR resolution result, never read from the request body. Verified: public APIs (`POST /api/public/sessions`) accept only public identifiers (`restaurantSlug` + `tableCode`), resolve tenant context via `resolvePublicMenu()` database lookup, and use resolved IDs for all writes.
 - [ ] Every new server input boundary (form action, `+server.ts`, public API) validates with a Zod schema in `src/lib/domain/*/schema.ts` or `src/lib/validation`.
 - [ ] Every external provider (LLM, OCR, WhatsApp, storage, telemetry) sits behind an adapter interface with a mock implementation committed before the real one.
 - [ ] Secrets stay server-only; never expose `SUPABASE_SERVICE_ROLE_KEY`, DB URLs, or session secret to the browser.

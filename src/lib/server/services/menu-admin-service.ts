@@ -127,6 +127,7 @@ export async function toggleAvailability(
 
 	await withUserContext(user.id, async (client) => {
 		const success = await repoSetAvailability(client, {
+			organizationId: activeRestaurant.organizationId,
 			restaurantId: activeRestaurant.id,
 			itemId,
 			isAvailable
@@ -164,7 +165,10 @@ export async function publishDraftMenu(
 
 	const publishedId = await withUserContext(user.id, async (client) => {
 		// Load menu records for this restaurant.
-		const menus = await loadMenusForRestaurant(client, activeRestaurant.id);
+		const menus = await loadMenusForRestaurant(client, {
+			organizationId: activeRestaurant.organizationId,
+			restaurantId: activeRestaurant.id
+		});
 
 		// Find the latest draft menu.
 		const draft = menus.find((m) => m.status === 'draft');
@@ -173,7 +177,11 @@ export async function publishDraftMenu(
 		}
 
 		// Check item count — a menu with zero items should not be published.
-		const itemCount = await countMenuItems(client, draft.id);
+		const itemCount = await countMenuItems(client, {
+			organizationId: activeRestaurant.organizationId,
+			restaurantId: activeRestaurant.id,
+			menuId: draft.id
+		});
 		if (itemCount === 0) {
 			throw new MenuPublishValidationError({
 				ok: false,
@@ -200,6 +208,7 @@ export async function publishDraftMenu(
 
 		// Archive published, promote draft.
 		const publishedId = await repoPublishMenu(client, {
+			organizationId: activeRestaurant.organizationId,
 			restaurantId: activeRestaurant.id,
 			menuId: draft.id
 		});

@@ -178,6 +178,190 @@ Rules:
 - During frontend/backend bridging, a mock session cookie may be used only as a local development stand-in. Production auth must replace it with Supabase Auth sessions and RLS-enforced memberships.
 - Mock tenant fallback is allowed for local UI work when the database is unavailable. It must not hide database authorization errors in production.
 
+## 6.2 Tenant Query Isolation and Testing
+
+Every database query that accesses tenant-owned data must enforce tenant scope at both the application and database layers.
+
+### Query Scoping Requirements
+
+**Application Layer:**
+
+- Every tenant-owned query MUST scope by both `organization_id` AND `restaurant_id` in the WHERE clause.
+- Repository functions MUST require these IDs in their input parameters (not optional).
+- Never rely solely on RLS for tenant isolation—application queries should be correct by construction.
+
+**Good Example:**
+
+```typescript
+export async function loadMenusForRestaurant(
+  client: DatabaseClient,
+  { organizationId, restaurantId }: { organizationId: string; restaurantId: string }
+): Promise<MenuRow[]> {
+  const result = await client.query<MenuRow>(
+    `SELECT id, restaurant_id, version, status, published_at
+     FROM menus
+     WHERE restaurant_id = $1::uuid
+       AND organization_id = $2::uuid
+     ORDER BY version DESC`,
+    [restaurantId, organizationId]
+  );
+  return result.rows;
+}
+```
+
+**Bad Example:**
+
+```typescript
+// ❌ Missing organization_id - violates defense-in-depth
+export async function loadMenusForRestaurant(
+  client: DatabaseClient,
+  restaurantId: string
+): Promise<MenuRow[]> {
+  const result = await client.query<MenuRow>(
+    `SELECT id, restaurant_id, version, status
+     FROM menus
+     WHERE restaurant_id = $1::uuid`,  // ❌ No organization_id check
+    [restaurantId]
+  );
+  return result.rows;
+}
+```
+
+**Database Layer (RLS):**
+
+- RLS policies enforce tenant scope using `app.has_restaurant_access(restaurant_id)`.
+- This function verifies the authenticated user (via `app.user_external_id`) has membership access to the restaurant.
+- RLS provides defense-in-depth: even if application code omits organization_id, the database prevents cross-tenant access.
+- See `db/migrations/0001_core_multi_tenant_schema.sql` for `has_restaurant_access()` implementation.
+- See `db/migrations/0006_admin_menu_write_policies.sql` for write policy examples.
+
+### Defense-in-Depth Pattern
+
+Lingua uses a two-layer tenant isolation model:
+
+1. **Application Layer (Primary):** Queries explicitly scope by organization_id + restaurant_id.
+2. **Database Layer (Defense):** RLS policies enforce access via membership relationships.
+
+This pattern ensures:
+- Security is visible in application code (easier to audit).
+- Performance optimization through explicit indexes on tenant dimensions.
+- Protection against bugs in application code (RLS catches missing scopes).
+- Compliance with security review requirements.
+
+### Writing Tenant-Safe Queries
+
+**Step 1: Resolve Tenant Context**
+
+Always resolve tenant context before repository calls:
+
+```typescript
+// Admin operations: resolve from authenticated user
+const tenant = await resolveTenantContext(user, restaurantSlug);
+const { activeRestaurant } = tenant;
+
+// Public operations: resolve from QR identifiers
+const bootstrap = await resolvePublicMenu(restaurantSlug, tableCode);
+```
+
+**Step 2: Pass Tenant IDs to Repository**
+
+Repository functions must require tenant IDs explicitly:
+
+```typescript
+const menus = await loadMenusForRestaurant(client, {
+  organizationId: activeRestaurant.organizationId,
+  restaurantId: activeRestaurant.id
+});
+```
+
+**Step 3: Scope Queries by Both Dimensions**
+
+All WHERE clauses must include both `organization_id` AND `restaurant_id`:
+
+```sql
+WHERE restaurant_id = $1::uuid
+  AND organization_id = $2::uuid
+```
+
+**Step 4: Use Transaction Context**
+
+Admin operations must run within `withUserContext` to set RLS session variables:
+
+```typescript
+await withUserContext(user.id, async (client) => {
+  // All queries inside this block have app.user_external_id set
+  const menus = await loadMenusForRestaurant(client, {
+    organizationId: activeRestaurant.organizationId,
+    restaurantId: activeRestaurant.id
+  });
+});
+```
+
+### Testing Tenant Isolation
+
+**Unit Tests:**
+
+Test repository functions with different tenant IDs to verify isolation:
+
+```typescript
+test('loadMenusForRestaurant returns only menus for specified organization', async () => {
+  const org1Menus = await loadMenusForRestaurant(client, {
+    organizationId: org1.id,
+    restaurantId: restaurant1.id
+  });
+  
+  const org2Menus = await loadMenusForRestaurant(client, {
+    organizationId: org2.id,
+    restaurantId: restaurant1.id
+  });
+  
+  expect(org1Menus).not.toContainEqual(expect.objectContaining({ id: org2Menu.id }));
+});
+```
+
+**RLS Tests:**
+
+Test database policies enforce cross-tenant isolation:
+
+```typescript
+test('RLS prevents cross-organization menu access', async () => {
+  await withUserContext(org1User.id, async (client) => {
+    // Should not see org2's menus even if we try to query them
+    const result = await client.query(
+      'SELECT * FROM menus WHERE restaurant_id = $1',
+      [org2Restaurant.id]
+    );
+    expect(result.rows).toHaveLength(0);
+  });
+});
+```
+
+**Integration Tests:**
+
+Test full flows with multiple tenants:
+
+```typescript
+test('same table code in different restaurants creates separate sessions', async () => {
+  const session1 = await createSession({ restaurantSlug: 'cafe-a', tableCode: 'T1' });
+  const session2 = await createSession({ restaurantSlug: 'cafe-b', tableCode: 'T1' });
+  
+  expect(session1.restaurantId).not.toBe(session2.restaurantId);
+});
+```
+
+### Recent Fixes (2024-06-20)
+
+Fixed 4 repository functions that were missing `organization_id` scoping:
+
+1. **`loadMenusForRestaurant`** - Now requires `{ organizationId, restaurantId }` instead of just `restaurantId`.
+2. **`countMenuItems`** - Now requires `{ organizationId, restaurantId, menuId }` instead of just `menuId`.
+3. **`setMenuItemAvailability`** - Now requires `organizationId` in addition to `restaurantId` and `itemId`.
+4. **`publishMenu`** - Now requires `organizationId` and scopes both UPDATE statements.
+
+All callers in `menu-admin-service.ts` updated to pass complete tenant context.
+
+See TODO.md line 19 for the cross-cutting guardrail this implements.
+
 ## 7. Provider Adapters
 
 Every external provider must sit behind an interface:
