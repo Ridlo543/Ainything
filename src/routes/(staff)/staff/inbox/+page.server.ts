@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { z } from 'zod';
 import {
 	listRequests,
 	transitionStatus,
@@ -7,6 +8,11 @@ import {
 	StaffInboxTransitionError
 } from '$lib/server/services/staff-inbox-service';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
+
+const inboxActionSchema = z.object({
+	requestId: z.string().uuid(),
+	restaurantId: z.string().uuid()
+});
 
 /**
  * Load all fallback requests visible to the authenticated staff member.
@@ -35,19 +41,23 @@ export const actions: Actions = {
 	 *   requestId  — UUID of the fallback_request
 	 *   restaurantId — UUID of the owning restaurant (for scope guard)
 	 */
-	claim: async ({ locals, request }) => {
-		if (!locals.user) {
-			return fail(401, { message: 'Authentication required.' });
-		}
+claim: async ({ locals, request }) => {
+			if (!locals.user) {
+				return fail(401, { message: 'Authentication required.' });
+			}
 
-		const tenant = await resolveTenantContext(locals.user);
-		const formData = await request.formData();
-		const requestId = String(formData.get('requestId') ?? '');
-		const restaurantId = String(formData.get('restaurantId') ?? '');
+			const tenant = await resolveTenantContext(locals.user);
+			const formData = await request.formData();
+			const parseResult = inboxActionSchema.safeParse({
+				requestId: formData.get('requestId'),
+				restaurantId: formData.get('restaurantId')
+			});
 
-		if (!requestId || !restaurantId) {
-			return fail(422, { message: 'requestId and restaurantId are required.' });
-		}
+			if (!parseResult.success) {
+				return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
+			}
+
+			const { requestId, restaurantId } = parseResult.data;
 
 		try {
 			await transitionStatus(
@@ -80,19 +90,23 @@ export const actions: Actions = {
 	 *   requestId  — UUID of the fallback_request
 	 *   restaurantId — UUID of the owning restaurant (for scope guard)
 	 */
-	resolve: async ({ locals, request }) => {
-		if (!locals.user) {
-			return fail(401, { message: 'Authentication required.' });
-		}
+resolve: async ({ locals, request }) => {
+			if (!locals.user) {
+				return fail(401, { message: 'Authentication required.' });
+			}
 
-		const tenant = await resolveTenantContext(locals.user);
-		const formData = await request.formData();
-		const requestId = String(formData.get('requestId') ?? '');
-		const restaurantId = String(formData.get('restaurantId') ?? '');
+			const tenant = await resolveTenantContext(locals.user);
+			const formData = await request.formData();
+			const parseResult = inboxActionSchema.safeParse({
+				requestId: formData.get('requestId'),
+				restaurantId: formData.get('restaurantId')
+			});
 
-		if (!requestId || !restaurantId) {
-			return fail(422, { message: 'requestId and restaurantId are required.' });
-		}
+			if (!parseResult.success) {
+				return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
+			}
+
+			const { requestId, restaurantId } = parseResult.data;
 
 		try {
 			await transitionStatus(

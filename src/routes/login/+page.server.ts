@@ -1,10 +1,16 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { z } from 'zod';
 import {
 	getDefaultSessionId,
 	getDemoSessions,
 	sessionCookieName
 } from '$lib/server/auth/mock-session';
+
+const loginFormSchema = z.object({
+	sessionId: z.string().min(1, 'Please select a demo account.'),
+	redirectTo: z.string().max(256).default('/dashboard')
+});
 
 const cookieOptions = {
 	path: '/',
@@ -27,20 +33,29 @@ export const load: PageServerLoad = ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	login: async ({ cookies, request }) => {
-		const formData = await request.formData();
-		const sessionId = String(formData.get('sessionId') ?? '');
-		const session = getDemoSessions().find((item) => item.id === sessionId);
-
-		if (!session) {
-			return fail(400, {
-				message: 'Choose a valid demo account.'
+login: async ({ cookies, request }) => {
+			const formData = await request.formData();
+			const parseResult = loginFormSchema.safeParse({
+				sessionId: formData.get('sessionId'),
+				redirectTo: formData.get('redirectTo')
 			});
+
+			if (!parseResult.success) {
+				return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
+			}
+
+			const { sessionId, redirectTo } = parseResult.data;
+
+			const session = getDemoSessions().find((item) => item.id === sessionId);
+
+			if (!session) {
+				return fail(400, {
+					message: 'Choose a valid demo account.'
+				});
+			}
+
+			cookies.set(sessionCookieName, session.id, cookieOptions);
+
+			redirect(303, redirectTo.startsWith('/') ? redirectTo : '/dashboard');
 		}
-
-		cookies.set(sessionCookieName, session.id, cookieOptions);
-
-		const redirectTo = String(formData.get('redirectTo') ?? '');
-		redirect(303, redirectTo?.startsWith('/') ? redirectTo : '/dashboard');
-	}
 };

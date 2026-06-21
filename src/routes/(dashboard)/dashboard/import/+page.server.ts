@@ -1,6 +1,30 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { z } from 'zod';
 import { scanMenuImage, importOcrItems } from '$lib/server/services/ocr-import-service';
+
+const MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const;
+
+const SOURCE_TYPES = [
+	'photo',
+	'pdf-scan',
+	'bilingual',
+	'handwritten',
+	'seasonal',
+	'spreadsheet'
+] as const;
+
+const scanInputSchema = z.object({
+	image: z.string().min(10, 'Please upload a menu image.'),
+	mimeType: z.enum(MIME_TYPES, { message: 'Invalid image format. Use PNG, JPEG, or WebP.' }),
+	sourceType: z.enum(SOURCE_TYPES),
+	restaurant: z.string().min(1, 'Restaurant is required.').max(120)
+});
+
+const importInputSchema = z.object({
+	restaurant: z.string().min(1).max(120),
+	scan: z.string().min(1, 'No OCR scan data to import.')
+});
 
 /**
  * Server load for the dashboard import page.
@@ -20,26 +44,30 @@ export const actions: Actions = {
 	 * Accepts a base64-encoded image via form data. Returns the OCR scan result
 	 * with structured items and per-field confidence scores for admin review.
 	 */
-	scan: async ({ locals, request }) => {
-		if (!locals.user) {
-			return fail(401, { message: 'Authentication required.' });
-		}
+scan: async ({ locals, request }) => {
+			if (!locals.user) {
+				return fail(401, { message: 'Authentication required.' });
+			}
 
-		const formData = await request.formData();
-		const imageBase64 = String(formData.get('image') ?? '');
-		const mimeType = String(formData.get('mimeType') ?? 'image/png');
-		const sourceType = String(formData.get('sourceType') ?? 'photo');
-		const restaurant = String(formData.get('restaurant') ?? '');
+			const formData = await request.formData();
+			const parseResult = scanInputSchema.safeParse({
+				image: formData.get('image'),
+				mimeType: formData.get('mimeType'),
+				sourceType: formData.get('sourceType'),
+				restaurant: formData.get('restaurant')
+			});
 
-		if (!imageBase64 || imageBase64.length < 10) {
-			return fail(422, { message: 'Please upload a menu image.' });
-		}
+			if (!parseResult.success) {
+				return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
+			}
+
+			const { image: imageBase64, mimeType, sourceType, restaurant } = parseResult.data;
 
 		try {
 			const result = await scanMenuImage({
 				imageBase64,
 				mimeType,
-				sourceType: sourceType as 'photo' | 'pdf-scan' | 'bilingual' | 'handwritten' | 'seasonal' | 'spreadsheet',
+				sourceType,
 				languageHints: ['en', 'id'],
 				restaurantName: restaurant
 			});
@@ -90,12 +118,16 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const restaurant = String(formData.get('restaurant') ?? '');
-		const scanJson = String(formData.get('scan') ?? '');
+		const parseResult = importInputSchema.safeParse({
+			restaurant: formData.get('restaurant'),
+			scan: formData.get('scan')
+		});
 
-		if (!scanJson) {
-			return fail(422, { message: 'No OCR scan data to import.' });
+		if (!parseResult.success) {
+			return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
 		}
+
+		const { restaurant, scan: scanJson } = parseResult.data;
 
 		let scanResult;
 		try {

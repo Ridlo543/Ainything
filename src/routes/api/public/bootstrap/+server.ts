@@ -1,7 +1,13 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { z } from 'zod';
 import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { applyRateLimit } from '$lib/server/services/public-api-helpers';
+
+const bootstrapParamsSchema = z.object({
+	restaurant: z.string().min(1, 'Restaurant slug is required.').max(120),
+	table: z.string().min(1, 'Table code is required.').max(60)
+});
 
 /**
  * GET /api/public/bootstrap?restaurant=<slug>&table=<code>
@@ -17,14 +23,18 @@ import { applyRateLimit } from '$lib/server/services/public-api-helpers';
  * - stale-while-revalidate=300: CDN serves stale while revalidating for 5 min.
  */
 export const GET: RequestHandler = async ({ url, request }) => {
-	await applyRateLimit('bootstrap', request);
+		await applyRateLimit('bootstrap', request);
 
-	const restaurantSlug = url.searchParams.get('restaurant')?.trim();
-	const tableCode = url.searchParams.get('table')?.trim();
+		const parseResult = bootstrapParamsSchema.safeParse({
+			restaurant: url.searchParams.get('restaurant')?.trim(),
+			table: url.searchParams.get('table')?.trim()
+		});
 
-	if (!restaurantSlug || !tableCode) {
-		error(400, 'Missing required query params: restaurant and table.');
-	}
+		if (!parseResult.success) {
+			error(400, 'Missing required query params: restaurant and table.');
+		}
+
+		const { restaurant: restaurantSlug, table: tableCode } = parseResult.data;
 
 	const bootstrap = await resolvePublicMenu(restaurantSlug, tableCode);
 

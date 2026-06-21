@@ -8,7 +8,7 @@
 		ThumbsUp
 	} from '@lucide/svelte';
 	import type { PageData } from './$types';
-	import type { RestaurantMetrics } from '$lib/server/repositories/metrics-repository';
+	import type { RestaurantMetrics } from '$lib/domain/analytics/types';
 	import { t, tWithVars } from '$lib/i18n/translations.svelte';
 
 	let { data }: { data: PageData } = $props();

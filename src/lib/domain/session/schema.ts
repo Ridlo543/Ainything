@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { LanguageTag } from '$lib/domain/menu/types';
-import { createSanitizePipe } from '$lib/server/services/input-sanitizer';
+import { createSanitizePipe } from '$lib/domain/sanitize';
 
 /**
  * Languages the platform accepts at the customer boundary. Kept in sync with
