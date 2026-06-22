@@ -7,6 +7,10 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		redirect(303, `/login?redirectTo=${encodeURIComponent(url.pathname + url.search)}`);
 	}
 
+	if (locals.user.platformRole !== 'staff') {
+		redirect(303, '/dashboard');
+	}
+
 	return {
 		tenant: await resolveTenantContext(locals.user, url.searchParams.get('restaurant') ?? undefined)
 	};

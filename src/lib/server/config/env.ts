@@ -41,13 +41,28 @@ export const appEnv = {
 	embeddingEnabled: env.EMBEDDING_ENABLED === 'true',
 	llmEmbeddingModel: env.LLM_EMBEDDING_MODEL || 'text-embedding-3-small',
 
-// OCR
-		ocrProvider: env.OCR_PROVIDER || 'mock',
+	// OCR
+	ocrProvider: env.OCR_PROVIDER || 'mock',
 
-		// Supabase (future managed backend)
-		supabaseUrl: publicEnv.PUBLIC_SUPABASE_URL,
-	supabaseAnonKey: publicEnv.PUBLIC_SUPABASE_ANON_KEY,
-	supabaseServiceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY
+	// WhatsApp
+	whatsappProvider: env.WHATSAPP_PROVIDER || 'mock',
+
+	// Storage (menu imports, item images, knowledge attachments)
+	storageProvider: env.STORAGE_PROVIDER || 'mock',
+
+	// Supabase
+	// Supports both `@supabase/ssr` (PUBLIC_*) and `@supabase/server` (SUPABASE_*) env conventions
+	supabaseUrl:
+		env.SUPABASE_URL ||
+		publicEnv.PUBLIC_SUPABASE_URL,
+	supabaseAnonKey:
+		env.SUPABASE_PUBLISHABLE_KEY ||
+		publicEnv.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+		publicEnv.PUBLIC_SUPABASE_ANON_KEY,
+	supabaseServiceRoleKey:
+		env.SUPABASE_SECRET_KEY ||
+		env.SUPABASE_SERVICE_ROLE_KEY,
+	supabaseJwksUrl: env.SUPABASE_JWKS_URL
 };
 
 export function requireDatabaseEnv() {
