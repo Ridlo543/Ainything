@@ -12,15 +12,16 @@
 
 import { getOcrProvider } from '$lib/server/providers/ocr/factory';
 import type { OcrScanResult, OcrMenuItem } from '$lib/server/providers/ocr/types';
-import type { MenuSourceType, LanguageTag, MenuItem, AppUser } from '$lib/domain/menu/types';
+import type { AuthUser } from '$lib/domain/auth/types';
+import type { MenuSourceType, LanguageTag, MenuItem } from '$lib/domain/menu/types';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
 import { withUserContext } from '$lib/server/db/postgres';
 import {
 	loadMenusForRestaurant,
 	ensureCategory,
-	insertMenuItem
+	insertMenuItem,
+	createDraftMenu
 } from '$lib/server/repositories/admin-menu-repository';
-import type { DatabaseClient } from '$lib/server/db/postgres';
 
 /**
  * Runs an OCR scan on a base64-encoded menu image.
@@ -55,7 +56,7 @@ export async function scanMenuImage(input: {
  * Returns the IDs of the created menu items.
  */
 export async function importOcrItems(
-	user: AppUser,
+	user: AuthUser,
 	input: {
 		restaurantSlug: string;
 		ocrResult: OcrScanResult;
@@ -76,22 +77,14 @@ export async function importOcrItems(
 		if (existingDraft) {
 			draftMenuId = existingDraft.id;
 		} else {
-			// Create a new draft menu.
+			// Create a new draft menu (delegated to repository).
 			const latestVersion = existingMenus.reduce((max, m) => Math.max(max, m.version), 0);
-			const result = await client.query<{ id: string }>(
-				`
-					INSERT INTO menus (organization_id, restaurant_id, version, status, source_type)
-					VALUES ($1::uuid, $2::uuid, $3, 'draft', $4)
-					RETURNING id::text
-				`,
-				[
-					activeRestaurant.organizationId,
-					activeRestaurant.id,
-					latestVersion + 1,
-					input.ocrResult.items.length > 0 ? 'photo' : 'photo'
-				]
-			);
-			draftMenuId = result.rows[0]!.id;
+			draftMenuId = await createDraftMenu(client, {
+				organizationId: activeRestaurant.organizationId,
+				restaurantId: activeRestaurant.id,
+				version: latestVersion + 1,
+				sourceType: 'photo'
+			});
 		}
 
 		// Import each OCR item.

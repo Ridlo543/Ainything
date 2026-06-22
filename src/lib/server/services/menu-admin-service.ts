@@ -11,7 +11,7 @@
  * against the membership.
  */
 
-import type { AppUser } from '$lib/domain/menu/types';
+import type { AuthUser } from '$lib/domain/auth/types';
 import type { UpdateMenuItemInput } from '$lib/domain/menu/admin-schema';
 import { canPublishMenu, type PublishValidation } from '$lib/domain/menu/policy';
 import { withUserContext } from '$lib/server/db/postgres';
@@ -26,7 +26,6 @@ import {
 	publishMenu as repoPublishMenu
 } from '$lib/server/repositories/admin-menu-repository';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
-import { generateEmbeddingsForRestaurant } from '$lib/server/services/embedding-worker';
 import { appEnv } from '$lib/server/config/env';
 import type { MenuItem } from '$lib/domain/menu/types';
 
@@ -58,7 +57,7 @@ export class MenuPublishValidationError extends Error {
  * Throws if the item does not exist or the caller lacks access (RLS).
  */
 export async function editMenuItem(
-	user: AppUser,
+	user: AuthUser,
 	{
 		restaurantSlug,
 		itemId,
@@ -115,7 +114,7 @@ export async function editMenuItem(
  * Only touches `is_available`; does not re-read flags or metadata.
  */
 export async function toggleAvailability(
-	user: AppUser,
+	user: AuthUser,
 	{
 		restaurantSlug,
 		itemId,
@@ -157,7 +156,7 @@ export async function toggleAvailability(
  *  8. Return the newly published menu id.
  */
 export async function publishDraftMenu(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug }: { restaurantSlug: string }
 ): Promise<string> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);
@@ -222,13 +221,18 @@ export async function publishDraftMenu(
 
 	// Fire-and-forget embedding generation after publish.
 	// Only runs when EMBEDDING_ENABLED=true; errors are logged but never propagate.
+	// Uses BullMQ queue so processing happens asynchronously outside the HTTP request.
 	if (appEnv.embeddingEnabled) {
-		generateEmbeddingsForRestaurant(activeRestaurant.id).catch((err) => {
-			console.error(
-				`[menu-admin-service] Embedding generation failed post-publish for ${activeRestaurant.id}:`,
-				err
-			);
-		});
+		import('$lib/server/queue/embedding-queue')
+			.then(({ enqueueEmbeddingJob }) =>
+				enqueueEmbeddingJob(activeRestaurant.id)
+			)
+			.catch((err) => {
+				console.error(
+					`[menu-admin-service] Failed to enqueue embedding job for ${activeRestaurant.id}:`,
+					err
+				);
+			});
 	}
 
 	return publishedId;

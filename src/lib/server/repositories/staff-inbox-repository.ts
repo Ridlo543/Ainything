@@ -11,7 +11,7 @@
  * - No SELECT * — every returned column is explicitly listed
  */
 
-import type { StaffRequest } from '$lib/domain/menu/types';
+import type { StaffRequest } from '$lib/domain/fallback/types';
 import { query, withUserContext } from '$lib/server/db/postgres';
 
 // ---------------------------------------------------------------------------

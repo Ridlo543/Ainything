@@ -215,7 +215,11 @@ export async function loadMenusForRestaurant(
  */
 export async function loadMenuItemsForMenu(
 	client: DatabaseClient,
-	{ menuId, restaurantId, organizationId }: { menuId: string; restaurantId: string; organizationId: string }
+	{
+		menuId,
+		restaurantId,
+		organizationId
+	}: { menuId: string; restaurantId: string; organizationId: string }
 ): Promise<MenuItem[]> {
 	const result = await client.query<AdminMenuItemRow>(
 		`
@@ -477,6 +481,40 @@ export async function publishMenu(
 	);
 
 	return result.rows[0]?.id ?? null;
+}
+
+/**
+ * Creates a new draft menu for a restaurant. Used by the OCR import path
+ * when no draft menu exists.
+ */
+export async function createDraftMenu(
+	client: DatabaseClient,
+	{
+		organizationId,
+		restaurantId,
+		version,
+		sourceType
+	}: {
+		organizationId: string;
+		restaurantId: string;
+		version: number;
+		sourceType: string;
+	}
+): Promise<string> {
+	const result = await client.query<{ id: string }>(
+		`
+			INSERT INTO menus (organization_id, restaurant_id, version, status, source_type)
+			VALUES ($1::uuid, $2::uuid, $3, 'draft', $4)
+			RETURNING id::text
+		`,
+		[organizationId, restaurantId, version, sourceType]
+	);
+
+	const row = result.rows[0];
+	if (!row) {
+		throw new Error('Failed to create draft menu: INSERT returned no rows');
+	}
+	return row.id;
 }
 
 // ---------------------------------------------------------------------------

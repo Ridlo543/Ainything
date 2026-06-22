@@ -13,8 +13,9 @@
  * logic that can be unit-tested without a running server.
  */
 
-import { z } from 'zod';
-import type { StaffRequest } from '$lib/domain/menu/types';
+import type { StaffRequest } from '$lib/domain/fallback/types';
+import { listRequestsInputSchema, transitionStatusInputSchema } from '$lib/domain/fallback/schema';
+import { ALLOWED_TRANSITIONS } from '$lib/domain/fallback/policy';
 import {
 	listFallbackRequests,
 	updateFallbackStatus
@@ -37,34 +38,6 @@ export class StaffInboxTransitionError extends Error {
 		this.name = 'StaffInboxTransitionError';
 	}
 }
-
-// ---------------------------------------------------------------------------
-// Zod schemas for service-layer input validation
-// ---------------------------------------------------------------------------
-
-const listRequestsInputSchema = z.object({
-	userId: z.string().min(1),
-	organizationId: z.string().min(1),
-	restaurantIds: z.array(z.string().min(1)).min(1)
-});
-
-const transitionStatusInputSchema = z.object({
-	userId: z.string().min(1),
-	requestId: z.string().uuid(),
-	restaurantId: z.string().uuid(),
-	newStatus: z.enum(['in_progress', 'resolved'])
-});
-
-// ---------------------------------------------------------------------------
-// Allowed transitions
-// ---------------------------------------------------------------------------
-
-/** DB-column status values (snake_case as stored) */
-const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-	new: ['in_progress'],
-	in_progress: ['resolved'],
-	resolved: [] // terminal
-};
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -110,7 +83,7 @@ export async function transitionStatus(
 	userId: string,
 	requestId: string,
 	restaurantId: string,
-	newStatus: 'in_progress' | 'resolved',
+	newStatus: 'in-progress' | 'resolved',
 	memberRestaurantIds: string[]
 ): Promise<void> {
 	const parsed = transitionStatusInputSchema.safeParse({
@@ -143,19 +116,13 @@ export async function transitionStatus(
 		throw new StaffInboxTransitionError(`Request ${requestId} not found`);
 	}
 
-	// Map domain status ('in-progress') back to DB key ('in_progress') for lookup
-	const dbCurrentStatus = currentRow.status === 'in-progress' ? 'in_progress' : currentRow.status;
-	const allowed = ALLOWED_TRANSITIONS[dbCurrentStatus] ?? [];
+	const allowed = ALLOWED_TRANSITIONS[currentRow.status] ?? [];
 
 	if (!allowed.includes(newStatus)) {
 		throw new StaffInboxTransitionError(
-			`Cannot transition from '${dbCurrentStatus}' to '${newStatus}'. Allowed: [${allowed.join(', ')}]`
+			`Cannot transition from '${currentRow.status}' to '${newStatus}'. Allowed: [${allowed.join(', ')}]`
 		);
 	}
 
-	// Map newStatus back to domain value for the repository call
-	// (repository accepts both formats and normalises internally)
-	const domainStatus = newStatus === 'in_progress' ? 'in-progress' : newStatus;
-
-	await updateFallbackStatus(requestId, restaurantId, domainStatus, userId);
+	await updateFallbackStatus(requestId, restaurantId, newStatus, userId);
 }
