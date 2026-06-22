@@ -42,7 +42,9 @@ const bootstrap: PublicMenuBootstrap = {
 		code: 'T07',
 		label: 'Table 07',
 		restaurantId: 'rest-1',
-		organizationId: 'org-1'
+		organizationId: 'org-1',
+		isActive: true,
+		qrPath: ''
 	}
 };
 
@@ -51,11 +53,13 @@ const bootstrap: PublicMenuBootstrap = {
 // ════════════════════════════════════════════════════════════════════════════════
 
 const createCustomerSessionMock = vi.fn();
+const createFallbackRequestMock = vi.fn().mockResolvedValue({ id: 'fb-1', status: 'new' });
+const createFeedbackMock = vi.fn().mockResolvedValue({ id: 'feedback-1' });
 
 vi.mock('$lib/server/repositories/public-menu-repository', () => ({
 	createCustomerSession: (...args: unknown[]) => createCustomerSessionMock(...args),
-	createFallbackRequest: vi.fn(),
-	createFeedback: vi.fn()
+	createFallbackRequest: (...args: unknown[]) => createFallbackRequestMock(...args),
+	createFeedback: (...args: unknown[]) => createFeedbackMock(...args)
 }));
 
 const { createCustomerSessionForTable } =
@@ -129,14 +133,7 @@ describe('POST /api/public/sessions — createCustomerSessionForTable', () => {
 // POST /api/public/fallback  →  guest-interaction-service.createFallbackForTable
 // ════════════════════════════════════════════════════════════════════════════════
 
-const createFallbackRequestMock = vi.fn();
-const createFeedbackMock = vi.fn();
-
-vi.mock('$lib/server/repositories/public-menu-repository', () => ({
-	createCustomerSession: createCustomerSessionMock,
-	createFallbackRequest: (...args: unknown[]) => createFallbackRequestMock(...args),
-	createFeedback: (...args: unknown[]) => createFeedbackMock(...args)
-}));
+// Mocks already defined above — reuse createFallbackRequestMock and createFeedbackMock
 
 const { createFallbackForTable, createFeedbackForSession } =
 	await import('$lib/server/services/guest-interaction-service');
