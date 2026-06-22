@@ -197,6 +197,29 @@ INSERT INTO restaurants (
 			"topQuestion": "Is rendang halal certified?",
 			"topItem": "Short Rib Rendang"
 		}'::jsonb
+	),
+	(
+		'40000000-0000-0000-0000-000000000005',
+		'10000000-0000-0000-0000-000000000001',
+		'Pantai Padi',
+		'pantai-padi',
+		'pantai-padi.lingua.app',
+		'Jimbaran, Bali',
+		'casual-dining',
+		ARRAY['en', 'id', 'ar']::text[],
+		'/assets/covers/pantai-padi.svg',
+		'/assets/menu-scans/pantai-padi-menu.svg',
+		16,
+		'seasonal',
+		'Beachside seafood grill with Mediterranean and Middle Eastern influences.',
+		ARRAY['Halal certified seafood', 'Fresh daily catch', 'Arabic mezze available']::text[],
+		'{
+			"scansToday": 52,
+			"helpfulRate": 88,
+			"fallbackRate": 16,
+			"topQuestion": "Is all seafood halal certified?",
+			"topItem": "Grilled Sea Bass with Tahini"
+		}'::jsonb
 	);
 
 INSERT INTO membership_restaurants (membership_id, organization_id, restaurant_id) VALUES
@@ -209,6 +232,11 @@ INSERT INTO membership_restaurants (membership_id, organization_id, restaurant_i
 		'30000000-0000-0000-0000-000000000001',
 		'10000000-0000-0000-0000-000000000001',
 		'40000000-0000-0000-0000-000000000003'
+	),
+	(
+		'30000000-0000-0000-0000-000000000001',
+		'10000000-0000-0000-0000-000000000001',
+		'40000000-0000-0000-0000-000000000005'
 	),
 	(
 		'30000000-0000-0000-0000-000000000002',
@@ -244,6 +272,18 @@ FROM restaurants r
 JOIN restaurant_locations rl ON rl.restaurant_id = r.id AND rl.code = 'main'
 CROSS JOIN (VALUES ('T01'), ('T02'), ('T03'), ('T04'), ('T05'), ('T06'), ('T07'), ('B12')) AS codes(table_code);
 
+-- Special table A01 for pantai-padi (RTL/Arabic testing)
+INSERT INTO restaurant_tables (organization_id, restaurant_id, location_id, code, label, qr_path)
+SELECT
+	'10000000-0000-0000-0000-000000000001',
+	'40000000-0000-0000-0000-000000000005',
+	rl.id,
+	'A01',
+	'A01',
+	'/r/pantai-padi/table/A01'
+FROM restaurant_locations rl
+WHERE rl.restaurant_id = '40000000-0000-0000-0000-000000000005' AND rl.code = 'main';
+
 INSERT INTO menus (id, organization_id, restaurant_id, version, status, source_type, source_uri, published_at) VALUES
 	(
 		'50000000-0000-0000-0000-000000000001',
@@ -263,6 +303,16 @@ INSERT INTO menus (id, organization_id, restaurant_id, version, status, source_t
 		'published',
 		'handwritten',
 		'/assets/menu-scans/taman-sate-menu.svg',
+		now()
+	),
+	(
+		'50000000-0000-0000-0000-000000000005',
+		'10000000-0000-0000-0000-000000000001',
+		'40000000-0000-0000-0000-000000000005',
+		1,
+		'published',
+		'seasonal',
+		'/assets/menu-scans/pantai-padi-menu.svg',
 		now()
 	);
 
@@ -298,6 +348,14 @@ INSERT INTO menu_categories (id, organization_id, restaurant_id, menu_id, name, 
 		'50000000-0000-0000-0000-000000000002',
 		'Drinks',
 		2
+	),
+	(
+		'60000000-0000-0000-0000-000000000005',
+		'10000000-0000-0000-0000-000000000001',
+		'40000000-0000-0000-0000-000000000005',
+		'50000000-0000-0000-0000-000000000005',
+		'Seafood',
+		1
 	);
 
 INSERT INTO menu_items (
@@ -425,6 +483,24 @@ INSERT INTO menu_items (
 		false,
 		'verified',
 		3
+	),
+	(
+		'70000000-0000-0000-0000-000000000007',
+		'10000000-0000-0000-0000-000000000001',
+		'40000000-0000-0000-0000-000000000005',
+		'50000000-0000-0000-0000-000000000005',
+		'60000000-0000-0000-0000-000000000005',
+		'Grilled Sea Bass with Tahini',
+		'سمك مشوي بالطحينة',
+		'Fresh sea bass grilled with Mediterranean herbs, served with tahini sauce and lemon.',
+		165000,
+		'IDR',
+		'/assets/covers/pantai-padi.svg',
+		1,
+		true,
+		true,
+		'verified',
+		1
 	);
 
 INSERT INTO menu_item_dietary_flags (menu_item_id, flag_code) VALUES
