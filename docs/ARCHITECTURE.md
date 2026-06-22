@@ -603,10 +603,13 @@ pnpm check            # TypeScript check
 
 **Playwright E2E tests:**
 
-- `playwright.config.ts` overrides all DB env vars to use local PostgreSQL superuser.
-- This bypasses RLS (tested in unit tests) and avoids inheriting `.env` Supabase remote config.
+- `playwright.config.ts` uses `lingua_app` role (NOT superuser) to validate actual security boundaries.
+- E2E tests verify RLS policies work correctly in realistic browser→API→DB flows.
+- Using superuser would bypass RLS and create false confidence (testing without security).
+- Environment overrides prevent inheriting `.env` Supabase remote config.
 - `webServer.timeout: 120_000`, `reuseExistingServer: false`, `test.timeout: 60_000`.
 - `stdout` and `stderr` piped for error visibility.
+- Current status: 14/21 customer-flow tests pass; 7 failures are UI/DOM/seed issues, not RLS.
 
 ### 12.2 Test Naming and Coverage
 

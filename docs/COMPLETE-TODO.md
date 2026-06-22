@@ -621,8 +621,8 @@
 
 **Playwright E2E configuration:**
 
-- `playwright.config.ts`: explicit local env overrides (DATABASE_URL as `lingua` superuser), `webServer.timeout: 120_000`, `test.timeout: 60_000`, `reuseExistingServer: false`, `stdout`/`stderr` piped.
-- Root cause of E2E timeout: `.env` pointed to Supabase remote, and RLS blocked guest-write policies for `lingua_app` role via Node.js `pg` (prepared statements behave differently from `psql`). Using superuser bypasses RLS for E2E while RLS logic stays verified in unit tests.
+- `playwright.config.ts`: explicit local env overrides, `webServer.timeout: 120_000`, `test.timeout: 60_000`, `reuseExistingServer: false`, `stdout`/`stderr` piped.
+- **2026-06-22 CORRECTION**: Initial implementation incorrectly used superuser role (`lingua`), bypassing RLS policies. Post-deployment investigation (commit [next]) revealed this was unnecessary—`lingua_app` works correctly for all E2E database operations. Configuration corrected to use `lingua_app` for RLS validation. Test results: 14/21 customer-flow tests pass with RLS enabled; 7 failures are UI/DOM issues (missing `pantai-padi` seed for RTL tests, stale locators), NOT RLS-related. E2E now validates actual security boundaries.
 
 **Documentation updates:**
 
