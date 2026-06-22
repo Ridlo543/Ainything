@@ -157,7 +157,10 @@
 </svelte:head>
 
 {#if !isOnline}
-	<div class="sticky top-0 z-50 bg-amber-100 px-3 py-1.5 text-center text-xs font-semibold text-amber-900" role="alert">
+	<div
+		class="sticky top-0 z-50 bg-amber-100 px-3 py-1.5 text-center text-xs font-semibold text-amber-900"
+		role="alert"
+	>
 		{t('offline.banner')}
 	</div>
 {/if}
@@ -221,54 +224,54 @@
 			</div>
 
 			{#if hasMenu}
-			<!-- Menu browse -->
-			<div class="surface rounded-lg p-4">
-				<div class="flex items-center justify-between gap-3">
-					<div>
-						<p class="font-semibold text-lingua-text">{t('menu.browse.heading')}</p>
-						<p class="text-sm text-lingua-subtle">{t('menu.browse.subtitle')}</p>
-					</div>
-					<span
-						class="rounded-md bg-lingua-accent-soft px-3 py-1.5 text-sm font-semibold text-orange-800"
-					>
-						{data.restaurant.menuSourceType}
-					</span>
-				</div>
-
-				{#if categories.length === 0}
-					<p class="mt-4 text-sm text-lingua-subtle">{t('menu.categories.empty')}</p>
-				{:else}
-					<div class="mt-4 flex gap-2 overflow-x-auto pb-1">
-						{#each categories as category (category)}
-							<button
-								type="button"
-								class={`tap-target shrink-0 rounded-lg border px-4 text-sm font-semibold ${
-									selectedCategory === category
-										? 'border-lingua-primary bg-lingua-primary text-white'
-										: 'border-lingua-border bg-white text-lingua-text'
-								}`}
-								onclick={() => (selectedCategory = category)}
-							>
-								{category}
-							</button>
-						{/each}
+				<!-- Menu browse -->
+				<div class="surface rounded-lg p-4">
+					<div class="flex items-center justify-between gap-3">
+						<div>
+							<p class="font-semibold text-lingua-text">{t('menu.browse.heading')}</p>
+							<p class="text-sm text-lingua-subtle">{t('menu.browse.subtitle')}</p>
+						</div>
+						<span
+							class="rounded-md bg-lingua-accent-soft px-3 py-1.5 text-sm font-semibold text-orange-800"
+						>
+							{data.restaurant.menuSourceType}
+						</span>
 					</div>
 
-					<div class="mt-4 grid gap-3">
-						{#if filteredItems.length === 0}
-							<p class="py-4 text-center text-sm text-lingua-subtle">{t('menu.items.empty')}</p>
-						{:else}
-							{#each filteredItems as item (item.id)}
-								<MenuItemCard
-									{item}
-									selected={selectedItem?.id === item.id}
-									onclick={() => (selectedItem = item)}
-								/>
+					{#if categories.length === 0}
+						<p class="mt-4 text-sm text-lingua-subtle">{t('menu.categories.empty')}</p>
+					{:else}
+						<div class="mt-4 flex gap-2 overflow-x-auto pb-1">
+							{#each categories as category (category)}
+								<button
+									type="button"
+									class={`tap-target shrink-0 rounded-lg border px-4 text-sm font-semibold ${
+										selectedCategory === category
+											? 'border-lingua-primary bg-lingua-primary text-white'
+											: 'border-lingua-border bg-white text-lingua-text'
+									}`}
+									onclick={() => (selectedCategory = category)}
+								>
+									{category}
+								</button>
 							{/each}
-						{/if}
-					</div>
-				{/if}
-			</div>
+						</div>
+
+						<div class="mt-4 grid gap-3">
+							{#if filteredItems.length === 0}
+								<p class="py-4 text-center text-sm text-lingua-subtle">{t('menu.items.empty')}</p>
+							{:else}
+								{#each filteredItems as item (item.id)}
+									<MenuItemCard
+										{item}
+										selected={selectedItem?.id === item.id}
+										onclick={() => (selectedItem = item)}
+									/>
+								{/each}
+							{/if}
+						</div>
+					{/if}
+				</div>
 			{:else}
 				<div class="surface rounded-lg p-6 text-center">
 					<p class="font-semibold text-lingua-text">{t('menu.unpublished.heading')}</p>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { AlertTriangle, CheckCircle2, Clock3 } from '@lucide/svelte';
-	import type { Restaurant, StaffRequest } from '$lib/domain/menu/types';
+	import type { Restaurant } from '$lib/domain/menu/types';
+	import type { StaffRequest } from '$lib/domain/fallback/types';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
 	let {

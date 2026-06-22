@@ -4,7 +4,7 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import type { PageData, ActionData } from './$types';
-	import type { StaffRequest } from '$lib/domain/menu/types';
+	import type { StaffRequest } from '$lib/domain/fallback/types';
 	import StaffRequestCard from '$lib/ui/staff/StaffRequestCard.svelte';
 	import { t, tWithVars } from '$lib/i18n/translations.svelte';
 

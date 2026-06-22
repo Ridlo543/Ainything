@@ -23,18 +23,18 @@ const bootstrapParamsSchema = z.object({
  * - stale-while-revalidate=300: CDN serves stale while revalidating for 5 min.
  */
 export const GET: RequestHandler = async ({ url, request }) => {
-		await applyRateLimit('bootstrap', request);
+	await applyRateLimit('bootstrap', request);
 
-		const parseResult = bootstrapParamsSchema.safeParse({
-			restaurant: url.searchParams.get('restaurant')?.trim(),
-			table: url.searchParams.get('table')?.trim()
-		});
+	const parseResult = bootstrapParamsSchema.safeParse({
+		restaurant: url.searchParams.get('restaurant')?.trim(),
+		table: url.searchParams.get('table')?.trim()
+	});
 
-		if (!parseResult.success) {
-			error(400, 'Missing required query params: restaurant and table.');
-		}
+	if (!parseResult.success) {
+		error(400, 'Missing required query params: restaurant and table.');
+	}
 
-		const { restaurant: restaurantSlug, table: tableCode } = parseResult.data;
+	const { restaurant: restaurantSlug, table: tableCode } = parseResult.data;
 
 	const bootstrap = await resolvePublicMenu(restaurantSlug, tableCode);
 

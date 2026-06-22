@@ -68,9 +68,12 @@ function check() {
 	if (overJs) {
 		console.log(`\n  JS OVER BUDGET by ${formatKB(jsTotal - MAX_KB.js * 1024)}`);
 		console.log('  Top 5 largest JS files:');
-		jsFiles.sort((a, b) => b.size - a.size).slice(0, 5).forEach((f) => {
-			console.log(`    ${f.name} — ${formatKB(f.size)}`);
-		});
+		jsFiles
+			.sort((a, b) => b.size - a.size)
+			.slice(0, 5)
+			.forEach((f) => {
+				console.log(`    ${f.name} — ${formatKB(f.size)}`);
+			});
 	}
 
 	if (overCss) {

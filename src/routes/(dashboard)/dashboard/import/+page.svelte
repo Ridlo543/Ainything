@@ -37,7 +37,10 @@
 	const activeRestaurant = $derived(tenant.activeRestaurant);
 
 	let scanResult = $state<ScanResult | null>(null);
-	let importResult = $state<{ count: number; items: Array<{ id: string; name: string; category: string }> } | null>(null);
+	let importResult = $state<{
+		count: number;
+		items: Array<{ id: string; name: string; category: string }>;
+	} | null>(null);
 	let fileBase64 = $state('');
 	let fileMimeType = $state('image/png');
 	let isScanning = $state(false);
@@ -110,8 +113,8 @@
 		<p class="text-sm font-semibold text-lingua-primary">Menu import</p>
 		<h1 class="mt-2 text-3xl font-semibold">OCR menu extraction</h1>
 		<p class="mt-2 max-w-3xl text-lingua-subtle">
-			Upload a menu photo or scan. The system extracts items with confidence
-			scores so you can review and correct before importing to {activeRestaurant.name}.
+			Upload a menu photo or scan. The system extracts items with confidence scores so you can
+			review and correct before importing to {activeRestaurant.name}.
 		</p>
 	</div>
 
@@ -218,10 +221,7 @@
 							<div class="flex-1">
 								<div class="flex flex-wrap items-center gap-2">
 									<h3 class="text-base font-semibold text-lingua-text">{display.name}</h3>
-									<Badge
-										label={display.category}
-										tone="neutral"
-									/>
+									<Badge label={display.category} tone="neutral" />
 								</div>
 								{#if display.localName}
 									<p class="mt-1 text-sm text-lingua-subtle">{display.localName}</p>
@@ -241,14 +241,11 @@
 
 						<!-- Confidence scores -->
 						<div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-							{#each [
-								{ label: 'Name', score: display.nameConfidence },
-								{ label: 'Category', score: display.categoryConfidence },
-								{ label: 'Price', score: display.priceConfidence },
-								{ label: 'Spice', score: display.spiceLevelConfidence }
-							] as field}
+							{#each [{ label: 'Name', score: display.nameConfidence }, { label: 'Category', score: display.categoryConfidence }, { label: 'Price', score: display.priceConfidence }, { label: 'Spice', score: display.spiceLevelConfidence }] as field}
 								<span
-									class="rounded-md border px-2 py-1 text-xs font-medium {confidenceBg(field.score)} {confidenceColor(field.score)}"
+									class="rounded-md border px-2 py-1 text-xs font-medium {confidenceBg(
+										field.score
+									)} {confidenceColor(field.score)}"
 								>
 									{field.label}: {formatConfidence(field.score)}
 								</span>
@@ -258,7 +255,9 @@
 						<!-- Dietary flags and allergens from OCR -->
 						<div class="mt-2 flex flex-wrap gap-1.5">
 							{#each display.dietaryFlags as flag}
-								<span class="rounded-full bg-lingua-primary-soft px-2 py-0.5 text-xs font-medium text-lingua-primary">
+								<span
+									class="rounded-full bg-lingua-primary-soft px-2 py-0.5 text-xs font-medium text-lingua-primary"
+								>
 									{flag}
 								</span>
 							{/each}
@@ -291,7 +290,8 @@
 					{includeRawText ? 'Hide' : 'Show'} raw OCR text
 				</button>
 				{#if includeRawText}
-					<pre class="mt-2 max-h-48 overflow-auto rounded-lg border border-lingua-border bg-gray-50 p-3 text-xs leading-relaxed whitespace-pre-wrap">{scanResult.rawText}</pre>
+					<pre
+						class="mt-2 max-h-48 overflow-auto rounded-lg border border-lingua-border bg-gray-50 p-3 text-xs leading-relaxed whitespace-pre-wrap">{scanResult.rawText}</pre>
 				{/if}
 			</div>
 
@@ -302,7 +302,12 @@
 				use:enhance={() => {
 					return async ({ result }) => {
 						if (result.type === 'success' && result.data) {
-							const data = result.data as { imported?: { count: number; items: Array<{ id: string; name: string; category: string }> } };
+							const data = result.data as {
+								imported?: {
+									count: number;
+									items: Array<{ id: string; name: string; category: string }>;
+								};
+							};
 							if (data.imported) {
 								importResult = data.imported;
 							}
@@ -315,10 +320,12 @@
 					type="hidden"
 					name="scan"
 					value={JSON.stringify({
-						items: scanResult.items.filter((_, idx) => !rejectedIndices.has(idx)).map((item) => {
-							const edits = editedItems.get(scanResult!.items.indexOf(item));
-							return edits ? { ...item, ...edits } : item;
-						}),
+						items: scanResult.items
+							.filter((_, idx) => !rejectedIndices.has(idx))
+							.map((item) => {
+								const edits = editedItems.get(scanResult!.items.indexOf(item));
+								return edits ? { ...item, ...edits } : item;
+							}),
 						rawText: scanResult.rawText,
 						issues: scanResult.issues,
 						provider: scanResult.provider,
@@ -350,14 +357,19 @@
 			</div>
 			<div class="mt-3 grid gap-2">
 				{#each importResult.items as item (item.id)}
-					<div class="flex items-center gap-2 rounded-lg border border-lingua-border bg-white px-3 py-2">
+					<div
+						class="flex items-center gap-2 rounded-lg border border-lingua-border bg-white px-3 py-2"
+					>
 						<Badge label={item.category} tone="neutral" />
 						<span class="text-sm font-medium text-lingua-text">{item.name}</span>
 					</div>
 				{/each}
 			</div>
 			<p class="mt-3 text-sm text-lingua-subtle">
-				Go to <a href="/dashboard/menu?restaurant={activeRestaurant.slug}" class="font-semibold text-lingua-primary underline">Menu data</a> to review and publish.
+				Go to <a
+					href="/dashboard/menu?restaurant={activeRestaurant.slug}"
+					class="font-semibold text-lingua-primary underline">Menu data</a
+				> to review and publish.
 			</p>
 		</section>
 	{/if}

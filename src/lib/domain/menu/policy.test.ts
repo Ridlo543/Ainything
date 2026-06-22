@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { restaurants } from '$lib/mock/restaurants';
-import { formatPrice, needsStaffConfirmation, spiceLabel, canPublishMenu, validateMenuItemForPublish } from './policy';
+import {
+	formatPrice,
+	needsStaffConfirmation,
+	spiceLabel,
+	canPublishMenu,
+	validateMenuItemForPublish
+} from './policy';
 import type { MenuItem } from './types';
 
 describe('menu policy', () => {

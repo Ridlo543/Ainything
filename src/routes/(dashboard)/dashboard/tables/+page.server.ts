@@ -23,6 +23,9 @@ export const load: PageServerLoad = async ({ parent }) => {
 				restaurantSlug: tenant.activeRestaurant.slug
 			});
 		} catch (err) {
+			if (appEnv.nodeEnv === 'production') {
+				throw err;
+			}
 			console.warn('[tables] Could not load tables from DB:', err);
 			tables = [];
 			useMockData = true;

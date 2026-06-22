@@ -13,20 +13,20 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-// adapter-node produces a self-contained Node.js server for Docker/K8s deployment.
+			// adapter-node produces a self-contained Node.js server for Docker/K8s deployment.
 			// See https://svelte.dev/docs/kit/adapter-node
 			adapter: adapter()
 		})
 	],
 	test: {
 		expect: { requireAssertions: true },
+		globalSetup: ['src/test-setup.ts'],
 		projects: [
 			{
 				extends: './vite.config.ts',
 				test: {
 					name: 'server',
 					environment: 'node',
-					setupFiles: ['src/test-setup.ts'],
 					include: ['src/**/*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}

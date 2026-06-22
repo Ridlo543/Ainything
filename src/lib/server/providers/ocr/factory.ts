@@ -20,7 +20,9 @@ export function getOcrProvider(): OcrProvider {
 		case 'mock':
 		default:
 			if (providerName && providerName !== 'mock') {
-				console.warn(`[ocr-factory] Unknown OCR_PROVIDER "${providerName}" — falling back to mock.`);
+				console.warn(
+					`[ocr-factory] Unknown OCR_PROVIDER "${providerName}" — falling back to mock.`
+				);
 			}
 			return new MockOcrProvider();
 	}

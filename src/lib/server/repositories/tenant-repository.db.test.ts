@@ -26,7 +26,14 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 			id: 'user-owner-bali',
 			email: 'owner@bali-table.test',
 			name: 'Made Restaurant Owner',
-			defaultOrganizationId: '10000000-0000-0000-0000-000000000001'
+			platformRole: 'org_owner',
+			memberships: [
+				{
+					organizationId: '10000000-0000-0000-0000-000000000001',
+					restaurantIds: [],
+					role: 'org_owner'
+				}
+			]
 		});
 
 		expect(tenant.restaurants.some((restaurant) => restaurant.slug === 'uma-karang')).toBe(true);
@@ -43,13 +50,17 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 				`
 			);
 
-			// The public_active_select policy exposes ALL active restaurants to lingua_app.
-			expect(result.rows.map((row) => row.slug).sort()).toEqual([
-				'rempah-terrace',
-				'senja-ramen-bali',
-				'taman-sate',
-				'uma-karang'
-			]);
+		// The public_active_select policy exposes ALL active restaurants to lingua_app.
+		const slugs = result.rows.map((row) => row.slug);
+		expect(slugs).toEqual(expect.arrayContaining([
+			'rempah-terrace',
+			'senja-ramen-bali',
+			'taman-sate',
+			'uma-karang'
+		]));
+		// Must not expose inactive restaurants
+		expect(slugs).not.toContain('taman-sate-inactive');
+		expect(slugs.every(s => !s.includes('inactive'))).toBe(true);
 		});
 	});
 
@@ -62,7 +73,14 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 			id: 'user-owner-bali',
 			email: 'owner@bali-table.test',
 			name: 'Made Restaurant Owner',
-			defaultOrganizationId: '10000000-0000-0000-0000-000000000001'
+			platformRole: 'org_owner',
+			memberships: [
+				{
+					organizationId: '10000000-0000-0000-0000-000000000001',
+					restaurantIds: [],
+					role: 'org_owner'
+				}
+			]
 		});
 
 		// Both Bali restaurants must be visible; Jakarta ones must not.

@@ -45,16 +45,81 @@ UI -> Routes -> Services -> Domain
 
 Reverse imports are not allowed. Domain must not import SvelteKit, Supabase, or provider SDKs.
 
+## 3. User Roles and Access Control
+
+Lingua has four authenticated roles plus anonymous guests:
+
+```
+super_admin         Platform owner. Full system access. Routes: /platform/*.
+org_owner           Owns an organization. Can manage all restaurants under it.
+restaurant_admin    Manages one specific restaurant. Menu, staff, analytics.
+staff               Works at one restaurant. Inbox only.
+anonymous           No auth. QR-scoped to one table at one restaurant.
+```
+
+### Role Resolution Flow
+
+```
+Request → hooks.server.ts
+  → authProvider.getSessionUser(cookies, request)
+    → Supabase Auth SSR → Supabase user → app_users table → role + memberships
+  → event.locals.user = { id, email, name, role, memberships }
+  → event.locals.session = supabase session (for token refresh)
+```
+
+### Authorization Rules
+
+- `super_admin`: bypasses tenant scoping for read queries. Can see all orgs, all restaurants.
+- `org_owner`: sees all restaurants in their own organization(s).
+- `restaurant_admin`: sees only their assigned restaurant. Cannot see other restaurants even in same org.
+- `staff`: sees only their assigned restaurant's inbox. No dashboard access.
+- `anonymous`: sees only the restaurant/table resolved from QR. `public_session_id` enforced by RLS.
+
+### Route-Level Role Guards
+
+Each protected route group has a layout server load that checks the role:
+
+| Route Group     | Required Role                     | Redirect if unauthorized |
+| -------------- | --------------------------------- | ------------------------ |
+| `(platform)/`  | `super_admin`                     | → `/dashboard`           |
+| `(dashboard)/` | `org_owner` or `restaurant_admin` | → `/login`               |
+| `(staff)/`     | `staff`                           | → `/login`               |
+
 ## 3. SvelteKit Route Strategy
 
 Use route groups to keep different products separated without changing URLs unnecessarily:
 
 ```text
 src/routes/
-  (public)/       Tourist QR and menu experience
-  (dashboard)/    Owner/admin dashboard
-  (staff)/        Staff inbox and fallback workflow
-  api/            JSON endpoints and webhooks
+  +page.svelte          Marketing landing page
+  /login                Sign-in
+  /register/*           Registration flow
+  +layout.svelte        Root layout
+
+  (platform)/           Platform admin (super admin only)
+    /platform             Overview
+    /platform/organizations
+    /platform/restaurants
+
+  (dashboard)/          Restaurant admin
+    /dashboard             Overview
+    /dashboard/menu        Menu editor
+    /dashboard/tables      QR table manager
+    /dashboard/knowledge   Knowledge base
+    /dashboard/analytics   Analytics
+    /dashboard/staff       Staff management
+    /dashboard/settings    Settings
+
+  (staff)/              Staff inbox
+    /staff/inbox          Fallback requests
+
+  (public)/             Tourist QR (no auth)
+    /r/[slug]/table/[code]
+
+  api/                  JSON endpoints
+    /api/public/*         Tourist-facing
+    /api/admin/*          Admin
+    /api/platform/*       Platform admin
 ```
 
 Rules:
@@ -64,6 +129,8 @@ Rules:
 - Dashboard route can load heavier admin components.
 - Dashboard route must always carry organization/restaurant context from auth membership or URL state.
 - Staff route must be tablet/mobile friendly.
+- Platform admin route is a separate product — different layout, different nav, different data scope.
+- Platform admin queries are cross-tenant and must not be accidentally scoped by RLS.
 - `+page.server.ts` is the default for private data.
 - `+page.ts` is allowed only for public browser-safe data.
 - `+server.ts` is for JSON APIs, chat, webhooks, and non-form interactions.
@@ -75,17 +142,19 @@ Recommended domain modules:
 
 ```text
 src/lib/domain/
-  organization/
-  restaurant/
-  location/
-  menu/
-  table/
-  session/
-  preference/
-  fallback/
-  feedback/
-  ai/
-  analytics/
+  analytics/        Analytics types and schemas
+  auth/             Roles, permissions, session types
+  knowledge/        Knowledge document schemas and types
+  menu/             Menu types, admin schemas, publish policy
+  platform/         Platform-admin-specific schemas
+  session/          Guest session schemas
+  sanitize.ts       Input sanitization utilities
+  fallback/         Staff fallback requests
+  feedback/         Guest feedback
+  table/            Table management
+  ai/               AI interaction events
+
+  Deferred (post-MVP): organization/, restaurant/, location/, preference/
 ```
 
 Each module should contain:
@@ -112,13 +181,22 @@ Recommended services:
 
 ```text
 src/lib/server/services/
-  menu-service.ts
-  menu-publish-service.ts
-  session-service.ts
-  chat-service.ts
-  fallback-service.ts
-  import-service.ts
-  analytics-service.ts
+  platform-admin-service.ts  Cross-tenant queries for super admin
+  menu-admin-service.ts      Menu CRUD, publish, and validation
+  customer-session-service.ts Guest session lifecycle
+  chat-service.ts            AI chat orchestration
+  guest-interaction-service.ts Fallback requests and feedback
+  staff-inbox-service.ts     Staff inbox claim/resolve workflow
+  knowledge-service.ts       Knowledge base CRUD
+  ocr-import-service.ts      OCR scanning and draft import
+  embedding-worker.ts        Batch embedding generation
+  provider-cost-tracking.ts  LLM cost aggregation
+  ai-cost-cap.ts             Daily AI usage limits
+  rate-limiter.ts            Redis-backed rate limiting
+  usage-limits.ts            Plan tier enforcement
+  retrieval-service.ts       Hybrid RAG retrieval
+  input-sanitizer.ts         Request body sanitization
+  table-service.ts           Table listing
 ```
 
 Rules:
@@ -134,12 +212,25 @@ Recommended repositories:
 
 ```text
 src/lib/server/repositories/
-  restaurant-repository.ts
-  menu-repository.ts
-  session-repository.ts
-  fallback-repository.ts
-  knowledge-repository.ts
-  ai-event-repository.ts
+  admin-menu-repository.ts   Admin menu CRUD (RLS-scoped via withUserContext)
+  public-menu-repository.ts  Public menu reads (restaurant slug + table code)
+  knowledge-repository.ts    Knowledge document CRUD
+  embedding-repository.ts    pgvector upsert, search, delete
+  retrieval-repository.ts    Hybrid RAG (structured + semantic)
+  chat-repository.ts         Chat message persistence
+  staff-inbox-repository.ts  Fallback request CRUD and state machine
+  ai-events-repository.ts    AI event audit logging
+  metrics-repository.ts      Analytics aggregation queries
+  table-repository.ts        Table listing and management
+  tenant-repository.ts       Organization + restaurant resolution
+  user-repository.ts         App user lookup by external auth ID
+  platform-repository.ts     Platform-wide aggregate queries
+  cost-repository.ts         AI cost tracking queries (ai_events)
+  menu-row-mapper.ts         Shared row-to-domain mapping utilities
+
+  Deferred: restaurant-repository.ts (covered by tenant-repository),
+            session-repository.ts (covered by chat-repository),
+            fallback-repository.ts (covered by staff-inbox-repository)
 ```
 
 Rules:
@@ -167,6 +258,12 @@ Dashboard/staff route:
 auth user -> memberships -> organization -> selected restaurant -> data
 ```
 
+Platform admin route:
+
+```text
+auth user -> role check (super_admin) -> NO tenant scope -> cross-tenant aggregate data
+```
+
 Rules:
 
 - `tableCode` is unique only inside a restaurant, not globally.
@@ -175,6 +272,7 @@ Rules:
 - Staff requests, chat messages, feedback, imports, storage paths, and AI events must store restaurant_id and organization_id where useful for fast filtering and audit.
 - Tenant context should be a typed server object, not a loose `{ slug: string }` object passed around UI components.
 - Tests must include "same table code in two restaurants" and "same user sees only assigned restaurants" cases.
+- Platform admin (`super_admin` role) bypasses tenant scoping for read queries. Write operations on behalf of a tenant should still scope to the target restaurant/organization.
 - During frontend/backend bridging, a mock session cookie may be used only as a local development stand-in. Production auth must replace it with Supabase Auth sessions and RLS-enforced memberships.
 - Mock tenant fallback is allowed for local UI work when the database is unavailable. It must not hide database authorization errors in production.
 
@@ -194,18 +292,18 @@ Every database query that accesses tenant-owned data must enforce tenant scope a
 
 ```typescript
 export async function loadMenusForRestaurant(
-  client: DatabaseClient,
-  { organizationId, restaurantId }: { organizationId: string; restaurantId: string }
+	client: DatabaseClient,
+	{ organizationId, restaurantId }: { organizationId: string; restaurantId: string }
 ): Promise<MenuRow[]> {
-  const result = await client.query<MenuRow>(
-    `SELECT id, restaurant_id, version, status, published_at
+	const result = await client.query<MenuRow>(
+		`SELECT id, restaurant_id, version, status, published_at
      FROM menus
      WHERE restaurant_id = $1::uuid
        AND organization_id = $2::uuid
      ORDER BY version DESC`,
-    [restaurantId, organizationId]
-  );
-  return result.rows;
+		[restaurantId, organizationId]
+	);
+	return result.rows;
 }
 ```
 
@@ -214,16 +312,16 @@ export async function loadMenusForRestaurant(
 ```typescript
 // ❌ Missing organization_id - violates defense-in-depth
 export async function loadMenusForRestaurant(
-  client: DatabaseClient,
-  restaurantId: string
+	client: DatabaseClient,
+	restaurantId: string
 ): Promise<MenuRow[]> {
-  const result = await client.query<MenuRow>(
-    `SELECT id, restaurant_id, version, status
+	const result = await client.query<MenuRow>(
+		`SELECT id, restaurant_id, version, status
      FROM menus
-     WHERE restaurant_id = $1::uuid`,  // ❌ No organization_id check
-    [restaurantId]
-  );
-  return result.rows;
+     WHERE restaurant_id = $1::uuid`, // ❌ No organization_id check
+		[restaurantId]
+	);
+	return result.rows;
 }
 ```
 
@@ -243,6 +341,7 @@ Lingua uses a two-layer tenant isolation model:
 2. **Database Layer (Defense):** RLS policies enforce access via membership relationships.
 
 This pattern ensures:
+
 - Security is visible in application code (easier to audit).
 - Performance optimization through explicit indexes on tenant dimensions.
 - Protection against bugs in application code (RLS catches missing scopes).
@@ -269,8 +368,8 @@ Repository functions must require tenant IDs explicitly:
 
 ```typescript
 const menus = await loadMenusForRestaurant(client, {
-  organizationId: activeRestaurant.organizationId,
-  restaurantId: activeRestaurant.id
+	organizationId: activeRestaurant.organizationId,
+	restaurantId: activeRestaurant.id
 });
 ```
 
@@ -289,11 +388,11 @@ Admin operations must run within `withUserContext` to set RLS session variables:
 
 ```typescript
 await withUserContext(user.id, async (client) => {
-  // All queries inside this block have app.user_external_id set
-  const menus = await loadMenusForRestaurant(client, {
-    organizationId: activeRestaurant.organizationId,
-    restaurantId: activeRestaurant.id
-  });
+	// All queries inside this block have app.user_external_id set
+	const menus = await loadMenusForRestaurant(client, {
+		organizationId: activeRestaurant.organizationId,
+		restaurantId: activeRestaurant.id
+	});
 });
 ```
 
@@ -305,17 +404,17 @@ Test repository functions with different tenant IDs to verify isolation:
 
 ```typescript
 test('loadMenusForRestaurant returns only menus for specified organization', async () => {
-  const org1Menus = await loadMenusForRestaurant(client, {
-    organizationId: org1.id,
-    restaurantId: restaurant1.id
-  });
-  
-  const org2Menus = await loadMenusForRestaurant(client, {
-    organizationId: org2.id,
-    restaurantId: restaurant1.id
-  });
-  
-  expect(org1Menus).not.toContainEqual(expect.objectContaining({ id: org2Menu.id }));
+	const org1Menus = await loadMenusForRestaurant(client, {
+		organizationId: org1.id,
+		restaurantId: restaurant1.id
+	});
+
+	const org2Menus = await loadMenusForRestaurant(client, {
+		organizationId: org2.id,
+		restaurantId: restaurant1.id
+	});
+
+	expect(org1Menus).not.toContainEqual(expect.objectContaining({ id: org2Menu.id }));
 });
 ```
 
@@ -325,14 +424,13 @@ Test database policies enforce cross-tenant isolation:
 
 ```typescript
 test('RLS prevents cross-organization menu access', async () => {
-  await withUserContext(org1User.id, async (client) => {
-    // Should not see org2's menus even if we try to query them
-    const result = await client.query(
-      'SELECT * FROM menus WHERE restaurant_id = $1',
-      [org2Restaurant.id]
-    );
-    expect(result.rows).toHaveLength(0);
-  });
+	await withUserContext(org1User.id, async (client) => {
+		// Should not see org2's menus even if we try to query them
+		const result = await client.query('SELECT * FROM menus WHERE restaurant_id = $1', [
+			org2Restaurant.id
+		]);
+		expect(result.rows).toHaveLength(0);
+	});
 });
 ```
 
@@ -342,10 +440,10 @@ Test full flows with multiple tenants:
 
 ```typescript
 test('same table code in different restaurants creates separate sessions', async () => {
-  const session1 = await createSession({ restaurantSlug: 'cafe-a', tableCode: 'T1' });
-  const session2 = await createSession({ restaurantSlug: 'cafe-b', tableCode: 'T1' });
-  
-  expect(session1.restaurantId).not.toBe(session2.restaurantId);
+	const session1 = await createSession({ restaurantSlug: 'cafe-a', tableCode: 'T1' });
+	const session2 = await createSession({ restaurantSlug: 'cafe-b', tableCode: 'T1' });
+
+	expect(session1.restaurantId).not.toBe(session2.restaurantId);
 });
 ```
 
@@ -370,9 +468,9 @@ Every external provider must sit behind an interface:
 src/lib/server/providers/
   llm/
   ocr/
-  whatsapp/
   storage/
-  telemetry/
+  whatsapp/       (Deferred — Phase K)
+  telemetry/      (Deferred — Phase K)
 ```
 
 Rules:
@@ -389,13 +487,15 @@ Recommended UI structure:
 
 ```text
 src/lib/ui/
-  primitives/     Buttons, inputs, dialogs, sheets, badges
-  layout/         Shells, navigation, responsive containers
-  menu/           Customer menu components
-  chat/           Chat and AI answer components
-  staff/          Staff inbox components
-  dashboard/      Admin dashboard components
-  feedback/       Feedback components
+  primitives/     Buttons, inputs, badges, stat tiles, QR display
+  DataTable.svelte  Generic snippet-based data tables
+  EmptyState.svelte Consistent empty state placeholders
+  Pagination.svelte URL-based pagination controls
+  AlertBanner.svelte Success/error/warning/info banners
+  menu/           Customer menu: MenuItemCard, ChatPanel, SafetyBadges, PreferenceChips
+  staff/          Staff inbox: StaffRequestCard
+  Navbar.svelte   Top navigation
+  Footer.svelte   Site footer
 ```
 
 Rules:

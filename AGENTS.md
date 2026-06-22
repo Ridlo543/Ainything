@@ -88,6 +88,82 @@ If implementation chooses different tools, update `docs/Technical_Specification.
 - Run the narrowest relevant verification available.
 - If no app exists yet, verify documentation changes by reading the files and checking git diff.
 
+## Database Testing Best Practices
+
+**Always use local PostgreSQL for testing, never Supabase remote.**
+
+Environment strategy:
+
+| File | Purpose | DB Target |
+|------|---------|-----------|
+| `.env.test` | Test suite (committed) | Local PostgreSQL |
+| `.env.development` | Dev server (committed) | Local PostgreSQL |
+| `.env.production` | Production template (committed) | Supabase |
+| `.env` | Developer overrides (gitignored) | Any |
+
+Test workflow:
+
+```bash
+pnpm infra:up         # Start PostgreSQL + Redis
+pnpm db:reset         # Drop schema, apply all migrations, seed
+pnpm test             # Runs with .env.test (local DB, RUN_DB_TESTS=true)
+pnpm check            # TypeScript check
+```
+
+Key rules:
+
+- `pnpm test` loads `.env.test` first via `src/test-setup.ts`, then `.env` as override.
+- Never set `RUN_DB_TESTS=true` in `.env` pointing to Supabase unless explicitly integration testing.
+- DB migration `0011_local_auth_stub.sql` provides a local `auth` schema stub so all 11 migrations run without Supabase.
+- `0011_supabase_auth_bridge.sql` is conditional — only creates triggers when `auth.users` exists.
+- Shell env vars always win over file-based env values.
+
+When to use Supabase remote DB:
+
+- Only for explicit integration testing: `DATABASE_URL=...supabase... pnpm test:unit -- -t "RLS"`
+- Never as the default test target — it depends on network, shared state, and RLS policy drift.
+
+## DCP Compress Tool (Context Management)
+
+The `compress` tool manages conversation context. It is **always available** and must be used when context is full.
+
+### Schema (range mode)
+
+```json
+{
+	"topic": "Short label (3-5 words) for display - e.g., 'Auth System Exploration'",
+	"content": [
+		{
+			"startId": "m0001",
+			"endId": "m0012",
+			"summary": "Complete technical summary replacing all content in range"
+		}
+	]
+}
+```
+
+### Rules
+
+- `startId`/`endId` format: `mNNNN` (raw messages) or `bN` (compressed blocks)
+- Summaries must be **exhaustive** (capture file paths, decisions, code changes, user intent)
+- But **lean** (no verbose tool output, no dead-ends)
+- Use `(bN)` placeholders in summaries when referencing a previously compressed block
+- Do NOT compress: active instructions, unresolved questions, or the current task
+- Batch multiple non-overlapping ranges in one call
+- Prioritize compressing older, closed sections first
+
+### When to compress
+
+- Context feels full or responses start degrading
+- Research is done, implementation is verified, or exploration is exhausted
+- A section is genuinely closed and raw conversation no longer needed
+
+### Do NOT compress if
+
+- Content is still relevant for the active task
+- You need exact code, error messages, or file contents next
+- The section is actively in progress
+
 ## ⚠️ CRITICAL: VERIFICATION BEFORE ANSWER
 
 **The user has explicitly called out that I (the assistant) tend to guess/make things up instead of checking first. This must stop.**

@@ -70,12 +70,9 @@ export const actions: Actions = {
 			});
 		} catch (err) {
 			if (err instanceof MenuPublishValidationError) {
-				// Not expected on edit, but handle gracefully.
 				return fail(409, { message: err.message });
 			}
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[menu] edit action failed:', err);
 			return fail(500, { message: 'An unexpected error occurred.' });
 		}
 
@@ -111,9 +108,7 @@ export const actions: Actions = {
 				isAvailable: parsed.data.isAvailable
 			});
 		} catch (err) {
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[menu] toggleAvailability failed:', err);
 			return fail(500, { message: 'An unexpected error occurred.' });
 		}
 
@@ -149,9 +144,7 @@ export const actions: Actions = {
 			if (err instanceof MenuPublishValidationError) {
 				return fail(409, { publishIssues: err.validation.issues });
 			}
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[menu] publish action failed:', err);
 			return fail(500, { message: 'An unexpected error occurred.' });
 		}
 	}

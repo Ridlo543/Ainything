@@ -122,7 +122,9 @@ export async function resolvePublicMenuBootstrap(
 			code: row.table_code,
 			label: row.table_label,
 			restaurantId: row.table_restaurant_id,
-			organizationId: row.table_organization_id
+			organizationId: row.table_organization_id,
+			isActive: true,
+			qrPath: ''
 		}
 	};
 }
@@ -161,7 +163,9 @@ export async function findActiveTableByRestaurantSlug(
 		code: row.code,
 		label: row.label,
 		restaurantId: row.restaurant_id,
-		organizationId: row.organization_id
+		organizationId: row.organization_id,
+		isActive: true,
+		qrPath: ''
 	};
 }
 

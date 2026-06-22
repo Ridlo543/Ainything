@@ -13,6 +13,66 @@ type SimilarItemResult = {
 	similarity: number;
 };
 
+export type EmbeddableItemRow = {
+	id: string;
+	content: string;
+};
+
+/**
+ * Fetches all published menu items for embedding generation.
+ * Builds a text representation from name, local_name, description, price, spice, dietary flags.
+ */
+export async function getEmbeddableMenuItems(restaurantId: string): Promise<EmbeddableItemRow[]> {
+	const result = await query<EmbeddableItemRow>(
+		`
+			SELECT
+				mi.id::text,
+				CONCAT_WS(' | ',
+					mi.name,
+					mi.local_name,
+					mi.description,
+					'IDR ' || mi.price_amount,
+					'spice:' || mi.spice_level,
+					COALESCE(STRING_AGG(DISTINCT midf.flag_code, ','), ''),
+					CASE WHEN mi.is_signature THEN 'signature' ELSE '' END
+				) AS content
+			FROM menu_items mi
+			JOIN menus m ON m.id = mi.menu_id
+			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
+			WHERE mi.restaurant_id = $1::uuid
+				AND m.status = 'published'
+				AND mi.is_available = true
+			GROUP BY mi.id
+			ORDER BY mi.sort_order, mi.name
+		`,
+		[restaurantId]
+	);
+
+	return result.rows;
+}
+
+/**
+ * Fetches all published knowledge documents for embedding generation.
+ */
+export async function getEmbeddableKnowledgeDocs(
+	restaurantId: string
+): Promise<EmbeddableItemRow[]> {
+	const result = await query<EmbeddableItemRow>(
+		`
+			SELECT
+				kd.id::text,
+				CONCAT(kd.title, ': ', kd.content) AS content
+			FROM knowledge_documents kd
+			WHERE kd.restaurant_id = $1::uuid
+				AND kd.visibility = 'published'
+			ORDER BY kd.created_at DESC
+		`,
+		[restaurantId]
+	);
+
+	return result.rows;
+}
+
 /**
  * Upserts embeddings for menu items or knowledge documents into item_embeddings.
  *

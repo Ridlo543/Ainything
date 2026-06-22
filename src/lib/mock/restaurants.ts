@@ -1,10 +1,6 @@
-import type {
-	AppUser,
-	Membership,
-	Organization,
-	Restaurant,
-	StaffRequest
-} from '$lib/domain/menu/types';
+import type { AuthUser } from '$lib/domain/auth/types';
+import type { Membership, Organization, Restaurant } from '$lib/domain/menu/types';
+import type { StaffRequest } from '$lib/domain/fallback/types';
 
 const sharedDescriptions = [
 	'Uploaded as a photographed board with mixed Indonesian and English labels.',
@@ -41,18 +37,40 @@ export const organizations: Organization[] = [
 	}
 ];
 
-export const demoUsers: AppUser[] = [
+export const demoUsers: AuthUser[] = [
 	{
 		id: 'user-owner-bali',
 		email: 'owner@bali-table.test',
 		name: 'Made Restaurant Owner',
-		defaultOrganizationId: 'org-bali-table-group'
+		platformRole: 'org_owner',
+		memberships: [
+			{
+				organizationId: 'org-bali-table-group',
+				restaurantIds: [
+					'rest-uma-karang',
+					'rest-sawah-lane',
+					'rest-nusa-noodle',
+					'rest-lotus-hotel',
+					'rest-mangrove-grill',
+					'rest-layang-vegan',
+					'rest-senja-ramen'
+				],
+				role: 'org_owner'
+			}
+		]
 	},
 	{
 		id: 'user-staff-jakarta',
 		email: 'staff@jakarta-hospitality.test',
 		name: 'Jakarta Service Staff',
-		defaultOrganizationId: 'org-jakarta-hospitality'
+		platformRole: 'staff',
+		memberships: [
+			{
+				organizationId: 'org-jakarta-hospitality',
+				restaurantIds: ['rest-rempah-terrace', 'rest-taman-sate', 'rest-kopi-pasar'],
+				role: 'staff'
+			}
+		]
 	}
 ];
 

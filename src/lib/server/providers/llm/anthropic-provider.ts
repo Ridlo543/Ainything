@@ -1,7 +1,7 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
 import type { LlmProvider, LlmChatContext, LlmChatResult } from './types';
-import type { ChatSafetyStatus } from '$lib/domain/session/schema';
+import type { ChatSafetyStatus } from '$lib/domain/ai/types';
 import { buildSystemPrompt, extractSafetyJson, PROMPT_VERSION } from './prompt';
 
 const KNOWN_SAFETY_STATUSES = new Set<ChatSafetyStatus>([

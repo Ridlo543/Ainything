@@ -1,61 +1,55 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
-import {
-	getDefaultSessionId,
-	getDemoSessions,
-	sessionCookieName
-} from '$lib/server/auth/mock-session';
-
-const loginFormSchema = z.object({
-	sessionId: z.string().min(1, 'Please select a demo account.'),
-	redirectTo: z.string().max(256).default('/dashboard')
-});
-
-const cookieOptions = {
-	path: '/',
-	httpOnly: true,
-	sameSite: 'lax',
-	secure: false,
-	maxAge: 60 * 60 * 24 * 7
-} as const;
+import { authProvider } from '$lib/server/auth/auth-factory';
+import { appEnv } from '$lib/server/config/env';
 
 export const load: PageServerLoad = ({ locals, url }) => {
-	if (locals.user && url.searchParams.get('redirectTo')) {
-		redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
+	if (locals.user) {
+		const redirectTo = url.searchParams.get('redirectTo');
+		if (redirectTo && redirectTo.startsWith('/')) {
+			redirect(303, redirectTo);
+		}
 	}
 
 	return {
-		demoSessions: getDemoSessions(),
-		defaultSessionId: getDefaultSessionId(),
+		isMock: appEnv.authProvider === 'mock',
 		redirectTo: url.searchParams.get('redirectTo') ?? '/dashboard'
 	};
 };
 
+const loginSchema = z.object({
+	email: z.string().email('Enter a valid email address.'),
+	password: z.string().min(1, 'Password is required.'),
+	redirectTo: z.string().max(256).default('/dashboard')
+});
+
 export const actions: Actions = {
-login: async ({ cookies, request }) => {
-			const formData = await request.formData();
-			const parseResult = loginFormSchema.safeParse({
-				sessionId: formData.get('sessionId'),
-				redirectTo: formData.get('redirectTo')
+	login: async ({ cookies, request, url }) => {
+		const formData = await request.formData();
+		const parseResult = loginSchema.safeParse({
+			email: formData.get('email'),
+			password: formData.get('password'),
+			redirectTo: formData.get('redirectTo') ?? url.searchParams.get('redirectTo')
+		});
+
+		if (!parseResult.success) {
+			return fail(422, {
+				message: parseResult.error.issues[0]?.message ?? 'Invalid input.',
+				email: String(formData.get('email') ?? '')
 			});
-
-			if (!parseResult.success) {
-				return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
-			}
-
-			const { sessionId, redirectTo } = parseResult.data;
-
-			const session = getDemoSessions().find((item) => item.id === sessionId);
-
-			if (!session) {
-				return fail(400, {
-					message: 'Choose a valid demo account.'
-				});
-			}
-
-			cookies.set(sessionCookieName, session.id, cookieOptions);
-
-			redirect(303, redirectTo.startsWith('/') ? redirectTo : '/dashboard');
 		}
+
+		const { email, password, redirectTo } = parseResult.data;
+
+		try {
+			await authProvider.login(email, password, cookies);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Login failed.';
+			return fail(401, { message, email });
+		}
+
+		const safeRedirect = redirectTo.startsWith('/') ? redirectTo : '/dashboard';
+		redirect(303, safeRedirect);
+	}
 };

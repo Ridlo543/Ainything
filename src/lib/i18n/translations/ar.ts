@@ -19,8 +19,7 @@ export const ar: TranslationDict = {
 	'menu.detail.goodFor': 'مناسب لـ {tags}.',
 	'menu.detail.spice': 'مستوى التوابل: {level}.',
 	'menu.detail.verified': 'بيانات قائمة موثقة متاحة لهذا العنصر.',
-	'menu.detail.staffConfirm':
-		'يوصى بتأكيد الموظفين لتفضيلاتك أو متطلباتك الغذائية.',
+	'menu.detail.staffConfirm': 'يوصى بتأكيد الموظفين لتفضيلاتك أو متطلباتك الغذائية.',
 	'menu.detail.selectPrompt': 'اختر عنصرا من القائمة لرؤية التفاصيل.',
 
 	'badge.signature': 'مميز',
@@ -159,8 +158,7 @@ export const ar: TranslationDict = {
 	'page.landing.workspaceLabel': 'مساحة العمل النشطة',
 	'page.landing.guestView': 'فتح عرض QR للضيف',
 	'page.landing.dashboard': 'فتح لوحة الإدارة',
-	'page.landing.dashboardDesc':
-		'مقاييس مساحة العمل وقوائم المطاعم وطاولات QR وقوائم المراجعة.',
+	'page.landing.dashboardDesc': 'مقاييس مساحة العمل وقوائم المطاعم وطاولات QR وقوائم المراجعة.',
 	'page.landing.staffInbox': 'فتح صندوق وارد الموظفين',
 
 	// Staff inbox
@@ -287,6 +285,5 @@ export const ar: TranslationDict = {
 
 	'offline.banner': 'أنت غير متصل — عرض بيانات القائمة المخزنة مؤقتا.',
 	'menu.unpublished.heading': 'القائمة غير متاحة',
-	'menu.unpublished.description':
-		'لم ينشر هذا المطعم قائمة بعد. يرجى سؤال الموظفين للمساعدة.'
+	'menu.unpublished.description': 'لم ينشر هذا المطعم قائمة بعد. يرجى سؤال الموظفين للمساعدة.'
 };

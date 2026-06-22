@@ -1,17 +1,10 @@
-import { query } from '$lib/server/db/postgres';
-import { upsertEmbeddings } from '$lib/server/repositories/embedding-repository';
+import {
+	upsertEmbeddings,
+	getEmbeddableMenuItems,
+	getEmbeddableKnowledgeDocs
+} from '$lib/server/repositories/embedding-repository';
 import { getLlmProvider } from '$lib/server/providers/llm/factory';
 import { appEnv } from '$lib/server/config/env';
-
-type MenuItemContentRow = {
-	id: string;
-	content: string;
-};
-
-type KnowledgeDocRow = {
-	id: string;
-	content: string;
-};
 
 type EmbedWorkerResult = {
 	generated: number;
@@ -46,49 +39,14 @@ export async function generateEmbeddingsForRestaurant(
 	let generated = 0;
 	let skipped = 0;
 
-	// Load all published menu items for this restaurant.
-	const menuItemRows = await query<MenuItemContentRow>(
-		`
-			SELECT
-				mi.id::text,
-				CONCAT_WS(' | ',
-					mi.name,
-					mi.local_name,
-					mi.description,
-					'IDR ' || mi.price_amount,
-					'spice:' || mi.spice_level,
-					COALESCE(STRING_AGG(DISTINCT midf.flag_code, ','), ''),
-					CASE WHEN mi.is_signature THEN 'signature' ELSE '' END
-				) AS content
-			FROM menu_items mi
-			JOIN menus m ON m.id = mi.menu_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			WHERE mi.restaurant_id = $1::uuid
-				AND m.status = 'published'
-				AND mi.is_available = true
-			GROUP BY mi.id
-			ORDER BY mi.sort_order, mi.name
-		`,
-		[restaurantId]
-	);
-
-	// Load all published knowledge documents for this restaurant.
-	const knowledgeRows = await query<KnowledgeDocRow>(
-		`
-			SELECT
-				kd.id::text,
-				CONCAT(kd.title, ': ', kd.content) AS content
-			FROM knowledge_documents kd
-			WHERE kd.restaurant_id = $1::uuid
-				AND kd.visibility = 'published'
-			ORDER BY kd.created_at DESC
-		`,
-		[restaurantId]
-	);
+	const [menuItemRows, knowledgeRows] = await Promise.all([
+		getEmbeddableMenuItems(restaurantId),
+		getEmbeddableKnowledgeDocs(restaurantId)
+	]);
 
 	// Process menu items in batches.
-	for (let i = 0; i < menuItemRows.rows.length; i += BATCH_SIZE) {
-		const batch = menuItemRows.rows.slice(i, i + BATCH_SIZE);
+	for (let i = 0; i < menuItemRows.length; i += BATCH_SIZE) {
+		const batch = menuItemRows.slice(i, i + BATCH_SIZE);
 		const texts = batch.map((row) => row.content);
 
 		try {
@@ -124,8 +82,8 @@ export async function generateEmbeddingsForRestaurant(
 	}
 
 	// Process knowledge documents in batches.
-	for (let i = 0; i < knowledgeRows.rows.length; i += BATCH_SIZE) {
-		const batch = knowledgeRows.rows.slice(i, i + BATCH_SIZE);
+	for (let i = 0; i < knowledgeRows.length; i += BATCH_SIZE) {
+		const batch = knowledgeRows.slice(i, i + BATCH_SIZE);
 		const texts = batch.map((row) => row.content);
 
 		try {

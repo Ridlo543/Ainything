@@ -1,8 +1,20 @@
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
-import { query, withUserContext } from '$lib/server/db/postgres';
+import { query, getPool } from '$lib/server/db/postgres';
+import pg from 'pg';
 
 const runDbTests = process.env.RUN_DB_TESTS === 'true';
 const describeDb = runDbTests ? describe : describe.skip;
+
+let adminPool: pg.Pool | null = null;
+
+function adminQuery<T extends pg.QueryResultRow>(text: string, params: unknown[] = []) {
+	if (!adminPool) {
+		const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+		if (!directUrl) throw new Error('Neither DIRECT_URL nor DATABASE_URL is configured');
+		adminPool = new pg.Pool({ connectionString: directUrl, max: 2 });
+	}
+	return adminPool.query<T>(text, params as any[]);
+}
 
 describeDb('RLS public policies after migrations', () => {
 	let testOrgId: string;
@@ -16,135 +28,88 @@ describeDb('RLS public policies after migrations', () => {
 	let draftKnowledgeId: string;
 
 	beforeAll(async () => {
-		// Insert test data using user context to bypass RLS for writes
-		await withUserContext('user-owner-bali', async (client) => {
-			// Insert test organization
-			const orgResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO organizations (name, slug, status)
-				VALUES ('RLS Test Org', 'rls-test-org-2026', 'active')
-				RETURNING id::text
-				`
-			);
-			testOrgId = orgResult.rows[0].id;
+		const orgResult = await adminQuery<{ id: string }>(
+			`INSERT INTO organizations (name, slug, status)
+			 VALUES ('RLS Test Org', 'rls-test-org-2026', 'active')
+			 RETURNING id::text`
+		);
+		testOrgId = orgResult.rows[0].id;
 
-			// Insert active restaurant
-			const activeRestResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO restaurants (organization_id, name, slug, segment, status)
-				VALUES ($1::uuid, 'RLS Test Active', 'rls-test-active-2026', 'cafe', 'active')
-				RETURNING id::text
-				`,
-				[testOrgId]
-			);
-			activeRestaurantId = activeRestResult.rows[0].id;
+		const activeRestResult = await adminQuery<{ id: string }>(
+			`INSERT INTO restaurants (organization_id, name, slug, segment, status)
+			 VALUES ($1::uuid, 'RLS Test Active', 'rls-test-active-2026', 'cafe', 'active')
+			 RETURNING id::text`,
+			[testOrgId]
+		);
+		activeRestaurantId = activeRestResult.rows[0].id;
 
-			// Insert inactive restaurant
-			const inactiveRestResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO restaurants (organization_id, name, slug, segment, status)
-				VALUES ($1::uuid, 'RLS Test Inactive', 'rls-test-inactive-2026', 'cafe', 'archived')
-				RETURNING id::text
-				`,
-				[testOrgId]
-			);
-			inactiveRestaurantId = inactiveRestResult.rows[0].id;
+		const inactiveRestResult = await adminQuery<{ id: string }>(
+			`INSERT INTO restaurants (organization_id, name, slug, segment, status)
+			 VALUES ($1::uuid, 'RLS Test Inactive', 'rls-test-inactive-2026', 'cafe', 'archived')
+			 RETURNING id::text`,
+			[testOrgId]
+		);
+		inactiveRestaurantId = inactiveRestResult.rows[0].id;
 
-			// Insert active table
-			const activeTableResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO restaurant_tables (organization_id, restaurant_id, code, label, is_active)
-				VALUES ($1::uuid, $2::uuid, 'RLS-T1', 'RLS Table 1', true)
-				RETURNING id::text
-				`,
-				[testOrgId, activeRestaurantId]
-			);
-			activeTableId = activeTableResult.rows[0].id;
+		const activeTableResult = await adminQuery<{ id: string }>(
+			`INSERT INTO restaurant_tables (organization_id, restaurant_id, code, label, is_active)
+			 VALUES ($1::uuid, $2::uuid, 'RLS-T1', 'RLS Table 1', true)
+			 RETURNING id::text`,
+			[testOrgId, activeRestaurantId]
+		);
+		activeTableId = activeTableResult.rows[0].id;
 
-			// Insert inactive table
-			const inactiveTableResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO restaurant_tables (organization_id, restaurant_id, code, label, is_active)
-				VALUES ($1::uuid, $2::uuid, 'RLS-T2', 'RLS Table 2', false)
-				RETURNING id::text
-				`,
-				[testOrgId, activeRestaurantId]
-			);
-			inactiveTableId = inactiveTableResult.rows[0].id;
+		const inactiveTableResult = await adminQuery<{ id: string }>(
+			`INSERT INTO restaurant_tables (organization_id, restaurant_id, code, label, is_active)
+			 VALUES ($1::uuid, $2::uuid, 'RLS-T2', 'RLS Table 2', false)
+			 RETURNING id::text`,
+			[testOrgId, activeRestaurantId]
+		);
+		inactiveTableId = inactiveTableResult.rows[0].id;
 
-			// Insert published menu
-			const publishedMenuResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO menus (organization_id, restaurant_id, version, status)
-				VALUES ($1::uuid, $2::uuid, 9001, 'published')
-				RETURNING id::text
-				`,
-				[testOrgId, activeRestaurantId]
-			);
-			publishedMenuId = publishedMenuResult.rows[0].id;
+		const publishedMenuResult = await adminQuery<{ id: string }>(
+			`INSERT INTO menus (organization_id, restaurant_id, version, status)
+			 VALUES ($1::uuid, $2::uuid, 9001, 'published')
+			 RETURNING id::text`,
+			[testOrgId, activeRestaurantId]
+		);
+		publishedMenuId = publishedMenuResult.rows[0].id;
 
-			// Insert draft menu
-			const draftMenuResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO menus (organization_id, restaurant_id, version, status)
-				VALUES ($1::uuid, $2::uuid, 9002, 'draft')
-				RETURNING id::text
-				`,
-				[testOrgId, activeRestaurantId]
-			);
-			draftMenuId = draftMenuResult.rows[0].id;
+		const draftMenuResult = await adminQuery<{ id: string }>(
+			`INSERT INTO menus (organization_id, restaurant_id, version, status)
+			 VALUES ($1::uuid, $2::uuid, 9002, 'draft')
+			 RETURNING id::text`,
+			[testOrgId, activeRestaurantId]
+		);
+		draftMenuId = draftMenuResult.rows[0].id;
 
-			// Insert published knowledge document
-			const publishedKnowResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO knowledge_documents (
-					organization_id,
-					restaurant_id,
-					title,
-					content,
-					visibility,
-					category
-				)
-				VALUES ($1::uuid, $2::uuid, 'RLS Test Published', 'Published content', 'published', 'general')
-				RETURNING id::text
-				`,
-				[testOrgId, activeRestaurantId]
-			);
-			publishedKnowledgeId = publishedKnowResult.rows[0].id;
+	const publishedKnowResult = await adminQuery<{ id: string }>(
+		`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
+		 VALUES ($1::uuid, $2::uuid, 'RLS Test Published', 'Published content', 'published')
+		 RETURNING id::text`,
+		[testOrgId, activeRestaurantId]
+	);
+	publishedKnowledgeId = publishedKnowResult.rows[0].id;
 
-			// Insert draft knowledge document
-			const draftKnowResult = await client.query<{ id: string }>(
-				`
-				INSERT INTO knowledge_documents (
-					organization_id,
-					restaurant_id,
-					title,
-					content,
-					visibility,
-					category
-				)
-				VALUES ($1::uuid, $2::uuid, 'RLS Test Draft', 'Draft content', 'draft', 'general')
-				RETURNING id::text
-				`,
-				[testOrgId, activeRestaurantId]
-			);
-			draftKnowledgeId = draftKnowResult.rows[0].id;
-		});
+	const draftKnowResult = await adminQuery<{ id: string }>(
+		`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
+		 VALUES ($1::uuid, $2::uuid, 'RLS Test Draft', 'Draft content', 'draft')
+		 RETURNING id::text`,
+		[testOrgId, activeRestaurantId]
+	);
+		draftKnowledgeId = draftKnowResult.rows[0].id;
 	});
 
 	afterAll(async () => {
-		// Clean up in reverse order due to foreign keys
-		await withUserContext('user-owner-bali', async (client) => {
-			await client.query('DELETE FROM knowledge_documents WHERE organization_id = $1::uuid', [
-				testOrgId
-			]);
-			await client.query('DELETE FROM menus WHERE organization_id = $1::uuid', [testOrgId]);
-			await client.query('DELETE FROM restaurant_tables WHERE organization_id = $1::uuid', [
-				testOrgId
-			]);
-			await client.query('DELETE FROM restaurants WHERE organization_id = $1::uuid', [testOrgId]);
-			await client.query('DELETE FROM organizations WHERE id = $1::uuid', [testOrgId]);
-		});
+		await adminQuery('DELETE FROM knowledge_documents WHERE organization_id = $1::uuid', [testOrgId]);
+		await adminQuery('DELETE FROM menus WHERE organization_id = $1::uuid', [testOrgId]);
+		await adminQuery('DELETE FROM restaurant_tables WHERE organization_id = $1::uuid', [testOrgId]);
+		await adminQuery('DELETE FROM restaurants WHERE organization_id = $1::uuid', [testOrgId]);
+		await adminQuery('DELETE FROM organizations WHERE id = $1::uuid', [testOrgId]);
+		if (adminPool) {
+			await adminPool.end();
+			adminPool = null;
+		}
 	});
 
 	it('only returns active restaurants via public policy', async () => {
@@ -199,34 +164,20 @@ describeDb('RLS public policies after migrations', () => {
 	});
 
 	it('does not return menus from inactive restaurants', async () => {
-		// Insert a published menu for the inactive restaurant
-		await withUserContext('user-owner-bali', async (client) => {
-			await client.query(
-				`
-				INSERT INTO menus (organization_id, restaurant_id, version, status)
-				VALUES ($1::uuid, $2::uuid, 9003, 'published')
-				`,
-				[testOrgId, inactiveRestaurantId]
-			);
-		});
+		await adminQuery(
+			`INSERT INTO menus (organization_id, restaurant_id, version, status)
+			 VALUES ($1::uuid, $2::uuid, 9003, 'published')`,
+			[testOrgId, inactiveRestaurantId]
+		);
 
-		// Query without user context
 		const result = await query<{ id: string; version: number }>(
-			`
-			SELECT id::text, version
-			FROM menus
-			WHERE restaurant_id = $1::uuid AND version = 9003
-			`,
+			`SELECT id::text, version FROM menus WHERE restaurant_id = $1::uuid AND version = 9003`,
 			[inactiveRestaurantId]
 		);
 
-		// Should not see the menu because the restaurant is inactive
 		expect(result.rows.length).toBe(0);
 
-		// Clean up
-		await withUserContext('user-owner-bali', async (client) => {
-			await client.query('DELETE FROM menus WHERE version = 9003');
-		});
+		await adminQuery('DELETE FROM menus WHERE version = 9003');
 	});
 
 	it('only returns published knowledge documents via public policy', async () => {
@@ -247,44 +198,22 @@ describeDb('RLS public policies after migrations', () => {
 	});
 
 	it('does not return knowledge documents from inactive restaurants', async () => {
-		// Insert a published knowledge doc for the inactive restaurant
-		await withUserContext('user-owner-bali', async (client) => {
-			await client.query(
-				`
-				INSERT INTO knowledge_documents (
-					organization_id,
-					restaurant_id,
-					title,
-					content,
-					visibility,
-					category
-				)
-				VALUES ($1::uuid, $2::uuid, 'RLS Test Inactive Rest', 'Content', 'published', 'general')
-				`,
-				[testOrgId, inactiveRestaurantId]
-			);
-		});
+		await adminQuery(
+			`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
+			 VALUES ($1::uuid, $2::uuid, 'RLS Test Inactive Rest', 'Content', 'published')`,
+			[testOrgId, inactiveRestaurantId]
+		);
 
-		// Query without user context
 		const result = await query<{ title: string }>(
-			`
-			SELECT title
-			FROM knowledge_documents
-			WHERE restaurant_id = $1::uuid
-			`,
+			`SELECT title FROM knowledge_documents WHERE restaurant_id = $1::uuid`,
 			[inactiveRestaurantId]
 		);
 
-		// Should not see any docs because the restaurant is inactive
 		expect(result.rows.length).toBe(0);
 
-		// Clean up
-		await withUserContext('user-owner-bali', async (client) => {
-			await client.query(
-				`DELETE FROM knowledge_documents WHERE restaurant_id = $1::uuid`,
-				[inactiveRestaurantId]
-			);
-		});
+		await adminQuery('DELETE FROM knowledge_documents WHERE restaurant_id = $1::uuid', [
+			inactiveRestaurantId
+		]);
 	});
 
 	it('verifies all active restaurants in seed data are visible', async () => {

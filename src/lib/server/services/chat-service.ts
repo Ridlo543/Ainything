@@ -1,5 +1,5 @@
 import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
-import { createChatMessageInputSchema } from '$lib/domain/session/schema';
+import { createChatMessageInputSchema } from '$lib/domain/ai/schema';
 import { persistChatTurn, getRecentHistory } from '$lib/server/repositories/chat-repository';
 import { getLlmProvider } from '$lib/server/providers/llm/factory';
 import type { LlmMenuItem } from '$lib/server/providers/llm/types';

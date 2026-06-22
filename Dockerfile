@@ -22,7 +22,7 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/build ./build
 
 ENV PORT 3000
-ENV ORIGIN https://lingua.example.com
+ENV ORIGIN=
 
 EXPOSE 3000
 

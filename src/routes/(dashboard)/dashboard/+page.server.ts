@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 	// Load the latest 5 open requests for the dashboard snapshot.
 	// Fail-open: an empty array is returned when DB is unavailable.
-	let recentRequests: import('$lib/domain/menu/types').StaffRequest[] = [];
+	let recentRequests: import('$lib/domain/fallback/types').StaffRequest[] = [];
 
 	if (appEnv.databaseUrl && !appEnv.useMockBackend) {
 		try {
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 				.filter((r) => r.status === 'new' || r.status === 'in-progress')
 				.slice(0, 5);
 		} catch (err) {
-			console.warn('[dashboard] Could not load staff requests:', err);
+			console.error('[dashboard] Failed to load staff requests:', err);
 		}
 	}
 

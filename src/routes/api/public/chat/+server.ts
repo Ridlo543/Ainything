@@ -6,8 +6,6 @@ import { handleChatTurn } from '$lib/server/services/chat-service';
 import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 import { checkDailyAiCap } from '$lib/server/services/ai-cost-cap';
 
-export const BODY_SIZE_LIMIT = 512_000;
-
 /**
  * POST /api/public/chat
  *

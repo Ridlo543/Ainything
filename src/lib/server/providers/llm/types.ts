@@ -1,4 +1,4 @@
-import type { ChatSafetyStatus } from '$lib/domain/session/schema';
+import type { ChatSafetyStatus } from '$lib/domain/ai/types';
 
 /**
  * Slim menu item snapshot passed to the LLM. Contains only what the model needs —

@@ -1,10 +1,11 @@
 import { memberships, organizations, restaurants } from '$lib/mock/restaurants';
-import type { AppUser, TenantContext } from '$lib/domain/menu/types';
+import type { AuthUser } from '$lib/domain/auth/types';
+import type { TenantContext } from '$lib/domain/menu/types';
 import { appEnv } from '$lib/server/config/env';
 import { resolveTenantContextFromDatabase } from '$lib/server/repositories/tenant-repository';
 
 export async function resolveTenantContext(
-	user: AppUser,
+	user: AuthUser,
 	selectedRestaurantSlug?: string
 ): Promise<TenantContext> {
 	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
@@ -24,12 +25,18 @@ export async function resolveTenantContext(
 }
 
 export function resolveMockTenantContext(
-	user: AppUser,
+	user: AuthUser,
 	selectedRestaurantSlug?: string
 ): TenantContext {
+	const primaryMembership = user.memberships[0];
+	if (!primaryMembership) {
+		throw new Error(`No memberships found for user ${user.id}`);
+	}
+
 	const membership =
 		memberships.find(
-			(item) => item.userId === user.id && item.organizationId === user.defaultOrganizationId
+			(item) =>
+				item.userId === user.id && item.organizationId === primaryMembership.organizationId
 		) ?? memberships.find((item) => item.userId === user.id);
 
 	if (!membership) {

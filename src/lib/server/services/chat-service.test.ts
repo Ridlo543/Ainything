@@ -72,7 +72,9 @@ const bootstrap: PublicMenuBootstrap = {
 		code: 'T07',
 		label: 'Table 07',
 		restaurantId: 'rest-1',
-		organizationId: 'org-1'
+		organizationId: 'org-1',
+		isActive: true,
+		qrPath: ''
 	}
 };
 

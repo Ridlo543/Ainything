@@ -47,7 +47,9 @@ function resolveMockPublicMenu(
 			code: tableCode,
 			label: `Table ${tableCode}`,
 			restaurantId: restaurant.id,
-			organizationId: restaurant.organizationId
+			organizationId: restaurant.organizationId,
+			isActive: true,
+			qrPath: ''
 		}
 	};
 }

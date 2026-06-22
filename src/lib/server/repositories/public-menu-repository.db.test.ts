@@ -225,19 +225,17 @@ describeDb('public menu repository — RLS isolation', () => {
 		}
 
 		try {
-			await owner.query(
-				`UPDATE restaurant_tables SET is_active = false WHERE id = $1::uuid`,
-				[tableId]
-			);
+			await owner.query(`UPDATE restaurant_tables SET is_active = false WHERE id = $1::uuid`, [
+				tableId
+			]);
 
 			// lingua_app's RLS policy filters by t.is_active = true
 			const bootstrap = await resolvePublicMenuBootstrap(restaurantSlug, tableCode);
 			expect(bootstrap).toBeNull();
 		} finally {
-			await owner.query(
-				`UPDATE restaurant_tables SET is_active = true WHERE id = $1::uuid`,
-				[tableId]
-			);
+			await owner.query(`UPDATE restaurant_tables SET is_active = true WHERE id = $1::uuid`, [
+				tableId
+			]);
 			await owner.end();
 		}
 	});
@@ -254,13 +252,17 @@ afterAll(async () => {
 					await owner.query('DELETE FROM menu_items WHERE menu_id = $1::uuid', [id]);
 					await owner.query('DELETE FROM menu_categories WHERE menu_id = $1::uuid', [id]);
 					await owner.query('DELETE FROM menus WHERE id = $1::uuid', [id]);
-				} catch { /* already cleaned */ }
+				} catch {
+					/* already cleaned */
+				}
 			}
 			for (const id of cleanupRestaurantIds) {
 				try {
 					await owner.query('DELETE FROM restaurant_tables WHERE restaurant_id = $1::uuid', [id]);
 					await owner.query('DELETE FROM restaurants WHERE id = $1::uuid', [id]);
-				} catch { /* already cleaned */ }
+				} catch {
+					/* already cleaned */
+				}
 			}
 		} finally {
 			await owner.end();

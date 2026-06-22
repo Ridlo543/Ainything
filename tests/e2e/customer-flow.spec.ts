@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const TEST_URL = '/r/uma-karang/table/T07';
+const RTL_TEST_URL = '/r/pantai-padi/table/A01';
 
 test.describe('Customer flow at 360px', () => {
 	test.use({ viewport: { width: 360, height: 740 } });
@@ -195,5 +196,32 @@ test.describe('Customer flow at 390px', () => {
 		await expect(
 			aside.getByText(/Halal-friendly|Vegetarian|Vegan|Contains alcohol/).first()
 		).toBeAttached();
+	});
+});
+
+test.describe('Arabic RTL layout at 360px', () => {
+	test.use({ viewport: { width: 360, height: 740 } });
+
+	test('renders restaurant hero with RTL text direction', async ({ page }) => {
+		await page.goto(RTL_TEST_URL);
+
+		await expect(page.getByRole('heading', { name: 'Pantai Padi' })).toBeVisible();
+		await expect(page.getByText('Table A01')).toBeVisible();
+	});
+
+	test('chat panel renders correctly in RTL viewport', async ({ page }) => {
+		await page.goto(RTL_TEST_URL);
+
+		await expect(page.getByPlaceholder('Ask: Is this spicy?')).toBeVisible();
+		await expect(page.getByText('Ask about the menu')).toBeVisible();
+	});
+
+	test('no horizontal overflow at 360px', async ({ page }) => {
+		await page.goto(RTL_TEST_URL);
+
+		const html = page.locator('html');
+		const scrollWidth = await html.evaluate((el) => el.scrollWidth);
+		const clientWidth = await html.evaluate((el) => el.clientWidth);
+		expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
 	});
 });

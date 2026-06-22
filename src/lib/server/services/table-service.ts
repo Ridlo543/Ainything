@@ -7,7 +7,7 @@
  * resolves tenant context and returns the active restaurant's table list.
  */
 
-import type { AppUser } from '$lib/domain/menu/types';
+import type { AuthUser } from '$lib/domain/auth/types';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
 import { listActiveTablesForRestaurant } from '$lib/server/repositories/table-repository';
 import type { RestaurantTable } from '$lib/server/repositories/table-repository';
@@ -18,7 +18,7 @@ import type { RestaurantTable } from '$lib/server/repositories/table-repository'
  * shows mock data via the `useMockData` flag).
  */
 export async function listTables(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug }: { restaurantSlug: string }
 ): Promise<RestaurantTable[]> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);

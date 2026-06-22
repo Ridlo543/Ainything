@@ -1,5 +1,6 @@
 import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
-import { createFallbackInputSchema, createFeedbackInputSchema } from '$lib/domain/session/schema';
+import { createFallbackInputSchema } from '$lib/domain/fallback/schema';
+import { createFeedbackInputSchema } from '$lib/domain/feedback/schema';
 import {
 	createFallbackRequest,
 	createFeedback

@@ -13,14 +13,12 @@ const CONSECUTIVE_NEWLINE_RE = /\n{3,}/g;
  * - Truncates to `maxLength` (optional, default 10000)
  */
 export function sanitizeText(input: string, maxLength = 10_000): string {
-	return (
-		input
-			.trim()
-			.replace(CONTROL_RE, '')
-			.replace(MULTISPACE_RE, ' ')
-			.replace(CONSECUTIVE_NEWLINE_RE, '\n\n')
-			.slice(0, maxLength)
-	);
+	return input
+		.trim()
+		.replace(CONTROL_RE, '')
+		.replace(MULTISPACE_RE, ' ')
+		.replace(CONSECUTIVE_NEWLINE_RE, '\n\n')
+		.slice(0, maxLength);
 }
 
 /**

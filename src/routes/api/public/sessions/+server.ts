@@ -5,8 +5,6 @@ import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { createCustomerSessionForTable } from '$lib/server/services/customer-session-service';
 import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 
-export const BODY_SIZE_LIMIT = 128_000;
-
 /**
  * POST /api/public/sessions
  *
@@ -26,7 +24,7 @@ const bodySchema = z
 
 export const POST: RequestHandler = async ({ request }) => {
 	await applyRateLimit('session-create', request);
-	checkBodySize(request);
+	checkBodySize(request, 128_000);
 
 	let raw: unknown;
 

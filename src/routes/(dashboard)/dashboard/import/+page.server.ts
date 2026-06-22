@@ -44,24 +44,24 @@ export const actions: Actions = {
 	 * Accepts a base64-encoded image via form data. Returns the OCR scan result
 	 * with structured items and per-field confidence scores for admin review.
 	 */
-scan: async ({ locals, request }) => {
-			if (!locals.user) {
-				return fail(401, { message: 'Authentication required.' });
-			}
+	scan: async ({ locals, request }) => {
+		if (!locals.user) {
+			return fail(401, { message: 'Authentication required.' });
+		}
 
-			const formData = await request.formData();
-			const parseResult = scanInputSchema.safeParse({
-				image: formData.get('image'),
-				mimeType: formData.get('mimeType'),
-				sourceType: formData.get('sourceType'),
-				restaurant: formData.get('restaurant')
-			});
+		const formData = await request.formData();
+		const parseResult = scanInputSchema.safeParse({
+			image: formData.get('image'),
+			mimeType: formData.get('mimeType'),
+			sourceType: formData.get('sourceType'),
+			restaurant: formData.get('restaurant')
+		});
 
-			if (!parseResult.success) {
-				return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
-			}
+		if (!parseResult.success) {
+			return fail(422, { message: parseResult.error.issues[0]?.message ?? 'Invalid input.' });
+		}
 
-			const { image: imageBase64, mimeType, sourceType, restaurant } = parseResult.data;
+		const { image: imageBase64, mimeType, sourceType, restaurant } = parseResult.data;
 
 		try {
 			const result = await scanMenuImage({
@@ -99,9 +99,7 @@ scan: async ({ locals, request }) => {
 				}
 			};
 		} catch (err) {
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[import] scan action failed:', err);
 			return fail(500, { message: 'OCR scan failed.' });
 		}
 	},
@@ -164,9 +162,7 @@ scan: async ({ locals, request }) => {
 				}
 			};
 		} catch (err) {
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[import] import action failed:', err);
 			return fail(500, { message: 'Failed to import items.' });
 		}
 	}

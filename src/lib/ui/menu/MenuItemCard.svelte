@@ -46,7 +46,9 @@
 						<p class="truncate font-semibold text-lingua-text">{item.name}</p>
 						<p class="truncate text-sm text-lingua-subtle">{item.localName}</p>
 					</div>
-					<p class="shrink-0 text-sm font-semibold text-lingua-primary">{formatPrice(item.price)}</p>
+					<p class="shrink-0 text-sm font-semibold text-lingua-primary">
+						{formatPrice(item.price)}
+					</p>
 				</div>
 
 				<p class="mt-2 line-clamp-2 text-sm text-lingua-subtle">{item.description}</p>

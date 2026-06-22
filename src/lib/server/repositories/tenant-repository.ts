@@ -1,4 +1,5 @@
-import type { AppUser, Membership, Organization, TenantContext } from '$lib/domain/menu/types';
+import type { AuthUser, OrgMembership } from '$lib/domain/auth/types';
+import type { Membership, Organization, TenantContext } from '$lib/domain/menu/types';
 import { withUserContext, type DatabaseClient } from '$lib/server/db/postgres';
 import {
 	loadImportIssues,
@@ -8,10 +9,22 @@ import {
 	type RestaurantRow
 } from '$lib/server/repositories/menu-row-mapper';
 
+function mapMembershipRole(role: Membership['role']): OrgMembership['role'] {
+	switch (role) {
+		case 'owner':
+			return 'org_owner';
+		case 'manager':
+			return 'restaurant_admin';
+		case 'staff':
+			return 'staff';
+	}
+}
+
 type OrganizationRow = {
 	user_id: string;
 	email: string;
 	user_name: string;
+	platform_role: string;
 	default_organization_id: string;
 	membership_id: string;
 	role: Membership['role'];
@@ -23,11 +36,11 @@ type OrganizationRow = {
 };
 
 export async function resolveTenantContextFromDatabase(
-	user: AppUser,
+	user: AuthUser,
 	selectedRestaurantSlug?: string
 ): Promise<TenantContext> {
 	return withUserContext(user.id, async (client) => {
-		const base = await loadMembership(client, user.id, user.defaultOrganizationId);
+		const base = await loadMembership(client, user.id, user.memberships[0]?.organizationId ?? '');
 
 		if (!base) {
 			throw new Error(`No database membership found for user ${user.id}`);
@@ -62,7 +75,14 @@ export async function resolveTenantContextFromDatabase(
 				id: base.user_id,
 				email: base.email,
 				name: base.user_name,
-				defaultOrganizationId: base.default_organization_id
+				platformRole: (base.platform_role as AuthUser['platformRole']) ?? 'staff',
+				memberships: [
+					{
+						organizationId: base.organization_id,
+						restaurantIds,
+						role: mapMembershipRole(base.role)
+					}
+				]
 			},
 			membership: {
 				id: base.membership_id,
@@ -96,6 +116,7 @@ async function loadMembership(
 				u.external_auth_id AS user_id,
 				u.email,
 				u.name AS user_name,
+				COALESCE(u.platform_role, 'staff') AS platform_role,
 				COALESCE(u.default_organization_id::text, '') AS default_organization_id,
 				m.id::text AS membership_id,
 				m.role,

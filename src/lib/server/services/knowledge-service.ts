@@ -12,7 +12,7 @@
  *    receives typed input.
  */
 
-import type { AppUser } from '$lib/domain/menu/types';
+import type { AuthUser } from '$lib/domain/auth/types';
 import type { KnowledgeDoc } from '$lib/domain/knowledge/types';
 import type {
 	CreateKnowledgeDocInput,
@@ -54,7 +54,7 @@ export class KnowledgeNotFoundError extends Error {
  * enough.
  */
 export async function listDocs(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug }: { restaurantSlug: string }
 ): Promise<KnowledgeDoc[]> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);
@@ -72,7 +72,7 @@ export async function listDocs(
  * `withUserContext` so the 0009 INSERT policy allows the write.
  */
 export async function createDoc(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug, input }: { restaurantSlug: string; input: CreateKnowledgeDocInput }
 ): Promise<KnowledgeDoc> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);
@@ -96,7 +96,7 @@ export async function createDoc(
  * cases are indistinguishable to the caller (which is the secure default).
  */
 export async function updateDoc(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug, input }: { restaurantSlug: string; input: UpdateKnowledgeDocInput }
 ): Promise<KnowledgeDoc> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);
@@ -124,7 +124,7 @@ export async function updateDoc(
  * when no row was deleted (does not exist or RLS denied).
  */
 export async function deleteDoc(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug, input }: { restaurantSlug: string; input: DeleteKnowledgeDocInput }
 ): Promise<void> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);
@@ -149,7 +149,7 @@ export async function deleteDoc(
  * client-side because the dashboard renders a flat list per restaurant.
  */
 export async function findDoc(
-	user: AppUser,
+	user: AuthUser,
 	{ restaurantSlug, docId }: { restaurantSlug: string; docId: string }
 ): Promise<KnowledgeDoc | null> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);

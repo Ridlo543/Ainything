@@ -5,8 +5,6 @@ import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { createFeedbackForSession } from '$lib/server/services/guest-interaction-service';
 import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 
-export const BODY_SIZE_LIMIT = 32_000;
-
 /**
  * POST /api/public/feedback
  *
@@ -24,7 +22,7 @@ const bodySchema = z
 
 export const POST: RequestHandler = async ({ request }) => {
 	await applyRateLimit('feedback', request);
-	checkBodySize(request);
+	checkBodySize(request, 32_000);
 
 	let raw: unknown;
 

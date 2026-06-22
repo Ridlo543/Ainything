@@ -1,7 +1,5 @@
 import type { PageServerLoad } from './$types';
-import {
-	getOrganizationMetrics
-} from '$lib/server/repositories/metrics-repository';
+import { getOrganizationMetrics } from '$lib/server/repositories/metrics-repository';
 import type { RestaurantMetrics } from '$lib/domain/analytics/types';
 import { appEnv } from '$lib/server/config/env';
 

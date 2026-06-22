@@ -34,6 +34,9 @@ export const load: PageServerLoad = async ({ parent }) => {
 				restaurantSlug: tenant.activeRestaurant.slug
 			});
 		} catch (err) {
+			if (appEnv.nodeEnv === 'production') {
+				throw err;
+			}
 			console.warn('[knowledge] Could not load docs from DB:', err);
 			docs = [];
 			useMockData = true;
@@ -85,9 +88,7 @@ export const actions: Actions = {
 				input: parsed.data
 			});
 		} catch (err) {
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[knowledge] addNote action failed:', err);
 			return fail(500, { message: 'An unexpected error occurred.' });
 		}
 
@@ -129,9 +130,7 @@ export const actions: Actions = {
 			if (err instanceof KnowledgeNotFoundError) {
 				return fail(404, { message: err.message });
 			}
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[knowledge] updateNote action failed:', err);
 			return fail(500, { message: 'An unexpected error occurred.' });
 		}
 
@@ -166,9 +165,7 @@ export const actions: Actions = {
 			if (err instanceof KnowledgeNotFoundError) {
 				return fail(404, { message: err.message });
 			}
-			if (err instanceof Error) {
-				return fail(500, { message: err.message });
-			}
+			console.error('[knowledge] deleteNote action failed:', err);
 			return fail(500, { message: 'An unexpected error occurred.' });
 		}
 

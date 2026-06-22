@@ -1,7 +1,7 @@
 <script lang="ts">
 	type Tone = 'neutral' | 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
 
-	let { label, tone = 'neutral' }: { label: string; tone?: Tone } = $props();
+	let { label, tone = 'neutral', shape = 'rounded' }: { label: string; tone?: Tone; shape?: 'rounded' | 'pill' } = $props();
 
 	const toneClass: Record<Tone, string> = {
 		neutral: 'border-slate-200 bg-slate-50 text-slate-700',
@@ -15,7 +15,7 @@
 </script>
 
 <span
-	class={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${toneClass[tone]}`}
+	class={`inline-flex items-center ${shape === 'pill' ? 'rounded-full' : 'rounded-md'} border px-2.5 py-1 text-xs font-semibold ${toneClass[tone]}`}
 >
 	{label}
 </span>

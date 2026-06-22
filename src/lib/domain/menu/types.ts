@@ -1,3 +1,5 @@
+import type { AuthUser } from '$lib/domain/auth/types';
+
 export type LanguageTag = 'en' | 'id' | 'zh-Hans' | 'ko' | 'ja' | 'ar' | 'hi' | 'fr' | 'de';
 
 export type DietaryFlag =
@@ -108,30 +110,8 @@ export type Restaurant = {
 	};
 };
 
-export type StaffRequest = {
-	id: string;
-	restaurantId: string;
-	restaurantSlug: string;
-	restaurantName: string;
-	tableId: string;
-	tableCode: string;
-	language: LanguageTag;
-	/** DB allows 'cancelled'; staff inbox surfaces the operational subset. */
-	status: 'new' | 'in-progress' | 'resolved';
-	priority: 'normal' | 'high';
-	guestNeed: string;
-	summary: string;
-	/** ISO timestamp of the latest change (created_at or updated_at). */
-	lastMessageAt: string;
-};
-
-export type RestaurantTable = {
-	id: string;
-	code: string;
-	label: string;
-	restaurantId: string;
-	organizationId: string;
-};
+import type { RestaurantTable } from '$lib/domain/table/types';
+export type { RestaurantTable };
 
 export type PublicMenuBootstrap = {
 	restaurant: Restaurant;
@@ -139,7 +119,7 @@ export type PublicMenuBootstrap = {
 };
 
 export type TenantContext = {
-	user: AppUser;
+	user: AuthUser;
 	membership: Membership;
 	organization: Organization;
 	restaurants: Restaurant[];
