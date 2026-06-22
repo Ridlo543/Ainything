@@ -124,11 +124,48 @@ When adding new E2E tests:
 
 ---
 
+## Using Test Isolation Fixtures
+
+**New:** `tests/e2e/fixtures.ts` provides database isolation support.
+
+### Basic Usage
+
+```typescript
+// Import from fixtures instead of @playwright/test
+import { test, expect } from './fixtures';
+
+test('my isolated test', async ({ page, cleanDatabase }) => {
+  // cleanDatabase fixture automatically resets DB before this test
+  await page.goto('/r/uma-karang/table/T07');
+  // Test runs with fresh database state
+});
+```
+
+### When to Use `cleanDatabase` Fixture
+
+**Use for:**
+- Tests that create persistent data (sessions, feedback, etc.)
+- Tests that modify restaurant/table state
+- Tests that need guaranteed clean state
+
+**Don't use for:**
+- Read-only tests (menu browsing, language selector)
+- Tests that already run reliably
+- Every test (it's slow - 10-15 seconds overhead)
+
+### Performance Trade-off
+
+- **With isolation:** Slower but reliable (no RLS violations)
+- **Without isolation:** Faster but flaky (test order matters)
+
+**Recommendation:** Start without `cleanDatabase`, add it only to tests that fail due to state pollution.
+
+---
+
 ## Future Improvements
 
-- [ ] Implement transaction-based test isolation
-- [ ] Add database cleanup utilities
+- [x] Implement test fixtures with database reset capability
+- [ ] Add transaction-based test isolation (more performant)
 - [ ] Create test data factories for unique identifiers
 - [ ] Add retry logic for flaky tests
-- [ ] Implement proper test fixtures
 - [ ] Add webServer health checks between tests
