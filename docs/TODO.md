@@ -352,17 +352,22 @@ Subscription management and plan enforcement.
 
 - [x] PostgreSQL 16 via pgvector image.
 - [x] Redis 7 for caching, rate limiting, pub/sub.
-- [x] SQL migrations (`db/migrations/0001..0009`).
+- [x] SQL migrations (`db/migrations/0001..0011`).
 - [x] Seed data with multi-tenant demo.
 - [x] RLS policies for tenant isolation.
-- [ ] Supabase-specific migrations: `auth.users` sync trigger, platform admin role.
+- [x] Supabase-specific migrations: `auth.users` sync trigger, platform admin role (0010, 0011).
+- [x] Local PostgreSQL testing infrastructure (no Supabase remote dependency).
+- [x] `db/migrations/0011_local_auth_stub.sql` for local auth schema stub.
+- [x] `.env.test` with `RUN_DB_TESTS=true` for deterministic offline DB tests.
+- [x] `src/test-setup.ts` as Vitest `globalSetup` for env loading order.
 
 ### I3. CI/CD and Quality
 
 - [x] `pnpm check` (TypeScript + SvelteKit).
 - [x] `pnpm lint` (ESLint + Prettier).
-- [x] `pnpm test:unit` (Vitest).
-- [x] Playwright E2E tests (customer, admin, staff).
+- [x] `pnpm test:unit` (Vitest, 309 passed, local PostgreSQL).
+- [x] `pnpm test:e2e` (Playwright, local PostgreSQL via superuser).
+- [x] Playwright config with explicit local env overrides, 120s webServer timeout.
 - [x] Bundle size checks (`scripts/check-bundle-size.mjs`).
 - [x] Lighthouse performance check (`scripts/performance-check.mjs`).
 - [x] Accessibility audit (`scripts/accessibility-check.mjs` + `@axe-core/cli`).

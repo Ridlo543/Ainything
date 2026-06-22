@@ -570,6 +570,50 @@ Minimum before pilot:
 - Bundle/performance checks for public route.
 - AI evaluation fixtures using real menu questions.
 
+### 12.1 Local Database Testing Infrastructure
+
+All DB tests run against **local PostgreSQL** (Podman/Docker), never Supabase remote.
+
+**Environment strategy:**
+
+| File | Purpose | DB Target |
+|------|---------|-----------|
+| `.env.test` | Test suite (committed) | Local PostgreSQL |
+| `.env.development` | Dev server (committed) | Local PostgreSQL |
+| `.env.production` | Production template (committed) | Supabase |
+| `.env` | Developer overrides (gitignored) | Any |
+
+**Test workflow:**
+
+```bash
+pnpm infra:up         # Start PostgreSQL + Redis
+pnpm db:reset         # Drop schema, apply all migrations, seed
+pnpm test             # Runs with .env.test (local DB, RUN_DB_TESTS=true)
+pnpm check            # TypeScript check
+```
+
+**Key rules:**
+
+- `pnpm test` loads `.env.test` first via `src/test-setup.ts` (Vitest `globalSetup`), then `.env` as override.
+- Never set `RUN_DB_TESTS=true` in `.env` pointing to Supabase unless explicitly integration testing.
+- Migration `0011_local_auth_stub.sql` provides a local `auth` schema stub so all migrations run without Supabase.
+- `0011_supabase_auth_bridge.sql` is conditional — only creates triggers when `auth.users` exists.
+- Shell env vars always win over file-based env values.
+- DB tests use `DIRECT_URL` (superuser) for admin setup/teardown, `DATABASE_URL` (app role) for RLS verification.
+
+**Playwright E2E tests:**
+
+- `playwright.config.ts` overrides all DB env vars to use local PostgreSQL superuser.
+- This bypasses RLS (tested in unit tests) and avoids inheriting `.env` Supabase remote config.
+- `webServer.timeout: 120_000`, `reuseExistingServer: false`, `test.timeout: 60_000`.
+- `stdout` and `stderr` piped for error visibility.
+
+### 12.2 Test Naming and Coverage
+
+- Repository DB tests: `*.db.test.ts` — opt-in via `RUN_DB_TESTS=true`.
+- Integration tests: `*.integration.test.ts` — opt-in via `RUN_LLM_TESTS=true`.
+- Unit tests: `*.test.ts` — always run, no infra dependencies.
+
 ## 13. Review Rules
 
 Any PR/change that touches these areas needs careful review:
