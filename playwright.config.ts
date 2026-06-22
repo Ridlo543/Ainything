@@ -13,7 +13,9 @@ export default defineConfig({
 		stderr: 'pipe',
 		env: {
 			PUBLIC_APP_URL: 'http://localhost:4173',
-			DATABASE_URL: 'postgresql://lingua:lingua@127.0.0.1:5432/lingua',
+			// Use lingua_app (application role with RLS) instead of superuser
+			// to validate actual security boundaries in E2E tests
+			DATABASE_URL: 'postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua',
 			DIRECT_URL: 'postgresql://lingua:lingua@127.0.0.1:5432/lingua',
 			AUTH_PROVIDER: 'mock',
 			SESSION_SECRET: 'e2e-test-session-secret',
