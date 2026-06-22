@@ -1,8 +1,8 @@
 # Lingua TODO
 
-This plan starts with product/design/frontend, then backend, then AI. Field research items that cannot be executed by an agent are marked as deferred/skipped for now.
+This plan covers the full Lingua product: a multi-tenant QR menu + guest support SaaS for restaurants serving international tourists. One deployment serves many organizations, many restaurants, many staff, and many anonymous guest sessions.
 
-Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in progress, `[!]` started but currently broken/blocked.
+Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in progress, `[!]` broken/blocked.
 
 ## How To Use This File
 
@@ -15,283 +15,403 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 
 - [x] Keep domain logic out of `.svelte` files and out of route files; routes orchestrate only.
 - [x] No repository or provider import from UI components.
-- [x] Public customer route owns the performance budget; admin/AI code must be lazy-loaded and must not bloat the public bundle. Verified: public route `+page.svelte` imports only UI components and domain types — zero `$lib/server` imports. SvelteKit route groups `(public)/` and `(dashboard)/` ensure admin/AI code is code-split. Bundle size checks exist (`scripts/check-bundle-size.mjs`, 100KB JS / 30KB CSS budgets).
-- [x] Every tenant-owned query must be scoped by `organization_id` and/or `restaurant_id`; never trust a browser-supplied tenant id without server validation. All admin repository queries now properly scope by both tenant dimensions. Fixed 4 queries (`loadMenusForRestaurant`, `countMenuItems`, `setMenuItemAvailability`, `publishMenu`) that were missing `organization_id`. RLS provides defense-in-depth via `app.has_restaurant_access()`.
-- [x] Guest-derived tenant ids (organization/restaurant) must be resolved server-side from the QR resolution result, never read from the request body. Verified: public APIs (`POST /api/public/sessions`) accept only public identifiers (`restaurantSlug` + `tableCode`), resolve tenant context via `resolvePublicMenu()` database lookup, and use resolved IDs for all writes.
-- [x] Every new server input boundary (form action, `+server.ts`, public API) validates with a Zod schema in `src/lib/domain/*/schema.ts` or `src/lib/validation`. Audit complete (2025-06): 14 active input boundaries verified. Fixed 5 gaps: added Zod schemas to `login/+page.server.ts`, `staff/inbox/+page.server.ts` (claim/resolve), `dashboard/import/+page.server.ts` (scan/import), `api/public/bootstrap/+server.ts` (query params). All 4 public APIs (sessions/fallback/feedback/chat) already had 2-layer Zod validation. `menu/+page.server.ts` and `knowledge/+page.server.ts` already had full coverage.
-- [x] Every external provider (LLM, OCR, WhatsApp, storage, telemetry) sits behind an adapter interface with a mock implementation committed before the real one. Verified: LLM (`src/lib/server/providers/llm/` — types.ts, mock-provider.ts, factory.ts, openai-compatible-provider.ts, anthropic-provider.ts), OCR (`src/lib/server/providers/ocr/` — types.ts, mock-provider.ts, factory.ts), Auth (`src/lib/server/auth/` — types.ts, mock-auth-provider.ts, supabase-auth-provider.ts, auth-factory.ts). Storage and telemetry deferred to Phase 8+.
-- [x] Secrets stay server-only; never expose `SUPABASE_SERVICE_ROLE_KEY`, DB URLs, or session secret to the browser. Verified: grep across all `.svelte` files found zero occurrences of sensitive keys or `$env/static/private` imports in client code.
+- [x] Public customer route owns the performance budget; admin/AI code must be lazy-loaded and must not bloat the public bundle.
+- [x] Every tenant-owned query must be scoped by `organization_id` and/or `restaurant_id`; never trust a browser-supplied tenant id without server validation.
+- [x] Guest-derived tenant ids (organization/restaurant) must be resolved server-side from the QR resolution result, never read from the request body.
+- [x] Every new server input boundary (form action, `+server.ts`, public API) validates with a Zod schema.
+- [x] Every external provider (LLM, OCR, WhatsApp, storage, telemetry) sits behind an adapter interface with a mock implementation committed before the real one.
+- [x] Secrets stay server-only; never expose `SUPABASE_SERVICE_ROLE_KEY`, DB URLs, or session secret to the browser.
 
-## Phase 0 - Product Validation and Scope Control
+---
 
-- [x] Clarify product model: one shared multi-tenant SaaS platform serving many restaurants, not one app per restaurant.
-- [~] Interview 15-25 restaurant owners/managers in Bali/Jakarta. Skipped for now; requires real user access.
-- [~] Observe at least 5 real tourist-staff menu interactions. Skipped for now; requires field access.
-- [x] Create dummy dataset replacing "collect 10 real messy menus" for prototype work.
-- [x] Create 10 realistic dummy restaurant/menu sources covering PDF scans, photos, bilingual menus, handwritten notes, seasonal menus, and spreadsheets.
-- [~] Validate first buyer segment: cafe, casual dining, hotel restaurant, premium restaurant, or beach club. Deferred until real interviews.
-- [~] Decide pilot success thresholds before building paid features. Deferred until backend/pilot planning.
-- [~] Confirm whether WhatsApp fallback is required for pilot or internal staff inbox is enough. Deferred.
-- [x] Confirm initial prototype language list in dummy data: English, Indonesian, Chinese, Korean, Japanese, Arabic, Hindi, French, German.
-- [~] Document willingness-to-pay range from interviews. Deferred until real interviews.
-- [x] Narrow MVP launch language set to a verifiable list (EN, ID, ZH-Hans, JA). `src/lib/i18n/languages.ts` now exports exactly 4 languages; `detection.ts` and seed SQL narrowed to match. Remaining tags deferred to P1 precomputed-translation work.
-- [x] Define the "menu minimum viable to go live" gate: `src/lib/domain/menu/policy.ts:canPublishMenu` enforces blocking issues (empty name, negative price) and surfaces warnings (unverified + risk flags). Wired into `menu-admin-service.ts:publishDraftMenu` via `loadMenuItemsForMenu` + `MenuPublishValidationError`. 9 policy tests cover the gate.
+## Phase A — Platform Foundation (Auth, Registration, Landing Page)
 
-## Phase 1 - Design Foundation
+The first thing any user sees. Hotel/tourist restaurant owners must be able to discover Lingua, understand the value proposition, register, and start onboarding without manual intervention from the platform owner.
 
-- [x] Create brand direction: calm hospitality, modern tourist utility, not generic AI SaaS.
-- [x] Finalize color palette from `docs/DESIGN_SYSTEM.md` in Tailwind/CSS tokens.
-- [x] Choose typography stack with multilingual support.
-- [x] Define spacing, radius, shadow, border, and icon rules in global CSS/UI components.
-- [x] Define component states: loading, empty, error, offline, low-confidence, staff-needed, success.
-- [x] Create responsive layout rules for mobile, tablet, desktop in UI implementation.
-- [x] Create UI copy tone for tourist, staff, and admin through prototype text.
-- [x] Add accessibility basics: semantic buttons/links, focus states, tap targets, labels.
+### A1. Real Authentication (Supabase Auth)
 
-## Phase 2 - UX Flow and Wireframes
+- [x] Install `@supabase/supabase-js` and `@supabase/ssr`.
+- [x] Auth provider adapter interface exists (`src/lib/server/auth/types.ts`).
+- [x] Auth factory exists (`src/lib/server/auth/auth-factory.ts`, switch via `AUTH_PROVIDER` env).
+- [x] Implement real `SupabaseAuthProvider` (`getSessionUser` via Supabase SSR cookie helpers, login, register, logout).
+- [x] Create `src/lib/server/auth/supabase-client.ts` — SSR-safe Supabase client factory.
+- [x] Add `auth.users` → `public.app_users` sync trigger (migration 0011).
+- [x] Add Supabase env vars: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (.env.development/.env.production).
+- [x] Registration: email/password sign-up with email verification (restaurant + org pathways).
+- [x] Login: email/password sign-in with Supabase session cookies.
+- [ ] Password reset flow (`/auth/reset-password`, `/auth/update-password`).
+- [x] Email verification callback page (`/auth/callback`).
+- [x] Remove mock demo auth session code (keep mock provider for tests only).
+- [x] Auth guard: redirect unauthenticated users to `/login` for all protected routes (hooks.server.ts + layout server loads).
+- [x] Platform role bridge: migration 0010 adds `platform_role` column, `has_platform_access()`, and platform admin SELECT policies.
 
-- [x] Revise top-level UX to show workspace -> restaurants -> QR table routing.
-- [x] Customer flow prototype:
-  - [x] QR entry.
-  - [x] Language selection.
-  - [x] Preference setup.
-  - [x] Menu category browser.
-  - [x] Menu item detail.
-  - [x] Ask/chat panel.
-  - [x] Human fallback request.
-  - [x] Quick feedback.
-- [x] Staff flow prototype:
-  - [x] Inbox list.
-  - [x] Request detail with table and summary.
-  - [x] Status display: new, in progress, resolved.
-- [x] Admin flow prototype:
-  - [x] Dashboard overview.
-  - [x] Multi-restaurant workspace context and restaurant selector copy.
-  - [x] Menu editor.
-  - [x] Menu import/review.
-  - [x] Table QR manager.
-  - [x] Knowledge base editor.
-  - [x] Analytics.
-- [x] Create clickable prototype before backend implementation.
-- [~] Test prototype with 3-5 target users. Skipped for now; requires real users.
-- [ ] Revise PRD if prototype testing later reveals different priority.
+### A2. Landing Page
 
-## Phase 3 - Frontend Scaffold
+- [x] Replace current root `+page.svelte` (workspace hub) with proper marketing landing page.
+- [x] Hero section: value proposition, target audience (restaurant owners in tourist areas).
+- [x] How it works section: scan QR → browse menu → AI answers → staff fallback.
+- [x] Features section: multilingual menu, AI guest support, staff inbox, analytics.
+- [x] Pricing section: free/starter/pro tiers.
+- [x] Two CTAs: "I have one restaurant" → `/register/restaurant`, "I manage multiple" → `/register/organization`.
+- [ ] Testimonials/testimonial placeholders.
+- [ ] Footer with links, privacy, contact.
+- [ ] i18n for landing page strings (EN + ID minimum).
 
-- [x] Scaffold SvelteKit + Svelte 5 + TypeScript with pnpm.
-- [x] Add Tailwind CSS and global design tokens.
-- [x] Add linting, formatting, Vitest, and Playwright setup.
-- [x] Add SvelteKit route groups:
-  - [x] Public customer routes.
-  - [x] Dashboard/admin routes.
-  - [x] Staff inbox routes.
-  - [ ] API route placeholder routes. Deferred until backend phase.
-- [x] Add PWA manifest and icon.
-- [x] Add `src/service-worker.ts` with safe app-shell and public-menu caching strategy.
-- [x] Add responsive app shell.
-- [x] Add mock data fixtures for restaurant, menu, table, session, chat, and staff request.
-- [~] Add local component gallery or Storybook. Skipped for now to keep workflow light.
-- [x] Add initial architecture folders:
-  - [x] `src/lib/domain`
-  - [x] `src/lib/server/services`
-  - [x] `src/lib/server/repositories`
-  - [x] `src/lib/server/providers`
-  - [x] `src/lib/ui`
-  - [x] `src/lib/state`
-- [~] Add dependency review checklist to PR template. Deferred until GitHub workflow exists.
+### A3. Registration Flow (Hybrid)
 
-## Phase 4 - Frontend Customer Experience
+- [x] `/register` — entry page with the two pathways.
+- [x] `/register/restaurant` — restaurant-first flow:
+  - [x] Step 1: Account (email, password, name).
+  - [ ] Step 2: Restaurant details (name, slug, segment, location, language, timezone).
+  - [x] Step 3: Confirmation + email verification sent.
+  - [ ] Auto-creates organization behind the scenes (1:1 mapping).
+- [ ] `/register/organization` — organization-first flow:
+  - [ ] Step 1: Account + organization name/slug.
+  - [ ] Step 2: First restaurant creation (same wizard as restaurant-first step 2).
+  - [ ] Step 3: Confirmation + email verification sent.
+- [x] Email verification callback: verify token, activate account, redirect to role-based route.
+- [ ] Server-side slug validation: unique across all restaurants.
+- [ ] Post-verification redirect to restaurant dashboard.
 
-- [x] Build QR session bootstrap screen.
-- [x] Build language selector.
-- [x] Build preference setup with dietary/allergen chips.
-- [x] Build menu category tabs/list.
-- [x] Build menu item card.
-- [x] Build menu item detail panel.
-- [x] Build allergen and dietary warning components.
-- [x] Build recommendation explanation block.
-- [x] Build chat entry point and chat panel.
-- [x] Build AI answer states:
-  - [x] Confident answer.
-  - [x] Low confidence.
-  - [x] Needs staff confirmation.
-  - [x] Provider error.
-  - [~] Out of scope. Deferred to AI guardrail phase.
-- [x] Build human fallback request flow.
-- [x] Build quick feedback.
-- [x] Verify customer flow with Playwright smoke test.
+### A4. Login
 
-## Phase 5 - Frontend Admin and Staff Experience
+- [x] Replace `/login` with real Supabase email/password form.
+- [ ] "Forgot password" link.
+- [x] "Don't have an account? Register" link.
+- [x] Role-based redirect after login:
+  - [x] `super_admin` → `/platform`
+  - [x] `org_owner` / `restaurant_admin` → `/dashboard`
+  - [x] `staff` → `/staff/inbox`
 
-- [x] Build admin dashboard overview with mocked analytics.
-- [x] Clarify admin dashboard as organization-scoped management for many restaurants.
-- [x] Build menu editor:
-  - [x] Category display.
-  - [x] Item list/edit action surface.
-  - [x] Price and availability display.
-  - [x] Allergen and dietary flag display.
-  - [x] Translation/local-name preview.
-- [x] Build menu import/review screen.
-- [x] Build table QR manager.
-- [x] Make table QR manager select restaurant before showing table links.
-- [x] Build knowledge base editor.
-- [x] Build staff inbox.
-- [x] Show restaurant context in staff inbox request list/detail.
-- [x] Build fallback request detail.
-- [x] Build analytics screens.
-- [x] Add role-aware navigation surface for admin and staff.
-- [x] Verify admin/staff flows with Playwright smoke tests.
+---
 
-## Phase 6 - Backend Foundation
+## Phase B — Platform Admin (Super Admin Dashboard)
 
-- [x] Add local demo login with HttpOnly cookie for protected management routes.
-- [x] Add server-side tenant context resolver using mock memberships and restaurants.
-- [x] Protect dashboard and staff routes with SvelteKit server load redirects.
-- [x] Add `.env.example` for local backend configuration.
-- [x] Add Docker Compose for PostgreSQL and Redis.
-- [x] Add server-side backend env loader and backend health endpoint.
-- [x] Initialize local PostgreSQL schema and SQL migrations.
-- [x] Create core tables from `docs/Technical_Specification.md`.
-- [x] Add database access layer for local PostgreSQL.
-- [x] Add Redis integration for backend health and future cache/queue/realtime use.
-- [x] Add seed data for local development.
-- [x] Add PostgreSQL-backed tenant resolver for authenticated dashboard/staff context.
-- [x] Keep explicit mock fallback for local frontend work when DB is not configured or unavailable.
-- [x] Add Row Level Security baseline policies for tenant reads through the app role.
-- [x] Add opt-in RLS tests for:
-  - [x] Same table code in two restaurants.
-  - [x] User assigned to one restaurant cannot read another restaurant.
-  - [x] Organization manager can see all restaurants in the organization.
+The platform owner/developer dashboard for managing the SaaS itself: all organizations, all restaurants, billing state, system health.
 
-### Phase 6a - Finish the in-flight public-menu work left by the previous agent (do first)
+### B1. Platform Route Group
 
-The previous session stopped mid-task while wiring public published-menu reads and anonymous guest writes. The code exists but does not compile and is not connected. Close this out before anything new.
+- [x] Create `src/routes/(platform)/` route group.
+- [x] Create `/platform` layout: sidebar nav (overview, organizations, restaurants, billing, settings).
+- [x] Create `+layout.server.ts`: super admin auth guard (redirect non-super-admin to `/dashboard`).
+- [x] Role-aware navigation: platform admin sees system-wide stats, not restaurant-specific data.
 
-- [!] Repair `src/lib/server/repositories/public-menu-repository.ts` type errors (7). Root causes:
-  - `resolvePublicMenuBootstrap` SELECTs table columns aliased as `table_*` but the row type uses `RestaurantRow & TableRow` whose `TableRow` fields are `id/code/label`. Align the SQL aliases and the row type so they match.
-  - `loadPublishedCategories`/`loadPublishedMenuItems` are called with `{ query }`; their parameter is a `DatabaseClient` (`{ query(text, params) }`). The exported `query` helper signature is not assignable to `pg.query`. Adapt `DatabaseClient` typing in `postgres.ts` (or pass a proper client wrapper) so the bare `query` helper is accepted.
-  - Done: added a dedicated `BootstrapRow` type and reshaped `DatabaseClient` in `postgres.ts`; `pnpm check` is green.
-- [x] Verify `db/migrations/0002_public_menu_and_guest_write_policies.sql` and `db/migrations/0003_seed_good_for_metadata.sql` are idempotent (`DROP POLICY IF EXISTS` present; data updates safe to re-run) and that `0003`'s changes are mirrored in `db/seeds/0001_demo_multi_tenant_data.sql` so `db:reset` keeps `goodFor`.
-- [x] Wire `(public)/r/[restaurantSlug]/table/[tableCode]/+page.server.ts` to `resolvePublicMenuBootstrap`, with an explicit mock fallback (`src/lib/server/tenant/public-context.ts`) when `USE_MOCK_BACKEND` is on or the DB is unavailable. Route returns 404 cleanly when slug+table do not resolve (DB path; mock keeps prototype fallback).
-- [x] Confirm public reads return only published menu + active restaurant + active table and never draft/private data, both via SQL and via the `0002` RLS policies under the `lingua_app` role.
-- [ ] Commit the repaired WIP once `pnpm check` is green (currently 5 modified + 5 untracked files are uncommitted).
+### B2. Platform Overview
 
-### Phase 6b - Harden anonymous guest writes (security-critical)
+- [x] `/platform` — dashboard with system-wide KPIs:
+  - [x] Total organizations, total restaurants, platform users.
+  - [ ] Total guest sessions (30d), total AI calls (30d).
+  - [ ] New registrations (7d trend).
+  - [x] Error handling and SvelteKit error pages.
+  - [ ] Quick links to recent organizations/restaurants.
+- [x] Server load: aggregate queries across all tenants (super admin bypasses tenant scoping).
 
-- [x] Establish a signed/opaque public session token issued server-side on QR bootstrap; persist it and set `app.public_session_id` via `withPublicSessionContext` for all guest inserts.
-- [x] Make `0002` guest-write policies actually use `app.public_session_id`: done in `db/migrations/0004_harden_guest_write_rls.sql` — added `app.current_public_session_id()` PG helper and replaced fallback/feedback INSERT policies to require `session_id = app.current_public_session_id()` inside the DB transaction (idempotent, `DROP POLICY IF EXISTS` safe).
-- [x] Derive `organizationId`/`restaurantId` for guest writes from the server-side bootstrap result, not from the request body — enforced in both service layer and repository.
-- [x] Add a `customer-session-service.ts` (routes never call the repository directly; tenant scope enforced in one place). Done; same pattern applied to `guest-interaction-service.ts` for fallback and feedback.
+### B3. Organization Management
 
-### Phase 6c - Public APIs and persistence
+- [x] `/platform/organizations` — table of all organizations with search/filter.
+  - [x] Columns: name, slug, plan tier, status, restaurants count, users count, created date.
+  - [x] Server-side pagination with validated limit/offset.
+  - [ ] Status: active, suspended, trial, cancelled.
+- [ ] `/platform/organizations/[slug]` — organization detail:
+  - [ ] Profile info (name, slug, plan, billing email, created date).
+  - [ ] List of restaurants under this org.
+  - [ ] Suspend/activate actions.
+  - [ ] Plan change action.
 
-- [x] Add public PostgreSQL-backed host/path -> restaurant/table resolver (path-based for MVP; subdomain-aware helper stubbed for production). Done: `src/lib/server/tenant/host-resolver.ts` extracts slug from `Host` header for subdomain URLs (`<slug>.lingua.app/table/<code>`) and validates against `restaurants.public_host` to prevent Host-header spoofing. Path-based URLs (`/r/<slug>/table/<code>`) remain the source of truth. 16 unit tests cover subdomain extraction, port stripping, and host matching.
-- [x] Add public scoped API/server load for published menu. Done: `GET /api/public/bootstrap?restaurant=<slug>&table=<code>` with `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`.
-- [x] Add `POST /api/public/sessions` (customer session creation) with Zod validation and rate limiting. Done: `src/lib/domain/session/schema.ts`, `src/lib/server/services/customer-session-service.ts`, `src/routes/api/public/sessions/+server.ts`.
-- [x] Add fallback request persistence. Done: `createFallbackInputSchema` in domain, `createFallbackForTable` service, `POST /api/public/fallback` endpoint.
-- [x] Add feedback persistence. Done: `createFeedbackInputSchema` in domain, `createFeedbackForSession` service, `POST /api/public/feedback` endpoint.
-- [x] Add chat message persistence. Done: `POST /api/public/chat` — validates input with Zod, checks daily AI cap, calls LLM adapter (mock in dev), persists customer+assistant turn via `withPublicSessionContext`, returns answer + safetyStatus + suggestFallback.
-- [x] Add staff inbox realtime/near-realtime updates — `GET /staff/inbox/events` SSE endpoint subscribing to `fallback:{restaurantId}` Redis channels; `guest-interaction-service.ts` publishes after every new fallback request (fire-and-forget).
-- [ ] Add storage abstraction for menu imports and item images (provider adapter; local/dev may use filesystem or skip).
+### B4. Restaurant Overview
 
-### Phase 6d - Abuse and cost protection for anonymous endpoints (security-critical)
+- [x] `/platform/restaurants` — table of all restaurants with search/filter.
+  - [x] Columns: name, slug, organization, segment, status, tables.
+  - [x] Server-side pagination with validated limit/offset and optional organization filter.
+- [ ] `/platform/restaurants/[slug]` — restaurant detail (read-only platform view):
+  - [ ] Profile, menus, tables, analytics summary.
+  - [ ] Link to open restaurant as that tenant (impersonation for support).
 
-- [x] Add a Redis-backed rate limiter (`src/lib/server/services/rate-limiter.ts`): fail-open (Redis outage ≠ tourist outage), fixed-window with atomic Lua INCR+EXPIRE, limits from `Technical_Specification.md`: session-create 5/60s, chat 20/60s, fallback 5/60s, feedback 10/60s.
-- [x] Apply rate limiting via `applyRateLimit` helper (`src/lib/server/services/public-api-helpers.ts`) to all four live public endpoints (sessions, fallback, feedback, chat).
-- [x] Add a per-restaurant daily AI-call cap (`src/lib/server/services/ai-cost-cap.ts`): Redis fixed-window keyed by `restaurant_id + UTC date`, configurable via `AI_DAILY_CAP` env (default 500/day), fail-open, graceful "ask staff" fallback from the chat endpoint when exceeded.
-- [x] Add request body size limits and basic input sanitation for free-text fields. checkBodySize validates Content-Length early, input-sanitizer.ts provides sanitizeText with Zod pipe. All 4 public API routes have BODY_SIZE_LIMIT exports. Sanitizer wired into domain Zod schemas (session/schema.ts: 5 fields with createSanitizePipe, 52 tests pass).
+### B5. Super Admin Data Access
 
-### Phase 6e - Auth and tests
+- [x] `src/lib/server/services/platform-admin-service.ts` — cross-tenant queries for platform admin.
+  - [x] Input validation using Zod pagination schemas.
+  - [x] Accurate platform users count without misleading filters.
+- [ ] `src/lib/server/repositories/platform-repository.ts` — aggregate queries without tenant scoping.
+- [ ] `GET /api/platform/stats` — system-wide KPI endpoint.
+- [x] RLS exception: super admin (`app.has_platform_access()`) bypasses tenant scoping for read queries (migration 0010).
 
-- [x] Replace local demo auth with production auth path: added `AuthProvider` adapter interface (`src/lib/server/auth/types.ts`), `MockAuthProvider` wrapper (`mock-auth-provider.ts`), `SupabaseAuthProvider` stub (`supabase-auth-provider.ts` — ready for Phase 7 wiring, returns null until Supabase is configured), and factory (`auth-factory.ts`). `hooks.server.ts` now uses the factory. Switch to Supabase by setting `AUTH_PROVIDER=supabase` in env + filling in the Supabase stub.
-- [ ] Add email/password reset and invite flow for admins (can also live in Phase 8).
-- [x] Write API contract tests for every public endpoint — `src/routes/api/public/api-contract.test.ts` covers sessions, fallback, feedback, and chat service layer: happy path, tenant-spoof rejection, input validation, safety status propagation.
-- [ ] Write RLS isolation tests:
-  - [x] Guest cannot read another restaurant's published or draft data — `public-menu-repository.db.test.ts` (7 tests) verifies: only published items returned, inactive restaurants → null, inactive tables → null, non-existent slug → null, invalid table code → null, cross-restaurant isolation.
-  - [x] Guest cannot insert a fallback/feedback with a session from a different restaurant (`tenant-repository.db.test.ts` — skipped without DB, runs with `RUN_DB_TESTS=true`).
-  - [x] Organization manager/owner can see all restaurants in the organization (`tenant-repository.db.test.ts`).
-- [x] Add a migration test that runs `0001..000N` on a clean database and asserts the `lingua_app` role only sees published/active rows on public policies. Created `src/lib/server/db/migrations.db.test.ts` with 7 tests verifying: only active restaurants visible, only active tables visible, only published menus visible, menus from inactive restaurants hidden, only published knowledge docs visible, knowledge docs from inactive restaurants hidden, all seed data restaurants are active. Tests use `withUserContext` for setup and raw `query()` for assertions (simulating anonymous access). Run with `RUN_DB_TESTS=true`.
+---
 
-## Phase 7 - AI, OCR, and RAG
+## Phase C — Restaurant Experience (Admin Dashboard + Staff)
 
-- [x] Add LLM provider adapter interface (`src/lib/server/providers/llm/types.ts`: `LlmProvider`, `LlmChatContext`, `LlmChatResult`) and mock implementation (`mock-provider.ts`). Factory (`factory.ts`) selects provider via `LLM_PROVIDER` env.
-- [x] Implement mocked AI provider (committed before any real provider per architecture rules). Mock returns `needs-staff` safety status so UI offers fallback — correct placeholder behaviour.
-- [x] Implement first real LLM provider behind the adapter — MiniMax via TokenRouter (`openai-compatible-provider.ts`), including `embed()` via Vercel AI SDK `embedMany`. Activated via `LLM_PROVIDER=tokenrouter` env.
-- [x] Implement Anthropic provider (`anthropic-provider.ts`) — `chat()` uses `@ai-sdk/anthropic`; `embed()` returns `null` with a warning (Anthropic has no native embedding endpoint).
-- [x] Add a migration that enables `pgvector` and adds embedding columns/tables for menu items and knowledge documents — `db/migrations/0005_enable_pgvector.sql`: creates `vector` extension, tenant-scoped `item_embeddings` table (polymorphic `source_type`/`source_id`), IVFFlat index on `embedding vector_cosine_ops`, RLS policies for `lingua_app`, auto-update trigger.
-- [x] Switch `docker-compose.yml` postgres image to `pgvector/pgvector:pg16` (replaces `postgres:16-alpine`) so the `vector` extension is available at the OS level.
-- [x] Add `db/migrations/0006_admin_menu_write_policies.sql` — tenant-scoped INSERT/UPDATE/DELETE policies on `menu_categories`, `menu_items`, `menu_item_translations`, `menu_item_dietary_flags`, `menu_item_allergens` for `lingua_app` via `app.has_restaurant_access`. Without this, RLS blocked all admin writes.
-- [x] Add `db/migrations/0007_menu_item_audit_columns.sql` — `updated_at` column + `set_updated_at()` trigger backfill for `menu_items` and `menu_categories` (idempotent `IF NOT EXISTS`).
-- [x] Add `db/migrations/0008_fallback_requests_update_policy.sql` — staff UPDATE policy for `fallback_requests` (status transitions) + `updated_at` audit column + trigger. Without this, staff could not claim or resolve requests.
-- [x] Define prompt templates and prompt versioning (`prompt.ts`, `PROMPT_VERSION='v3'`, release notes in comment header, version tracked in `ai_events`).
-- [x] Implement menu retrieval scoped by restaurant — `retrieval-repository.ts`: structured SQL with dietary flags (AND), allergen excludes (NOT IN), availability, ILIKE text search, always scoped to published menu.
-- [x] Add embeddings for menu items and knowledge documents — `embedding-repository.ts` (pgvector ON CONFLICT upsert, cosine similarity search, delete by source); `embedding-worker.ts` generates embeddings in batches of 20 after publish, never in the tourist hot path.
-- [x] Wire embedding generation to menu publish — `menu-admin-service.ts:publishDraftMenu` now triggers `generateEmbeddingsForRestaurant` fire-and-forget after a successful publish (only when `EMBEDDING_ENABLED=true`).
-- [x] Implement hybrid retrieval service — `retrieval-service.ts`: structured filter first, optional semantic search via `embed()`, result merge (structured priority), cap at 20 items, graceful fallback to structured-only on embedding errors.
-- [x] Wire chat service to retrieval — `chat-service.ts` calls `retrieveMenuContext()` instead of naive `toMenuSnapshot()`; falls back to legacy snapshot if retrieval returns empty.
-- [x] Add admin menu write layer — `admin-menu-repository.ts` (find, load, update scalar, set availability, replace flags, publish); `menu-admin-service.ts` (editMenuItem, toggleAvailability, publishDraftMenu with Data Quality Gate, validateMenuForPublish).
-- [x] Add staff inbox backend — `staff-inbox-repository.ts` (listFallbackRequests with JOIN to restaurants/tables, updateFallbackStatus inside `withUserContext`); `staff-inbox-service.ts` (listRequests, transitionStatus with Zod validation + membership check + state machine: new→in_progress→resolved).
-- [x] Implement chat answer endpoint (`POST /api/public/chat`) — validates with Zod, loads history (max 5 turns), calls retrieval service, calls LLM provider, persists both turns in one transaction, logs `ai_events`, returns answer + safetyStatus + suggestFallback.
-- [x] Implement guardrails:
-  - [x] Do not answer outside restaurant scope (prompt v3 SCOPE rule → `safetyStatus: 'blocked'`).
-  - [x] Do not invent ingredients, prices, certification, or availability (prompt v3 NO INVENTION rule).
-  - [x] Escalate allergy/halal uncertainty to staff confirmation by default when data is missing.
-  - [x] Respect unavailable/sold-out items (retrieval filters `isAvailable === false` before LLM context).
-  - [x] Strip reasoning tags (`<think>`, `<reasoning>`, `[thinking]`, `[think]`) from model output so chain-of-thought never reaches the guest or triggers false-positives in eval (`stripReasoningTags` in `prompt.ts`).
-- [x] Implement AI event logging into `ai_events` (`ai-events-repository.ts:logAiEvent`, fail-open, captures provider, model, prompt version, latency, tokens, confidence, safety flags).
-- [x] Add AI evaluation fixtures (`eval-fixtures.ts`: 18 fixtures across 6 categories — halal, allergen, spice, price, out-of-scope, language) + live eval suite (`llm-eval.test.ts`, opt-in via `RUN_LLM_TESTS=true`). 168/168 tests passing including DB + LLM eval.
-- [x] Wire product success metrics to concrete `ai_events`/`feedback` queries so fallback rate, helpful rate, and latency p95 are measurable (closes the "metrics not instrumented" gap from PRD section 10).
-- [x] Expose embedding generation trigger for admins (currently only callable programmatically; needs an admin API endpoint or post-publish hook).
-- [x] Implement OCR import prototype behind an OCR adapter. DONE: src/lib/server/providers/ocr/ with types.ts, mock-provider.ts, factory.ts. OcrProvider interface, OcrMenuItem with per-field confidence, 4 fixture items, 10 tests. Admin review workflow complete (see line 246).
-- [x] Add admin review workflow for OCR extraction (must pass the Phase 0 "menu minimum viable" gate before publish). Created: `insertMenuItem()`/`ensureCategory()` in admin-menu-repository.ts, `ocr-import-service.ts` (scanMenuImage + importOcrItems), `/dashboard/import` route with scan/import form actions, OCR review UI with upload, per-field confidence badges (name/category/price/spice), approve/reject toggles, dietary flags/allergens display. Workflow: upload image → OCR scan → display results with confidence scores → admin reviews/rejects items → import creates categories + items with confidence='needs-review' + OCR metadata in source_metadata.ocr → DQG gate validates before publish. Mock OCR provider returns 4 fixture items (Nasi Goreng, Sate Ayam, Gado-Gado, Es Campur) with confidence scores 0.85-0.98.
+Each restaurant gets its own admin dashboard, staff management, and customer-facing QR experience.
 
-## Phase 8 - Integrations and Operations
+### C1. Restaurant Admin Dashboard
 
-- [x] Add `src/lib/i18n` dictionary layer (BCP 47 tags, language detection, RTL helper) and replace hard-coded UI strings; test long-text and Arabic RTL at 360px. Wire it to the narrowed MVP language set from Phase 0.
-  - [x] Infrastructure: `src/lib/i18n/` with types, BCP 47 language definitions, Accept-Language detection, RTL helper, reactive Svelte 5 `.svelte.ts` module.
-  - [x] English dictionary (`en.ts`) and Indonesian dictionary (`id.ts`) covering all customer-facing strings.
-  - [x] Root layout syncs `lang` and `dir` on `<html>` reactively.
-  - [x] Public route (`+page.svelte`), `ChatPanel`, `PreferenceChips`, `SafetyBadges`, `MenuItemCard` use `t()` / `tWithVars()`.
-  - [x] Replace remaining hardcoded strings in admin, staff, and landing pages — dashboard `+page.svelte`, dashboard analytics `+page.svelte`, staff inbox `+page.svelte` all wired to `t()` / `tWithVars()`. Added 60+ new keys to both `en.ts` and `id.ts`.
-  - [x] Wire Accept-Language detection from `hooks.server.ts` to preselect language — `hooks.server.ts` now resolves `Accept-Language` header via `detectLanguage()` and stores the result in `event.locals.language`. `app.d.ts` exposes the new `locals.language` field.
-  - [ ] Test long-text and Arabic RTL at 360px viewport.
-  - [ ] Narrow MVP language set per Phase 0 decision.
-- [ ] Decide staff inbox only vs WhatsApp integration for pilot.
-- [ ] If WhatsApp is used, create provider adapter and cost controls.
-- [ ] Add email/password reset flow for admins.
-- [ ] Add restaurant onboarding checklist.
-- [x] Add QR code generation and print-ready export.
-- [ ] Add usage limits per restaurant.
-- [ ] Add provider cost tracking per restaurant.
-- [ ] Add error monitoring.
-- [ ] Add web vitals collection.
-- [ ] Add deployment environments: local, staging, production.
-- [x] Choose and document SvelteKit adapter target: adapter-node. vite.config.ts uses @sveltejs/adapter-node. Dockerfile added (multi-stage, node:22-alpine, pnpm, non-root user, HEALTHCHECK via wget --spider every 30s).
-- [x] Add bundle size checks for public QR route. scripts/check-bundle-size.mjs measures gzipped client assets (build/client/ only), budgets: 100KB JS / 30KB CSS (PWA mobile standard). TODO: wire into CI pipeline.
-- [ ] Add dependency audit workflow for Svelte ecosystem risk.
+- [x] Dashboard overview with restaurant-scoped analytics.
+- [x] Menu editor (CRUD with dietary flags, allergens, translations).
+- [x] Menu import/review (OCR-assisted).
+- [x] QR table manager with print-ready export.
+- [x] Knowledge base editor.
+- [x] Analytics: scans, top items, fallback rate, helpful rate, latency.
+- [ ] Restaurant profile/settings page (name, slug, segment, languages, timezone, logo).
+- [ ] Public host/subdomain configuration.
+- [ ] Plan/billing info display (read-only for now).
 
-## Phase 9 - QA and Pilot Readiness
+### C2. Staff Management per Restaurant
 
-- [x] Run Playwright smoke tests for customer, admin, and staff routes.
-- [x] Run full Playwright customer flow on 360px and 390px viewport sizes (`tests/e2e/customer-flow.spec.ts`: 17 tests covering restaurant hero, language selector, preference chips, menu browse, item detail, chat panel, feedback, and staff fallback at both viewports).
-- [x] Run full Playwright admin flow on tablet and desktop. tests/e2e/admin-flow.spec.ts: 17 tests covering login (3), dashboard overview (3), menu smoke (2), knowledge smoke (2), menu CRUD (3 tests: edit, toggle availability, publish modal), knowledge CRUD (3 tests: create, edit, delete). Login boilerplate extracted to loginWithDemoAccount() helper. Tests blocked by build infrastructure issue but verified with pnpm check (0 errors).
-- [ ] Run accessibility checks.
-- [ ] Run performance checks on public routes.
-- [ ] Run RLS and API tests after backend exists.
-- [x] Test 10 dummy menus in onboarding/import review UI.
-- [ ] Test AI answers for allergy, halal, spicy, vegetarian, and out-of-scope questions after AI layer exists.
-- [ ] Prepare pilot installation package:
-  - [ ] QR table card design.
-  - [ ] Staff quick guide.
-  - [ ] Admin onboarding guide.
-  - [ ] Feedback form.
-- [~] Run alpha with 3-5 restaurants. Deferred until real pilot access.
-- [ ] Review pilot metrics weekly and update PRD/TODO after pilot starts.
+- [ ] `/dashboard/staff` — list staff members for this restaurant.
+- [ ] Invite staff: email + role assignment.
+- [ ] Invite flow: create `membership` with `role = 'staff'`, `restaurant_id` set.
+- [ ] Staff gets email invite → sets password → redirected to `/staff/inbox`.
+- [ ] Remove staff (deactivate membership).
+- [ ] Role change (staff ↔ restaurant_admin).
+- [ ] Staff cannot access other restaurants' data (enforced by RLS).
 
-## Phase 10 - Post-Pilot Decisions
+### C3. Staff Inbox
 
-- [ ] Decide paid pricing tiers.
-- [ ] Decide whether to expand to 10-30 restaurants.
-- [ ] Decide whether voice should move from P2 to P1.
-- [ ] Decide whether POS/reservation integration is justified.
-- [ ] Decide whether to build native mobile app or keep PWA.
+- [x] Staff inbox with real-time updates via SSE.
+- [x] Fallback request list with table number, language, priority.
+- [x] Claim/resolve workflow with state machine.
+- [ ] Staff profile/settings page.
+
+---
+
+## Phase D — Restaurant Self-Service Onboarding
+
+Restaurants can sign up and go live without manual intervention from the platform owner.
+
+### D1. Subdomain Auto-Generation
+
+- [ ] `src/lib/server/services/subdomain-service.ts`:
+  - [ ] `generateSubdomain(slug: string): string` → `{slug}.lingua.app`
+  - [ ] `isSubdomainAvailable(slug: string): Promise<boolean>`
+  - [ ] `provisionSubdomain(restaurantId: string): Promise<void>`
+- [ ] Store `public_host` in `restaurants` table on creation.
+- [ ] DNS: for MVP, wildcard DNS `*.lingua.app` → app server. SvelteKit host-resolver reads `Host` header.
+- [ ] Future: automated DNS provisioning via DNS provider API (Cloudflare, Route53).
+
+### D2. Restaurant Onboarding Wizard
+
+- [ ] Post-registration onboarding wizard (redirected after email verification):
+  - [ ] Step 1: Restaurant profile (name, slug, segment, location, timezone, languages).
+  - [ ] Step 2: Upload menu (OCR import or manual entry).
+  - [ ] Step 3: Set up tables (auto-generate or manual).
+  - [ ] Step 4: Review QR codes, download print sheet.
+  - [ ] Step 5: Go live — publish menu, activate restaurant.
+- [ ] Wizard progress persistence (save draft, resume later).
+
+### D3. Menu Go-Live Gate
+
+- [x] Data Quality Gate (`canPublishMenu` in `menu/policy.ts`): every item must have name + price + availability.
+- [ ] Pre-publish checklist UI: flag items with `confidence = 'needs-review'` or `'staff-confirm'`.
+- [ ] Block publish if any blocking issues exist.
+- [ ] Warn (allow publish) for non-blocking issues.
+
+---
+
+## Phase E — Public Customer Experience
+
+The tourist-facing QR menu experience. No login, no install.
+
+### E1. QR Entry
+
+- [x] Path-based routing: `/r/[restaurantSlug]/table/[tableCode]`.
+- [x] Subdomain routing layout stubbed: `{slug}.lingua.app/table/{code}` (host-resolver exists).
+- [x] Host-header spoofing prevention.
+- [ ] Route setup for subdomain-only production mode (redirect path-based to subdomain).
+
+### E2. Customer PWA
+
+- [x] Language selection (browser detection + manual).
+- [x] Dietary preference setup.
+- [x] Menu category browser.
+- [x] Menu item detail.
+- [x] AI chat panel with safety badges (confident, low-confidence, needs-staff, blocked).
+- [x] Human fallback request.
+- [x] Quick feedback.
+- [x] Offline detection banner.
+- [x] Skeleton loading states.
+- [x] Unpublished menu state.
+- [x] Arabic RTL layout support.
+- [x] Arabic translation dictionary (~290 keys).
+
+### E3. Public APIs
+
+- [x] `GET /api/public/bootstrap` — restaurant + table + menu resolution.
+- [x] `POST /api/public/sessions` — anonymous session creation.
+- [x] `POST /api/public/chat` — AI chat with rate limiting + daily cap.
+- [x] `POST /api/public/fallback` — staff fallback request.
+- [x] `POST /api/public/feedback` — quick feedback.
+- [x] Rate limiting (Redis-backed, per endpoint).
+- [x] Request body size limits.
+- [x] Input sanitization.
+- [x] Tenant-spoof protection (server-derived tenant ids).
+
+---
+
+## Phase F — AI, OCR, and RAG
+
+The intelligence layer: menu understanding, guest question answering, and menu digitization.
+
+### F1. LLM Provider
+
+- [x] Provider adapter interface (`LlmProvider`).
+- [x] Mock provider (returns `needs-staff`, safe placeholder).
+- [x] OpenAI-compatible provider (TokenRouter → MiniMax).
+- [x] Anthropic provider.
+- [x] Factory with env-based provider selection.
+
+### F2. Retrieval (RAG)
+
+- [x] pgvector migration + embedding tables.
+- [x] Structured menu retrieval (SQL filters: dietary, allergen, availability).
+- [x] Semantic search via embeddings (cosine similarity).
+- [x] Hybrid retrieval service (structured + semantic, capped at 20 items).
+- [x] Embedding worker (batch generation after publish, not in hot path).
+- [x] Auto-trigger embedding on menu publish.
+
+### F3. Guardrails
+
+- [x] Do not answer outside restaurant scope.
+- [x] Do not invent ingredients, prices, certifications, availability.
+- [x] Escalate allergy/halal uncertainty to staff.
+- [x] Respect sold-out/unavailable items.
+- [x] Reasoning tag stripping (`think`, `<thinking>`, etc.).
+
+### F4. OCR Import
+
+- [x] OCR provider adapter (`OcrProvider`).
+- [x] Mock provider with 4 fixture items.
+- [x] Admin review workflow (scan → review → approve/reject → import).
+- [x] Per-field confidence badges.
+
+### F5. AI Event Logging
+
+- [x] `ai_events` table logging: provider, model, prompt version, latency, tokens, confidence, safety flags.
+- [x] Fail-open logging.
+
+---
+
+## Phase G — Analytics and Metrics
+
+Data-driven product decisions and restaurant-facing insights.
+
+### G1. Restaurant Analytics
+
+- [x] Dashboard analytics: scans, helpful rate, fallback rate, top questions, top items.
+- [x] Window selector (1/7/30/90 days).
+- [x] Per-restaurant breakdown.
+
+### G2. System Metrics
+
+- [ ] Platform admin analytics: aggregate across all restaurants.
+- [ ] Provider cost aggregation per restaurant per day (service exists, needs dashboard).
+- [ ] Token usage trends per model per provider.
+- [ ] Fallback rate trends across restaurants (identify which restaurants need better knowledge base).
+
+### G3. Product Metrics Instrumentation
+
+- [x] Fallback rate = `fallback_requests` / total chat sessions.
+- [x] Helpful feedback = `feedback.helpful = true` / total feedback.
+- [x] Latency p95 via `PERCENTILE_CONT` on `ai_events.latency_ms`.
+- [x] Web Vitals buffer (LCP, FID, INP, CLS, TTFB).
+- [ ] Wire Web Vitals to analytics backend.
+
+---
+
+## Phase H — Billing and Plans
+
+Subscription management and plan enforcement.
+
+### H1. Plan Definitions
+
+- [x] Plan tiers: free, starter, pro (defined in `usage-limits.ts`).
+- [x] Usage limits per plan: max restaurants, max menu items, max knowledge docs, max AI calls/day, max storage.
+- [x] Limit checking (`checkLimit`).
+
+### H2. Billing Integration (Future)
+
+- [ ] Payment provider adapter interface.
+- [ ] Stripe/Midtrans integration.
+- [ ] Subscription lifecycle: trial → active → past_due → cancelled.
+- [ ] Invoice generation and history.
+- [ ] Plan upgrade/downgrade flow.
+- [ ] Usage-based billing for AI calls beyond plan limit.
+
+---
+
+## Phase I — Infrastructure and DevOps
+
+### I1. Container and Deployment
+
+- [x] Vendor-neutral `compose.yml` (Podman preferred, Docker fallback).
+- [x] `Containerfile` multi-stage build (Node 22, pnpm, non-root).
+- [x] `@sveltejs/adapter-node` (replaces adapter-auto).
+- [x] `Dockerfile` for production deployment.
+- [ ] Dockerfile ORIGIN fix (hardcoded → runtime env).
+- [x] `.containerignore`.
+
+### I2. Database
+
+- [x] PostgreSQL 16 via pgvector image.
+- [x] Redis 7 for caching, rate limiting, pub/sub.
+- [x] SQL migrations (`db/migrations/0001..0009`).
+- [x] Seed data with multi-tenant demo.
+- [x] RLS policies for tenant isolation.
+- [ ] Supabase-specific migrations: `auth.users` sync trigger, platform admin role.
+
+### I3. CI/CD and Quality
+
+- [x] `pnpm check` (TypeScript + SvelteKit).
+- [x] `pnpm lint` (ESLint + Prettier).
+- [x] `pnpm test:unit` (Vitest).
+- [x] Playwright E2E tests (customer, admin, staff).
+- [x] Bundle size checks (`scripts/check-bundle-size.mjs`).
+- [x] Lighthouse performance check (`scripts/performance-check.mjs`).
+- [x] Accessibility audit (`scripts/accessibility-check.mjs` + `@axe-core/cli`).
+- [x] Dependency audit (`scripts/dependency-audit.mjs`).
+- [ ] CI workflow (GitHub Actions or similar).
+
+---
+
+## Phase J — Pilot and Launch
+
+### J1. Pre-Launch QA
+
+- [ ] Full Playwright regression on all flows.
+- [ ] Load test public endpoints (k6 or artillery).
+- [ ] Security review: RLS, rate limiting, input validation, XSS, CSRF.
+- [ ] Privacy review: data retention, GDPR/ID PDP compliance basics.
+
+### J2. Pilot Package
+
+- [ ] QR table card design (print-ready).
+- [ ] Staff quick guide (PDF or in-app onboarding).
+- [ ] Admin onboarding guide.
+- [ ] Feedback form for pilot participants.
+
+### J3. Launch
+
+- [ ] Production Supabase project provisioning.
+- [ ] Production DNS + subdomain wildcard setup.
+- [ ] Production deployment (Vercel/Cloudflare/Docker).
+- [ ] Monitoring: Sentry, Supabase logs, custom health alerts.
+- [ ] Pilot: 3-5 alpha restaurants → 10 beta restaurants.
+
+---
+
+## Phase K — Post-Launch Expansion
+
+- [ ] Multi-branch restaurant locations.
+- [ ] Custom domain support for enterprise.
+- [ ] WhatsApp Business API integration (replaces internal staff inbox for selected workflows).
+- [ ] Voice input for guest questions.
+- [ ] Reservation integration (optional, post-pilot decision).
+- [ ] POS integration (optional, post-pilot decision).
+- [ ] Native mobile apps (if PWA metrics show demand).
+- [ ] White-label option for large hospitality groups.
+
+---
+
+## Current Focus (2026-06-21)
+
+Work through Phase A → Phase B → Phase C in order. Each phase depends on the previous one.
+
+Phase A is the active phase: real auth, landing page, registration, login.

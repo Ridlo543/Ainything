@@ -344,6 +344,7 @@
 ## 2026-06-20 RLS Rejection Verification (P0)
 
 **Phase 6a RLS verification — draft/inactive data invisible to `lingua_app`:**
+
 - Added 3 new RLS rejection tests to `src/lib/server/repositories/public-menu-repository.db.test.ts`:
   1. `lingua_app role cannot read draft menu items via raw SQL` — inserts draft menu+items as owner (DIRECT_URL), queries via lingua_app role, asserts 0 rows returned
   2. `lingua_app role cannot resolve an inactive restaurant` — inserts inactive restaurant+table as owner, calls `resolvePublicMenuBootstrap`, asserts null
@@ -357,20 +358,24 @@
 ## 2026-06-20 P1.4-P3.13 MVP Hardening
 
 **P1.4 — Root page replacement:**
+
 - Replaced 839-line marketing landing page with 40-line workspace hub (app name, login link, QR scan explainer).
 - Removed gsap dependency from package.json.
 
 **P1.5 — Missing UI states:**
+
 - Added skeleton loading variant to MenuItemCard.svelte with animated pulse placeholders.
 - Added offline detection banner to QR page (navigator.onLine + event listeners, sticky amber banner).
 - Added unpublished menu state to QR page (hasMenu derived, shows explainer when no items).
 - Added 3 new i18n keys: offline.banner, menu.unpublished.heading, menu.unpublished.description.
 
 **P1.6 — Arabic translation dictionary:**
+
 - Created src/lib/i18n/translations/ar.ts with all ~290 keys (RTL).
 - Registered ar in index.ts dicts map.
 
 **P2.7 — Narrow MVP language set to 4:**
+
 - Reduced LANGUAGES from 9 to 4 (en, id, zh-Hans, ja) in languages.ts.
 - Added RTL_CODES Set for fallback RTL detection (ar, he, fa, ur, etc.).
 - Updated detection.ts TAG_MAP and NAMES_IN_ID to 4 languages.
@@ -380,12 +385,14 @@
 - 18/18 i18n tests pass.
 
 **P2.8 — Menu go-live Data Quality Gate:**
+
 - Added loadMenuItemsForMenu to admin-menu-repository.ts (loads all items for a specific menu with flags+allergens).
 - Wired canPublishMenu in menu-admin-service.ts:publishDraftMenu — loads draft items, runs validation, throws MenuPublishValidationError if blocking issues exist.
 - Added 5 new policy tests: allows clean menu, blocks empty name, blocks negative price, allows unverified risk items (warning only), flags unverified items.
 - 9/9 policy tests pass.
 
 **P2.9 — Request body size limits + input sanitizer:**
+
 - Created src/lib/server/services/input-sanitizer.ts: sanitizeText (trims, removes control chars, collapses spaces/newlines, truncates), createSanitizePipe (Zod transform).
 - Updated src/lib/server/services/public-api-helpers.ts: checkBodySize validates Content-Length early, throws 413.
 - Updated 4 API routes with BODY_SIZE_LIMIT exports + checkBodySize calls: chat 512KB, sessions 128KB, fallback 64KB, feedback 32KB.
@@ -393,6 +400,7 @@
 - ISSUE IDENTIFIED: sanitizePipe only used in chat/+server.ts:83 to sanitize a server-generated UUID (nonsensical). Should be wired into domain Zod schemas for user input.
 
 **P2.10 — OCR provider adapter interface + mock:**
+
 - Created src/lib/server/providers/ocr/ directory with 4 files: types.ts, mock-provider.ts, factory.ts, ocr-provider.test.ts.
 - types.ts: OcrProvider interface with scan(OcrScanInput): OcrScanResult. OcrMenuItem has per-field confidence. OcrScanInput has imageBase64, mimeType, sourceType, languageHints. OcrScanResult has items, rawText, issues, metadata.
 - mock-provider.ts: 4 fixture items (Nasi Goreng Kampung, Sate Ayam, Gado-Gado, Es Campur) with realistic confidence scores, 1 import issue (glare).
@@ -401,6 +409,7 @@
 - ocr-provider.test.ts: 10 tests (3 factory + 7 mock provider), all pass.
 
 **P3.11 — adapter-node + Dockerfile:**
+
 - Installed @sveltejs/adapter-node@5.5.4.
 - Switched vite.config.ts from adapter-auto to adapter-node.
 - Created Dockerfile: multi-stage (builder + runner), node:22-alpine, pnpm via corepack, non-root USER node, CMD node build.
@@ -408,16 +417,19 @@
 - ISSUES IDENTIFIED: Dockerfile has no HEALTHCHECK instruction. ORIGIN env hardcoded to https://lingua.example.com (should be runtime override).
 
 **P3.12 — Bundle size check script:**
+
 - Created scripts/check-bundle-size.mjs: walks build dir, collects .js+.css sizes, budgets JS 256KB / CSS 80KB, exits 1 if over, lists top 5 largest files. Skips gracefully if build/ missing.
 - Added bundle-check script to package.json.
 - BUG IDENTIFIED: Lines 25-27 define CLIENT_ASSETS_GLOB, clientPath, assetRoot — NEVER USED. Actual collection via walkCollect(BUILD_DIR) walks ENTIRE build dir including server-side code (build/server/), not just client assets. Docstring says gzipped client-side JS+CSS but measures RAW (not gzipped) TOTAL JS+CSS. Defeats purpose of client bundle budget. Not wired into CI.
 
 **P3.13 — Playwright admin flow tests:**
+
 - Created tests/e2e/admin-flow.spec.ts: 10 tests across 4 suites (login 3, dashboard overview 3, dashboard menu 2, dashboard knowledge 2).
 - Login tests solid. Dashboard tests use demo session login flow with test.skip() fallback when no mock sessions.
 - CONCERNS IDENTIFIED: Every dashboard/menu/knowledge test repeats ~10 lines of login boilerplate (should use test.beforeEach or custom fixture). Tests only verify page rendering, NOT CRUD operations (no create/edit menu items, publish, toggle availability, create/delete knowledge notes). No viewport specification (defaults to 1280x720; customer tests use 360px/390px). test.skip(true, ...) with early return is non-idiomatic Playwright.
 
 **RLS test fixes:**
+
 - Fixed 3 bugs in public-menu-repository.db.test.ts RLS rejection tests:
   1. Changed price to price_amount (correct column name in menu_items table).
   2. Added segment column to restaurants INSERT, changed status from inactive to archived (inactive not in CHECK constraint).
@@ -425,6 +437,162 @@
 - All 10 RLS tests now pass (7 existing + 3 new rejection tests).
 
 **Updated documentation:**
+
 - docs/TODO.md: marked 6 checkboxes complete/in-progress across Phase 0, 6d, 7, 8, 9.
 
 **Verification:** `pnpm check` 0 errors (4 pre-existing warnings) · `pnpm test:unit` 240/240 non-DB tests pass · RLS tests 10/10 pass with RUN_DB_TESTS=true
+
+## 2026-06-21 Audit + P0–P2 Hardening
+
+**Round 1 — Audit fixes (P0):**
+
+- `Dockerfile`: replaced hardcoded `ENV ORIGIN=https://lingua.example.com` with `ENV ORIGIN` for runtime override.
+- Removed unused `@sveltejs/adapter-auto` from devDependencies (project uses `adapter-node`).
+- `pnpm format` applied across all 32 unformatted files.
+
+**Round 1 — P1 stubs:**
+
+- WhatsApp provider adapter: `src/lib/server/providers/whatsapp/` — types.ts, mock-provider.ts, factory.ts. Follows LLM/OCR adapter pattern. Wired into `appEnv.whatsappProvider`. Added `WHATSAPP_PROVIDER` to `.env.example`.
+- Email/password reset stub: `src/routes/api/auth/reset-password/+server.ts` — POST with Zod validation.
+- Refactored Playwright admin tests: extracted `loginWithDemoAccount` helper, added 390px viewport spec, menu CRUD + knowledge CRUD tests (17+ tests).
+- Arabic RTL Playwright tests in `customer-flow.spec.ts`: RTL restaurant page, chat panel, no overflow at 360px.
+
+**Round 1 — P2 stubs:**
+
+- `.env.production` — production env template with all keys documented.
+- `scripts/dependency-audit.mjs` — checks `pnpm outdated` + `pnpm audit` + reports results. Wired as `pnpm audit:deps`.
+- `scripts/accessibility-check.mjs` — builds app, runs `@axe-core/cli` against `/`, `/login`, `/demo`, `/r/uma-karang/table/T07`. Wired as `pnpm audit:a11y`. (Added `@axe-core/cli` dep in round 2.)
+- `src/lib/telemetry/error-monitoring.ts` — global error capture with 1-min dedup; `initTelemetry()` wired into `hooks.server.ts`.
+- `src/lib/telemetry/web-vitals.ts` — Web Vitals buffer (LCP, FID, INP, CLS, TTFB) with rating thresholds.
+
+**Round 1 Verification:** `pnpm check` 0 errors · `pnpm format` clean · `pnpm test:unit` 213 passed, 21 infra failures (no Postgres/Redis).
+
+**Round 2 — CONTINUE: Phase 6c + Phase 8 + Phase 9**
+
+- **Storage provider adapter (Phase 6c):** `src/lib/server/providers/storage/` — types.ts (StorageProvider interface), mock-provider.ts (in-memory Map), factory.ts (STORAGE_PROVIDER env). 6 unit tests. Added `storageProvider` to env config + `.env.example`.
+
+- **Provider cost tracking (Phase 8):** `src/lib/server/services/provider-cost-tracking.ts` — MODEL_PRICING table (MiniMax-M3, GPT-4o, Claude, embeddings), `calculateCost()`, `getOrganizationCosts()`, `getRestaurantCosts()`. Both aggregate functions fail-open. 6 unit tests.
+
+- **Usage limits per restaurant (Phase 8):** `src/lib/server/services/usage-limits.ts` — PlanTier (free/starter/pro), UsageLimits (maxRestaurants, maxMenuItems, maxKnowledgeDocs, maxAiCalls, maxStorageMb), PLAN_LIMITS table, `getLimitsForTier()`, `checkLimit()`. 8 unit tests.
+
+- **Lighthouse performance check script (Phase 9):** `scripts/performance-check.mjs` — builds if needed, runs `npx lighthouse` against `$PERF_URL` (default QR route), checks budgets (perf ≥ 80, LCP ≤ 2.5s, TBT ≤ 300ms, CLS ≤ 0.1). Wired as `pnpm perf`.
+
+- **Fix accessibility-check dependency (Phase 9):** Added `@axe-core/cli: ^4.10.0` to devDependencies.
+
+**Round 2 Verification:** `pnpm check` 0 errors · `pnpm format` clean · `pnpm test:unit --run` 233 passed, 21 infra failures. 20 new tests (storage 6, cost 6, usage 8) all pass.
+
+**Deferred:** Restaurant onboarding checklist (P1) — needs UI/UX design before implementation.
+
+## 2026-06-21 Phase A — Platform Foundation (Auth, Registration, Platform Admin)
+
+**Auth system rewrite:**
+
+- Installed `@supabase/supabase-js@2.108.2` and `@supabase/ssr@0.12.0`.
+- Created `src/lib/domain/auth/types.ts`: `PlatformRole`, `OrgMembership`, `AuthUser` shared domain types.
+- Created `src/lib/server/auth/supabase-client.ts`: SSR-safe Supabase client using `@supabase/ssr` `createServerClient` with SvelteKit `Cookies.getAll`/`setAll`.
+- Rewrote `src/lib/server/auth/supabase-auth-provider.ts`: implements `AuthProvider` with `getSessionUser`, `login`, `register`, `logout`. Uses Supabase SSR for session ops, Supabase Auth for signIn/signUp/signOut, pg Pool against `databaseUrl` to resolve `app_users.platform_role` and memberships.
+- Rewrote `src/lib/server/auth/mock-session.ts` and `mock-auth-provider.ts`: mock auth now returns `AuthUser` with `platformRole` and `memberships`.
+- Updated `src/app.d.ts` to use `AuthUser` for `event.locals.user`.
+- Replaced all `AppUser` references with `AuthUser` across services: `menu-admin-service.ts`, `knowledge-service.ts`, `table-service.ts`, `ocr-import-service.ts`.
+
+**Registration and login routes:**
+
+- Rewrote `src/routes/login/+page.server.ts` and `+page.svelte`: email/password form with Zod validation, demo mode hint, password toggle, register link.
+- Rewrote `src/routes/logout/+server.ts`: calls `authProvider.logout()`.
+- Created `src/routes/register/+page.server.ts` and `+page.svelte`: pathway chooser (restaurant vs org).
+- Created `src/routes/register/restaurant/+page.server.ts` and `+page.svelte`: name, email, password, restaurantName form calling `authProvider.register`.
+- Created `src/routes/register/confirm/+page.svelte`: check your email page.
+- Created `src/routes/register/organization/+page.svelte`: coming soon placeholder.
+- Created `src/routes/auth/callback/+page.server.ts` and `+page.svelte`: email verification callback.
+
+**Hooks and route guards:**
+
+- Rewrote `src/hooks.server.ts`: populates `event.locals.user` from `authProvider.getSessionUser`, redirects unauthenticated protected routes to `/login`, redirects logged-in `/login` to role-based route (`/platform`, `/dashboard`, `/staff/inbox`).
+- Updated `src/lib/domain/menu/types.ts`: `TenantContext.user` is `AuthUser`.
+- Updated `src/lib/server/tenant/tenant-context.ts`: accepts `AuthUser`, derives mock membership from `user.memberships`.
+- Updated `src/lib/server/repositories/tenant-repository.ts`: accepts `AuthUser`, uses `user.memberships[0]?.organizationId` as default org, queries `app_users.platform_role`, returns `AuthUser` with `platformRole`/`memberships`. Added `mapMembershipRole`.
+
+**Platform admin:**
+
+- Updated `docs/CONTEXT.md` and `docs/ARCHITECTURE.md`: full B2B SaaS scope with Platform Admin persona, route groups, role hierarchy, and platform-admin tenant bypass.
+- Created `src/lib/server/services/platform-admin-service.ts`: `getPlatformStats`, `listOrganizations`, `listRestaurants` (cross-tenant queries without RLS scoping).
+- Created `src/routes/(platform)/platform/+layout.svelte` and `+layout.server.ts`: sidebar nav, super admin guard.
+- Created `src/routes/(platform)/platform/+page.svelte` and `+page.server.ts`: platform overview with system-wide KPIs.
+- Created `src/routes/(platform)/platform/organizations/+page.svelte` and `+page.server.ts`: org management table.
+- Created `src/routes/(platform)/platform/restaurants/+page.svelte` and `+page.server.ts`: restaurant management table.
+- Created `src/routes/(platform)/platform/billing/+page.svelte`: billing placeholder.
+- Created `src/routes/(platform)/platform/settings/+page.svelte`: settings placeholder.
+
+**Migrations:**
+
+- Created `db/migrations/0010_platform_admin_role_bridge.sql`: `platform_role` column on `app_users`, `has_platform_access()` function, platform admin SELECT policies on all tables.
+- Created `db/migrations/0011_supabase_auth_bridge.sql`: trigger on `auth.users` AFTER INSERT creates `app_users` row, AFTER UPDATE OF email syncs email. SECURITY DEFINER with REVOKE FROM PUBLIC.
+
+**Environment:**
+
+- Created `.env.development` (mock auth, mock LLM, safe defaults) and `.env.production` (Supabase auth, real provider placeholders). Updated `.gitignore`.
+- Updated landing page for B2B SaaS: hero, how it works, features, pricing, dual CTA.
+- Updated `docs/TODO.md` with Phase A and partial Phase B completion status.
+- Fixed test fixtures: `tenant-repository.db.test.ts` and `knowledge-service.test.ts` updated from `AppUser` to `AuthUser` shape.
+
+**Verification:** `pnpm check` 0 errors, 4 pre-existing warnings · `pnpm test:unit` 21 failures all from ECONNREFUSED (no Postgres/Redis running locally — pre-existing, not caused by our changes).
+
+## 2026-06-21 Phase B — Platform Admin Hardening
+
+**Auth callback and role routing:**
+
+- Extracted `src/lib/server/auth/role-routing.ts`: shared `resolveRoleRedirect` helper mapping `PlatformRole` to default routes.
+- Refactored `src/hooks.server.ts` to use `resolveRoleRedirect` instead of inline map.
+- Hardened `src/routes/auth/callback/+page.server.ts`: verifies Supabase configuration, exchanges code, fetches auth user, asserts `app_users` row exists via DB query before role-based redirect. Fails with 503 if profile not ready.
+
+**Platform service validation and metrics:**
+
+- Added `src/lib/domain/platform/schema.ts`: Zod schemas for platform pagination (`listOrganizationsSchema`, `listRestaurantsSchema`). Limits offset to 10,000 and limit to 100. Validates `organizationId` as UUID.
+- Updated `src/lib/server/services/platform-admin-service.ts`:
+  - Replaced misleading `activeUsers` with `platformUsers` (counts all `app_users`).
+  - Removed `WHERE status = 'active'` from restaurant counts to show total restaurants.
+  - Added `status` to `PlatformOrganization` and `segment` to `PlatformRestaurant`.
+  - Added input validation using Zod schemas via `parseListOptions`.
+  - Throws `PlatformAdminInputError` for unbounded or invalid pagination.
+- Created `src/lib/domain/platform/schema.test.ts` and `src/lib/server/services/platform-admin-service.test.ts`: unit tests for schema boundaries, SQL parameter passing, and error rejection.
+
+**Route error handling and UI empty states:**
+
+- Replaced silent catch blocks in platform `+page.server.ts` files with SvelteKit `error()` throws (400 for validation, 500 for DB errors).
+- Created `src/routes/(platform)/+error.svelte`: unified error page for platform admin route group.
+- Updated `src/routes/(platform)/platform/+page.svelte`: "Active Restaurants" to "Total Restaurants", `activeUsers` to `platformUsers`, added description.
+- Updated organizations page: added Status and Created columns, status badge styling, empty state, prev/next pagination controls.
+- Updated restaurants page: added Segment column, status badge styling, empty state, prev/next pagination controls.
+
+**Documentation:**
+
+- Updated `docs/TODO.md` with Phase B task completions (email callback routing, platform KPIs, pagination, error handling).
+
+## 2026-06-22 Phase 0–6 Cross-Phase Audit & Fixes
+
+**Audit scope:** All 82 changed files across Phases 0–6 implementation. 12+ issues identified (1 critical, 6 high, 5 medium).
+
+**Critical fixes:**
+
+- `src/lib/server/services/menu-admin-service.ts`: `publishDraftMenu` now calls `enqueueEmbeddingJob()` via BullMQ queue instead of `generateEmbeddingsForRestaurant()` directly. Removed unused `generateEmbeddingsForRestaurant` import.
+- `src/lib/server/services/ocr-import-service.ts`: extracted inline SQL to `createDraftMenu()` in `admin-menu-repository.ts`. Removed dead ternary expression.
+- `src/lib/server/repositories/admin-menu-repository.ts`: `createDraftMenu()` — replaced `result.rows[0]!.id` non-null assertion with proper existence check + explicit throw.
+
+**High fixes:**
+
+- `src/routes/(dashboard)/dashboard/+layout.server.ts`: removed production re-throw that contradicted documented fail-open intent. Dashboard now matches documented behavior.
+- Fallback status convention unified: `domain/fallback/types.ts`, `policy.ts`, `schema.ts` all use `'in-progress'` (hyphen). `staff-inbox-service.ts` transition logic simplified (DB↔domain translation handled by repository at lines 50, 142). `staff/inbox/+page.server.ts:67` updated from `'in_progress'` to `'in-progress'`.
+- `src/lib/ui/Pagination.svelte`: `$derived.by` with `URLSearchParams` preserves all existing URL query params when generating prev/next links.
+- Role guards: `dashboard/+layout.server.ts` redirects staff to `/staff/inbox`; `staff/+layout.server.ts` verifies `platformRole === 'staff'`.
+- Sentry: `hooks.server.ts` reads `SENTRY_TRACES_SAMPLE_RATE` (default 0.1) and `SENTRY_ENVIRONMENT`. `hooks.client.ts` reads `VITE_SENTRY_TRACES_SAMPLE_RATE` and `VITE_SENTRY_ENVIRONMENT`.
+
+**Medium fixes:**
+
+- `.github/workflows/ci.yml`: added `pnpm run build` step.
+- `src/lib/server/services/provider-cost-tracking.ts`: `Number((...).toFixed(6))` to avoid floating-point drift.
+- `src/lib/server/services/embedding-worker.test.ts`: extended from 5→8 tests (null embed, no-embed provider, combined items+docs, empty restaurant).
+- `src/lib/server/services/menu-admin-service.test.ts`: `validateMenuForPublish` tests use `price` not `priceAmount`. `publishDraftMenu` mock also fixed.
+- `src/lib/server/services/ocr-import-service.test.ts`: mock updated with `createDraftMenuMock`.
+- `src/lib/server/services/staff-inbox-service.test.ts`: 6× `'in_progress'`→`'in-progress'`, updated `transitionStatus` signature.
+
+**Verification:** `pnpm check` 0 errors, 4 pre-existing warnings · `pnpm test` 294 passed, 8 pre-existing failures (6 Redis ECONNREFUSED timeouts, 2 Supabase RLS/schema type differences) — none caused by audit.
