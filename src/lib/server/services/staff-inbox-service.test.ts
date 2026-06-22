@@ -94,11 +94,11 @@ describe('transitionStatus', () => {
 		updateFallbackStatusMock.mockReset();
 	});
 
-	it('allows new → in_progress', async () => {
+	it('allows new → in-progress', async () => {
 		listFallbackRequestsMock.mockResolvedValue([makeRequest('new')]);
 		updateFallbackStatusMock.mockResolvedValue(undefined);
 
-		await transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in_progress', [RESTAURANT_ID_A]);
+		await transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in-progress', [RESTAURANT_ID_A]);
 
 		expect(updateFallbackStatusMock).toHaveBeenCalledWith(
 			REQUEST_ID,
@@ -108,7 +108,7 @@ describe('transitionStatus', () => {
 		);
 	});
 
-	it('allows in_progress → resolved', async () => {
+	it('allows in-progress → resolved', async () => {
 		listFallbackRequestsMock.mockResolvedValue([makeRequest('in-progress')]);
 		updateFallbackStatusMock.mockResolvedValue(undefined);
 
@@ -122,11 +122,11 @@ describe('transitionStatus', () => {
 		);
 	});
 
-	it('rejects resolved → in_progress (terminal state)', async () => {
+	it('rejects resolved → in-progress (terminal state)', async () => {
 		listFallbackRequestsMock.mockResolvedValue([makeRequest('resolved')]);
 
 		await expect(
-			transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in_progress', [RESTAURANT_ID_A])
+			transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in-progress', [RESTAURANT_ID_A])
 		).rejects.toBeInstanceOf(StaffInboxTransitionError);
 
 		expect(updateFallbackStatusMock).not.toHaveBeenCalled();
@@ -134,7 +134,7 @@ describe('transitionStatus', () => {
 
 	it('throws StaffInboxAuthorizationError when restaurantId is not in member list', async () => {
 		await expect(
-			transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in_progress', [RESTAURANT_ID_B])
+			transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in-progress', [RESTAURANT_ID_B])
 		).rejects.toBeInstanceOf(StaffInboxAuthorizationError);
 
 		expect(listFallbackRequestsMock).not.toHaveBeenCalled();
@@ -146,7 +146,7 @@ describe('transitionStatus', () => {
 		listFallbackRequestsMock.mockResolvedValue([]);
 
 		await expect(
-			transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in_progress', [RESTAURANT_ID_A])
+			transitionStatus(USER_ID, REQUEST_ID, RESTAURANT_ID_A, 'in-progress', [RESTAURANT_ID_A])
 		).rejects.toBeInstanceOf(StaffInboxTransitionError);
 
 		expect(updateFallbackStatusMock).not.toHaveBeenCalled();
@@ -154,13 +154,13 @@ describe('transitionStatus', () => {
 
 	it('throws StaffInboxTransitionError on invalid requestId (non-UUID)', async () => {
 		await expect(
-			transitionStatus(USER_ID, 'not-a-uuid', RESTAURANT_ID_A, 'in_progress', [RESTAURANT_ID_A])
+			transitionStatus(USER_ID, 'not-a-uuid', RESTAURANT_ID_A, 'in-progress', [RESTAURANT_ID_A])
 		).rejects.toBeInstanceOf(StaffInboxTransitionError);
 	});
 
 	it('throws StaffInboxTransitionError on invalid restaurantId (non-UUID)', async () => {
 		await expect(
-			transitionStatus(USER_ID, REQUEST_ID, 'not-a-uuid', 'in_progress', ['not-a-uuid'])
+			transitionStatus(USER_ID, REQUEST_ID, 'not-a-uuid', 'in-progress', ['not-a-uuid'])
 		).rejects.toBeInstanceOf(StaffInboxTransitionError);
 	});
 });
