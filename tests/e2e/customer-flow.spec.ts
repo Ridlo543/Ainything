@@ -29,7 +29,7 @@ test.describe('Customer flow at 360px', () => {
 	test('preference chips toggle correctly', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const halalBtn = page.getByRole('button', { name: 'Halal' });
+		const halalBtn = page.getByRole('button', { name: 'Halal', exact: true });
 		await expect(halalBtn).toBeVisible();
 		await expect(halalBtn).toHaveAttribute('aria-pressed', 'false');
 
