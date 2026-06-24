@@ -40,7 +40,8 @@ export default defineConfig({
 			STORAGE_PROVIDER: 'mock',
 			REDIS_URL: 'redis://127.0.0.1:6379',
 			AI_DAILY_CAP: '500',
-			EMBEDDING_ENABLED: 'false'
+			EMBEDDING_ENABLED: 'false',
+			PUBLIC_SENTRY_DSN: 'stub'
 		}
 	}
 });
