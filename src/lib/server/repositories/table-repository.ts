@@ -12,7 +12,7 @@
  * `app.has_restaurant_access(restaurant_id)`.
  */
 
-import { query } from '$lib/server/db/postgres';
+import { query, withTransaction } from '$lib/server/db/postgres';
 
 // ---------------------------------------------------------------------------
 // Row type
@@ -78,4 +78,56 @@ export async function listActiveTablesForRestaurant(
 	);
 
 	return result.rows.map(mapRowToTable);
+}
+
+// ---------------------------------------------------------------------------
+// Writes (onboarding wizard)
+// ---------------------------------------------------------------------------
+
+export type TableSeed = {
+	organizationId: string;
+	restaurantId: string;
+	count: number;
+	/** Optional prefix, defaults to 'T' → T01, T02 … */
+	prefix?: string;
+};
+
+export type CreatedTable = {
+	id: string;
+	code: string;
+	label: string;
+	qrPath: string;
+};
+
+/**
+ * Bulk-insert `count` tables for a restaurant.
+ * Codes are zero-padded: T01, T02, …, T99 (or prefix + zero-pad).
+ * qr_path is left empty — the dashboard QR download sets it lazily.
+ * Runs inside a single transaction so all rows land together or not at all.
+ */
+export async function createTablesForRestaurant(input: TableSeed): Promise<CreatedTable[]> {
+	const { organizationId, restaurantId, count, prefix = 'T' } = input;
+	if (count < 1 || count > 200) {
+		throw new Error('Table count must be between 1 and 200');
+	}
+
+	return withTransaction(async (client) => {
+		const created: CreatedTable[] = [];
+		for (let i = 1; i <= count; i++) {
+			const code = `${prefix}${String(i).padStart(2, '0')}`;
+			const label = `Table ${i}`;
+			const { rows } = await client.query<{ id: string }>(
+				`INSERT INTO restaurant_tables
+					(organization_id, restaurant_id, code, label, is_active, qr_path)
+				 VALUES ($1::uuid, $2::uuid, $3, $4, true, '')
+				 ON CONFLICT (restaurant_id, code) DO NOTHING
+				 RETURNING id::text`,
+				[organizationId, restaurantId, code, label]
+			);
+			if (rows[0]) {
+				created.push({ id: rows[0].id, code, label, qrPath: '' });
+			}
+		}
+		return created;
+	});
 }

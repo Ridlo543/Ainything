@@ -65,6 +65,16 @@ export const en: TranslationDict = {
 
 	'bootstrap.heading': 'Language and food preferences',
 	'bootstrap.subtitle': 'No login required. Preferences stay in this session.',
+	'bootstrap.privacy': 'Your questions are processed by AI using restaurant-approved menu data. No personal data is stored after your session ends.',
+	'bootstrap.privacy.link': 'How your data is used',
+	'privacy.title': 'How your data is used',
+	'privacy.session': 'Your session (language, dietary preferences, table code) is stored for the duration of your visit and deleted automatically after 90 days of inactivity.',
+	'privacy.chat': 'Chat questions are sent to an AI model to generate answers. They are not linked to your identity and are deleted with your session.',
+	'privacy.feedback': 'Feedback (Helpful / Unclear) is shared with the restaurant to improve menu descriptions. It contains no personal information.',
+	'privacy.noAccount': 'No account, email, or phone number is required or collected.',
+	'privacy.contact': 'To request deletion of your session data, ask restaurant staff for assistance.',
+	'privacy.close': 'Close',
+
 
 	'app.title': 'Lingua',
 	'app.titlePage': '{name} - Lingua',

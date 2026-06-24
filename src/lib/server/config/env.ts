@@ -50,6 +50,13 @@ export const appEnv = {
 	// Storage (menu imports, item images, knowledge attachments)
 	storageProvider: env.STORAGE_PROVIDER || 'mock',
 
+	// Email (SMTP)
+	smtpHost: env.SMTP_HOST,
+	smtpPort: env.SMTP_PORT ? Number(env.SMTP_PORT) : undefined,
+	smtpUser: env.SMTP_USER,
+	smtpPass: env.SMTP_PASS,
+	smtpFrom: env.SMTP_FROM,
+
 	// Supabase
 	// Supports both `@supabase/ssr` (PUBLIC_*) and `@supabase/server` (SUPABASE_*) env conventions
 	supabaseUrl:

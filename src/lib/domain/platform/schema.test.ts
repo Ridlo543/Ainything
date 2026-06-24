@@ -2,14 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { listOrganizationsSchema, listRestaurantsSchema } from '$lib/domain/platform/schema';
 
 describe('platform list input schemas', () => {
-	it('defaults limit and offset to bounded list pagination', () => {
-		expect(listOrganizationsSchema.parse({})).toEqual({ limit: 50, offset: 0 });
+	it('defaults limit, offset, and status to sensible values', () => {
+		expect(listOrganizationsSchema.parse({})).toEqual({ limit: 50, offset: 0, status: 'all' });
 	});
 
 	it('accepts bounded pagination values', () => {
 		expect(listOrganizationsSchema.parse({ limit: '100', offset: '250' })).toEqual({
 			limit: 100,
-			offset: 250
+			offset: 250,
+			status: 'all'
 		});
 	});
 
@@ -24,7 +25,8 @@ describe('platform list input schemas', () => {
 		expect(listRestaurantsSchema.parse({ organizationId, limit: '25', offset: '5' })).toEqual({
 			organizationId,
 			limit: 25,
-			offset: 5
+			offset: 5,
+			status: 'all'
 		});
 	});
 

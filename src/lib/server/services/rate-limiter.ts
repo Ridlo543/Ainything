@@ -20,14 +20,30 @@
 import { getRedisClient } from '$lib/server/cache/redis';
 import { appEnv } from '$lib/server/config/env';
 
-export type RateLimitEndpoint = 'session-create' | 'chat' | 'fallback' | 'feedback' | 'bootstrap';
+export type RateLimitEndpoint =
+	| 'session-create'
+	| 'chat'
+	| 'fallback'
+	| 'feedback'
+	| 'bootstrap'
+	| 'slug-check'
+	| 'password-reset'
+	| 'embeddings'
+	| 'vitals'
+	| 'metrics';
 
 const LIMITS: Record<RateLimitEndpoint, { max: number; windowSec: number }> = {
 	'session-create': { max: 5, windowSec: 60 },
 	chat: { max: 20, windowSec: 60 },
 	fallback: { max: 5, windowSec: 60 },
 	feedback: { max: 10, windowSec: 60 },
-	bootstrap: { max: 30, windowSec: 60 }
+	bootstrap: { max: 30, windowSec: 60 },
+	'slug-check': { max: 30, windowSec: 60 },
+	// Authenticated endpoints — still rate-limited to prevent abuse
+	'password-reset': { max: 5, windowSec: 300 }, // 5 per 5 min per IP
+	'embeddings': { max: 10, windowSec: 60 }, // 10 per min per user
+	'vitals': { max: 60, windowSec: 60 }, // 60 batches per min per IP
+	'metrics': { max: 60, windowSec: 60 } // 60 req per min per authenticated user
 };
 
 // Lua: atomic increment + set expiry only on first hit (so the window starts at first

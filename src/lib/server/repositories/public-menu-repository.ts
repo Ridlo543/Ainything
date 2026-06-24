@@ -170,19 +170,22 @@ export async function findActiveTableByRestaurantSlug(
 }
 
 export async function createCustomerSession(input: CreateSessionInput) {
-	const result = await query<{ id: string }>(
+	const id = crypto.randomUUID();
+
+	await query(
 		`
 			INSERT INTO customer_sessions (
+				id,
 				organization_id,
 				restaurant_id,
 				table_id,
 				language_tag,
 				preferences
 			)
-			VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::jsonb)
-			RETURNING id::text
+			VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6::jsonb)
 		`,
 		[
+			id,
 			input.organizationId,
 			input.restaurantId,
 			input.tableId,
@@ -191,7 +194,7 @@ export async function createCustomerSession(input: CreateSessionInput) {
 		]
 	);
 
-	return result.rows[0];
+	return { id };
 }
 
 export async function createFallbackRequest(input: CreateFallbackInput) {

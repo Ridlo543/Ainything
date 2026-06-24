@@ -83,9 +83,14 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 			]
 		});
 
-		// Both Bali restaurants must be visible; Jakarta ones must not.
+		// Bali owner is linked to 3 restaurants in org 10000000-…-001:
+		// uma-karang, senja-ramen-bali, pantai-padi (see seed 0001).
+		// Jakarta restaurants (taman-sate, rempah-terrace) must not appear.
 		const slugs = tenant.restaurants.map((r) => r.slug).sort();
-		expect(slugs.length).toBe(2);
+		expect(slugs.length).toBe(3);
+		expect(slugs).toContain('uma-karang');
+		expect(slugs).toContain('senja-ramen-bali');
+		expect(slugs).toContain('pantai-padi');
 		expect(slugs.every((slug) => !['taman-sate', 'rempah-terrace'].includes(slug))).toBe(true);
 	});
 
