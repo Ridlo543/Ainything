@@ -23,14 +23,10 @@
 							if (ls === 'light' || ls === 'dark' || ls === 'system') mode = ls;
 						} catch (e) {}
 					}
-					var resolved =
-						mode === 'dark'
-							? 'dark'
-							: mode === 'light'
-								? 'light'
-								: window.matchMedia('(prefers-color-scheme: dark)').matches
-									? 'dark'
-									: 'light';
+			var resolved =
+				mode === 'dark'
+					? 'dark'
+					: 'light';
 					document.documentElement.dataset.theme = resolved;
 					document.documentElement.style.colorScheme = resolved;
 				} catch (e) {}

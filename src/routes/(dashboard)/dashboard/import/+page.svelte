@@ -150,7 +150,7 @@
 					<input
 						type="file"
 						accept="image/png,image/jpeg,image/webp"
-						class="tap-target mt-2 block w-full rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm text-lingua-subtle file:mr-4 file:rounded-md file:border-0 file:bg-lingua-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+						class="tap-target mt-2 block w-full rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2 text-sm text-lingua-subtle file:mr-4 file:rounded-md file:border-0 file:bg-lingua-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
 						onchange={handleFileChange}
 					/>
 				</label>
@@ -215,7 +215,7 @@
 						class:border-red-200={isRejected}
 						class:opacity-50={isRejected}
 						class:bg-red-50={isRejected}
-						class:bg-white={!isRejected}
+						class:bg-lingua-surface={!isRejected}
 					>
 						<div class="flex items-start justify-between gap-3">
 							<div class="flex-1">
@@ -291,7 +291,7 @@
 				</button>
 				{#if includeRawText}
 					<pre
-						class="mt-2 max-h-48 overflow-auto rounded-lg border border-lingua-border bg-gray-50 p-3 text-xs leading-relaxed whitespace-pre-wrap">{scanResult.rawText}</pre>
+						class="mt-2 max-h-48 overflow-auto rounded-lg border border-lingua-border bg-lingua-muted p-3 text-xs leading-relaxed whitespace-pre-wrap">{scanResult.rawText}</pre>
 				{/if}
 			</div>
 
@@ -358,7 +358,7 @@
 			<div class="mt-3 grid gap-2">
 				{#each importResult.items as item (item.id)}
 					<div
-						class="flex items-center gap-2 rounded-lg border border-lingua-border bg-white px-3 py-2"
+						class="flex items-center gap-2 rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2"
 					>
 						<Badge label={item.category} tone="neutral" />
 						<span class="text-sm font-medium text-lingua-text">{item.name}</span>

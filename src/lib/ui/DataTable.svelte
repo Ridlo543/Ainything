@@ -31,21 +31,21 @@
 	{/if}
 {:else}
 	<div class="overflow-x-auto {wrapperClass}">
-		<table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+		<table class="min-w-full divide-y divide-lingua-border text-left text-sm">
 			<thead>
 				<tr>
 					{#each columns as col}
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500 {col.class ?? ''}">
+						<th class="px-4 py-3 text-left text-xs font-medium uppercase text-lingua-subtle {col.class ?? ''}">
 							{col.label}
 						</th>
 					{/each}
 				</tr>
 			</thead>
-			<tbody class="divide-y divide-slate-200">
+			<tbody class="divide-y divide-lingua-border">
 				{#each items as item (item.id)}
 					<tr>
 						{#each columns as col}
-							<td class="px-4 py-3 text-sm text-slate-600">
+							<td class="px-4 py-3 text-sm text-lingua-text">
 								{@render cell(item, col.key)}
 							</td>
 						{/each}

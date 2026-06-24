@@ -36,9 +36,13 @@
 	--color-lingua-accent: #fb923c;
 	--color-lingua-accent-soft: #7c2d12;
 	--color-lingua-success: #22c55e;
+	--color-lingua-success-soft: #052e16;
 	--color-lingua-warning: #f59e0b;
+	--color-lingua-warning-soft: #451a03;
 	--color-lingua-danger: #ef4444;
+	--color-lingua-danger-soft: #450a0a;
 	--color-lingua-info: #3b82f6;
+	--color-lingua-info-soft: #172554;
 }
 
 :root {

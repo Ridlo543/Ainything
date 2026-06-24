@@ -17,10 +17,10 @@
 	} = $props();
 
 	const classes = {
-		success: 'border-green-300 bg-green-50 text-green-800',
-		error: 'border-red-300 bg-red-50 text-red-800',
-		warning: 'border-amber-300 bg-amber-50 text-amber-800',
-		info: 'border-blue-300 bg-blue-50 text-blue-800'
+		success: 'border-lingua-success/30 bg-lingua-success-soft text-lingua-success',
+		error: 'border-lingua-danger/30 bg-lingua-danger-soft text-lingua-danger',
+		warning: 'border-lingua-warning/30 bg-lingua-warning-soft text-lingua-warning',
+		info: 'border-lingua-info/30 bg-lingua-info-soft text-lingua-info'
 	};
 </script>
 

@@ -8,27 +8,31 @@ import {
 	StaffInboxTransitionError
 } from '$lib/server/services/staff-inbox-service';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
+import { appEnv } from '$lib/server/config/env';
 
 const inboxActionSchema = z.object({
 	requestId: z.string().uuid(),
 	restaurantId: z.string().uuid()
 });
 
-/**
- * Load all fallback requests visible to the authenticated staff member.
- *
- * Tenant context (user, org, restaurant IDs) comes from the parent layout's
- * `resolveTenantContext` call — the route is thin and never reads membership
- * data directly.
- */
 export const load: PageServerLoad = async ({ parent }) => {
 	const { tenant } = await parent();
 
-	const requests = await listRequests(
-		tenant.user.id,
-		tenant.organization.id,
-		tenant.membership.restaurantIds
-	);
+	let requests: Awaited<ReturnType<typeof listRequests>> = [];
+
+	if (appEnv.useMockBackend) {
+		requests = [];
+	} else {
+		try {
+			requests = await listRequests(
+				tenant.user.id,
+				tenant.organization.id,
+				tenant.membership.restaurantIds
+			);
+		} catch (err) {
+			console.error('[staff inbox] listRequests failed:', err);
+		}
+	}
 
 	return { requests };
 };

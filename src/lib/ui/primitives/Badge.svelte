@@ -4,13 +4,13 @@
 	let { label, tone = 'neutral', shape = 'rounded' }: { label: string; tone?: Tone; shape?: 'rounded' | 'pill' } = $props();
 
 	const toneClass: Record<Tone, string> = {
-		neutral: 'border-slate-200 bg-slate-50 text-slate-700',
-		primary: 'border-teal-200 bg-teal-50 text-teal-800',
-		accent: 'border-orange-200 bg-orange-50 text-orange-800',
-		success: 'border-green-200 bg-green-50 text-green-800',
-		warning: 'border-amber-200 bg-amber-50 text-amber-800',
-		danger: 'border-red-200 bg-red-50 text-red-800',
-		info: 'border-blue-200 bg-blue-50 text-blue-800'
+		neutral: 'border-lingua-border bg-lingua-muted text-lingua-text',
+		primary: 'border-lingua-primary/30 bg-lingua-primary-soft text-lingua-primary-strong',
+		accent: 'border-lingua-accent/30 bg-lingua-accent-soft text-lingua-accent',
+		success: 'border-lingua-success/30 bg-lingua-success-soft text-lingua-success',
+		warning: 'border-lingua-warning/30 bg-lingua-warning-soft text-lingua-warning',
+		danger: 'border-lingua-danger/30 bg-lingua-danger-soft text-lingua-danger',
+		info: 'border-lingua-info/30 bg-lingua-info-soft text-lingua-info'
 	};
 </script>
 

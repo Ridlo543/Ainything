@@ -173,7 +173,7 @@
 					{#each [t('chat.suggestion.halal'), t('chat.suggestion.nutFree'), t('chat.suggestion.spice')] as suggestion (suggestion)}
 						<button
 							type="button"
-							class="rounded-md border border-lingua-border bg-white px-2 py-1 text-xs text-lingua-text hover:border-lingua-primary hover:text-lingua-primary"
+							class="rounded-md border border-lingua-border bg-lingua-surface px-2 py-1 text-xs text-lingua-text hover:border-lingua-primary hover:text-lingua-primary"
 							onclick={() => {
 								draft = suggestion;
 							}}
@@ -199,7 +199,7 @@
 	<!-- Input -->
 	<div class="mt-4 flex gap-2">
 		<input
-			class="tap-target min-w-0 flex-1 rounded-lg border border-lingua-border bg-white px-3 text-sm disabled:opacity-50"
+			class="tap-target min-w-0 flex-1 rounded-lg border border-lingua-border bg-lingua-surface px-3 text-sm disabled:opacity-50"
 			placeholder={t('chat.input.placeholder')}
 			bind:value={draft}
 			aria-label={t('chat.input.ariaLabel')}
@@ -237,7 +237,7 @@
 	{:else}
 		<button
 			type="button"
-			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold text-lingua-text"
+			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold text-lingua-text"
 			onclick={() => {
 				/* parent handles fallback flow */
 			}}

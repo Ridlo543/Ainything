@@ -109,6 +109,9 @@
 	let feedback = $state<'helpful' | 'unclear' | null>(null);
 	let feedbackSent = $state(false);
 
+	// ── Privacy notice ────────────────────────────────────────────────────────
+	let showPrivacyNotice = $state(false);
+
 	// ── Offline detection ──────────────────────────────────────────────────────
 	let isOnline = $state(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
@@ -131,6 +134,7 @@
 
 	async function sendFeedback(value: 'helpful' | 'unclear') {
 		feedback = value;
+		feedbackSent = true;
 		if (!sessionId) return;
 
 		try {
@@ -145,9 +149,8 @@
 					issueType: value === 'unclear' ? 'missing-info' : undefined
 				})
 			});
-			feedbackSent = true;
 		} catch {
-			feedbackSent = true;
+			// swallow — optimistic feedback already shown
 		}
 	}
 </script>
@@ -208,19 +211,29 @@
 					</div>
 					<Languages class="text-lingua-primary" size={24} />
 				</div>
-				<div class="mt-4 grid gap-3 sm:grid-cols-[220px_1fr]">
-					<select
-						class="tap-target rounded-lg border border-lingua-border bg-white px-3 text-sm"
-						bind:value={selectedLanguage}
-						aria-label={t('language.selector.label')}
-						dir={isRtl(selectedLanguage) ? 'rtl' : 'ltr'}
-					>
-						{#each data.restaurant.languages as lang (lang)}
-							<option value={lang}>{languageDisplayName(lang, selectedLanguage as never)}</option>
-						{/each}
-					</select>
-					<PreferenceChips selected={prefAsDietaryFlags} onToggle={togglePreference} />
-				</div>
+			<div class="mt-4 grid gap-3 sm:grid-cols-[220px_1fr]">
+				<select
+					class="tap-target rounded-lg border border-lingua-border bg-lingua-surface px-3 text-sm"
+					bind:value={selectedLanguage}
+					aria-label={t('language.selector.label')}
+					dir={isRtl(selectedLanguage) ? 'rtl' : 'ltr'}
+				>
+					{#each data.restaurant.languages as lang (lang)}
+						<option value={lang}>{languageDisplayName(lang, selectedLanguage as never)}</option>
+					{/each}
+				</select>
+				<PreferenceChips selected={prefAsDietaryFlags} onToggle={togglePreference} />
+			</div>
+			<p class="mt-3 text-xs text-lingua-subtle">
+				{t('bootstrap.privacy')}
+				<button
+					type="button"
+					class="underline hover:text-lingua-text"
+					onclick={() => (showPrivacyNotice = true)}
+				>
+					{t('bootstrap.privacy.link')}
+				</button>
+			</p>
 			</div>
 
 			{#if hasMenu}
@@ -248,7 +261,7 @@
 									class={`tap-target shrink-0 rounded-lg border px-4 text-sm font-semibold ${
 										selectedCategory === category
 											? 'border-lingua-primary bg-lingua-primary text-white'
-											: 'border-lingua-border bg-white text-lingua-text'
+											: 'border-lingua-border bg-lingua-surface text-lingua-text'
 									}`}
 									onclick={() => (selectedCategory = category)}
 								>
@@ -357,7 +370,7 @@
 						class={`tap-target rounded-lg border text-sm font-semibold ${
 							feedback === 'helpful'
 								? 'border-lingua-primary bg-lingua-primary text-white'
-								: 'border-lingua-border bg-white'
+								: 'border-lingua-border bg-lingua-surface'
 						}`}
 						onclick={() => sendFeedback('helpful')}
 						disabled={feedbackSent}
@@ -369,7 +382,7 @@
 						class={`tap-target rounded-lg border text-sm font-semibold ${
 							feedback === 'unclear'
 								? 'border-lingua-warning bg-amber-50 text-amber-900'
-								: 'border-lingua-border bg-white'
+								: 'border-lingua-border bg-lingua-surface'
 						}`}
 						onclick={() => sendFeedback('unclear')}
 						disabled={feedbackSent}
@@ -387,3 +400,40 @@
 		</aside>
 	</div>
 </main>
+
+{#if showPrivacyNotice}
+	<!-- Privacy notice modal -->
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div
+		role="dialog"
+		aria-modal="true"
+		aria-label={t('privacy.title')}
+		tabindex="-1"
+		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
+		onclick={() => (showPrivacyNotice = false)}
+		onkeydown={(e) => e.key === 'Escape' && (showPrivacyNotice = false)}
+	>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="surface w-full max-w-md rounded-t-2xl p-6 sm:rounded-2xl"
+		onclick={(e) => e.stopPropagation()}
+		onkeydown={(e) => e.stopPropagation()}
+	>
+			<h2 class="mb-4 text-base font-semibold text-lingua-text">{t('privacy.title')}</h2>
+			<ul class="space-y-3 text-sm leading-6 text-lingua-subtle">
+				<li>{t('privacy.session')}</li>
+				<li>{t('privacy.chat')}</li>
+				<li>{t('privacy.feedback')}</li>
+				<li>{t('privacy.noAccount')}</li>
+				<li>{t('privacy.contact')}</li>
+			</ul>
+			<button
+				type="button"
+				class="mt-5 w-full rounded-lg bg-lingua-primary py-2.5 text-sm font-semibold text-white"
+				onclick={() => (showPrivacyNotice = false)}
+			>
+				{t('privacy.close')}
+			</button>
+		</div>
+	</div>
+{/if}

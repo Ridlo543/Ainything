@@ -36,7 +36,7 @@ function writeMode(mode: ThemeMode) {
 }
 
 function createThemeStore() {
-	let mode = $state<ThemeMode>('system');
+	let mode = $state<ThemeMode>('light');
 	let systemTheme = $state<ResolvedTheme>('light');
 
 	const resolved = $derived<ResolvedTheme>(mode === 'system' ? systemTheme : mode);

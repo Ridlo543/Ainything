@@ -17,15 +17,15 @@
 </script>
 
 {#if variant === 'card'}
-	<div class="col-span-full rounded-lg border border-slate-200 bg-white p-6 text-center">
+	<div class="col-span-full rounded-lg border border-lingua-border bg-lingua-surface p-6 text-center">
 		{#if icon}
-			<div class="mx-auto inline-flex rounded-lg bg-teal-50 p-3 text-teal-700">
+			<div class="mx-auto inline-flex rounded-lg bg-lingua-primary-soft p-3 text-lingua-primary-strong">
 				{@render icon()}
 			</div>
 		{/if}
-		<h3 class="mt-3 font-semibold text-slate-900">{title}</h3>
+		<h3 class="mt-3 font-semibold text-lingua-text">{title}</h3>
 		{#if description}
-			<p class="mt-1 text-sm text-slate-500">{description}</p>
+			<p class="mt-1 text-sm text-lingua-subtle">{description}</p>
 		{/if}
 		{#if actions}
 			<div class="mt-4 flex justify-center gap-2">
@@ -34,7 +34,7 @@
 		{/if}
 	</div>
 {:else}
-	<div class="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-600">
+	<div class="rounded-lg border border-lingua-border bg-lingua-surface p-6 text-sm text-lingua-subtle">
 		{title}
 	</div>
 {/if}

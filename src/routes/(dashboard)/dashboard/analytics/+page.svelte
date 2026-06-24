@@ -90,7 +90,7 @@
 			<select
 				id="window-select"
 				name="window"
-				class="rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm"
+				class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2 text-sm"
 				value={windowDays}
 				onchange={(e) => (e.currentTarget.form as HTMLFormElement)?.submit()}
 			>
@@ -147,7 +147,7 @@
 		<div class="mt-5 grid gap-4">
 			{#each scopedRestaurants as restaurant (restaurant.id)}
 				{@const m = getMetrics(restaurant.id)}
-				<div class="rounded-lg border border-lingua-border bg-white p-4">
+				<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 					<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 						<div>
 							<p class="font-semibold text-lingua-text">{restaurant.name}</p>
@@ -158,7 +158,7 @@
 						{#if m}
 							<div class="flex flex-wrap gap-3 text-sm">
 								<span
-									class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-medium"
+									class="inline-flex items-center gap-1.5 rounded-full bg-lingua-muted px-3 py-1 font-medium"
 								>
 									<MessageCircle size={13} />
 									{tWithVars('analytics.breakdown.chats', {
@@ -168,7 +168,7 @@
 								</span>
 								{#if m.latencyP95 !== null}
 									<span
-										class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-medium"
+										class="inline-flex items-center gap-1.5 rounded-full bg-lingua-muted px-3 py-1 font-medium"
 									>
 										<Clock size={13} />
 										{tWithVars('analytics.breakdown.p95', { ms: String(m.latencyP95) })}
@@ -176,7 +176,7 @@
 								{/if}
 								{#if m.totalFeedback > 0}
 									<span
-										class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-medium"
+										class="inline-flex items-center gap-1.5 rounded-full bg-lingua-muted px-3 py-1 font-medium"
 									>
 										<ThumbsUp size={13} />
 										{tWithVars('analytics.breakdown.feedback', {
@@ -190,7 +190,7 @@
 					</div>
 
 					<div class="mt-4 grid grid-cols-[1fr_56px] items-center gap-3">
-						<div class="h-3 overflow-hidden rounded-full bg-slate-100">
+						<div class="h-3 overflow-hidden rounded-full bg-lingua-muted">
 							<div
 								class="h-full rounded-full bg-lingua-primary transition-all duration-300"
 								style="width: {Math.min(100, helpfulRate(restaurant.id))}%"
@@ -202,7 +202,7 @@
 						</div>
 					</div>
 					<div class="mt-2 grid grid-cols-[1fr_56px] items-center gap-3">
-						<div class="h-2 overflow-hidden rounded-full bg-slate-100">
+						<div class="h-2 overflow-hidden rounded-full bg-lingua-muted">
 							<div
 								class="h-full rounded-full bg-amber-400 transition-all duration-300"
 								style="width: {Math.min(100, fallbackRate(restaurant.id))}%"

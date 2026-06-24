@@ -118,7 +118,7 @@
 		</div>
 		<div class="flex gap-2">
 			<button
-				class="tap-target inline-flex items-center justify-center gap-2 rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold text-lingua-text hover:bg-lingua-primary-soft disabled:opacity-50"
+				class="tap-target inline-flex items-center justify-center gap-2 rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold text-lingua-text hover:bg-lingua-primary-soft disabled:opacity-50"
 				onclick={handleReindex}
 				disabled={reindexState.loading}
 			>
@@ -206,7 +206,7 @@
 						name="title"
 						required
 						maxlength="200"
-						class="rounded-lg border border-lingua-border bg-white px-3 py-2"
+						class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2"
 						placeholder={t('knowledge.form.titlePlaceholder')}
 					/>
 					{#if form?.validation?.title}
@@ -220,7 +220,7 @@
 						required
 						maxlength="4000"
 						rows="4"
-						class="rounded-lg border border-lingua-border bg-white px-3 py-2"
+						class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2"
 						placeholder={t('knowledge.form.contentPlaceholder')}
 					></textarea>
 					{#if form?.validation?.content}
@@ -230,7 +230,7 @@
 				<div class="flex justify-end gap-2">
 					<button
 						type="button"
-						class="rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-semibold text-lingua-text"
+						class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2 text-sm font-semibold text-lingua-text"
 						onclick={closeForms}
 					>
 						{t('knowledge.form.cancel')}
@@ -325,7 +325,7 @@
 							required
 							maxlength="200"
 							value={editing.title}
-							class="rounded-lg border border-lingua-border bg-white px-3 py-2"
+							class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2"
 						/>
 					</label>
 					<label class="grid gap-1 text-sm">
@@ -335,7 +335,7 @@
 							required
 							maxlength="4000"
 							rows="4"
-							class="rounded-lg border border-lingua-border bg-white px-3 py-2"
+							class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2"
 							>{editing.content}</textarea
 						>
 					</label>
@@ -343,7 +343,7 @@
 						<span class="font-medium text-lingua-text">{t('knowledge.form.visibility')}</span>
 						<select
 							name="visibility"
-							class="rounded-lg border border-lingua-border bg-white px-3 py-2"
+							class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2"
 							value={editing.visibility}
 						>
 							<option value="published">{t('knowledge.visibility.published')}</option>
@@ -354,7 +354,7 @@
 					<div class="flex justify-end gap-2">
 						<button
 							type="button"
-							class="rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-semibold text-lingua-text"
+							class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2 text-sm font-semibold text-lingua-text"
 							onclick={closeForms}
 						>
 							{t('knowledge.form.cancel')}

@@ -13,13 +13,18 @@
 	const scopedRestaurants = $derived(data.tenant.restaurants);
 
 	// eslint-disable-next-line svelte/prefer-writable-derived -- requests is mutated by SSE events and optimistic form updates
+	// svelte-ignore state_referenced_locally -- intentional: initial value only, $effect below handles reactivity
 	let requests = $state<StaffRequest[]>(data.requests ?? []);
 	$effect(() => {
 		requests = data.requests ?? [];
 	});
 
-	let selectedId = $state(requests[0]?.id ?? '');
-	const selected = $derived(requests.find((r) => r.id === selectedId) ?? requests[0]);
+	// selectedId tracks which request is selected. It starts empty and falls back
+	// to the first request automatically via the `selected` derived below.
+	let selectedId = $state('');
+	const selected = $derived(
+		requests.find((r) => r.id === selectedId) ?? requests[0]
+	);
 	const restaurant = $derived(
 		selected
 			? (scopedRestaurants.find((item) => item.id === selected.restaurantId) ??
@@ -120,14 +125,14 @@
 			</div>
 
 			{#if form && 'message' in form && form.message}
-				<div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+				<div class="rounded-lg border border-lingua-danger/30 bg-lingua-danger-soft px-4 py-3 text-sm text-lingua-danger">
 					{form.message}
 				</div>
 			{/if}
 
 			{#if requests.length === 0}
 				<div
-					class="rounded-lg border border-lingua-border bg-white p-6 text-center text-lingua-subtle"
+					class="rounded-lg border border-lingua-border bg-lingua-surface p-6 text-center text-lingua-subtle"
 				>
 					<CheckCircle2 class="mx-auto mb-2 text-lingua-success" size={32} />
 					<p class="font-semibold">{t('staff.inbox.allClear')}</p>
@@ -162,30 +167,30 @@
 							{selected.guestNeed}
 						</p>
 					</div>
-					<div class="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
-						{tWithVars('staff.inbox.detail.priority', { priority: selected.priority })}
-					</div>
+				<div class="rounded-lg bg-lingua-warning-soft px-3 py-2 text-sm font-semibold text-lingua-warning">
+					{tWithVars('staff.inbox.detail.priority', { priority: selected.priority })}
+				</div>
 				</div>
 
 				<div class="mt-5 grid gap-4 lg:grid-cols-3">
-					<div class="rounded-lg border border-lingua-border bg-white p-4">
+					<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 						<Clock3 class="text-lingua-info" size={22} />
 						<p class="mt-3 text-sm text-lingua-subtle">{t('staff.inbox.detail.lastMessage')}</p>
 						<p class="font-semibold">{selected.lastMessageAt}</p>
 					</div>
-					<div class="rounded-lg border border-lingua-border bg-white p-4">
+					<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 						<UserRoundCheck class="text-lingua-primary" size={22} />
 						<p class="mt-3 text-sm text-lingua-subtle">{t('staff.inbox.detail.language')}</p>
 						<p class="font-semibold">{selected.language}</p>
 					</div>
-					<div class="rounded-lg border border-lingua-border bg-white p-4">
+					<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 						<CheckCircle2 class="text-lingua-success" size={22} />
 						<p class="mt-3 text-sm text-lingua-subtle">{t('staff.inbox.detail.status')}</p>
 						<p class="font-semibold">{selected.status}</p>
 					</div>
 				</div>
 
-				<div class="mt-5 rounded-lg border border-lingua-border bg-slate-50 p-4">
+				<div class="mt-5 rounded-lg border border-lingua-border bg-lingua-muted p-4">
 					<div class="flex items-center gap-2">
 						<Store class="text-lingua-primary" size={20} />
 						<p class="font-semibold">{t('staff.inbox.detail.summary')}</p>
@@ -210,7 +215,7 @@
 							<input type="hidden" name="restaurantId" value={selected.restaurantId} />
 							<button
 								type="submit"
-								class="tap-target w-full rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold"
+								class="tap-target w-full rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold"
 							>
 								{t('staff.inbox.action.claim')}
 							</button>
@@ -219,7 +224,7 @@
 						<button
 							type="button"
 							disabled
-							class="tap-target w-full rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold opacity-40"
+							class="tap-target w-full rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold opacity-40"
 						>
 							{t('staff.inbox.action.claim')}
 						</button>
@@ -258,7 +263,7 @@
 					{/if}
 
 					<a
-						class="tap-target inline-flex items-center justify-center rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold"
+						class="tap-target inline-flex items-center justify-center rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold"
 						href={resolve(`/r/${restaurant.slug}/table/${selected.tableCode || '01'}`)}
 					>
 						{t('staff.inbox.action.guestView')}

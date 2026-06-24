@@ -56,7 +56,7 @@
 				</div>
 			</div>
 			<a
-				class="tap-target inline-flex items-center justify-center rounded-lg border border-lingua-border bg-white px-4 text-sm font-semibold"
+				class="tap-target inline-flex items-center justify-center rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold"
 				href={resolve('/dashboard/tables')}
 			>
 				{t('dashboard.workspace.manageQr')}
@@ -116,7 +116,7 @@
 					</thead>
 					<tbody>
 						{#each scopedRestaurants as restaurant (restaurant.id)}
-							<tr class="border-b border-slate-100">
+							<tr class="border-b border-lingua-border">
 								<td class="py-3 pr-4 font-semibold text-lingua-text">{restaurant.name}</td>
 								<td class="py-3 pr-4 text-lingua-subtle">{restaurant.segment}</td>
 								<td class="py-3 pr-4 text-lingua-subtle">{restaurant.publicHost}</td>
@@ -137,7 +137,7 @@
 			{:else}
 				<div class="mt-4 grid gap-3">
 					{#each recentRequests as request (request.id)}
-						<div class="rounded-lg border border-lingua-border bg-white p-3">
+						<div class="rounded-lg border border-lingua-border bg-lingua-surface p-3">
 							<div class="flex justify-between gap-3">
 								<p class="font-semibold">
 									{request.tableCode ? `Table ${request.tableCode} — ` : ''}{request.guestNeed}

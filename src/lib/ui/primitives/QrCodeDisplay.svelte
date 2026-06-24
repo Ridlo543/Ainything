@@ -74,7 +74,7 @@
 </script>
 
 <figure
-	class="qr-card flex flex-col items-center gap-2 rounded-lg border border-lingua-border bg-white p-3"
+	class="qr-card flex flex-col items-center gap-2 rounded-lg border border-lingua-border bg-lingua-surface p-3"
 	data-printable="qr-card"
 >
 	{#if isGenerating && !svgMarkup}
@@ -86,7 +86,7 @@
 		</div>
 	{:else if error}
 		<div
-			class="grid place-items-center rounded border border-red-200 bg-red-50 p-2 text-center text-xs text-red-700"
+			class="grid place-items-center rounded border border-lingua-danger/30 bg-lingua-danger-soft p-2 text-center text-xs text-lingua-danger"
 			style="width: {size}px; height: {size}px;"
 		>
 			{error}
@@ -108,7 +108,7 @@
 	<div class="no-print flex w-full gap-1">
 		<button
 			type="button"
-			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-lingua-border bg-white px-2 py-1.5 text-xs font-semibold text-lingua-text hover:bg-lingua-primary-soft"
+			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-lingua-border bg-lingua-surface px-2 py-1.5 text-xs font-semibold text-lingua-text hover:bg-lingua-primary-soft"
 			onclick={downloadPng}
 			aria-label="Download QR code as PNG"
 			disabled={!svgMarkup}
@@ -117,7 +117,7 @@
 		</button>
 		<button
 			type="button"
-			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-lingua-border bg-white px-2 py-1.5 text-xs font-semibold text-lingua-text hover:bg-lingua-primary-soft"
+			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-lingua-border bg-lingua-surface px-2 py-1.5 text-xs font-semibold text-lingua-text hover:bg-lingua-primary-soft"
 			onclick={printCard}
 			aria-label="Print QR code"
 		>

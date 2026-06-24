@@ -19,7 +19,7 @@
 </script>
 
 {#if skeleton}
-	<div class="w-full animate-pulse rounded-lg border border-lingua-border bg-white p-3">
+	<div class="w-full animate-pulse rounded-lg border border-lingua-border bg-lingua-surface p-3">
 		<div class="grid grid-cols-[76px_1fr] gap-3">
 			<div class="h-20 w-20 rounded-md bg-slate-200"></div>
 			<div class="min-w-0 space-y-2">
@@ -33,7 +33,7 @@
 {:else}
 	<button
 		type="button"
-		class={`w-full rounded-lg border bg-white p-3 text-left transition hover:border-lingua-primary hover:shadow-sm ${
+		class={`w-full rounded-lg border bg-lingua-surface p-3 text-left transition hover:border-lingua-primary hover:shadow-sm ${
 			selected ? 'border-lingua-primary ring-2 ring-teal-100' : 'border-lingua-border'
 		}`}
 		{onclick}

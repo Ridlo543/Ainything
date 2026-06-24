@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 </script>
 
-<footer class="border-t border-lingua-border bg-white dark:bg-lingua-surface">
+<footer class="border-t border-lingua-border bg-lingua-surface">
 	<div class="app-container py-12 sm:py-14">
 		<div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
 			<div>

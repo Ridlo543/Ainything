@@ -34,7 +34,7 @@
 	{#if hasPrevious}
 		<a
 			href={prevUrl}
-			class="rounded-md border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-50"
+			class="rounded-md border border-lingua-border bg-lingua-surface px-4 py-2 text-lingua-text hover:bg-lingua-muted"
 		>
 			Previous
 		</a>
@@ -44,7 +44,7 @@
 	{#if hasNext}
 		<a
 			href={nextUrl}
-			class="rounded-md border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-50"
+			class="rounded-md border border-lingua-border bg-lingua-surface px-4 py-2 text-lingua-text hover:bg-lingua-muted"
 		>
 			Next
 		</a>

@@ -95,6 +95,21 @@
 		{ label: 'Sesame', value: 'sesame' }
 	];
 
+	// Pre-flight checklist derived from server load
+	const preflight = $derived(data.preflightValidation);
+	const blockingIssues = $derived(
+		preflight?.issues.filter((issue) =>
+			issue.issues.some((msg) => msg.includes('required') || msg.includes('negative'))
+		) ?? []
+	);
+	const warningIssues = $derived(
+		preflight?.issues.filter(
+			(issue) =>
+				!issue.issues.some((msg) => msg.includes('required') || msg.includes('negative'))
+		) ?? []
+	);
+	const canPublish = $derived(blockingIssues.length === 0);
+
 	// Publish confirmation
 	let showPublishConfirm = $state(false);
 	let isPublishing = $state(false);
@@ -116,15 +131,22 @@
 		<div class="flex gap-2">
 			<!-- Publish button -->
 			<button
-				class="tap-target inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+				class="tap-target inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition
+					{canPublish ? 'bg-lingua-primary hover:opacity-90' : 'bg-red-500 hover:bg-red-600'}"
 				onclick={() => (showPublishConfirm = true)}
 				aria-label="Publish menu"
 			>
-				<Send size={16} />
+				{#if !canPublish}
+					<AlertTriangle size={16} />
+				{:else if warningIssues.length > 0}
+					<AlertTriangle size={16} />
+				{:else}
+					<Send size={16} />
+				{/if}
 				Publish
 			</button>
 			<select
-				class="tap-target rounded-lg border border-lingua-border bg-white px-3 text-sm"
+				class="tap-target rounded-lg border border-lingua-border bg-lingua-surface px-3 text-sm"
 				value={selectedSlug}
 				onchange={(event) => {
 					const url = new URL(location.href);
@@ -151,7 +173,7 @@
 			<label class="relative block">
 				<Search class="absolute left-3 top-3 text-lingua-subtle" size={17} />
 				<input
-					class="tap-target w-full rounded-lg border border-lingua-border bg-white pl-10 pr-3 text-sm"
+					class="tap-target w-full rounded-lg border border-lingua-border bg-lingua-surface pl-10 pr-3 text-sm"
 					placeholder="Search menu"
 					bind:value={search}
 				/>
@@ -263,11 +285,11 @@
 	></div>
 
 	<!-- Drawer panel -->
-	<div class="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-white shadow-xl">
+	<div class="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-lingua-surface shadow-xl">
 		<div class="flex items-center justify-between border-b border-lingua-border p-4">
 			<h3 class="text-lg font-semibold">Edit item</h3>
 			<button
-				class="rounded-md p-1 hover:bg-slate-100"
+				class="rounded-md p-1 hover:bg-lingua-muted"
 				onclick={closeEditDrawer}
 				aria-label="Close"
 			>
@@ -385,9 +407,14 @@
 					</select>
 				</div>
 				<div class="flex items-center gap-2">
-					<label class="mb-1 block text-sm font-medium text-lingua-text">Available</label>
+					<label
+						for="availability-toggle"
+						class="mb-1 block text-sm font-medium text-lingua-text"
+					>Available</label>
 					<button
+						id="availability-toggle"
 						type="button"
+						aria-label={editForm.isAvailable ? 'Mark as unavailable' : 'Mark as available'}
 						class={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${editForm.isAvailable ? 'bg-green-500' : 'bg-slate-300'}`}
 						onclick={() => (editForm!.isAvailable = !editForm!.isAvailable)}
 						role="switch"
@@ -411,7 +438,7 @@
 							class={`tap-target inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
 								editForm.dietaryFlags.includes(option.value)
 									? 'border-lingua-primary bg-lingua-primary text-white'
-									: 'border-lingua-border bg-white text-lingua-text'
+									: 'border-lingua-border bg-lingua-surface text-lingua-text'
 							}`}
 							onclick={() => toggleEditFlag(option.value, 'dietaryFlags')}
 							aria-pressed={editForm.dietaryFlags.includes(option.value)}
@@ -434,8 +461,8 @@
 							type="button"
 							class={`tap-target inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
 								editForm.allergens.includes(option.value)
-									? 'border-orange-300 bg-orange-50 text-orange-800'
-									: 'border-lingua-border bg-white text-lingua-text'
+									? 'border-lingua-warning/30 bg-lingua-warning-soft/20 text-lingua-warning'
+									: 'border-lingua-border bg-lingua-surface text-lingua-text'
 							}`}
 							onclick={() => toggleEditFlag(option.value, 'allergens')}
 							aria-pressed={editForm.allergens.includes(option.value)}
@@ -484,25 +511,71 @@
 	></div>
 
 	<div
-		class="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
+		class="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-lingua-surface p-6 shadow-xl"
 	>
-		<h3 class="text-lg font-semibold">Publish menu?</h3>
-		<p class="mt-2 text-sm text-lingua-subtle">
-			This will make the current draft menu live for guests at {selectedRestaurant.name}. The
-			previously published menu will be archived.
+		<h3 class="text-lg font-semibold text-lingua-text">Publish menu?</h3>
+		<p class="mt-1 text-sm text-lingua-subtle">
+			This will make the current draft live for guests at <strong>{selectedRestaurant.name}</strong>.
+			The previously published menu will be archived.
 		</p>
 
-		{#if form?.publishIssues && form.publishIssues.length > 0}
-			<div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
-				<div class="flex items-center gap-2 text-amber-800">
-					<AlertTriangle size={16} />
-					<span class="text-sm font-semibold">Publish blocked</span>
+		<!-- Pre-flight checklist -->
+		{#if blockingIssues.length > 0}
+			<div class="mt-4 rounded-lg border border-lingua-danger/30 bg-lingua-danger-soft/20 p-3">
+				<div class="flex items-center gap-2 text-lingua-danger">
+					<AlertTriangle size={15} />
+					<span class="text-sm font-semibold">Publish blocked — fix these first</span>
 				</div>
-				<ul class="mt-2 list-disc pl-5 text-sm text-amber-700">
-					{#each form.publishIssues as issue (issue.itemId)}
-						<li>
-							{issue.itemName}: {issue.issues.join(', ')}
+				<ul class="mt-2 space-y-1 text-sm text-lingua-danger">
+					{#each blockingIssues as issue (issue.itemId)}
+						<li class="flex gap-1.5">
+							<span class="font-medium">{issue.itemName}:</span>
+							<span>{issue.issues.join(', ')}</span>
 						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+
+		{#if warningIssues.length > 0}
+			<div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/20">
+				<div class="flex items-center gap-2 text-amber-800 dark:text-amber-400">
+					<AlertTriangle size={15} />
+					<span class="text-sm font-semibold">
+						{warningIssues.length} item{warningIssues.length === 1 ? '' : 's'} need staff confirmation
+					</span>
+				</div>
+				<p class="mt-1 text-xs text-amber-700 dark:text-amber-400">
+					Guests will be asked to confirm allergy/dietary info with staff for these items.
+					You can still publish.
+				</p>
+				<ul class="mt-2 space-y-1 text-xs text-amber-700 dark:text-amber-400">
+					{#each warningIssues as issue (issue.itemId)}
+						<li class="font-medium">{issue.itemName}</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+
+		{#if blockingIssues.length === 0 && warningIssues.length === 0}
+			<div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-700 dark:bg-emerald-900/20">
+				<div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+					<Check size={15} />
+					<span class="text-sm font-semibold">All items are verified — ready to publish</span>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Server-side publish errors (after attempted publish) -->
+		{#if form?.publishIssues && form.publishIssues.length > 0}
+			<div class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+				<div class="flex items-center gap-2 text-red-700 dark:text-red-400">
+					<AlertTriangle size={15} />
+					<span class="text-sm font-semibold">Server validation failed</span>
+				</div>
+				<ul class="mt-2 space-y-1 text-sm text-red-700 dark:text-red-400">
+					{#each form.publishIssues as issue (issue.itemId)}
+						<li><span class="font-medium">{issue.itemName}:</span> {issue.issues.join(', ')}</li>
 					{/each}
 				</ul>
 			</div>
@@ -511,7 +584,7 @@
 		<form
 			method="POST"
 			action="?/publish"
-			class="mt-4 flex justify-end gap-3"
+			class="mt-5 flex justify-end gap-3"
 			use:enhance={() => {
 				isPublishing = true;
 				return async ({ result, update }) => {
@@ -526,22 +599,23 @@
 			<input type="hidden" name="restaurant" value={selectedSlug} />
 			<button
 				type="button"
-				class="rounded-lg border border-lingua-border px-4 py-2 text-sm font-semibold text-lingua-text transition hover:bg-slate-50"
+				class="rounded-lg border border-lingua-border px-4 py-2 text-sm font-semibold text-lingua-text transition hover:bg-slate-50 dark:hover:bg-gray-800"
 				onclick={() => (showPublishConfirm = false)}
 			>
 				Cancel
 			</button>
 			<button
 				type="submit"
-				class="tap-target inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-				disabled={isPublishing}
+				class="tap-target inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-50
+					{canPublish ? 'bg-lingua-primary hover:opacity-90' : 'bg-gray-400 cursor-not-allowed'}"
+				disabled={isPublishing || !canPublish}
 			>
 				{#if isPublishing}
 					<Loader2 size={16} class="animate-spin" />
 				{:else}
 					<Send size={16} />
 				{/if}
-				Publish now
+				{canPublish ? 'Publish now' : 'Fix issues first'}
 			</button>
 		</form>
 	</div>

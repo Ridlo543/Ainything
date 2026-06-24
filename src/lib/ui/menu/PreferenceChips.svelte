@@ -28,7 +28,7 @@
 			class={`tap-target inline-flex shrink-0 items-center gap-2 rounded-lg border px-3 text-sm font-semibold transition ${
 				selected.includes(option.value)
 					? 'border-lingua-primary bg-lingua-primary text-white'
-					: 'border-lingua-border bg-white text-lingua-text'
+					: 'border-lingua-border bg-lingua-surface text-lingua-text'
 			}`}
 			aria-pressed={selected.includes(option.value)}
 			onclick={() => onToggle(option.value)}

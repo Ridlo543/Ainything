@@ -23,8 +23,8 @@
 
 <button
 	type="button"
-	class={`w-full rounded-lg border bg-white p-4 text-left transition hover:border-lingua-primary ${
-		selected ? 'border-lingua-primary ring-2 ring-teal-100' : 'border-lingua-border'
+	class={`w-full rounded-lg border bg-lingua-surface p-4 text-left transition hover:border-lingua-primary ${
+		selected ? 'border-lingua-primary ring-2 ring-lingua-primary-soft' : 'border-lingua-border'
 	}`}
 	{onclick}
 >

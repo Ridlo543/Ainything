@@ -45,15 +45,15 @@
 				</div>
 
 				<div class="grid gap-3 text-sm text-lingua-subtle sm:grid-cols-3">
-					<div class="rounded-lg border border-lingua-border bg-white p-4">
+					<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 						<strong class="block text-lingua-text">Organization</strong>
 						Billing, members, roles, and restaurant access belong to one tenant.
 					</div>
-					<div class="rounded-lg border border-lingua-border bg-white p-4">
+					<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 						<strong class="block text-lingua-text">Restaurant</strong>
 						Public host, menu, knowledge, tables, analytics, and staff workflow.
 					</div>
-					<div class="rounded-lg border border-lingua-border bg-white p-4">
+					<div class="rounded-lg border border-lingua-border bg-lingua-surface p-4">
 						<strong class="block text-lingua-text">QR table</strong>
 						Guest opens a table session without account, install, or shared login.
 					</div>
@@ -77,7 +77,7 @@
 				</div>
 				<div class="mt-4 grid gap-2">
 					{#each organizationRestaurants.slice(0, 4) as restaurant (restaurant.id)}
-						<div class="rounded-lg border border-lingua-border bg-white px-3 py-2">
+						<div class="rounded-lg border border-lingua-border bg-lingua-surface px-3 py-2">
 							<p class="font-semibold text-lingua-text">{restaurant.name}</p>
 							<p class="text-sm text-lingua-subtle">{restaurant.publicHost}</p>
 						</div>

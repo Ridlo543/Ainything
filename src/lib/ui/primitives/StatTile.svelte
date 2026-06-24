@@ -17,12 +17,12 @@
 
 	const toneClass = $derived(
 		{
-			primary: 'bg-teal-50 text-teal-700',
-			accent: 'bg-orange-50 text-orange-700',
-			success: 'bg-green-50 text-green-700',
-			warning: 'bg-amber-50 text-amber-700',
-			danger: 'bg-red-50 text-red-700',
-			info: 'bg-blue-50 text-blue-700'
+			primary: 'bg-lingua-primary-soft text-lingua-primary-strong',
+			accent: 'bg-lingua-accent-soft text-lingua-accent',
+			success: 'bg-lingua-success-soft text-lingua-success',
+			warning: 'bg-lingua-warning-soft text-lingua-warning',
+			danger: 'bg-lingua-danger-soft text-lingua-danger',
+			info: 'bg-lingua-info-soft text-lingua-info'
 		}[tone]
 	);
 </script>

@@ -26,7 +26,7 @@
 
 <nav
 	class="fixed top-0 right-0 left-0 z-50 transition-all duration-300 {scrolled
-		? 'border-b border-lingua-border bg-white/90 shadow-sm backdrop-blur-md dark:bg-lingua-surface/90'
+		? 'border-b border-lingua-border bg-lingua-surface/90 shadow-sm backdrop-blur-md'
 		: 'bg-transparent'}"
 >
 	<div class="app-container flex h-16 items-center justify-between sm:h-20">
@@ -83,7 +83,7 @@
 
 	{#if mobileOpen}
 		<div
-			class="border-t border-lingua-border bg-white px-4 py-4 shadow-lg dark:bg-lingua-surface md:hidden"
+			class="border-t border-lingua-border bg-lingua-surface px-4 py-4 shadow-lg md:hidden"
 		>
 			<div class="flex flex-col gap-1">
 				{#each NAV_LINKS as link (link.href)}
