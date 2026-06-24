@@ -1,14 +1,14 @@
 # Lingua Architecture and Engineering Rules
 
-**Status:** Baseline architecture for a long-term SvelteKit implementation.
+**Status:** Active — production-grade multi-tenant UMKM SaaS platform.
 
 ## 1. Architecture Goal
 
-Lingua should feel light and fast to tourists, but its codebase must be structured for a larger product: customer PWA, admin dashboard, staff workflow, AI/RAG, onboarding, analytics, and future integrations.
+Lingua is a production platform serving UMKM at any scale — from a single warung to a multi-outlet enterprise chain. The codebase must be structured for the full product: customer PWA, owner dashboard, staff workflow, AI/RAG, onboarding, analytics, and future integrations.
 
-The key decision is to use SvelteKit for the web layer while keeping business logic outside components and route files.
+The key decision is to use SvelteKit for the web layer while keeping business logic outside components and route files. This is not an MVP — every architectural decision must account for 1000+ tenants on day one.
 
-Product shape: one Lingua deployment serves many organizations and many restaurants. A restaurant receives scoped QR routes, dashboard data, and staff workflow. It does not receive a separate codebase or app build.
+Product shape: one Lingua deployment serves many organizations and many outlets. An outlet receives scoped QR routes, product catalog, cart/order management, dashboard data, and staff workflow. It does not receive a separate codebase or app build. Tenant isolation is non-negotiable — one tenant must never see another's data.
 
 Current local backend baseline: PostgreSQL and Redis run through a vendor-neutral `compose.yml` driven by `scripts/infra.mjs` (Podman preferred, Docker fallback, rootless by default). Managed services remain optional later, but local architecture must not depend on a vendor dashboard to boot the app.
 
@@ -622,10 +622,69 @@ pnpm check            # TypeScript check
 Any PR/change that touches these areas needs careful review:
 
 - RLS policies.
-- Public menu APIs.
+- Public catalog/menu APIs.
 - AI prompt/guardrail behavior.
-- Allergen/halal/dietary logic.
+- Allergen/halal/dietary logic (restaurant vertical only).
 - Provider adapters.
 - Auth/session code.
 - Public route bundle size.
+- Tenant isolation (any query on tenant-owned data).
+
+## 14. Component Ownership Model
+
+shadcn-svelte components are **copy-owned code** in `src/lib/ui/` — not runtime dependencies.
+
+### How it works
+
+- Components are copied from the shadcn-svelte registry (next branch, Tailwind v4) into `src/lib/ui/`
+- Once copied, they are owned and maintained by this project
+- Design tokens (`--lingua-*` CSS variables) override shadcn's default CSS variables
+- bits-ui IS a runtime dependency — it provides accessible headless primitives (keyboard nav, ARIA, focus trap) used internally by shadcn components
+- sveltekit-superforms is a runtime dependency — used for complex admin forms with Zod validation
+
+### Component categories in `src/lib/ui/`
+
+| Category | Components | Source |
+| -------- | ---------- | ------ |
+| shadcn-sourced | Button, Input, Textarea, Badge, Card, Dialog, Alert, Skeleton, Sonner, Select, Tabs, DropdownMenu, Sheet, Table, Combobox, Command, DatePicker | Copied from shadcn-svelte registry |
+| project-owned | Sidebar, BottomNav, TopBar, and domain-specific components | Built in-project, may use bits-ui primitives |
+
+### Why copy-owned, not installed
+
+- Full control over accessibility, tokens, and behavior
+- No version lock-in — if shadcn-svelte updates, our copies are unaffected
+- Design system tokens (`--lingua-*`) can be applied without fighting the library
+- Components can be modified to match UMKM-specific UX patterns
+
+### CSS variable mapping
+
+shadcn-svelte uses standard CSS variable names (`--primary`, `--background`, `--card`, etc.). These are mapped to `--lingua-*` tokens in `src/routes/layout.css`:
+
+```css
+/* shadcn CSS variable bridge */
+:root {
+  --background: var(--color-lingua-bg);
+  --foreground: var(--color-lingua-text);
+  --primary: var(--color-lingua-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-lingua-secondary);
+  --muted: var(--color-lingua-muted);
+  --muted-foreground: var(--color-lingua-subtle);
+  --border: var(--color-lingua-border);
+  --ring: var(--color-lingua-primary);
+  --radius: var(--radius-md);
+}
+```
+
+## 15. Scale Architecture Notes
+
+The same codebase must work at all scales:
+
+| Scale | Tenants | Strategy |
+| ----- | ------- | -------- |
+| Small | 1–10 | Single VPS or Supabase free tier. Redis optional. |
+| Medium | 10–100 | RLS + Redis caching + rate limiting. BullMQ for embeddings/OCR. |
+| Large | 100–1000+ | Connection pooling (PgBouncer), read replicas, CDN for published catalogs, queue for all async work. Adapter pattern enables provider swapping. |
+
+**Public buyer routes own the performance budget.** Admin/AI/analytics code must be lazy-loaded and must never bloat the public catalog bundle.
 - Service worker caching.

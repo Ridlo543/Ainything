@@ -1,6 +1,8 @@
 # Lingua TODO
 
-This plan covers the full Lingua product: a multi-tenant QR menu + guest support SaaS for restaurants serving international tourists. One deployment serves many organizations, many restaurants, many staff, and many anonymous guest sessions.
+This plan covers the full Lingua product: a multi-tenant UMKM SaaS platform for restaurants, retail, and service businesses. One deployment serves many organizations, many outlets, many staff, and many anonymous buyer sessions.
+
+**Active Redesign Implementation:** See `docs/REDESIGN_PLAN.md` and `docs/REDESIGN_TODO.md` for the v2.0 production redesign (multi-tenant, tap-first, cart/order flow, role-based dashboards, new design system with emerald/amber/rose palette). This file tracks the original MVP implementation.
 
 Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in progress, `[!]` broken/blocked.
 

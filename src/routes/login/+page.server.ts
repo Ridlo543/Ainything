@@ -2,7 +2,6 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { authProvider } from '$lib/server/auth/auth-factory';
-import { appEnv } from '$lib/server/config/env';
 
 export const load: PageServerLoad = ({ locals, url }) => {
 	if (locals.user) {
@@ -13,7 +12,6 @@ export const load: PageServerLoad = ({ locals, url }) => {
 	}
 
 	return {
-		isMock: appEnv.authProvider === 'mock',
 		redirectTo: url.searchParams.get('redirectTo') ?? '/dashboard'
 	};
 };

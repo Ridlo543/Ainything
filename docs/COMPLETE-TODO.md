@@ -1021,3 +1021,64 @@ Three categories of failure:
 
 - `pnpm test:e2e` — 60/60 passed, 0 failed
 - `pnpm check` — 0 errors, 0 warnings (pre-existing warnings fully resolved)
+
+## 2026-06-24 Redesign Priority 1: Landing, Auth, Layouts
+
+### Architecture Decisions
+- **UI stack finalized**: shadcn-svelte (copy-owned, next branch) + bits-ui 2.18.1 (runtime dep) + sveltekit-superforms + Zod
+- **AGENTS.md rewritten**: removed all MVP/prototype language, declared production-grade multi-tenant SaaS, added component ownership model and verification rules
+- **Technical_Specification.md v2.2**: shadcn-svelte + bits-ui + superforms as official UI primitives
+- **ARCHITECTURE.md**: added §14 Component Ownership Model, §15 Scale Architecture Notes
+- **svelte.config.js created**: `$utils` → `src/lib/utils`, `$components` → `src/lib/ui` aliases, vitePreprocess, adapter-node
+
+### shadcn-svelte Integration
+- **components.json**: shadcn-svelte CLI config (new-york style, stone base, `$lib/ui` output)
+- **cn() utility** at `src/lib/utils/index.ts`: `twMerge(clsx(...))` + bits-ui type re-exports
+- **CSS variable bridge** in `src/routes/layout.css`: shadcn vars (`--primary`, `--background`, `--foreground`, `--muted`, `--border`, `--ring`, `--sidebar-*`) mapped to `var(--color-lingua-*)` tokens — all shadcn components auto-use Fresh Growth palette
+- **16 shadcn components** copied from registry into `src/lib/ui/{component}/`: button, badge, card, input, label, textarea, separator, skeleton, alert, dialog, select, tabs, dropdown-menu, sheet, table, sonner
+- **shadcn-svelte skill** installed via `pnpm dlx skills add huntabyte/shadcn-svelte` into `.agents/skills/shadcn-svelte/`
+- Old custom Priority 0 components removed (Button, Card, Input, Textarea, Badge, Modal, Toasts, Skeleton, AlertBanner, EmptyState, Navbar, Footer, DataTable, Pagination)
+- 6 route files fixed for removed component imports
+
+### Landing Page (`src/routes/+page.svelte`)
+- Full rewrite with shadcn Button, Card, Badge components
+- Sections: sticky navbar, hero (badge + headline + CTA + social proof), features (3 cards), how-it-works (3 steps), testimonials (2 cards), pricing (3 tiers: Free/Starter/Pro), final CTA banner, footer
+
+### Login Page (`src/routes/login/+page.svelte`)
+- Two-panel layout: emerald gradient left panel on lg+, form on mobile
+- shadcn Input/Label/Button/Alert components
+- Preserves mock demo mode + SvelteKit form action
+- Show/hide password toggle
+
+### Register Page (`src/routes/register/+page.svelte`)
+- 3-step wizard with progress bar: tenant type (tap cards: Restaurant/Retail/Service) → account info (password strength) → business info (auto-slug + city select)
+
+### Layout Shells (4 route groups)
+- **(dashboard)/+layout.server.ts**: auth guard + tenant context via `resolveTenantContext()`, staff → staff inbox redirect
+- **(dashboard)/+layout.svelte**: Sidebar + TopBar + BottomNav + Toaster, outlet switcher via URL params
+- **(staff)/+layout.server.ts**: auth guard (staff role only, else → /dashboard)
+- **(staff)/+layout.svelte**: simple top bar with restaurant name + staff mode badge
+- **(platform)/+layout.server.ts**: auth guard (super_admin only)
+- **(platform)/+layout.svelte**: 280px sidebar with Overview/Organizations/Tenants/Analytics/Settings nav
+- **(public)/r/[slug]/+layout.server.ts**: resolves tenant by slug (TODO: database-backed)
+- **(public)/r/[slug]/+layout.svelte**: mobile-first, tenant branding header
+
+### Route Migration
+- Old route groups renamed from `(dashboard)` etc to `routes-archive/` (moved outside `src/routes/` entirely to avoid SvelteKit path conflicts)
+- New routes take canonical names: `(dashboard)`, `(staff)`, `(platform)`, `(public)`
+- Root `+layout.svelte` meta description updated: multi-tenant QR catalog, cart, and order platform
+
+### Sidebar, TopBar, BottomNav
+- **Sidebar.svelte**: 250px fixed sidebar using shadcn Separator + DropdownMenu primitives, expandable nav groups (Overview, Catalog, Orders, Analytics, Team, Settings), outlet switcher dropdown, user footer with sign out
+- **TopBar.svelte**: sticky header with hamburger (mobile), tenant name, notifications bell (badge), user avatar + dropdown menu using shadcn DropdownMenu
+- **BottomNav.svelte**: fixed bottom nav with 4 icons (Home, Catalog, Orders, Settings), active indicator dot, mobile only (< lg breakpoint)
+
+### Docs Updated
+- `AGENTS.md`: full rewrite, production-grade language, shadcn-svelte definitive, component ownership model
+- `docs/Technical_Specification.md`: v2.2 UI primitives section
+- `docs/ARCHITECTURE.md`: §14 Component Ownership Model + §15 Scale Architecture Notes
+- `docs/REDESIGN_TODO.md`: all Priority 1 items marked ✅ DONE
+- `docs/CONTEXT.md`: route groups updated (no more (v2) group, legacy moves to routes-archive/)
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings

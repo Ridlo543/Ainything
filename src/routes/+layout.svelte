@@ -92,7 +92,7 @@
 	<meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)" />
 	<meta
 		name="description"
-		content="Lingua is a multi-restaurant QR menu and guest support platform for tourist-heavy restaurants."
+		content="Lingua — multi-tenant QR catalog, cart, and order platform for restaurants, retail, and services."
 	/>
 </svelte:head>
 {@render children()}

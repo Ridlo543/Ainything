@@ -1,138 +1,197 @@
 <script lang="ts">
-	import { Building2, LogIn, Eye, EyeOff } from '@lucide/svelte';
-	import { resolve } from '$app/paths';
 	import type { PageData, ActionData } from './$types';
-	import AlertBanner from '$lib/ui/AlertBanner.svelte';
+	import { Button } from '$lib/ui/button';
+	import { Input } from '$lib/ui/input';
+	import { Label } from '$lib/ui/label';
+	import * as Alert from '$lib/ui/alert';
+	import { Eye, EyeOff, AlertCircle, QrCode, TrendingUp, ShoppingCart, Shield } from '@lucide/svelte';
 
-	let { data, form }: { data: PageData; form?: ActionData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	let showPassword = $state(false);
+	let loading = $state(false);
+
+	const highlights = [
+		{
+			icon: QrCode,
+			title: 'Katalog QR siap pakai',
+			desc: 'Pelanggan scan, pilih, dan pesan — tanpa install app apapun.'
+		},
+		{
+			icon: ShoppingCart,
+			title: 'Pesanan masuk real-time',
+			desc: 'Notifikasi setiap pesanan baru langsung ke HP kamu.'
+		},
+		{
+			icon: TrendingUp,
+			title: 'Laporan & analitik',
+			desc: 'Pantau penjualan, produk terlaris, dan tren harian.'
+		},
+		{
+			icon: Shield,
+			title: 'Data aman & terisolasi',
+			desc: 'Setiap bisnis memiliki ruang data yang sepenuhnya terpisah.'
+		}
+	];
 </script>
 
 <svelte:head>
-	<title>Sign in - Lingua</title>
+	<title>Masuk — Lingua</title>
 </svelte:head>
 
-<main class="min-h-screen py-6 sm:py-10">
-	<div class="app-container grid min-h-[calc(100vh-80px)] place-items-center">
-		<section class="surface w-full max-w-lg rounded-lg p-5 sm:p-7">
-			<div class="flex items-start gap-3">
-				<span class="rounded-lg bg-lingua-primary-soft p-3 text-lingua-primary">
-					<Building2 size={26} />
-				</span>
-				<div>
-					<p class="text-sm font-semibold text-lingua-primary">Lingua</p>
-					<h1 class="mt-1 text-2xl font-semibold text-lingua-text sm:text-3xl">
-						Sign in to your account
-					</h1>
-					<p class="mt-2 text-sm leading-6 text-lingua-subtle">
-						Manage your restaurant menu, QR tables, and guest experience.
-					</p>
+<div class="flex min-h-screen bg-[#fafaf9]">
+
+	<!-- Left panel (lg+) -->
+	<div
+		class="relative hidden overflow-hidden lg:flex lg:w-[52%] lg:flex-col"
+		style="background: linear-gradient(145deg, #065f46 0%, #059669 55%, #10b981 100%);"
+	>
+		<div class="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/5" aria-hidden="true"></div>
+		<div class="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-white/5" aria-hidden="true"></div>
+
+		<div class="relative z-10 p-10">
+			<a href="/" class="flex items-center gap-3" aria-label="Lingua beranda">
+				<span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-xl font-black text-white">L</span>
+				<span class="text-xl font-extrabold text-white">Lingua</span>
+			</a>
+		</div>
+
+		<div class="relative z-10 flex flex-1 flex-col justify-center px-10 pb-10">
+			<h1 class="text-4xl font-extrabold leading-tight text-white">
+				Digitalisasi bisnis<br />kamu hari ini
+			</h1>
+			<p class="mt-4 text-lg text-white/70">
+				Dari katalog QR sampai laporan penjualan —<br />semua dari satu dashboard.
+			</p>
+
+			<div class="mt-8 overflow-hidden rounded-2xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-sm">
+				<div class="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+					<span class="h-2.5 w-2.5 rounded-full bg-red-400/70"></span>
+					<span class="h-2.5 w-2.5 rounded-full bg-yellow-400/70"></span>
+					<span class="h-2.5 w-2.5 rounded-full bg-green-400/70"></span>
+					<span class="ml-3 rounded bg-white/10 px-3 py-0.5 text-[11px] text-white/50">lingua.app/dashboard</span>
 				</div>
+				<img
+					src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=360&fit=crop&auto=format&q=80"
+					alt="Dashboard Lingua"
+					class="h-48 w-full object-cover object-top opacity-90"
+					width="640" height="192"
+					loading="eager"
+				/>
 			</div>
 
-			{#if data.isMock}
-				<!-- Demo mode: quick-select login for E2E and development -->
-				<form method="POST" action="?/login" class="mt-6 grid gap-4">
-					<input type="hidden" name="redirectTo" value={data.redirectTo} />
-
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text" for="demo-account">
-						Demo account
-						<select
-							id="demo-account"
-							name="email"
-							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-						>
-							<option value="owner@bali-table.test">Owner — Bali Table Group</option>
-							<option value="staff@jakarta-hospitality.test">Staff — Jakarta Hospitality Lab</option
-							>
-						</select>
-					</label>
-
-					<!-- Password field hidden but required for mock provider -->
-					<input type="hidden" name="password" value="demo" />
-
-					{#if form?.message}
-						<AlertBanner type="error" message={form.message} />
-					{/if}
-
-					<button
-						class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
-						type="submit"
-					>
-						<LogIn size={17} /> Continue
-					</button>
-				</form>
-			{:else}
-				<form method="POST" action="?/login" class="mt-6 grid gap-4">
-					<input type="hidden" name="redirectTo" value={data.redirectTo} />
-
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
-						Email
-						<input
-							type="email"
-							name="email"
-							autocomplete="email"
-							required
-							placeholder="you@restaurant.com"
-							value={form?.email ?? ''}
-							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-						/>
-					</label>
-
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
-						<div class="flex items-center justify-between">
-							Password
-							<a
-								href={resolve('/auth/forgot-password')}
-								class="text-xs font-normal text-lingua-primary hover:underline"
-							>
-								Forgot?
-							</a>
+			<ul class="mt-8 grid grid-cols-2 gap-3">
+				{#each highlights as h}
+					<li class="flex items-start gap-3 rounded-xl bg-white/10 p-3">
+						<div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20">
+							<h.icon size={14} class="text-white" />
 						</div>
-						<div class="relative">
-							<input
-								type={showPassword ? 'text' : 'password'}
-								name="password"
-								autocomplete="current-password"
-								required
-								placeholder="Enter your password"
-								class="tap-target w-full rounded-lg border border-lingua-border bg-white px-3 py-2 pr-10 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-							/>
-							<button
-								type="button"
-								class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-lingua-subtle hover:text-lingua-text"
-								aria-label={showPassword ? 'Hide password' : 'Show password'}
-								onclick={() => (showPassword = !showPassword)}
-							>
-								{#if showPassword}
-									<EyeOff size={16} />
-								{:else}
-									<Eye size={16} />
-								{/if}
-							</button>
+						<div>
+							<p class="text-xs font-bold text-white">{h.title}</p>
+							<p class="mt-0.5 text-[11px] leading-relaxed text-white/60">{h.desc}</p>
 						</div>
-					</label>
+					</li>
+				{/each}
+			</ul>
+		</div>
 
-					{#if form?.message}
-						<AlertBanner type="error" message={form.message} />
-					{/if}
-
-					<button
-						class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
-						type="submit"
-					>
-						<LogIn size={17} /> Sign in
-					</button>
-				</form>
-
-				<p class="mt-5 text-center text-sm text-lingua-subtle">
-					New to Lingua?
-					<a href={resolve('/register')} class="font-semibold text-lingua-primary hover:underline"
-						>Create an account</a
-					>
-				</p>
-			{/if}
-		</section>
+		<div class="relative z-10 px-10 pb-8">
+			<p class="text-xs text-white/30">&copy; {new Date().getFullYear()} Lingua. Hak cipta dilindungi.</p>
+		</div>
 	</div>
-</main>
+
+	<!-- Right form panel -->
+	<div class="flex flex-1 items-center justify-center p-6 lg:p-12">
+		<div class="w-full max-w-sm">
+
+			<!-- Mobile logo -->
+			<div class="mb-8 flex items-center gap-2.5 lg:hidden">
+				<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white">L</span>
+				<span class="text-lg font-extrabold text-[#1a1a2e]">Lingua</span>
+			</div>
+
+			<div class="mb-7">
+				<h2 class="text-2xl font-extrabold text-[#1a1a2e]">Selamat datang kembali</h2>
+				<p class="mt-1 text-sm text-[#78716c]">Masuk untuk melanjutkan ke dashboard.</p>
+			</div>
+
+			{#if form?.message}
+				<Alert.Root variant="destructive" class="mb-5">
+					<AlertCircle class="h-4 w-4" />
+					<Alert.Description>{form.message}</Alert.Description>
+				</Alert.Root>
+			{/if}
+
+			<form
+				method="POST"
+				action="?/login"
+				class="space-y-4"
+				onsubmit={() => (loading = true)}
+			>
+				{#if data.redirectTo}
+					<input type="hidden" name="redirectTo" value={data.redirectTo} />
+				{/if}
+
+				<div class="space-y-1.5">
+					<Label for="email">Email</Label>
+					<Input
+						id="email"
+						name="email"
+						type="email"
+						placeholder="nama@bisnis.com"
+						autocomplete="email"
+						required
+						class="min-h-11"
+					/>
+				</div>
+
+				<div class="space-y-1.5">
+					<div class="flex items-center justify-between">
+						<Label for="password">Password</Label>
+						<a
+							href="/auth/forgot-password"
+							class="text-xs text-[#78716c] underline-offset-4 transition-colors hover:text-[#1a1a2e] hover:underline"
+						>Lupa password?</a>
+					</div>
+					<div class="relative">
+						<Input
+							id="password"
+							name="password"
+							type={showPassword ? 'text' : 'password'}
+							placeholder="Masukkan password"
+							autocomplete="current-password"
+							required
+							class="min-h-11 pr-10"
+						/>
+						<button
+							type="button"
+							onclick={() => (showPassword = !showPassword)}
+							aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+							class="absolute inset-y-0 right-0 flex items-center px-3 text-[#78716c] transition-colors hover:text-[#1a1a2e]"
+						>
+							{#if showPassword}<EyeOff class="h-4 w-4" />{:else}<Eye class="h-4 w-4" />{/if}
+						</button>
+					</div>
+				</div>
+
+				<Button type="submit" class="w-full min-h-11" disabled={loading}>
+					{loading ? 'Memproses...' : 'Masuk'}
+				</Button>
+			</form>
+
+			<div class="my-6 flex items-center gap-3">
+				<div class="h-px flex-1 bg-[#e7e5e4]"></div>
+				<span class="text-xs text-[#78716c]">atau</span>
+				<div class="h-px flex-1 bg-[#e7e5e4]"></div>
+			</div>
+
+			<p class="text-center text-sm text-[#78716c]">
+				Belum punya akun?
+				<a
+					href="/register"
+					class="font-semibold text-[#059669] underline-offset-4 transition-colors hover:underline"
+				>Daftar gratis</a>
+			</p>
+		</div>
+	</div>
+</div>

@@ -4,79 +4,104 @@ This file gives future agents fast context without replacing the PRD or technica
 
 ## One-Sentence Product Definition
 
-Lingua is a multi-tenant SaaS platform that gives restaurants in tourist areas their own QR menu + AI guest support experience, with admin dashboards, staff inbox, and analytics — all from one deployment.
+Lingua is a multi-tenant UMKM SaaS platform that gives every business owner (restaurant, retail, jasa) their own digital product catalog, QR/link access, cart/order management, and buyer interaction — with admin dashboards, staff workflow, and AI support — all from one deployment.
 
 ## Current Product Decision
 
-Lingua is a full B2B SaaS product, not an MVP. One deployment serves many organizations and many restaurants. Each restaurant gets its own subdomain, QR experience, admin dashboard, and staff management. A platform admin dashboard manages all tenants from a single pane.
+Lingua is a full B2B SaaS product for UMKM, not MVP. One deployment serves many organizations and many outlets. Each outlet gets its own QR experience, product catalog, cart/order system, admin dashboard, and staff management. A platform admin dashboard manages all tenants from a single pane.
 
-The product is NOT a POS, payment system, hotel management tool, or travel super-app. It is a guest communication platform for restaurants serving international tourists.
+The product is NOT a POS, payment system, hotel management tool, travel super-app, or marketplace aggregator. It is a digital presence + order management platform for UMKM, with tap-first UX designed so buyers never need to type.
+
+Restaurants are the first vertical (AI-driven allergen/dietary support), but the core platform serves any UMKM type: retail shops, service providers, and beyond.
 
 ## Current Technical Decision
 
 SvelteKit + Svelte 5 + TypeScript. Supabase (PostgreSQL + Auth + RLS + Storage + Realtime) as backend platform — with adapter patterns for all providers so migration to self-hosted PostgreSQL is possible without rewriting business logic.
 
-The architecture must scale from 1 restaurant to 1000+ with proper tenant isolation at the application layer (explicit WHERE scoping) and database layer (RLS policies). Domain logic, services, repositories, and providers stay outside Svelte components.
+The architecture must scale from 1 tenant to 1000+ with proper tenant isolation at the application layer (explicit WHERE scoping) and database layer (RLS policies). Domain logic, services, repositories, and providers stay outside Svelte components.
+
+## Current Design Decision
+
+Design system v2.0 "Fresh Growth + Warm Hospitality":
+
+- Primary: emerald #059669 (friendly, growth, accessible)
+- Secondary: amber #F59E0B (warm, approachable)
+- Accent: rose #EC4899 (modern, playful)
+- Warm neutrals (stone palette, not cool gray)
+- Typography: Plus Jakarta Sans + Inter + JetBrains Mono
+- Tap-first: 44px minimum hit targets
+- Radius: 8px (controls), 12px (cards), 16px (modals)
+
+Custom theme file: `.agents/skills/theme-factory/themes/fresh-growth.md`
+Full specification: `docs/DESIGN_SYSTEM.md` v2.0
 
 ## Personas
 
-### Tourist (End User)
+### Pembeli / Konsumen (End User)
 
-- Wants to understand food names, ingredients, spice, allergens, halal, and cultural context.
-- Does not want to download an app.
-- May be using spotty mobile data.
-- Scans QR → gets instant menu in their language.
-- No login, no install, no account.
+- Scans QR at outlet or opens link from social media
+- Wants to see product catalog clearly: photos, names, prices, descriptions
+- For restaurants: wants ingredient, allergen, halal, spice information
+- Does not want to download an app
+- May be using spotty mobile data or limited data plan
+- Wants to select products and send order without waiting for staff
+- No login, no install, no account
 
-### Restaurant Owner or Manager
+### UMKM Owner or Manager
 
-- Owns or manages one or more restaurants.
-- Wants fewer repeated questions from foreign guests and fewer wrong orders.
-- Registers on Lingua, creates restaurant(s), uploads menu, prints QR codes.
-- Gets a restaurant-specific admin dashboard.
-- Can invite staff to help manage their restaurant.
+- Owns or manages one or more outlets (restaurants, shops, service businesses)
+- Wants a digital catalog that looks clean and professional
+- Registers on Lingua, sets up products, generates QR codes
+- Gets outlet-specific admin dashboard with catalog, orders, analytics
+- Can invite staff to help operate the business
+- Wants less manual ordering chaos and more business visibility
 
 ### Staff
 
-- Works at a specific restaurant.
-- Receives fallback requests from tourists via the staff inbox.
-- Sees only their assigned restaurant's data.
-- Does not need a complex dashboard.
+- Works at a specific outlet
+- Receives orders and fallback requests
+- Sees only their assigned outlet's data
+- Does not need a complex dashboard — just order queue + status buttons
+- Gets real-time notifications for new orders
 
 ### Platform Admin (Super Admin / Developer)
 
-- Operates the Lingua platform itself.
-- Sees all organizations, all restaurants, system-wide analytics.
-- Can suspend/activate organizations, change plans, provision resources.
-- Access via `/platform` (separate route group, different navigation).
-- This is NOT the same persona as a restaurant owner with multiple restaurants.
+- Operates the Lingua platform itself
+- Sees all organizations, all outlets, system-wide analytics
+- Can suspend/activate organizations, change plans, provision resources
+- Access via `/platform` (separate route group, different navigation)
+- Desktop-first, data-heavy tables, wider sidebar
 
 ## Key Domain Objects
 
 - **Platform**: the SaaS deployment itself. Owns all organizations.
-- **Organization**: tenant/billing owner. Can have 1 to N restaurants.
-- **Restaurant**: public customer-facing venue. Has its own subdomain, menu, QR tables, staff, dashboard.
-- **Restaurant Location**: optional branch/location under a restaurant brand (post-MVP).
-- **Table**: QR-scoped entry point for a customer session (scoped to one restaurant).
-- **Menu**: versioned set of categories and items (published vs draft).
-- **Menu Item**: dish/drink with structured flags and translations.
-- **Knowledge Document**: restaurant-specific facts, policies, promos, cultural notes.
-- **Customer Session**: anonymous table session created from QR scan.
+- **Organization**: tenant/billing owner. Can have 1 to N outlets.
+- **Outlet**: public customer-facing venue. Has its own QR, catalog, cart, staff, dashboard. Previously called "Restaurant" — now generalized for any UMKM type.
+- **Outlet Type**: classification — restaurant/café, retail/shop, service. Determines which features are enabled (e.g., dietary flags only for restaurants).
+- **Table/Location**: QR-scoped entry point for a customer session (scoped to one outlet).
+- **Category**: grouping for products (e.g., Makanan, Minuman, Pakaian, Layanan).
+- **Product**: general catalog item — dish, drink, garment, service booking. Has name, price, image, description, category, availability.
+- **Product Flag**: optional structured metadata — dietary flags (for restaurants), size/color (for retail), duration (for services).
+- **Knowledge Document**: outlet-specific facts, policies, promos, cultural notes.
+- **Customer Session**: anonymous session created from QR scan or link access.
+- **Cart**: temporary selection of products (stored in browser or session).
+- **Order**: committed cart sent from buyer → received at staff/owner dashboard. Items list, total, notes, status.
+- **Order Item**: individual product within an order (name, quantity, price, notes).
 - **Chat Message**: session-scoped customer/AI/staff message.
-- **Fallback Request**: request for human staff help.
+- **Fallback Request**: request for human staff help (generalized from restaurant-only).
 - **AI Event**: trace of model, prompt, retrieval, confidence, latency, and cost.
-- **Membership**: user → organization → restaurant role binding.
+- **Membership**: user → organization → outlet role binding.
 - **Subscription/Plan**: billing tier with usage limits (free, starter, pro).
-- **Invitation**: pending staff/admin invite to a restaurant.
+- **Invitation**: pending staff/admin invite to an outlet.
 
 ## User Role Hierarchy
 
 ```
 super_admin         → Platform owner. Full system access. /platform.
-org_owner           → Owns an organization. Can manage all restaurants under it.
-restaurant_admin    → Manages one specific restaurant. Can edit menu, invite staff, view analytics.
-staff               → Works at one restaurant. Views inbox, resolves fallback requests.
-anonymous (tourist) → No auth. QR-scoped to one table at one restaurant.
+org_owner           → Owns an organization. Can manage all outlets under it.
+outlet_admin        → Manages one specific outlet. Can edit products, invite staff, view orders.
+staff               → Works at one outlet. Views order queue, resolves orders and fallback requests.
+anonymous (buyer)   → No auth. QR/link-scoped to one outlet.
 ```
 
 ## Route Groups
@@ -86,63 +111,111 @@ src/routes/
   +page.svelte              Marketing landing page
   +layout.svelte            Root layout (language detection, theme)
 
-  /login                    Sign-in (Supabase Auth)
-  /register                 Registration entry (hybrid pathway)
+  /login                    Sign-in
+  /register                 Registration entry (multi-step: type → account → business)
   /register/restaurant      Restaurant-first registration
   /register/organization    Organization-first registration
 
-  (platform)/               Platform admin (super admin only)
-    /platform                Overview dashboard
+  (dashboard)/               Owner dashboard (redesigned layout + pages)
+    /dashboard                Overview (stats, quick actions)
+    /dashboard/catalog        Products CRUD
+    /dashboard/orders         Order management
+    /dashboard/analytics      Charts + insights
+    /dashboard/team           Staff management
+    /dashboard/settings       QR, integrations, billing
+
+  (staff)/                   Staff dashboard (redesigned layout + pages)
+    /staff/inbox              Order queue (real-time)
+    /staff/orders/[id]        Order detail + status update
+    /staff/settings           Profile, notifications
+
+  (platform)/                Platform admin (super admin only)
+    /platform                 Overview dashboard
     /platform/organizations   Manage all orgs
-    /platform/restaurants     Manage all restaurants
+    /platform/tenants         Manage all tenants
 
-  (dashboard)/              Restaurant admin dashboard
-    /dashboard               Overview (restaurant-scoped)
-    /dashboard/menu           Menu editor
-    /dashboard/tables         QR table manager
-    /dashboard/knowledge      Knowledge base
-    /dashboard/analytics      Restaurant analytics
-    /dashboard/staff          Staff management
-    /dashboard/settings       Restaurant settings
+  (public)/                  Public customer view (redesigned)
+    /r/[slug]                 Catalog (search, filter, tap detail)
+    /r/[slug]/cart            Cart review + send order
+    /r/[slug]/order/[id]      Order tracking
 
-  (staff)/                  Staff inbox
-    /staff/inbox              Fallback request management
-
-  (public)/                 Tourist QR experience (no auth)
-    /r/[slug]/table/[code]   QR entry point
-
-  api/                      JSON endpoints
-    /api/public/*             Tourist-facing APIs
+  api/                       JSON endpoints
+    /api/public/*             Buyer-facing APIs
     /api/admin/*              Admin APIs
     /api/platform/*           Platform admin APIs
 ```
 
+Legacy routes archived to `routes-archive/` (outside SvelteKit routing).
+    /dashboard/settings       Settings
+
+  (staff)/                  OLD — Keep working until migrated
+    /staff/inbox              Fallback request management
+
+  (public)/                 OLD PUBLIC — Keep working
+    /r/[slug]/table/[code]   QR entry point (legacy)
+
+  api/                      JSON endpoints
+    /api/public/*             Buyer-facing APIs
+    /api/admin/*              Admin APIs
+    /api/platform/*           Platform admin APIs
+```
+
+## Redesign Implementation Status
+
+Active implementation plan: `docs/REDESIGN_PLAN.md` + `docs/REDESIGN_TODO.md`
+
+Strangler fig migration complete: old routes moved to `routes-archive/`, new routes in canonical route groups.
+
+UI stack: shadcn-svelte (copy-owned in `src/lib/ui/{component}/`) + bits-ui (headless primitives) + sveltekit-superforms + Zod. See `components.json` and `AGENTS.md` for details.
+
+### Completed
+
+- [x] Design system v2.0 — Fresh Growth tokens, shadcn CSS variable bridge, tw-animate-css
+- [x] shadcn-svelte component library (16 components: button, badge, card, input, label, textarea, separator, skeleton, alert, dialog, select, tabs, dropdown-menu, sheet, table, sonner)
+- [x] Project-owned layout components: Sidebar, BottomNav, TopBar
+- [x] Priority 1: Landing page, Login, Register 3-step wizard, all layout shells (Owner, Staff, Platform, Public)
+- [x] Route migration: old routes moved to `routes-archive/`, no more `(v2)` group
+
+### In Progress
+
+(nothing)
+
+### Pending
+
+- [ ] Priority 2: Owner Dashboard pages (Overview, Catalog, Orders, Categories, Analytics, Team, Settings)
+- [ ] Priority 3: Staff Dashboard pages (Order Queue, Order Detail, Settings)
+- [ ] Priority 4: Public/Customer flow (Catalog, Cart, Order Tracking, Chat)
+- [ ] Priority 5: Platform Admin pages (Overview, Tenants, API, Monitoring, Billing)
+- [ ] Priority 6: Polish & Launch (Responsive, Dark mode, Accessibility, Performance, Testing)
+
 ## Product Non-Negotiables
 
-- Tourist flow must work without login or install.
-- One deployment serves many tenants. Not one app per restaurant.
-- QR links resolve both restaurant and table. `tableCode` alone is untrusted.
+- Buyer flow must work without login or install. QR or link only.
+- Tap-first UX: buyers should never need to type to complete an order.
+- One deployment serves many tenants. Not one app per outlet.
+- QR links resolve both outlet and table/location. Table code alone is untrusted.
 - AI must not invent ingredients, halal status, allergy safety, prices, or availability.
 - High-risk dietary/allergy questions escalate to staff confirmation.
-- Restaurant data must be tenant-isolated at both app and DB layers.
+- Tenant data must be tenant-isolated at both app and DB layers.
 - Public routes must feel fast on mobile (LCP ≤ 2.5s on 4G).
-- UI quality matters as much as backend capability.
+- UI quality matters as much as backend capability. Warm, clean, modern design is not optional.
 - SvelteKit routes must stay thin; business rules in domain/services.
 - Every external provider behind an adapter interface with mocks committed first.
-- Platform admin is a separate product from restaurant admin. Different routes, different mental model.
+- Platform admin is a separate product from owner admin. Different routes, different mental model.
 
 ## Architecture Principles for Scale
 
-- **Small scale (1-10 restaurants):** Works on a single VPS or Supabase free tier. All queries scoped by org/restaurant.
-- **Medium scale (10-100 restaurants):** RLS handles tenant isolation. Redis for caching + rate limiting. Background jobs for embeddings/OCR.
-- **Large scale (100-1000+ restaurants):** Database connection pooling (PgBouncer). Read replicas for analytics queries. CDN for published menu data. Queue system for async work. Adapter pattern enables provider swapping without rewrites.
+- **Small scale (1-10 tenants):** Works on a single VPS or Supabase free tier.
+- **Medium scale (10-100 tenants):** RLS + Redis for caching + rate limiting. Background jobs for embeddings/OCR.
+- **Large scale (100-1000+ tenants):** Connection pooling, read replicas, CDN for published catalogs, queue for async. Adapter pattern enables provider swapping.
 
 ## Common Pitfalls to Avoid
 
-- Building a chatbot-first app with weak structured menu browsing.
-- Treating AI output as truth instead of restaurant-verified data.
-- Designing the platform admin dashboard as just another restaurant dashboard.
+- Building a chatbot-first app with weak product catalog browsing.
+- Treating AI output as truth instead of owner-verified data.
+- Designing the platform admin dashboard as just another owner dashboard.
 - Forgetting that platform admin sees ALL data — no tenant scoping applies.
-- Making the restaurant admin dashboard too complex for a small cafe owner.
-- Mixing platform admin and restaurant admin concerns in the same layout.
+- Making the owner dashboard too complex for a small UMKM owner.
+- Mixing platform admin and owner admin concerns in the same layout.
 - Hard-coding `localhost` for database connections (use `127.0.0.1` on Windows/WSL2).
+- Assuming all tenants are restaurants — dietary/allergen flags are restaurant-only, not universal.

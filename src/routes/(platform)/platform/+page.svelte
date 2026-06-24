@@ -1,27 +1,41 @@
 <script lang="ts">
-	let { data } = $props();
+	import * as Card from '$lib/ui/card';
+	import { Building2, Package, Users } from '@lucide/svelte';
 </script>
 
-<svelte:head>
-	<title>Platform Overview - Lingua</title>
-</svelte:head>
+<div class="space-y-6">
+	<div>
+		<h1 class="text-2xl font-bold">Platform Overview</h1>
+		<p class="text-sm text-muted-foreground">Manage tenants, organizations, and platform health.</p>
+	</div>
 
-<div>
-	<h1 class="text-2xl font-bold text-slate-900">Platform Overview</h1>
-	<p class="mt-2 text-sm text-slate-500">Live platform totals from approved tenant data.</p>
-
-	<div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-		<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-			<h3 class="text-sm font-medium text-slate-500">Total Organizations</h3>
-			<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.totalOrganizations}</p>
-		</div>
-		<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-			<h3 class="text-sm font-medium text-slate-500">Total Restaurants</h3>
-			<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.totalRestaurants}</p>
-		</div>
-		<div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-			<h3 class="text-sm font-medium text-slate-500">Platform Users</h3>
-			<p class="mt-2 text-3xl font-semibold text-slate-900">{data.stats.platformUsers}</p>
-		</div>
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between pb-2">
+				<Card.Title class="text-sm font-medium text-muted-foreground">Organizations</Card.Title>
+				<Building2 size={16} class="text-muted-foreground" />
+			</Card.Header>
+			<Card.Content>
+				<p class="text-2xl font-bold">0</p>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between pb-2">
+				<Card.Title class="text-sm font-medium text-muted-foreground">Tenants</Card.Title>
+				<Package size={16} class="text-muted-foreground" />
+			</Card.Header>
+			<Card.Content>
+				<p class="text-2xl font-bold">0</p>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Header class="flex flex-row items-center justify-between pb-2">
+				<Card.Title class="text-sm font-medium text-muted-foreground">Users</Card.Title>
+				<Users size={16} class="text-muted-foreground" />
+			</Card.Header>
+			<Card.Content>
+				<p class="text-2xl font-bold">0</p>
+			</Card.Content>
+		</Card.Root>
 	</div>
 </div>

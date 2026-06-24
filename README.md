@@ -1,22 +1,19 @@
 # Lingua
 
-Lingua is a multi-restaurant QR menu and guest support platform for restaurants that serve international tourists. One shared SaaS deployment serves many organizations/restaurants; each restaurant gets scoped QR links, menu data, staff requests, and management views.
+Lingua adalah platform SaaS multi-tenant untuk UMKM Indonesia — restoran, toko retail, dan bisnis jasa. Setiap bisnis mendapatkan katalog digital berbasis QR/link, keranjang pesanan, manajemen staff, dan dashboard penjualan dari satu deployment.
 
-## Current Status
+## Status
 
-Frontend prototype completed for phases 1-5:
+Production-ready foundation:
 
-- Customer QR menu flow.
-- Language and preference setup.
-- Menu browsing and item detail.
-- AI answer state mockups.
-- Human fallback request flow.
-- Quick feedback.
-- Multi-restaurant workspace overview, menu editor, import review, QR table manager, restaurant facts, reports.
-- Staff fallback inbox.
-- Dummy dataset for 10 realistic restaurant/menu sources.
-- Dummy tenant model with organizations, restaurant public hosts, and scoped QR routes.
-- Local demo login with HttpOnly cookie and server-resolved tenant context for dashboard/staff routes.
+- Landing page, login, register (Supabase Auth)
+- Owner dashboard shell + route groups `(dashboard)`, `(staff)`, `(platform)`, `(public)`
+- Katalog publik via `/r/[slug]` (QR/link)
+- Staff inbox
+- Platform admin panel
+- shadcn-svelte component library (copy-owned, Tailwind v4)
+- PostgreSQL + Redis lokal via Podman/Docker
+- Multi-tenant RLS baseline
 
 Backend database/cache services now run locally with Podman (rootless by default; Docker also supported). The repo includes SQL migrations, demo seed data, a PostgreSQL access layer, Redis health integration, and a database-backed tenant resolver with mock fallback for local development. Production auth, CRUD persistence beyond tenant/menu bootstrap, and AI/OCR integrations are still not implemented.
 
@@ -64,7 +61,7 @@ pnpm db:migrate
 pnpm db:seed
 ```
 
-`pnpm infra:*` scripts use a runtime-agnostic wrapper (`scripts/infra.mjs`) that prefers Podman and falls back to Docker. Override with `CONTAINER_RUNTIME=docker pnpm infra:up` if needed. On Windows, run `podman machine start` once before the first `pnpm infra:up` (the machine auto-stops on reboot). On Windows/WSL2 use `127.0.0.1` (not `localhost`) for `DATABASE_URL` / `REDIS_URL` — see `.env.example` for details.
+`pnpm infra:*` scripts use a runtime-agnostic wrapper (`scripts/infra.mjs`) that prefers Podman and falls back to Docker. Override with `CONTAINER_RUNTIME=docker pnpm infra:up` if needed. On Windows, run `podman machine start` once before the first `pnpm infra:up` (the machine auto-stops on reboot). On Windows/WSL2 use `127.0.0.1` (not `localhost`) untuk `DATABASE_URL` / `REDIS_URL`.
 
 Environment:
 
@@ -72,20 +69,39 @@ Environment:
 copy .env.example .env
 ```
 
-`DATABASE_URL` should use the app role (`lingua_app`) created by migrations. `DIRECT_URL` should use the local migration/owner role from the compose file (`compose.yml`).
+Isi `SUPABASE_SERVICE_ROLE_KEY` dari Supabase dashboard → Settings → API → service_role key.
 
-Useful routes:
+## Test Credentials (Supabase Auth)
 
-- `/`: multi-restaurant platform workspace entry.
-- `/r/uma-karang/table/T07`: customer QR flow.
-- `/login`: local demo login.
-- `/dashboard`: management dashboard for an organization with many restaurants.
-- `/dashboard/menu`: menu editor.
-- `/dashboard/import`: dummy menu import review.
-- `/dashboard/tables`: QR table manager.
-- `/dashboard/knowledge`: knowledge base mock.
-- `/dashboard/analytics`: analytics mock.
-- `/staff/inbox`: staff fallback inbox.
+Buat akun lewat `/register` atau seed langsung ke Supabase Auth:
+
+| Role            | Email                     | Password      | Keterangan                        |
+| --------------- | ------------------------- | ------------- | --------------------------------- |
+| Owner           | owner@test.lingua.app     | Test1234!     | Owner Warung Sari, 1 outlet       |
+| Staff           | staff@test.lingua.app     | Test1234!     | Staff Warung Sari                 |
+| Platform Admin  | admin@test.lingua.app     | Test1234!     | Super admin, akses semua tenant   |
+
+Seed credentials ke Supabase:
+
+```sh
+pnpm db:seed
+```
+
+Script seed ada di `scripts/seed.ts`. Untuk reset dan seed ulang:
+
+```sh
+pnpm db:reset
+```
+
+## Useful Routes
+
+- `/` — landing page
+- `/register` — daftar akun baru (Supabase Auth)
+- `/login` — masuk
+- `/dashboard` — owner dashboard
+- `/staff/inbox` — staff pesanan inbox
+- `/platform` — platform admin (super_admin only)
+- `/r/[slug]` — katalog publik pelanggan (scan QR)
 
 ## Quality Commands
 

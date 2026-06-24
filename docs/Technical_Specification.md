@@ -1,9 +1,9 @@
 # Lingua Technical Specification
 
-**Version:** 2.1  
-**Date:** 16 Juni 2026  
-**Status:** Planning baseline  
-**Primary Goal:** Build a fast, cross-device SvelteKit PWA with clean long-term architecture, strong UI quality, and backend/AI layers that can scale without coupling business logic to the framework.
+**Version:** 2.2  
+**Date:** 24 Juni 2026  
+**Status:** Active implementation  
+**Primary Goal:** Build a production-grade, multi-tenant UMKM SaaS platform — not a prototype. Serve businesses at any scale (small warung to large multi-outlet enterprise) with a fast cross-device SvelteKit PWA, accessible UI components, and backend/AI layers that scale without coupling business logic to the framework.
 
 ## 1. Technical Decision
 
@@ -21,10 +21,11 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **Server-trusted data.** Menu, dietary flags, allergens, halal status, prices, and availability must come from restaurant/admin data, not AI guesses.
 - **AI as assistant, not source of truth.** AI can explain, translate, and recommend based on verified data. It must fallback when confidence is low.
 - **Fast perceived performance.** Cached menu interactions should feel instant. Slow AI/OCR tasks need progress, streaming, and retry states.
-- **Multi-tenant by default.** Every backend table and API must be designed for multiple restaurants from day one.
-- **One deployment, many restaurants.** Lingua is a shared SaaS platform. A restaurant gets scoped data, QR links, and dashboards, not a separate app build.
-- **Provider adapters.** LLM, OCR, STT/TTS, and WhatsApp providers must be swappable.
-- **Explicit dependency policy.** Because Svelte's ecosystem is smaller than React's, every complex UI/provider dependency needs evaluation before adoption.
+- **Multi-tenant by default.** Every backend table and API must be designed for multiple tenants (organizations + outlets) from day one. Scale from 1 to 1000+ tenants, same codebase.
+- **One deployment, many tenants.** Lingua is a shared SaaS platform. An outlet gets scoped data, QR links, and dashboards — not a separate app build. Tenant isolation is mandatory at both app and DB layers.
+- **Provider adapters.** LLM, OCR, STT/TTS, WhatsApp, email, and storage providers must be swappable via adapter interfaces.
+- **Copy-owned UI components.** shadcn-svelte components are copied into `src/lib/ui/` and owned by the project — not imported as a runtime dependency. This gives full control over accessibility, design tokens, and behavior without vendor lock-in.
+- **Explicit dependency policy.** Every new runtime dependency must have a clear justification and be documented in this spec.
 
 ## 3. Recommended Stack
 
@@ -33,11 +34,12 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **Framework:** SvelteKit.
 - **Component Model:** Svelte 5 with runes mode.
 - **Language:** TypeScript strict mode.
-- **Styling:** Tailwind CSS with design tokens in CSS variables.
-- **UI Primitives:** Bits UI or Melt UI for accessible primitives; shadcn-svelte can be used only after reviewing component quality and maintenance.
+- **Styling:** Tailwind CSS v4 with `@theme` directive. Design tokens as `--lingua-*` CSS variables in `src/routes/layout.css`.
+- **Component Library:** shadcn-svelte (next branch, Tailwind v4 compatible) — copy-owned components in `src/lib/ui/`. Not a runtime dependency; components are copied and owned by the project.
+- **UI Primitives:** bits-ui — headless, accessible primitives (keyboard nav, ARIA, focus trap). Used internally by shadcn-svelte components. This IS a runtime dependency.
 - **Icons:** lucide-svelte.
-- **PWA:** Web App Manifest, SvelteKit service worker, offline fallback, cache strategy for published menu data.
-- **Forms:** SvelteKit form actions for progressive enhancement; Superforms + Zod can be adopted for complex admin forms.
+- **PWA:** Web App Manifest, SvelteKit service worker, offline fallback, cache strategy for published catalog data.
+- **Forms:** SvelteKit form actions for progressive enhancement; sveltekit-superforms + Zod for complex admin forms (product CRUD, settings, invite staff).
 - **Validation:** Zod schemas shared between server actions, API handlers, and tests.
 - **Client State:** Prefer server `load` data and URL state. Use Svelte 5 `.svelte.ts` rune modules only for scoped UI/session state. Avoid global state by default.
 - **Testing:** Vitest for domain/unit tests, Testing Library for components, Playwright for cross-device flows.

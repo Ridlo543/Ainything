@@ -1,352 +1,556 @@
 # Product Requirements Document (PRD)
 
-**Product Name:** Lingua  
-**Tagline:** Multilingual menu and guest assistant for tourist-heavy restaurants  
-**Version:** 1.2  
-**Date:** 16 Juni 2026  
-**Primary Market:** Restoran dan cafe di destinasi wisata Indonesia, dimulai dari Bali dan Jakarta  
-**Business Model:** B2B SaaS untuk restoran, dengan wisatawan sebagai end user
+**Product Name:** Lingua
+**Tagline:** Multi-tenant UMKM digital presence and order management platform
+**Version:** 2.0
+**Date:** 24 Juni 2026
+**Primary Market:** UMKM di Indonesia — kuliner (restoran, cafe, warung), retail (toko, butik), dan jasa (salon, laundry, bengkel)
+**Business Model:** B2B SaaS untuk pemilik usaha, dengan pembeli/konsumen sebagai end user
 
-## 0. Critical Review of the Initial Idea
+---
 
-Ide awal punya peluang karena masalah komunikasi di hospitality nyata: turis ingin memahami menu, restoran ingin mengurangi salah order, dan staf sering membuang waktu untuk pertanyaan berulang. Namun PRD awal terlalu lebar untuk MVP pertama. Produk ingin menjadi translator, rekomendasi makanan, cultural advisor, dashboard, WhatsApp fallback, POS, reservasi, pembayaran, dan travel assistant sekaligus.
+## 0. Critical Review & Evolution
 
-Kritik utama:
+### Initial Review (v1.0 → v1.2)
 
-- **Positioning terlalu luas.** "Hospitality assistant" bisa berarti restoran, hotel, travel, concierge, POS, dan reservation. Untuk MVP, target harus dipersempit ke restoran/cafe dengan traffic turis tinggi.
-- **Value proposition belum cukup beda dari Google Translate dan QR menu biasa.** Pembeda harus berupa "menu yang sudah dipahami sistem": bahan, alergi, halal, tingkat pedas, best seller, dan konteks restoran.
-- **MVP terlalu berat.** OCR menu, RAG, multilingual chat, voice, rekomendasi personal, admin dashboard, analytics, dan WhatsApp fallback adalah beberapa produk sekaligus. MVP perlu diprioritaskan.
-- **Metric awal terlalu optimistis dan belum terukur.** Klaim mengurangi 70-80% komunikasi staf, menaikkan ARPU 15%, dan 90% query puas perlu metode pengukuran yang jelas.
-- **Risiko akurasi tinggi.** Kesalahan pada alergi, halal, bahan alkohol, atau rekomendasi untuk diet tertentu bisa merusak kepercayaan dan berisiko hukum.
-- **Operasional onboarding diremehkan.** Restoran sering punya menu tidak rapi, update harga cepat, gambar buruk, bahasa campuran, dan staf yang tidak rutin menjaga data.
-- **Biaya AI dan latensi perlu dikontrol sejak awal.** Response time < 2 detik tidak realistis untuk semua kasus jika setiap request menjalankan OCR + LLM + retrieval. Target harus dibedakan antara cached menu dan fresh analysis.
+Ide awal punya peluang untuk masalah komunikasi di hospitality, tetapi scope terlalu luas untuk MVP pertama: translator + rekomendasi + cultural advisor + dashboard + WhatsApp fallback + POS + reservasi + pembayaran + travel assistant sekaligus.
 
 Keputusan produk setelah kritik:
 
-- MVP fokus pada **platform menu dan guest support multi-restoran**, bukan travel super-app.
-- Turis tidak perlu login atau install app. Mereka scan QR meja dan langsung pakai.
-- Restoran menjadi pembayar dan admin data.
-- Satu deployment Lingua harus melayani banyak organisasi/restoran. Ini bukan aplikasi terpisah per restoran.
-- Rekomendasi harus berbasis menu restoran yang sudah diindeks, bukan hallucinated generic travel advice.
-- Voice, POS, reservation, payment, AR, dan travel planning masuk roadmap setelah restoran pilot terbukti.
+- MVP fokus pada platform menu dan guest support multi-restoran
+- Turis tidak perlu login atau install app — scan QR meja langsung pakai
+- Restoran jadi pembayar dan admin data
+- Satu deployment Lingua melayani banyak organisasi/restoran
+
+### Evolution to v2.0
+
+Selama pengembangan MVP, ditemukan bahwa core platform — QR entry, product catalog, customer interaction, staff workflow — **tidak terbatas pada restoran**. Setiap UMKM punya produk yang ingin ditampilkan, pembeli yang ingin dilayani, dan staf yang perlu dikelola.
+
+Keputusan v2.0:
+
+- **Restaurant → UMKM multi-tenant.** Tenant bisa restoran/cafe/warung, retail (toko, butik), atau jasa (salon, laundry, bengkel).
+- **Menu → Product Catalog.** Semua tenant punya katalog produk, bukan hanya makanan/minuman.
+- **Browse-only → Cart + Order flow.** Pembeli bisa memilih produk dan mengirim pesanan ke dashboard staff/owner.
+- **Restaurant admin → Owner dashboard.** Dashboard umum untuk semua jenis tenant.
+- **Tap-first UX.** QR atau link sebagai entry point utama. User cukup tap-tap layar tanpa perlu mengetik.
+- **Role-based dashboards.** Staff (sederhana, cepat), Owner (insight, kontrol), Platform admin (monitoring, konfigurasi).
+
+---
 
 ## 1. Executive Summary
 
-Lingua adalah platform PWA + SaaS multi-tenant yang membantu banyak restoran di area wisata melayani tamu internasional dengan menu multilingual, penjelasan bahan, filter diet, rekomendasi makanan, dan fallback ke staf ketika sistem tidak yakin.
+Lingua adalah platform PWA + SaaS multi-tenant yang memberikan setiap tenant (UMKM) kemampuan memiliki:
 
-Produk ini dirancang untuk mengurangi pertanyaan berulang seperti "apa ini?", "apakah halal?", "seberapa pedas?", "mengandung kacang?", "apa menu favorit?", dan "bagaimana cara makan hidangan ini?". Sistem menggunakan menu restoran, knowledge base restoran, dan AI guardrails agar jawaban tetap dalam konteks restoran.
+- **Katalog produk digital** yang bisa diakses via QR code atau link
+- **Sistem pemesanan** — pembeli pilih produk, kirim order ke dashboard
+- **Dashboard owner** untuk mengelola produk, pesanan, staf, dan analytics
+- **Dashboard staff** untuk memproses pesanan real-time
+- **Platform admin** untuk mengelola semua tenant
+
+Produk ini dirancang agar UMKM bisa go digital tanpa perlu website sendiri, tanpa install app, dan tanpa belajar tools yang rumit. Entry point selalu **QR atau link** — pembeli cukup tap-tap layar.
 
 Klarifikasi model produk:
 
-- Lingua adalah satu platform untuk banyak tenant, bukan satu app per restoran.
-- Tenant utama adalah `Organization` atau pemilik billing. Satu organization dapat memiliki satu atau banyak restoran.
-- `Restaurant` adalah venue customer-facing yang punya menu, knowledge base, staff inbox, analytics, dan QR table sendiri.
-- `Restaurant Location` atau branch dipakai ketika satu brand memiliki beberapa cabang.
-- QR meja selalu mengarah ke konteks restoran dan meja tertentu, misalnya `/r/uma-karang/table/T07` atau subdomain publik seperti `uma-karang.lingua.app/table/T07`.
-- Dashboard admin/staff harus selalu scoped ke organization dan restaurant yang diizinkan membership.
+- Lingua adalah satu platform untuk banyak tenant, bukan satu app per tenant.
+- Tenant utama adalah `Organization` atau pemilik billing. Satu organization bisa memiliki satu atau banyak outlet/restaurant.
+- `Outlet` adalah venue customer-facing yang punya katalog, QR, staff, dan dashboard sendiri.
+- QR selalu mengarah ke konteks outlet tertentu, misalnya `/r/uma-karang/table/T07` atau `/r/warung-pak-hadi/meja/05`.
+- Dashboard selalu scoped ke organization dan outlet yang diizinkan.
+
+---
 
 ## 2. Problem Statement
 
-### Masalah Wisatawan
+### Masalah Pembeli/Konsumen
 
-- Sulit memahami nama menu lokal, bahan, tingkat pedas, dan cara makan.
-- Takut salah pesan karena alergi, diet, halal, vegetarian, atau preferensi rasa.
-- Tidak selalu nyaman bertanya berulang ke staf karena hambatan bahasa.
+- Tidak semua UMKM punya website atau katalog digital yang rapi
+- Sulit memahami nama produk, bahan, harga, dan ketersediaan tanpa bertanya
+- Untuk restoran: takut salah pesan karena alergi, diet, halal, tingkat pedas
+- Harus menunggu dilayani ketika UMKM sedang ramai
+- Tidak mau install app satu per satu untuk setiap UMKM yang dikunjungi
 
-### Masalah Restoran
+### Masalah Pemilik UMKM
 
-- Staf menghabiskan waktu menjawab pertanyaan menu yang berulang.
-- Potensi salah order meningkat ketika tamu dan staf memakai bahasa berbeda.
-- Menu PDF/QR biasa tidak membantu menjelaskan bahan, budaya, dan rekomendasi.
-- Owner tidak punya data jelas tentang pertanyaan turis, menu yang diminati, dan hambatan pemesanan.
+- Belum punya sistem digital untuk menampilkan produk
+- Sulit memantau produk mana yang paling diminati
+- Pesanan sering terlewat atau salah karena hanya dicatat manual
+- Tidak punya data tentang perilaku pembeli
+- Tidak punya cara mudah mengelola staf
+
+### Masalah Staf
+
+- Pesanan masuk dari berbagai arah: tatap muka, WhatsApp, telepon, catatan kertas
+- Sulit melacak status pesanan yang sedang diproses
+- Tidak ada notifikasi real-time untuk pesanan baru
 
 ### Why Now
 
-- Turis makin terbiasa memakai QR menu dan browser mobile.
-- LLM, OCR, dan text-to-speech lebih terjangkau, tetapi tetap perlu kontrol biaya.
-- Restoran kecil dan menengah butuh solusi ringan tanpa mengganti POS.
+- QR code sudah menjadi norma sosial pasca-pandemi
+- Pembeli makin terbiasa browsing produk via mobile browser sebelum membeli
+- UMKM kecil butuh solusi ringan tanpa investasi website sendiri
+- Smartphone penetration sudah tinggi di kalangan UMKM dan konsumen
+
+---
 
 ## 3. Product Positioning
 
-**Lingua is a multi-restaurant QR menu and guest support platform for restaurants serving international guests.**
+**Lingua is a multi-tenant UMKM platform that gives every business owner their own digital catalog, QR/link access, order management, and buyer interaction — all from one deployment.**
 
 Pembeda utama:
 
-- Berbasis data restoran, bukan translator generik.
-- Menjelaskan bahan, alergi, halal, pedas, dan konteks budaya.
-- Memberi rekomendasi yang bisa diaudit dari menu aktual.
-- Menghubungkan tamu ke staf dengan ringkasan percakapan ketika AI tidak cukup.
-- Mendukung banyak restoran dalam satu platform dengan tenant isolation, QR, dashboard, dan analytics per restoran.
-- Tidak memaksa restoran mengganti POS pada fase awal.
+- **Tap-first.** Entry via QR/link. Pembeli cukup tap layar — tidak perlu mengetik.
+- **Multi-industry.** Bukan hanya restoran — cocok untuk retail, jasa, dan UMKM lainnya.
+- **Product catalog, bukan menu static.** Setiap produk punya deskripsi, foto, harga, kategori, dan optional dietary/allergen flags (untuk restoran).
+- **Cart + order flow.** Pembeli pilih produk → kirim pesanan → staff/owner terima di dashboard.
+- **AI-powered (optional).** Untuk restoran: AI menjelaskan bahan, alergi, halal, dan konteks budaya. Untuk tenant lain: AI membantu customer bertanya tentang produk.
+- **Staff inbox real-time.** Pesanan masuk ke staff dengan notifikasi dan ringkasan.
+- **Tenant isolation.** Setiap tenant hanya melihat datanya sendiri.
+- **Tidak perlu install.** PWA di mobile browser — scan QR langsung jalan.
+
+---
 
 ## 4. Target Users
 
-### Buyer: Restaurant Owner or Manager
+### Buyer: UMKM Owner or Manager
 
-- Restoran/cafe di area wisata dengan banyak tamu asing.
-- Punya menu bahasa Indonesia/Inggris yang sering ditanyakan.
-- Pain utama: waktu staf, salah order, conversion menu, dan review pelanggan.
-- Bisa berupa single restaurant atau operator dengan beberapa restoran/cabang.
+- Restoran/cafe/warung di area wisata maupun lokal
+- Toko retail (baju, aksesoris, oleh-oleh)
+- Penyedia jasa (salon, laundry, bengkel)
+- Pain utama: belum punya katalog digital, pesanan tidak organized, kurang data
+- Bisa single outlet atau multi-outlet operator
 
-### End User: International Tourist
+### End User: Pembeli / Konsumen
 
-- Usia 20-60 tahun.
-- Menggunakan smartphone pribadi.
-- Bahasa awal prioritas: English, Chinese Simplified, Korean, Japanese, Arabic, Hindi, French, German, Spanish, Indonesian.
-- Butuh jawaban cepat tanpa install app.
+- Semua usia, semua bahasa
+- Menggunakan smartphone pribadi
+- Tidak mau install app
+- Untuk restoran: bahasa awal prioritas English, Chinese, Korean, Japanese, Arabic, Hindi, French, German, Spanish, Indonesian
+- Butuh jawaban cepat dari tap-tap layar
 
 ### Internal User: Staff
 
-- Menerima request bantuan dari meja.
-- Melihat ringkasan konteks sebelum menghampiri tamu.
-- Tidak perlu belajar dashboard kompleks.
+- Menerima dan memproses pesanan dari pembeli
+- Melihat ringkasan pesanan sebelum bertindak
+- Mendapat notifikasi real-time
+- Tidak perlu belajar dashboard kompleks
+
+### Internal User: Platform Admin
+
+- Mengelola semua tenant di platform
+- Monitoring usage, billing, dan system health
+- Dapat suspend/activate tenant, generate API keys
+
+---
 
 ## 5. Jobs To Be Done
 
-- Saat saya melihat menu lokal, saya ingin tahu arti menu, bahan, rasa, dan risiko alergi supaya bisa memilih dengan percaya diri.
-- Saat saya punya pantangan makan, saya ingin memfilter menu yang aman supaya tidak perlu bertanya berkali-kali.
-- Saat restoran ramai, saya ingin AI menjawab pertanyaan umum supaya staf bisa fokus pada servis fisik.
-- Saat AI tidak yakin, saya ingin staf mendapat ringkasan percakapan supaya saya tidak mengulang penjelasan dari awal.
+### Pembeli
 
-## 6. MVP Scope
+- Saat saya scan QR atau buka link UMKM, saya ingin langsung melihat katalog produk dalam format yang jelas
+- Saat saya punya preferensi atau pantangan makan, saya ingin memfilter produk yang aman
+- Saat saya ingin membeli, saya bisa memilih produk dan mengirim pesanan tanpa harus menunggu dilayani
+- Saat AI tidak yakin jawaban soal produk, saya bisa hubungi staf dengan konteks yang sudah jelas
 
-### P0 - Must Have
+### Owner
 
-- QR table access tanpa login untuk turis.
-- Language selection dan auto browser language detection.
-- Menu browsing multilingual dari data menu yang sudah diunggah restoran.
-- Menu item detail: deskripsi, bahan utama, allergen flags, dietary flags, spice level, halal status jika tersedia, dan rekomendasi "good for".
-- Text chat untuk pertanyaan menu dan restoran.
-- Guardrail: jawaban hanya boleh berdasarkan menu/knowledge base restoran dan harus fallback ketika tidak yakin.
-- Human fallback dengan ringkasan percakapan untuk staf.
-- Admin dashboard sederhana untuk restoran:
-  - kelola menu
-  - kelola dietary/allergen flags
-  - upload gambar/PDF menu untuk onboarding
-  - lihat QR code per meja
-  - lihat feedback dan pertanyaan populer
+- Saat saya mendaftar di Lingua, saya ingin setup produk saya dengan cepat dan mudah
+- Saat saya punya banyak produk, saya ingin mengorganisirnya di katalog yang rapi
+- Saat pembeli mengirim pesanan, saya ingin menerima dan memprosesnya dengan efisien
+- Saat saya ingin tahu performa bisnis, saya ingin melihat data penjualan dan produk terlaris
 
-### P1 - Should Have
+### Staff
 
-- OCR-assisted menu import untuk mempercepat onboarding.
-- Precomputed translation untuk bahasa prioritas.
-- Staff inbox real-time untuk fallback request.
-- Quick feedback setelah sesi.
-- Basic analytics: scan count, top questions, top viewed menu items, fallback rate.
-- Browser-native speech input jika perangkat mendukung.
+- Saat ada pesanan baru, saya ingin mendapat notifikasi segera
+- Saat saya melihat pesanan, saya ingin tahu apa yang dipesan dan statusnya
+- Saat saya selesai memproses, saya bisa update status dengan satu tap
 
-### P2 - Later
+---
 
-- Voice conversation penuh dengan STT/TTS pihak ketiga.
-- Reservation, ordering, payment, POS integration.
-- AR menu overlay.
-- Multi-table group ordering.
-- Loyalty and feedback automation.
-- Travel itinerary assistant.
+## 6. Core User Flows
 
-## 7. Non-Goals for MVP
+### Flow 1: Buyer Flow (Tap-First)
 
-- Tidak membangun POS baru.
-- Tidak memproses pembayaran.
-- Tidak membuat native mobile app.
-- Tidak menjadi marketplace travel.
-- Tidak mengklaim diagnosis medis atau jaminan 100% aman alergi.
-- Tidak memakai AI untuk menjawab di luar konteks restoran.
+1. Pembeli scan QR code di meja/counter atau buka link dari sosial media
+2. PWA terbuka dengan katalog tenant (mobile-first, warm design)
+3. Pembeli memilih bahasa (auto-detect untuk restoran di area wisata)
+4. Pembeli browse katalog: foto, nama, harga, kategori, badges
+5. (Restaurant-only) Pembeli filter: halal, vegetarian, vegan, nut-free, low spice
+6. Pembeli tap produk → detail (deskripsi, bahan, allergens, recommendations)
+7. Pembeli tap [Add to Cart] atau langsung order
+8. Pembeli review cart, tambah notes jika perlu
+9. Pembeli tap [Send Order] → pesanan masuk ke dashboard staff/owner
+10. Pembeli bisa track status pesanan
+11. (Optional) Pembeli bisa chat dengan AI atau minta bantuan staf langsung
 
-## 8. Core User Flows
+### Flow 2: Owner Registration & Setup
 
-### Tourist Flow
+1. Owner buka landing page Lingua
+2. Owner tap [Mulai Gratis] → halaman registrasi
+3. Step 1: Pilih tipe usaha (Restoran/Cafe, Toko/Retail, Jasa/Service) — tap cards
+4. Step 2: Isi informasi akun (nama, email, password)
+5. Step 3: Isi informasi bisnis (nama usaha, kategori, lokasi)
+6. Owner masuk ke setup wizard:
+   - Add produk pertama (foto, nama, harga) + [Skip]
+   - Generate QR/link untuk outlet + [Download/Copy]
+   - Invite staf (email, role) + [Skip]
+7. Owner masuk ke dashboard → ready to use
 
-1. Tamu duduk dan scan QR meja.
-2. PWA terbuka dengan bahasa otomatis dari browser dan opsi ganti bahasa.
-3. Tamu memilih preferensi: halal, vegetarian, vegan, nut-free, seafood-free, low spice, atau custom note.
-4. Tamu melihat menu dalam bahasa pilihan.
-5. Tamu membuka item menu untuk melihat bahan, rasa, allergen warning, dan rekomendasi.
-6. Tamu bertanya lewat chat jika butuh penjelasan.
-7. Jika AI tidak yakin atau tamu meminta staf, sistem mengirim fallback request.
-8. Staf menerima ringkasan dan nomor meja.
-9. Setelah sesi, tamu memberi quick feedback.
+### Flow 3: Owner Dashboard
 
-### Restaurant Admin Flow
+1. Owner login → dashboard overview
+2. Lihat stats: orders today, revenue, catalog views, rating
+3. Quick actions: add product, view reports, share QR
+4. Navigate sidebar: Overview, Catalog, Orders, Analytics, Team, Settings
+5. Kelola produk: add, edit, hide, delete, set price
+6. Kelola pesanan: accept, process, complete, see history
+7. Lihat analytics: revenue chart, top products, peak hours
+8. Invite/manage staff
+9. Configure QR codes, integrations, billing
 
-1. Owner membuat akun restoran.
-2. Admin mengisi profil restoran, bahasa default, jam buka, dan kontak staf.
-3. Admin upload menu PDF/foto atau input manual.
-4. Admin review hasil ekstraksi menu, memperbaiki bahan, harga, kategori, dietary flag, dan allergen flag.
-5. Sistem membuat QR code per meja.
-6. Admin memantau analytics dan memperbaiki knowledge base.
+### Flow 4: Staff Flow
 
-### Staff Flow
+1. Staff login ke dashboard sederhana
+2. Lihat order queue (real-time, auto-refresh)
+3. Tap pesanan → detail (items, notes, table/location)
+4. Update status: [Proses] → [Selesai]
+5. (Optional) Chat dengan pembeli
 
-1. Staff membuka staff inbox di mobile/tablet.
-2. Staff melihat request bantuan dengan nomor meja, bahasa tamu, dan summary.
-3. Staff menandai request sebagai in progress atau resolved.
-4. Jika jawaban harus diperbaiki, staff/admin menambahkan knowledge base note.
+### Flow 5: Platform Admin
+
+1. Admin login ke /platform (separate layout)
+2. Overview: total tenants, active tenants, revenue, usage
+3. Manage tenants: CRUD, suspend/activate, change plans
+4. Monitoring: performance, errors, AI costs
+5. Billing: subscriptions, usage, invoices
+
+---
+
+## 7. MVP Scope (Production v2.0)
+
+### P0 — Must Have
+
+**Foundation:**
+
+- Landing page modern, warm, tap-friendly
+- Registrasi multi-step (tipe usaha → akun → bisnis info)
+- Login + forgot/reset password
+- Setup wizard (add produk + generate QR + invite staf)
+
+**Owner Dashboard:**
+
+- Overview (stats cards + quick actions)
+- Catalog: products CRUD, categories, search, filter
+- Cart/Order management (receive, process, complete)
+- QR/Link generation
+- Basic analytics
+- Settings (business info, QR codes, integrations)
+
+**Staff Dashboard:**
+
+- Order queue real-time
+- Order detail + status update
+- Notifications
+
+**Public/Customer View:**
+
+- QR/link entry (no login required)
+- Product catalog (search, filter by category, tap detail)
+- Add to cart + send order
+- Order tracking
+- (Restaurant) Dietary/allergen preferences and badges
+
+**Platform Admin:**
+
+- Tenant management
+- Monitoring
+- Basic billing
+
+### P1 — Should Have
+
+- OCR-assisted product import (photo → data extraction)
+- AI assistant for product queries (restaurant context + general UMKM context)
+- Multilingual catalog (for tourist-facing businesses)
+- Staff inbox dengan ringkasan percakapan AI
+- Advanced analytics (charts, export)
+- WhatsApp integration (optional notification channel)
+
+### P2 — Later
+
+- Voice interaction (STT/TTS)
+- POS integration
+- Payment processing
+- Loyalty programs
+- Multi-table group ordering (restaurant)
+- AR product visualization
+
+---
+
+## 8. Non-Goals
+
+- Tidak membangun POS baru
+- Tidak memproses pembayaran (di v2.0)
+- Tidak membuat native mobile app
+- Tidak menjadi marketplace atau aggregator
+- Tidak mengklaim diagnosis medis atau jaminan 100% aman alergi
+- AI tidak boleh menjawab di luar data produk yang diverifikasi
+- AR, travel planning, dan hotel management — tidak di roadmap saat ini
+
+---
 
 ## 9. Functional Requirements
 
 ### Customer PWA
 
-- Harus bisa dipakai di mobile browser tanpa install.
-- Harus tetap nyaman di desktop/tablet untuk hotel concierge atau kiosk.
-- Harus punya layout mobile-first dengan tap targets minimal 44px.
-- Harus mendukung preferensi diet sebelum rekomendasi diberikan.
-- Harus menampilkan disclaimer singkat untuk alergi dan halal: restoran tetap sumber kebenaran.
-- Harus punya empty, loading, error, offline, dan low-confidence states.
+- Harus bisa dipakai di mobile browser tanpa install
+- Layout mobile-first dengan tap targets minimal 44px
+- Harus punya loading, empty, error, offline, dan low-confidence states
+- Harus mendukung teks panjang (DE, AR RTL, CJK, nama produk lokal)
+- Floating cart button dengan counter
+- Responsive di 360px, 390px, 768px, 1024px, 1440px
 
-### Admin Dashboard
+### Owner Dashboard
 
-- Harus multi-tenant: user hanya melihat restoran yang dia kelola.
-- Harus mendukung organization dengan banyak restoran dan restaurant selector yang jelas.
-- Harus punya workflow review data menu sebelum publish.
-- Harus bisa menonaktifkan item yang sold out atau tidak tersedia.
-- Harus punya preview customer view untuk bahasa tertentu.
-- Harus menampilkan QR code per meja.
-- Harus menampilkan public host/path QR per restoran agar owner tidak salah mencetak QR lintas restoran.
+- Harus multi-tenant: owner hanya melihat outlet yang dikelola
+- Harus mendukung organization dengan banyak outlet + outlet switcher
+- Harus punya CRUD produk lengkap (add, edit, hide, delete, categorize)
+- Harus punya order management (receive, process, complete)
+- Harus menampilkan QR code per meja/lokasi
+- Harus punya public preview customer view
+- Harus punya analytics dasar (revenue, orders, top products)
 
-### AI Assistant
+### Staff Dashboard
 
-- Harus mengambil konteks dari menu, item, restaurant profile, dan knowledge base.
-- Harus menolak menjawab jika pertanyaan di luar cakupan restoran.
-- Harus memberi confidence/fallback signal untuk kasus alergi, halal, dan bahan yang tidak pasti.
-- Harus menyimpan trace minimal untuk debugging: model, prompt version, retrieved documents, latency, dan fallback reason.
+- Harus sederhana — order queue + detail + status buttons
+- Harus real-time atau near-real-time
+- Harus punya notifikasi untuk pesanan baru
+- Tidak perlu sidebar atau navigasi kompleks
 
-### Data Quality Gate (publish requirement)
+### Platform Admin
 
-- Sebuah menu hanya boleh dipublish jika tiap item punya nama, harga, dan status ketersediaan.
-- Field alergi dan halal punya nilai `confidence` eksplisit. Jika data tidak ada, default-nya adalah "unknown -> staff confirm", bukan kosong atau ditebak.
-- Item dengan `confidence = staff-confirm` boleh tampil tetapi harus memicu saran konfirmasi staf untuk pertanyaan berisiko (alergi/halal/alkohol).
-- Restoran tetap satu-satunya sumber kebenaran untuk flag alergi/halal. AI tidak boleh menaikkan tingkat kepastian melebihi data yang diverifikasi restoran.
+- Desktop-first, data-heavy tables
+- Wider sidebar (280px)
+- Full tenant CRUD
+- System monitoring (performance, errors, costs)
+- Subscription management
 
-## 10. Success Metrics
+### AI Assistant (Restaurant Context)
+
+- Harus mengambil konteks dari produk, restaurant profile, dan knowledge base
+- Harus menolak menjawab jika di luar cakupan
+- Harus memberi confidence/fallback signal untuk alergi, halal, bahan tidak pasti
+- Harus menyimpan trace untuk debugging
+- Harus fallback ke staf ketika tidak yakin
+
+### Data Quality Gate
+
+- Produk hanya publish jika punya nama, harga, dan status ketersediaan
+- Allergen/halal flags punya nilai confidence eksplisit
+- "Unknown → staff confirm" default, bukan kosong atau ditebak
+- AI tidak boleh menaikkan kepastian melebihi data yang diverifikasi
+
+---
+
+## 10. UX and UI Principles
+
+### Design Philosophy
+
+Lingua harus terasa **modern, warm, friendly, dan approachable** — bukan corporate SaaS.
+
+| Principle            | Implementation                                                         |
+| -------------------- | ---------------------------------------------------------------------- |
+| **Tap-first**        | Entry via QR/link. Semua interaksi utama via tap, bukan type           |
+| **Warm & clean**     | Warm neutrals (#FAFAF9 bg), minimal shadows, 8-12px radius             |
+| **Fresh primary**    | Emerald (#059669) — growth, friendly, accessible. Bukan corporate dark |
+| **Warm secondary**   | Amber (#F59E0B) — approachable, sweet                                  |
+| **Playful accent**   | Rose (#EC4899) — modern, fun                                           |
+| **44px tap targets** | Semua tombol dan interactive elements min 44px                         |
+| **Progressive**      | Jangan tampilkan semua sekaligus. Guide step-by-step                   |
+| **Consistent**       | Design system sama di semua role dan halaman                           |
+
+### Layout Patterns
+
+- **Mobile**: Bottom navigation (4 icons) + slide-out sidebar. Single column.
+- **Tablet**: Collapsible sidebar. 2-column content.
+- **Desktop**: Fixed sidebar (250px owner, 280px platform). Multi-column grids.
+
+### Component Standards
+
+- Button: solid/outline/ghost/danger variants, sm/md/lg sizes, loading spinner
+- Card: header/body/footer snippets, hoverable, clickable
+- Input: floating label, icon slots, error/helper text, accessible
+- Badge: 6 color variants, 2 sizes
+- Modal: backdrop, escape key, slide-up, size variants
+- Toast: 4 types, auto-dismiss, swipe to dismiss
+- Skeleton: text/circle/rect/card, pulse animation
+- EmptyState: illustration + title + description + CTA
+
+### Typography
+
+- **Heading**: Plus Jakarta Sans (geometric, modern, friendly)
+- **Body**: Inter (readable, clean, universal)
+- **Mono**: JetBrains Mono (code/developer sections only)
+
+### Design System
+
+Full specification: `docs/DESIGN_SYSTEM.md` v2.0
+
+Custom theme: `.agents/skills/theme-factory/themes/fresh-growth.md`
+
+---
+
+## 11. Success Metrics
 
 ### Pilot Metrics
 
-- 10 restoran pilot aktif dalam 90 hari setelah MVP usable.
-- Minimal 60% restoran pilot tetap aktif setelah 60 hari.
-- Minimal 30% meja aktif melakukan scan selama jam makan di restoran pilot yang memasang QR.
-- Minimal 50 sesi customer per restoran per bulan pada restoran pilot aktif.
+- 10 UMKM pilot aktif dalam 90 hari
+- Minimal 60% pilot tenant tetap aktif setelah 60 hari
+- Minimal 30% QR aktif selama jam operasi
+- Minimal 50 sesi customer per outlet per bulan
 
 ### Product Metrics
 
-- p95 first screen load <= 2.5 detik di koneksi 4G normal.
-- p95 cached menu answer <= 2 detik.
-- p95 AI answer untuk chat biasa <= 5 detik.
-- Fresh OCR/import boleh lebih lambat, tetapi wajib punya progress state.
-- Fallback rate target awal 10-25%. Terlalu tinggi berarti AI kurang membantu; terlalu rendah bisa berarti AI overconfident.
-- Customer helpful feedback >= 80% untuk jawaban menu.
-- Admin menu publish time <= 30 menit untuk menu <= 80 item setelah data awal tersedia.
+- p95 first screen load <= 2.5 detik di 4G
+- p95 AI answer <= 5 detik (restaurant AI mode)
+- Fallback rate 10-25%
+- Customer feedback helpful >= 80%
+- Owner setup time: produk pertama live <= 15 menit
 
 ### Measurement Method
 
-Metrik produk di atas hanya valid jika terinstrumentasi. Setiap metrik diikat ke event konkret:
+- Fallback rate = fallback_requests / total_sessions
+- Helpful feedback = feedback.helpful / total_feedback
+- Latency p95 = persentil latency per tipe
+- Scan/sesi aktif = customer_sessions per outlet per periode
 
-- Fallback rate = jumlah `fallback_requests` (atau `ai_events` dengan safety flag staff) dibagi total sesi chat.
-- Helpful feedback = `feedback.helpful = true` dibagi total `feedback` untuk jawaban menu.
-- Latency p95 = persentil `ai_events.latency_ms` per tipe (cached vs fresh).
-- Scan/sesi aktif = jumlah `customer_sessions` per restoran per periode.
+### Cost Control
 
-Jika sebuah metrik belum bisa dihitung dari tabel yang ada, instrumentasinya dianggap belum selesai dan menjadi blocker pilot.
-
-### Cost Control Baseline
-
-- Setiap restoran punya cap harian AI-call. Saat tercapai, sistem fallback ke "tanya staf", bukan memanggil LLM.
-- Endpoint publik anonim memakai rate limit per sesi dan per IP untuk mencegah abuse dan ledakan biaya.
-- Cap dan rate limit awal didefinisikan di `docs/Technical_Specification.md` dan ditinjau ulang setelah pilot.
+- Setiap outlet punya cap harian AI-call
+- Public routes pakai rate limit per sesi dan per IP
+- Pre-compute translations untuk bahasa prioritas
 
 ### Business Metrics
 
-- Restoran pilot bersedia membayar setelah trial.
-- Minimal 3 testimoni owner/staff dengan bukti pengurangan pertanyaan berulang.
-- Bukti awal upsell: item rekomendasi dilihat, ditanyakan, atau dipilih lebih sering. Kenaikan ARPU 15% tetap hipotesis, bukan target wajib MVP.
+- Pilot tenant bersedia bayar setelah trial
+- Minimal 3 testimoni owner/staff
+- Bukti awal upsell: produk rekomendasi dilihat/dipilih lebih sering
 
-## 11. UX and UI Principles
-
-- Customer screen harus langsung produktif, bukan landing page marketing.
-- Aksi utama: browse menu, ask, filter preference, call staff.
-- Visual harus bersih, cepat dipindai, dan tidak terasa seperti chatbot kosong.
-- Menu item harus lebih kuat daripada chat. Chat membantu, tetapi menu tetap pusat pengalaman.
-- Gunakan status jelas untuk "AI confident", "needs staff confirmation", dan "unknown".
-- Desain harus mendukung teks panjang dari bahasa Jerman, Arab RTL, Chinese/Japanese/Korean, dan nama makanan lokal.
+---
 
 ## 12. Business Model
 
-### Pilot
+### Free Tier
 
-- Free atau low-cost pilot untuk 10 restoran pertama.
-- Fokus validasi penggunaan meja, feedback staf, dan willingness to pay.
+- 1 outlet per organization
+- Up to 50 products
+- Basic QR/link
+- Limited analytics (7 hari)
 
-### Paid Tiers
+### Starter
 
-- Starter: menu multilingual + QR + basic analytics.
-- Pro: AI chat + staff inbox + advanced dietary/recommendation + more languages.
-- Enterprise: multi-branch, custom integration, SLA, POS/reservation integration.
+- Up to 3 outlets
+- Unlimited products
+- AI assistant (restaurant mode)
+- Advanced analytics
+- Staff management
+
+### Pro
+
+- Unlimited outlets
+- Priority support
+- Custom integrations
+- SLA
+- WhatsApp integration
+- White-label option
+
+---
 
 ## 13. Go-To-Market
 
-### Phase 1: Validation
+### Phase 1: Restaurant Pilot
 
-- Interview 15-25 owner/manager di Bali/Jakarta.
-- Observe actual guest-staff interactions.
-- Collect 10 real menus with messy formats for onboarding test.
+- 3-5 restoran pilot (existing MVP contacts)
+- Focus: validate tap-based ordering, AI accuracy, staff workflow
+- Installation package: QR cards, admin training, staff workflow
 
-### Phase 2: Pilot
+### Phase 2: Multi-Tenant Expansion
 
-- 3-5 restaurants for alpha.
-- 10 restaurants for public pilot.
-- Installation package: QR table cards, admin training, staff workflow.
+- Expand to 10 UMKM (restaurant + retail + jasa mix)
+- Validate multi-industry fit
+- Refine onboarding for non-restaurant tenants
 
-### Phase 3: Expansion
+### Phase 3: Growth
 
-- Referral from pilot restaurants.
-- Partnerships with hospitality communities and menu/QR vendors.
+- Referral from pilot tenants
+- Partnerships with UMKM communities
+- Self-serve registration flow
+
+---
 
 ## 14. Risks and Mitigations
 
-| Risk                       | Impact | Mitigation                                                                |
-| -------------------------- | ------ | ------------------------------------------------------------------------- |
-| AI salah soal alergi/halal | High   | Confidence gate, verified flags, disclaimer, staff fallback               |
-| Onboarding menu lambat     | High   | OCR-assisted import, manual review UI, spreadsheet import                 |
-| Restoran tidak update menu | Medium | Simple admin UX, sold-out toggle, reminders                               |
-| Latensi AI tinggi          | High   | Precompute translations, cache, streaming, smaller model for simple tasks |
-| Biaya LLM naik             | Medium | Provider adapter, usage caps, prompt caching, precomputed menu knowledge  |
-| WhatsApp/API dependency    | Medium | Staff inbox internal first, WhatsApp optional                             |
-| Adopsi rendah              | High   | Pilot scripts, QR placement, staff training, measurable ROI dashboard     |
-| Privacy/compliance         | Medium | Data minimization, retention policy, consent for optional data            |
+| Risk                       | Impact | Mitigation                                                            |
+| -------------------------- | ------ | --------------------------------------------------------------------- |
+| AI salah soal alergi/halal | High   | Confidence gate, verified flags, disclaimer, staff fallback           |
+| Owner tidak update produk  | Medium | Simple admin UX, sold-out toggle, reminders                           |
+| Onboarding produk lambat   | High   | OCR-assisted import, manual review UI, spreadsheet import             |
+| Latensi AI tinggi          | High   | Precompute, cache, streaming, smaller model for simple tasks          |
+| Biaya LLM naik             | Medium | Provider adapter, usage caps, prompt caching                          |
+| Adopsi rendah              | High   | Pilot scripts, QR placement, staff training, measurable ROI dashboard |
+| Privacy/compliance         | Medium | Data minimization, retention policy, consent                          |
+| UMKM tidak tech-savvy      | High   | Tap-first UX, setup wizard, minimal typing, in-app guidance           |
+| Order spam/abuse           | Medium | Rate limiting per session, tenant-level order caps                    |
+
+---
 
 ## 15. Roadmap
 
-### Month 0-1: Validation and Design
+### Month 0-1: Design System + Foundation
 
-- Finalize personas, flows, design system, and clickable prototype.
-- Validate 10 real menus and 5 staff workflows.
+- [x] Design system v2.0 (colors, typography, components)
+- [ ] Landing page redesign
+- [ ] Registration flow (multi-step, tap-friendly)
+- [ ] Login + forgot password
+- [ ] Setup wizard
+- [ ] Layout shells (Owner, Staff, Platform, Public)
 
-### Month 1-2: Frontend MVP
+### Month 1-3: Owner Dashboard
 
-- Build customer PWA, menu UI, chat shell, preference filters, staff request UI, and admin dashboard mock/data-driven views.
+- [ ] Overview, Catalog (CRUD), Orders management
+- [ ] QR/Link generation
+- [ ] Basic analytics
+- [ ] Team management
+- [ ] Settings
 
-### Month 2-3: Backend MVP
+### Month 3-4: Public/Customer Flow
 
-- Supabase schema, auth, RLS, storage, menu CRUD, table QR, session tracking, feedback, and staff inbox.
+- [ ] QR entry → product catalog → cart → order
+- [ ] Order tracking
+- [ ] AI assistant (restaurant mode)
+- [ ] Multilingual support
 
-### Month 3-4: AI MVP
+### Month 4-5: Staff Dashboard + Platform Admin
 
-- Menu ingestion, embeddings, RAG answer API, guardrails, prompt versions, and AI logs.
+- [ ] Staff order queue (real-time)
+- [ ] Staff order detail + status update
+- [ ] Platform admin tenant management
+- [ ] Platform monitoring
 
-### Month 4-5: Pilot
+### Month 5-6: Pilot & Polish
 
-- Run 3-5 alpha restaurants.
-- Fix onboarding, latency, trust, and staff workflow issues.
+- [ ] Restaurant pilot (5 outlets)
+- [ ] Multi-tenant expansion (5 UMKM non-restaurant)
+- [ ] Responsive audit (360px-1440px)
+- [ ] Dark mode audit
+- [ ] Accessibility audit (WCAG AA)
+- [ ] Performance (Lighthouse >90)
 
-### Month 5-8: Expansion
-
-- Expand to 10-30 restaurants only if usage and retention signals are healthy.
+---
 
 ## 16. Open Questions
 
-- Which restaurant segment has the strongest willingness to pay: casual dining, beach clubs, hotel restaurants, cafes, or premium restaurants?
-- Do customers prefer menu browsing first or chat first?
-- Which languages matter most in the first pilot locations?
-- How much menu data can be verified by restaurant staff without friction?
-- Should WhatsApp be part of MVP or should internal staff inbox be enough?
-- What pricing matches owner willingness to pay after pilot?
+- Which UMKM segment (restaurant vs retail vs jasa) has the strongest willingness to pay?
+- Do customers prefer browsing first or searching first?
+- How much product data can small UMKM owners verify without friction?
+- How should the cart work for service-type businesses (salon: book a service vs restaurant: order food)?
+- Should WhatsApp integration be in v2.0 or deferred?
+- How to handle multi-language for non-restaurant UMKM (retail product names in Indonesian + English)?

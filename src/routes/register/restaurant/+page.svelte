@@ -36,13 +36,6 @@
 				</div>
 			</div>
 
-			{#if data.isMock}
-				<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-					Registration is disabled in demo mode. <a href={resolve('/login')} class="underline"
-						>Sign in</a
-					> instead.
-				</div>
-			{:else}
 				<form method="POST" action="?/register" class="mt-6 grid gap-4">
 					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
 						Your name
@@ -114,7 +107,6 @@
 						<UserPlus size={17} /> Create account
 					</button>
 				</form>
-			{/if}
 		</section>
 	</div>
 </main>

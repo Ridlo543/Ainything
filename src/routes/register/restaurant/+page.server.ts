@@ -2,13 +2,12 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { authProvider } from '$lib/server/auth/auth-factory';
-import { appEnv } from '$lib/server/config/env';
 
 export const load: PageServerLoad = ({ locals }) => {
 	if (locals.user) {
 		redirect(303, '/dashboard');
 	}
-	return { isMock: appEnv.authProvider === 'mock' };
+	return {};
 };
 
 const registerSchema = z.object({
@@ -20,10 +19,6 @@ const registerSchema = z.object({
 
 export const actions: Actions = {
 	register: async ({ request }) => {
-		if (appEnv.authProvider === 'mock') {
-			return fail(400, { message: 'Registration is disabled in demo mode.' });
-		}
-
 		const formData = await request.formData();
 		const parseResult = registerSchema.safeParse({
 			name: formData.get('name'),

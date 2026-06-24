@@ -1,10 +1,16 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals }) => {
-	const user = locals.user;
-	if (!user || user.platformRole !== 'super_admin') {
-		throw redirect(303, user ? '/dashboard' : '/login');
+export const load: LayoutServerLoad = async ({ locals, url }) => {
+	if (!locals.user) {
+		redirect(303, `/login?redirectTo=${encodeURIComponent(url.pathname + url.search)}`);
 	}
-	return { user };
+
+	if (locals.user.platformRole !== 'super_admin') {
+		redirect(303, '/dashboard');
+	}
+
+	return {
+		user: locals.user
+	};
 };
