@@ -36,6 +36,8 @@ jobs:
 
       - name: Run TypeScript check
         run: pnpm check
+        env:
+          PUBLIC_SENTRY_DSN: stub
 
   # Unit Tests
   test:
