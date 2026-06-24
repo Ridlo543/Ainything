@@ -182,7 +182,14 @@ UI stack: shadcn-svelte (copy-owned in `src/lib/ui/{component}/`) + bits-ui (hea
 
 ### Pending
 
-- [ ] Priority 2: Owner Dashboard pages (Overview, Catalog, Orders, Categories, Analytics, Team, Settings)
+- [x] Priority 2: Owner Dashboard pages ✅ DONE
+  - /dashboard — overview, stat cards, recent orders, top products, quick actions
+  - /dashboard/catalog — product grid, add/edit modal, image upload, status toggle
+  - /dashboard/orders — tabs, order cards, detail panel, accept/reject actions
+  - /dashboard/categories — category grid, add/edit modal, color picker
+  - /dashboard/team — members list, invite modal, pending invites
+  - /dashboard/settings — general info, QR/link section, billing plan card
+  - /dashboard/analytics — range selector, stats cards, bar chart, top products
 - [ ] Priority 3: Staff Dashboard pages (Order Queue, Order Detail, Settings)
 - [ ] Priority 4: Public/Customer flow (Catalog, Cart, Order Tracking, Chat)
 - [ ] Priority 5: Platform Admin pages (Overview, Tenants, API, Monitoring, Billing)

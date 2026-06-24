@@ -1082,3 +1082,24 @@ Three categories of failure:
 
 ### Verified
 - `pnpm check` — 0 errors, 0 warnings
+
+## 2026-06-25 — Priority 2: Owner Dashboard Pages
+
+### Implemented
+- `/dashboard` overview — greeting, 4 stat cards (orders/revenue/views/rating with trend), recent 5 orders clickable list, top 5 products with progress bars + Unsplash images, quick actions (Tambah Produk, Lihat Katalog)
+- `/dashboard/catalog` — product grid with Unsplash images, search, category tabs, status filter, add/edit modal (photo upload + preview, name, price, category, description, availability toggle), ⋯ menu (edit/toggle/duplicate/delete), empty state
+- `/dashboard/orders` — Active/Selesai/Semua tabs with counts, order cards with status badges, search, right-panel order detail (items with notes, total, accept/reject/complete actions), empty state
+- `/dashboard/categories` — category grid cards with color dot, add/edit modal (name, description, color picker), empty state
+- `/dashboard/team` — members list with avatar photos + role badges (Owner/Manager/Staff), pending invites section, invite modal (email + role selector cards)
+- `/dashboard/settings` — general info form (name, slug with lingua.app/ prefix, description, location), QR & link section (QR preview, copy link, open catalog), billing plan card with usage stats
+- `/dashboard/analytics` — 7/30/90 day range selector, 4 summary stat cards with trends, CSS-only bar chart (orders per day), top products with progress bars + food images
+
+### Fixed
+- `svelte:component` deprecated → replaced with `{#if}` branches
+- `state_referenced_locally` warnings → wrapped in `$effect()`
+- `a11y_interactive_supports_focus` → added `tabindex="-1"` to dialog divs
+- `attribute_quoted` warning → removed quotes from dynamic class bindings
+- Label without associated control → added `for="photo-upload"` + matching `id`
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings

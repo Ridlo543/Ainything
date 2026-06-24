@@ -50,3 +50,5 @@ docker-compose.*.yml
 # CI/CD diagnostic logs
 *.cicd.log
 log-*.log
+
+.resilient_write

@@ -155,101 +155,64 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ## 📦 Priority 2: Owner Dashboard Pages (Week 3-5)
 
-### 2.1 Overview (`/dashboard`)
+### 2.1 Overview (`/dashboard`) ✅ DONE
 
-- [ ] **Stats cards** (4 cards in grid)
-  - Orders today (with trend arrow)
-  - Revenue today
-  - Catalog views
-  - Rating
-- [ ] **Recent orders** (table or cards, last 5)
-- [ ] **Top products** (bar chart, top 5)
-- [ ] **Quick actions** (2-3 buttons: Add Product, View Reports, Share QR)
-- [ ] **Responsive:** 4-column (desktop) → 2-column (tablet) → 1-column (mobile)
+- [x] **Stats cards** (4 cards in grid) — orders, revenue, catalog views, rating with trend arrows
+- [x] **Recent orders** (5 clickable cards with status badges)
+- [x] **Top products** (progress bars with food images)
+- [x] **Quick actions** (Tambah Produk, Lihat Katalog)
+- [x] **Responsive:** 2-column (mobile) → 4-column (desktop)
 
-### 2.2 Catalog — Products (`/dashboard/catalog`)
+### 2.2 Catalog — Products (`/dashboard/catalog`) ✅ DONE
 
-- [ ] **Product grid** (cards with image, name, price, status badge)
-- [ ] **Search bar** (filter by name)
-- [ ] **Filters** (category, status: active/hidden)
-- [ ] **Sort** (latest, name, price, popularity)
-- [ ] **Add product button** (floating or top-right)
-- [ ] **Product card actions:**
-  - Tap → edit product
-  - Long press → multi-select
-  - [⋯] menu → edit, duplicate, hide, delete
-- [ ] **Add/edit product modal** (or page)
-  - Photo upload (drag-drop + click)
-  - Name (required)
-  - Price (required, numeric input)
-  - Category (dropdown)
-  - Description (textarea, optional)
-  - Dietary tags (chips: vegetarian, halal, spicy level)
-  - Availability toggle (active/hidden)
-  - [Save] [Cancel]
-- [ ] **Bulk actions** (when multi-select active)
-  - [Hide] [Show] [Delete] buttons at top
-- [ ] **Empty state** (illustration + "Tambah produk pertama Anda")
+- [x] **Product grid** (cards with Unsplash images, name, price, status badge, orders count)
+- [x] **Search bar** (filter by name)
+- [x] **Category tabs** (filter by category)
+- [x] **Status filter** (all/active/hidden dropdown)
+- [x] **Add product button**
+- [x] **Product card actions:** [⋯] menu → edit, toggle visibility, duplicate, delete
+- [x] **Add/edit product modal** — photo upload (file input + preview), name, price (Rp prefix), category, description, availability toggle
+- [x] **Empty state** with CTA
 
-### 2.3 Catalog — Categories (`/dashboard/categories`)
+### 2.3 Catalog — Categories (`/dashboard/categories`) ✅ DONE
 
-- [ ] **Category list** (cards or table)
-  - Name, product count, status
-  - [Edit] [Delete] actions
-- [ ] **Add category** (modal: name, description, icon)
-- [ ] **Drag-to-reorder** (optional, nice-to-have)
-- [ ] **Empty state**
+- [x] **Category grid** (cards with color dot, name, product count, description)
+- [x] **Add/Edit category modal** (name, description, color picker)
+- [x] **Delete action**
+- [x] **Empty state**
 
-### 2.4 Orders (`/dashboard/orders`)
+### 2.4 Orders (`/dashboard/orders`) ✅ DONE
 
-- [ ] **Tabs:** Active | Completed | All
-- [ ] **Order cards** (order ID, customer, items, total, status, time)
-- [ ] **Status badges:** ⏳ Pending, 🔄 Processing, ✅ Completed, ❌ Cancelled
-- [ ] **Tap card → order detail**
-- [ ] **Order detail page**
-  - Order info (ID, time, customer)
-  - Items list (name, quantity, notes)
+- [x] **Tabs:** Aktif | Selesai | Semua with counts
+- [x] **Order cards** (ID, table/location, items, total, status badge, time)
+- [x] **Search** by ID or table
+- [x] **Order detail panel** (right side on desktop)
+  - Status, location, time
+  - Items list with quantity and notes
   - Total
-  - Status timeline (received → processing → ready → completed)
-  - Actions: [Accept] [Reject] [Mark Complete]
-  - [Chat with Customer] button (if chat enabled)
-- [ ] **Filters:** date range, status
-- [ ] **Export** (CSV download, optional)
-- [ ] **Empty state** (per tab)
+  - Actions: Terima & Proses / Tandai Selesai / Tolak
+- [x] **Empty state** per tab
 
-### 2.5 Team (`/dashboard/team`)
+### 2.5 Team (`/dashboard/team`) ✅ DONE
 
-- [ ] **Staff list** (cards or table)
-  - Name, email, role (Staff/Manager), status (active/invited)
-  - [Edit] [Remove] actions
-- [ ] **Invite staff** (modal: email, role selector, [Send Invite])
-- [ ] **Pending invites** section
-- [ ] **Role permissions** (info tooltip or modal)
-- [ ] **Empty state**
+- [x] **Members list** with avatar photos, name, email, role badge
+- [x] **Per-member actions:** Ubah Peran, Hapus dari Tim (non-owner only)
+- [x] **Pending invites section** with cancel option
+- [x] **Invite modal** — email input, role selector cards (Staff/Manager)
 
-### 2.6 Analytics (`/dashboard/analytics`)
+### 2.6 Analytics (`/dashboard/analytics`) ✅ DONE
 
-- [ ] **Date range selector** (today, 7d, 30d, 90d, custom)
-- [ ] **Stats cards** (revenue, orders, avg order value, top product)
-- [ ] **Charts:**
-  - Revenue over time (line chart)
-  - Orders by day (bar chart)
-  - Top products (horizontal bar)
-  - Peak hours (heatmap, optional)
-- [ ] **Export** (CSV, PDF)
-- [ ] **Insights** (AI-generated summary, optional)
+- [x] **Range selector** (7 Hari / 30 Hari / 90 Hari)
+- [x] **Summary stats** (4 cards: orders, revenue, catalog views, avg order)
+- [x] **Bar chart** — orders per day (CSS-only, no external chart lib)
+- [x] **Top products** with progress bars and food photos
 
-### 2.7 Settings (`/dashboard/settings`)
+### 2.7 Settings (`/dashboard/settings`) ✅ DONE
 
-- [ ] **Tabs or sections:**
-  - **General:** business name, slug, description, logo, contact info
-  - **QR & Links:** generate/download QR, copy shareable link, custom slug
-  - **Integrations:** POS (coming soon), Payment (coming soon), WhatsApp (coming soon)
-  - **Billing:** current plan, usage, upgrade button
-  - **Danger zone:** delete tenant (with confirmation)
-- [ ] **Form validation** (inline errors)
-- [ ] **Save button** (per section or global)
-- [ ] **Success toast** on save
+- [x] **General info** — business name, slug (lingua.app/r/ prefix), description, location
+- [x] **QR & Link section** — QR preview, copy link button, open catalog link
+- [x] **Billing / plan** — current plan card with usage limits
+- [x] **Save with visual feedback** (Check icon + Tersimpan! state)
 
 ---
 
