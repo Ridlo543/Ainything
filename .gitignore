@@ -46,3 +46,7 @@ containers/storage/
 docker-compose.*.yml
 !compose.yml
 
+
+# CI/CD diagnostic logs
+*.cicd.log
+log-*.log

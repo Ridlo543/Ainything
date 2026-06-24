@@ -7,7 +7,7 @@ on:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -40,6 +40,43 @@ jobs:
   # Unit Tests
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: lingua
+          POSTGRES_PASSWORD: lingua
+          POSTGRES_DB: lingua
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lingua"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
+      DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+      RUN_DB_TESTS: 'true'
+      PUBLIC_APP_URL: http://localhost:4173
+      PUBLIC_SUPABASE_URL: http://localhost:54321
+      PUBLIC_SUPABASE_ANON_KEY: stub
+      SUPABASE_SERVICE_ROLE_KEY: stub
+      AI_PROVIDER: mock
+      OCR_PROVIDER: mock
+      WHATSAPP_PROVIDER: mock
+
     steps:
       - uses: actions/checkout@v4
 
@@ -56,12 +93,55 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Apply migrations
+        run: pnpm db:migrate
+        env:
+          DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+
       - name: Run unit tests
-        run: pnpm test:unit
+        run: pnpm run test:unit -- --run
 
   # E2E Tests
   e2e:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: lingua
+          POSTGRES_PASSWORD: lingua
+          POSTGRES_DB: lingua
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lingua"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
+      DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+      PUBLIC_APP_URL: http://localhost:4173
+      PUBLIC_SUPABASE_URL: http://localhost:54321
+      PUBLIC_SUPABASE_ANON_KEY: stub
+      SUPABASE_SERVICE_ROLE_KEY: stub
+      AI_PROVIDER: mock
+      OCR_PROVIDER: mock
+      WHATSAPP_PROVIDER: mock
+      PUBLIC_SENTRY_DSN: stub
+      ORIGIN: http://localhost:4173
+
     steps:
       - uses: actions/checkout@v4
 
@@ -77,6 +157,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations and seed
+        run: pnpm db:migrate && pnpm db:seed
+        env:
+          DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
 
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
