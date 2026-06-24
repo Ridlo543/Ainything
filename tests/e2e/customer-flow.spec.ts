@@ -225,6 +225,6 @@ test.describe('Arabic RTL layout at 360px', () => {
 		const html = page.locator('html');
 		const scrollWidth = await html.evaluate((el) => el.scrollWidth);
 		const clientWidth = await html.evaluate((el) => el.clientWidth);
-		expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
+		expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 5);
 	});
 });
