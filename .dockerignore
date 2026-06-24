@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build artifacts
+build
+.svelte-kit
+
+# Source files (already in build)
+src
+svelte.config.js
+vite.config.ts
+tsconfig.json
+
+# IDE
+.idea
+.vscode
+
+# Testing
+tests
+playwright.config.ts
+
+# Documentation
+*.md
+docs
+.git
+.gitignore
+
+# Environment files (use .env.example instead)
+.env
+.env.local
+.env.development
+
+# Logs
+*.log
+logs
+
+# Docker files (not needed in image)
+Dockerfile
+docker-compose.yml
+k8s

@@ -1,0 +1,70 @@
+# Kubernetes Service Account and RBAC for Lingua
+# Follows least privilege principle
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lingua
+  namespace: lingua
+  labels:
+    app: lingua
+
+---
+# Role for Lingua deployment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: lingua-role
+  namespace: lingua
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+
+---
+# RoleBinding for Lingua service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lingua-role-binding
+  namespace: lingua
+subjects:
+  - kind: ServiceAccount
+    name: lingua
+    namespace: lingua
+roleRef:
+  kind: Role
+  name: lingua-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole for monitoring (read-only metrics)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lingua-monitoring-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list", "watch"]
+
+---
+# ClusterRoleBinding for monitoring
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: lingua-monitoring-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: lingua
+    namespace: lingua
+roleRef:
+  kind: ClusterRole
+  name: lingua-monitoring-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,54 @@
+# Helm Values for Lingua
+# Default configuration for Kubernetes deployment
+
+# Application configuration
+replicaCount: 3
+
+image:
+  repository: lingua
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+# Environment variables
+env:
+  NODE_ENV: production
+  USE_MOCK_BACKEND: "false"
+  AUTH_PROVIDER: mock
+  LLM_PROVIDER: mock
+  AI_DAILY_CAP: "500"
+  EMBEDDING_ENABLED: "false"
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Pod annotations
+podAnnotations: {}
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

@@ -1,0 +1,256 @@
+# Kubernetes Manifests for Lingua
+# Optimized for Podman/Docker deployment
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lingua
+  labels:
+    app: lingua
+    managed-by: k6-load-testing
+
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lingua-config
+  namespace: lingua
+data:
+  NODE_ENV: "production"
+  USE_MOCK_BACKEND: "false"
+  SESSION_SECRET: "change-me-in-production-use-secrets-manager"
+  DATABASE_URL: "postgresql://postgres:password@postgres:5432/lingua"
+  DIRECT_URL: "postgresql://postgres:password@postgres:5432/lingua?sslmode=disable"
+  REDIS_URL: "redis://redis:6379"
+  AUTH_PROVIDER: "mock"
+  LLM_PROVIDER: "mock"
+  AI_DAILY_CAP: "500"
+  EMBEDDING_ENABLED: "false"
+
+---
+# Secret for sensitive configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: lingua-secrets
+  namespace: lingua
+type: Opaque
+stringData:
+  SESSION_SECRET: "production-session-secret-rotate-regularly"
+  DATABASE_URL: "postgresql://postgres:password@postgres:5432/lingua"
+  DIRECT_URL: "postgresql://postgres:password@postgres:5432/lingua?sslmode=disable"
+  REDIS_URL: "redis://redis:6379"
+
+---
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: lingua
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_DB
+              value: lingua
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: lingua
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+
+---
+# Redis StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: lingua
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: lingua
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+
+---
+# Lingua Application Deployment (part 1/2)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lingua
+  namespace: lingua
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: lingua
+  template:
+    metadata:
+      labels:
+        app: lingua
+    spec:
+      containers:
+        - name: lingua
+          image: lingua:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: lingua-config
+            - secretRef:
+                name: lingua-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+# Lingua Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: lingua
+  namespace: lingua
+spec:
+  selector:
+    app: lingua
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+  type: ClusterIP
+
+---
+# Lingua Ingress (optional - for external access)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lingua
+  namespace: lingua
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: lingua.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lingua
+                port:
+                  number: 80
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: lingua-hpa
+  namespace: lingua
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lingua
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  type: ClusterIP

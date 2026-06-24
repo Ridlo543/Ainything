@@ -2,24 +2,194 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  # ---------------------------------------------------------------------------
+  # Typecheck + lint + unit tests
+  # ---------------------------------------------------------------------------
+  check:
+    name: Check & Unit Tests
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: lingua
+          POSTGRES_PASSWORD: lingua
+          POSTGRES_DB: lingua
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lingua"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # DB access — lingua_app role is created by migration 0001
+      DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
+      DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+      RUN_DB_TESTS: "true"
+      # Stub values for env.ts — real secrets not needed for unit tests
+      PUBLIC_APP_URL: http://localhost:5173
+      PUBLIC_SUPABASE_URL: http://localhost:54321
+      PUBLIC_SUPABASE_ANON_KEY: stub
+      SUPABASE_SERVICE_ROLE_KEY: stub
+      AI_PROVIDER: mock
+      OCR_PROVIDER: mock
+      WHATSAPP_PROVIDER: mock
+
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+
+      - uses: pnpm/action-setup@v4
         with:
-          version: 10.0.0
+          run_install: false
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run check
-      - run: pnpm run build
-      - run: pnpm run test:unit
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations
+        run: pnpm db:migrate
+        env:
+          DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+
+      - name: Typecheck
+        run: pnpm run check
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Unit tests
+        run: pnpm run test:unit -- --run
+
+  # ---------------------------------------------------------------------------
+  # Build — verifies the SvelteKit app compiles to a deployable bundle
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: check
+
+    env:
+      PUBLIC_APP_URL: http://localhost:5173
+      PUBLIC_SUPABASE_URL: http://localhost:54321
+      PUBLIC_SUPABASE_ANON_KEY: stub
+      SUPABASE_SERVICE_ROLE_KEY: stub
+      AI_PROVIDER: mock
+      OCR_PROVIDER: mock
+      WHATSAPP_PROVIDER: mock
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: build/
+          retention-days: 3
+
+  # ---------------------------------------------------------------------------
+  # E2E tests — runs against the built app with a real Postgres
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: lingua
+          POSTGRES_PASSWORD: lingua
+          POSTGRES_DB: lingua
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lingua"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
+      DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+      PUBLIC_APP_URL: http://localhost:4173
+      PUBLIC_SUPABASE_URL: http://localhost:54321
+      PUBLIC_SUPABASE_ANON_KEY: stub
+      SUPABASE_SERVICE_ROLE_KEY: stub
+      AI_PROVIDER: mock
+      OCR_PROVIDER: mock
+      WHATSAPP_PROVIDER: mock
+      ORIGIN: http://localhost:4173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations and seed
+        run: pnpm db:migrate && pnpm db:seed
+        env:
+          DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: build/
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        run: pnpm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report/
+          retention-days: 7

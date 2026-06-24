@@ -1,0 +1,49 @@
+# GitLab CI/CD Pipeline for Lingua
+# Optimized for Docker/Podman and Kubernetes deployment
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  NODE_VERSION: "20"
+  DOCKER_TLS_CERTDIR: "/certs"
+  CI_DEBUG_TRACE: "false"
+
+# Cache dependencies
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .pnpm-store/
+
+# Lint and Type Check
+lint:
+  stage: build
+  image: node:20-alpine
+  script:
+    - apk add --no-cache git
+    - corepack enable pnpm
+    - pnpm install --frozen-lockfile
+    - pnpm lint
+    - pnpm check
+    - pnpm check:svelte
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+# Unit Tests
+unit-test:
+  stage: build
+  image: node:20-alpine
+  script:
+    - apk add --no-cache git
+    - corepack enable pnpm
+    - pnpm install --frozen-lockfile
+    - pnpm test:unit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
