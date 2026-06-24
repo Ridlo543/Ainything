@@ -1,14 +1,26 @@
 import { defineConfig } from '@playwright/test';
 
+const isCI = !!process.env.CI;
+
 export default defineConfig({
 	testDir: 'tests/e2e',
 	testMatch: '**/*.spec.ts',
 	timeout: 60_000,
+	// Run tests in parallel across workers for speed
+	fullyParallel: true,
+	workers: isCI ? 2 : 4,
+	// Retry flaky tests once in CI
+	retries: isCI ? 1 : 0,
+	reporter: isCI ? [['github'], ['html', { outputFolder: 'playwright-report', open: 'never' }]] : [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
+	outputDir: 'tests/e2e/test-results',
 	webServer: {
 		command: 'pnpm run build && pnpm run preview',
 		port: 4173,
-		reuseExistingServer: false,
-		timeout: 120_000,
+		// In local dev: reuse a running preview server to skip rebuild.
+		// Start one manually with: pnpm run build && pnpm run preview
+		// In CI always do a fresh build.
+		reuseExistingServer: !isCI,
+		timeout: 180_000,
 		stdout: 'pipe',
 		stderr: 'pipe',
 		env: {
@@ -18,6 +30,7 @@ export default defineConfig({
 			DATABASE_URL: 'postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua',
 			DIRECT_URL: 'postgresql://lingua:lingua@127.0.0.1:5432/lingua',
 			AUTH_PROVIDER: 'mock',
+			USE_MOCK_BACKEND: 'true',
 			SESSION_SECRET: 'e2e-test-session-secret',
 			LLM_PROVIDER: 'mock',
 			OCR_PROVIDER: 'mock',

@@ -9,24 +9,32 @@ import { test as base, expect } from '@playwright/test';
 import { execSync } from 'child_process';
 
 /**
+ * Custom fixture types for Lingua E2E tests.
+ */
+type LinguaFixtures = {
+	/** Resets the local database before the test. Opt-in and slow (~10-15s). */
+	cleanDatabase: Record<string, never>;
+};
+
+/**
  * Extended test fixture with database management capabilities.
- * 
+ *
  * Usage:
  * ```typescript
  * import { test, expect } from './fixtures';
- * 
+ *
  * test('my test', async ({ page, cleanDatabase }) => {
  *   // Test runs with clean database state
  * });
  * ```
  */
-export const test = base.extend({
+export const test = base.extend<LinguaFixtures>({
 	/**
 	 * Fixture that ensures a clean database state for tests that need isolation.
-	 * 
+	 *
 	 * This is opt-in - tests must explicitly use the cleanDatabase fixture
 	 * to trigger a database reset before running.
-	 * 
+	 *
 	 * WARNING: This is SLOW (~10-15 seconds per test). Use only for tests
 	 * that absolutely need database isolation.
 	 */

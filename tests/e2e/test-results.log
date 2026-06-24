@@ -1,0 +1,2260 @@
+
+> lingua@0.0.1 test:e2e D:\Programming\project\Lingua
+> playwright test
+
+[WebServer] 
+[WebServer] > lingua@0.0.1 build D:\Programming\project\Lingua
+[WebServer] > vite build
+[WebServer] 
+[WebServer] vite v8.0.16 building ssr environment for production...
+[WebServer] 
+transforming...[WebServer] Γ£ô 4032 modules transformed.
+[WebServer] rendering chunks...
+[WebServer] vite v8.0.16 building client environment for production...
+[WebServer] 
+transforming...[WebServer] Γ£ô 4391 modules transformed.
+[WebServer] rendering chunks...
+[WebServer] computing gzip size...
+[WebServer] .svelte-kit/output/client/_app/version.json                         0.02 kB Γöé gzip:  0.04 kB
+[WebServer] .svelte-kit/output/client/.vite/manifest.json                      27.49 kB Γöé gzip:  2.94 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/assets/20.DuvQF67_.css     0.12 kB Γöé gzip:  0.12 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/assets/10.CWvRHv4Y.css     0.21 kB Γöé gzip:  0.15 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/assets/17.BssbFlM4.css     1.55 kB Γöé gzip:  0.58 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/assets/0.aalXaDmU.css     59.01 kB Γöé gzip: 10.81 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/xihTtKlq.js         0.06 kB Γöé gzip:  0.08 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/entry/start.Ydb0BXdI.js    0.08 kB Γöé gzip:  0.09 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/5.B9DyTmoC.js        0.17 kB Γöé gzip:  0.15 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CqgYD4Al.js         0.28 kB Γöé gzip:  0.24 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CSVI5h8r.js         0.29 kB Γöé gzip:  0.24 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/iwXGuMSI.js         0.29 kB Γöé gzip:  0.18 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/D3aBSc2Y.js         0.30 kB Γöé gzip:  0.25 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DN-Ii0WF.js         0.30 kB Γöé gzip:  0.25 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Bsxn6DF8.js         0.31 kB Γöé gzip:  0.26 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DKZ-cfS-.js         0.31 kB Γöé gzip:  0.26 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DokWePpt.js         0.32 kB Γöé gzip:  0.26 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/XDiYX7np.js         0.33 kB Γöé gzip:  0.27 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BvX0YBAi.js         0.34 kB Γöé gzip:  0.27 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/lckUESfg.js         0.35 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Bie7sLTn.js         0.36 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DoFba0AS.js         0.36 kB Γöé gzip:  0.27 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BFgnsc6M.js         0.39 kB Γöé gzip:  0.30 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/sk0Q90p7.js         0.39 kB Γöé gzip:  0.30 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CTFApmqi.js         0.39 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DzDyByHy.js         0.39 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BOTKh1ma.js         0.39 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BQAYnmKA.js         0.40 kB Γöé gzip:  0.28 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/28.NgJTvKwD.js       0.41 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CjoLciq1.js         0.41 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/TgYXUQ00.js         0.42 kB Γöé gzip:  0.32 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DVJfDzcv.js         0.42 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Bvxj9QU5.js         0.42 kB Γöé gzip:  0.30 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/r-cE7DOK.js         0.42 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DN0kJsz0.js         0.43 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DYvH5ON7.js         0.43 kB Γöé gzip:  0.30 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/ElyUoGKY.js         0.44 kB Γöé gzip:  0.33 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CNevts8n.js         0.45 kB Γöé gzip:  0.32 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CrBLJ9wa.js         0.46 kB Γöé gzip:  0.35 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Ca1lOG5N.js         0.48 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Cmls-ceT.js         0.52 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/B8pS0iek.js         0.62 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Btm_TmNk.js         0.62 kB Γöé gzip:  0.37 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/1.BN2jKcOa.js        0.63 kB Γöé gzip:  0.35 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/C-_OMWHF.js         0.63 kB Γöé gzip:  0.35 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/HqhNERfS.js         0.66 kB Γöé gzip:  0.34 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/CBkLCK41.js         0.77 kB Γöé gzip:  0.43 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/DRLJ2uzE.js         0.79 kB Γöé gzip:  0.46 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BEVMcn3A.js         0.80 kB Γöé gzip:  0.45 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/C6X4Bu-z.js         0.84 kB Γöé gzip:  0.43 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/4.DPOErmq1.js        1.12 kB Γöé gzip:  0.65 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/D9Dg8Xyx.js         1.14 kB Γöé gzip:  0.57 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/34.CTHeXVms.js       1.20 kB Γöé gzip:  0.70 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Dz4JCr4h.js         1.38 kB Γöé gzip:  0.80 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/18.Jjz0SvV0.js       1.41 kB Γöé gzip:  0.58 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/UcxsUhXF.js         1.49 kB Γöé gzip:  0.72 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Comhjyj4.js         1.73 kB Γöé gzip:  0.84 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/wczj9Y8k.js         2.23 kB Γöé gzip:  1.09 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/3.B4QVtA1M.js        2.24 kB Γöé gzip:  0.89 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/23.DtsM791a.js       2.93 kB Γöé gzip:  1.47 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/29.DzkYf2dY.js       3.13 kB Γöé gzip:  1.38 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/21.CBBbDjAp.js       3.15 kB Γöé gzip:  1.56 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/33.DCWMglhu.js       3.21 kB Γöé gzip:  1.33 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/30.DzIj1eWp.js       3.60 kB Γöé gzip:  1.66 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/36.CWeYse0e.js       4.13 kB Γöé gzip:  1.48 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/35.BLmHfAQ2.js       4.37 kB Γöé gzip:  1.58 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/0.Dm2fLTi5.js        4.75 kB Γöé gzip:  2.07 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/24.DyC4kSxl.js       4.76 kB Γöé gzip:  1.92 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/27.BkNcUper.js       5.01 kB Γöé gzip:  1.98 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/2.C0Y5w5RU.js        5.09 kB Γöé gzip:  2.12 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/32.CXnK7QZO.js       5.11 kB Γöé gzip:  2.00 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/22.CkM6KE1V.js       5.44 kB Γöé gzip:  2.15 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/9.XT-4kXiu.js        6.07 kB Γöé gzip:  2.47 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/19.C06rG483.js       6.81 kB Γöé gzip:  2.47 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BRS0rt4m.js         7.04 kB Γöé gzip:  2.54 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/16.C05eLX_W.js       7.11 kB Γöé gzip:  2.55 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/7.zcIsIGzs.js        7.49 kB Γöé gzip:  2.63 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/8.DFH8EQVQ.js        7.60 kB Γöé gzip:  2.66 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/20.Da5QLkFr.js       8.30 kB Γöé gzip:  2.90 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/10.DVaEkzLa.js       8.93 kB Γöé gzip:  3.26 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/14.DGmh4ryp.js       9.24 kB Γöé gzip:  3.23 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/37.DgkVV8lV.js       9.24 kB Γöé gzip:  3.44 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/11.BzO1YEfB.js      10.26 kB Γöé gzip:  3.99 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/26.DAELEtfB.js      10.68 kB Γöé gzip:  3.64 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/12.CyItRn5V.js      13.21 kB Γöé gzip:  3.98 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/13.BFfGhJxO.js      18.66 kB Γöé gzip:  6.05 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/31.u1vKAo2j.js      24.39 kB Γöé gzip:  7.76 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/25.6M0QrCqa.js      25.23 kB Γöé gzip:  7.78 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/6.DJpKZr4M.js       31.31 kB Γöé gzip:  6.88 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/17.CrJhTXNV.js      31.69 kB Γöé gzip: 12.02 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/jVkcBaRm.js        35.02 kB Γöé gzip: 13.30 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/Bs-k43aX.js        48.80 kB Γöé gzip: 13.47 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/chunks/BlxrFYUs.js        57.34 kB Γöé gzip: 21.76 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/nodes/15.DqeIq6t9.js      65.70 kB Γöé gzip: 18.45 kB
+[WebServer] .svelte-kit/output/client/_app/immutable/entry/app.CJiBFXFO.js    279.87 kB Γöé gzip: 91.19 kB
+[WebServer] 
+[WebServer] [PLUGIN_TIMINGS] Your build spent significant time in plugins. Here is a breakdown:
+[WebServer]   - vite-plugin-sveltekit-guard (74%)
+[WebServer]   - vite-plugin-sveltekit-virtual-modules (11%)
+[WebServer]   - vite-plugin-svelte:compile (6%)
+[WebServer]   - vite-plugin-svelte:preprocess (6%)
+[WebServer] See https://rolldown.rs/options/checks#plugintimings for more details.
+[WebServer] 
+[WebServer] Γ£ô built in 9.48s
+[WebServer] vite v8.0.16 building client environment for production...
+[WebServer] 
+transforming...[WebServer] Γ£ô 3 modules transformed.
+[WebServer] rendering chunks...
+[WebServer] computing gzip size...
+[WebServer] .svelte-kit/output/client/service-worker.js  5.49 kB Γöé gzip: 1.55 kB
+[WebServer] 
+[WebServer] Γ£ô built in 29ms
+[WebServer] computing gzip size...
+[WebServer] .svelte-kit/output/server/.vite/manifest.json                                                              47.30 kB Γöé gzip:  4.26 kB
+[WebServer] .svelte-kit/output/server/_app/immutable/assets/_page.DuvQF67_.css                                          0.12 kB Γöé gzip:  0.12 kB
+[WebServer] .svelte-kit/output/server/_app/immutable/assets/_page.CWvRHv4Y.css                                          0.21 kB Γöé gzip:  0.15 kB
+[WebServer] .svelte-kit/output/server/_app/immutable/assets/_page.BssbFlM4.css                                          1.55 kB Γöé gzip:  0.58 kB
+[WebServer] .svelte-kit/output/server/_app/immutable/assets/_layout.DLRiyHM4.css                                       58.53 kB Γöé gzip: 10.77 kB
+[WebServer] .svelte-kit/output/server/chunks/forms.js                                                                   0.03 kB Γöé gzip:  0.05 kB
+[WebServer] .svelte-kit/output/server/chunks/i18n.js                                                                    0.04 kB Γöé gzip:  0.06 kB
+[WebServer] .svelte-kit/output/server/chunks/postgres.js                                                                0.06 kB Γöé gzip:  0.07 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/guide/_page.server.ts.js                        0.13 kB Γöé gzip:  0.12 kB
+[WebServer] .svelte-kit/output/server/chunks/app.js                                                                     0.13 kB Γöé gzip:  0.13 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/guide/_page.server.ts.js                      0.18 kB Γöé gzip:  0.15 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/_page.server.ts.js                                         0.20 kB Γöé gzip:  0.17 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/logout/_server.ts.js                                            0.28 kB Γöé gzip:  0.21 kB
+[WebServer] .svelte-kit/output/server/chunks/role-routing.js                                                            0.30 kB Γöé gzip:  0.22 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/_layout.server.ts.js                                     0.30 kB Γöé gzip:  0.23 kB
+[WebServer] .svelte-kit/output/server/entries/fallbacks/layout.svelte.js                                                0.36 kB Γöé gzip:  0.27 kB
+[WebServer] .svelte-kit/output/server/chunks/user-repository.js                                                         0.41 kB Γöé gzip:  0.29 kB
+[WebServer] .svelte-kit/output/server/chunks/internal2.js                                                               0.44 kB Γöé gzip:  0.26 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/callback/_page.svelte.js                                       0.46 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/server/chunks/check.js                                                                   0.47 kB Γöé gzip:  0.32 kB
+[WebServer] .svelte-kit/output/server/chunks/x.js                                                                       0.49 kB Γöé gzip:  0.32 kB
+[WebServer] .svelte-kit/output/server/internal.js                                                                       0.51 kB Γöé gzip:  0.21 kB
+[WebServer] .svelte-kit/output/server/chunks/supabase-client.js                                                         0.52 kB Γöé gzip:  0.28 kB
+[WebServer] .svelte-kit/output/server/chunks/arrow-left.js                                                              0.52 kB Γöé gzip:  0.34 kB
+[WebServer] .svelte-kit/output/server/chunks/arrow-right.js                                                             0.53 kB Γöé gzip:  0.34 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(staff)/staff/_layout.server.ts.js                                  0.53 kB Γöé gzip:  0.34 kB
+[WebServer] .svelte-kit/output/server/chunks/clock.js                                                                   0.53 kB Γöé gzip:  0.35 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/_page.server.ts.js                              0.54 kB Γöé gzip:  0.32 kB
+[WebServer] .svelte-kit/output/server/chunks/circle-check-big.js                                                        0.57 kB Γöé gzip:  0.37 kB
+[WebServer] .svelte-kit/output/server/chunks/embedding-queue.js                                                         0.58 kB Γöé gzip:  0.37 kB
+[WebServer] .svelte-kit/output/server/chunks/mail.js                                                                    0.59 kB Γöé gzip:  0.39 kB
+[WebServer] .svelte-kit/output/server/chunks/activity.js                                                                0.59 kB Γöé gzip:  0.38 kB
+[WebServer] .svelte-kit/output/server/chunks/smartphone.js                                                              0.60 kB Γöé gzip:  0.37 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/analytics/_page.server.ts.js                    0.60 kB Γöé gzip:  0.36 kB
+[WebServer] .svelte-kit/output/server/chunks/message-square.js                                                          0.61 kB Γöé gzip:  0.39 kB
+[WebServer] .svelte-kit/output/server/chunks/eye.js                                                                     0.61 kB Γöé gzip:  0.39 kB
+[WebServer] .svelte-kit/output/server/chunks/message-circle.js                                                          0.62 kB Γöé gzip:  0.39 kB
+[WebServer] .svelte-kit/output/server/chunks/chart-column.js                                                            0.62 kB Γöé gzip:  0.37 kB
+[WebServer] .svelte-kit/output/server/chunks/utensils.js                                                                0.62 kB Γöé gzip:  0.38 kB
+[WebServer] .svelte-kit/output/server/chunks/pencil.js                                                                  0.62 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/server/chunks/send.js                                                                    0.63 kB Γöé gzip:  0.41 kB
+[WebServer] .svelte-kit/output/server/chunks/book-open.js                                                               0.64 kB Γöé gzip:  0.39 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/_layout.server.ts.js                          0.64 kB Γöé gzip:  0.38 kB
+[WebServer] .svelte-kit/output/server/chunks/user-round-check.js                                                        0.64 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/server/chunks/triangle-alert.js                                                          0.64 kB Γöé gzip:  0.39 kB
+[WebServer] .svelte-kit/output/server/chunks/theme.svelte.js                                                            0.65 kB Γöé gzip:  0.33 kB
+[WebServer] .svelte-kit/output/server/chunks/mail-check.js                                                              0.65 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/server/chunks/languages.js                                                               0.67 kB Γöé gzip:  0.38 kB
+[WebServer] .svelte-kit/output/server/chunks/shared-server.js                                                           0.68 kB Γöé gzip:  0.31 kB
+[WebServer] .svelte-kit/output/server/chunks/users.js                                                                   0.68 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/server/chunks/trash-2.js                                                                 0.68 kB Γöé gzip:  0.38 kB
+[WebServer] .svelte-kit/output/server/chunks/refresh-cw.js                                                              0.68 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/server/chunks/shield-check.js                                                            0.69 kB Γöé gzip:  0.43 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/analytics/_page.server.ts.js                  0.70 kB Γöé gzip:  0.41 kB
+[WebServer] .svelte-kit/output/server/chunks/printer.js                                                                 0.72 kB Γöé gzip:  0.42 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/_page.server.ts.js                            0.73 kB Γöé gzip:  0.42 kB
+[WebServer] .svelte-kit/output/server/chunks/building-2.js                                                              0.74 kB Γöé gzip:  0.40 kB
+[WebServer] .svelte-kit/output/server/chunks/user-plus.js                                                               0.76 kB Γöé gzip:  0.41 kB
+[WebServer] .svelte-kit/output/server/chunks/book-open-text.js                                                          0.80 kB Γöé gzip:  0.41 kB
+[WebServer] .svelte-kit/output/server/chunks/server.js                                                                  0.81 kB Γöé gzip:  0.42 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/auth/reset-password/_server.ts.js                           0.81 kB Γöé gzip:  0.47 kB
+[WebServer] .svelte-kit/output/server/chunks/star.js                                                                    0.82 kB Γöé gzip:  0.48 kB
+[WebServer] .svelte-kit/output/server/chunks/Badge.js                                                                   0.84 kB Γöé gzip:  0.45 kB
+[WebServer] .svelte-kit/output/server/chunks/store.js                                                                   0.85 kB Γöé gzip:  0.46 kB
+[WebServer] .svelte-kit/output/server/chunks/settings.js                                                                0.86 kB Γöé gzip:  0.44 kB
+[WebServer] .svelte-kit/output/server/chunks/redis.js                                                                   0.90 kB Γöé gzip:  0.44 kB
+[WebServer] .svelte-kit/output/server/chunks/schema3.js                                                                 0.95 kB Γöé gzip:  0.48 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/organizations/_page.server.ts.js                0.98 kB Γöé gzip:  0.48 kB
+[WebServer] .svelte-kit/output/server/chunks/paths.js                                                                   0.99 kB Γöé gzip:  0.57 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/restaurants/_page.server.ts.js                  1.02 kB Γöé gzip:  0.50 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/health/backend/_server.ts.js                                1.08 kB Γöé gzip:  0.52 kB
+[WebServer] .svelte-kit/output/server/chunks/qr-code.js                                                                 1.10 kB Γöé gzip:  0.44 kB
+[WebServer] .svelte-kit/output/server/chunks/trending-up.js                                                             1.10 kB Γöé gzip:  0.47 kB
+[WebServer] .svelte-kit/output/server/chunks/schema2.js                                                                 1.24 kB Γöé gzip:  0.57 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/_error.svelte.js                                         1.37 kB Γöé gzip:  0.66 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/restaurants/_slug_/_page.server.ts.js           1.37 kB Γöé gzip:  0.58 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/confirm/_page.svelte.js                                    1.39 kB Γöé gzip:  0.70 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/forgot-password/_page.server.ts.js                             1.42 kB Γöé gzip:  0.70 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/_page.svelte.js                                 1.44 kB Γöé gzip:  0.53 kB
+[WebServer] .svelte-kit/output/server/chunks/EmptyState.js                                                              1.45 kB Γöé gzip:  0.50 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/update-password/_page.server.ts.js                             1.48 kB Γöé gzip:  0.70 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/internal/metrics/_server.ts.js                              1.53 kB Γöé gzip:  0.78 kB
+[WebServer] .svelte-kit/output/server/chunks/stores.js                                                                  1.55 kB Γöé gzip:  0.72 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/public/feedback/_server.ts.js                               1.55 kB Γöé gzip:  0.77 kB
+[WebServer] .svelte-kit/output/server/entries/pages/login/_page.server.ts.js                                            1.58 kB Γöé gzip:  0.73 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/organizations/_slug_/_page.server.ts.js         1.63 kB Γöé gzip:  0.67 kB
+[WebServer] .svelte-kit/output/server/chunks/postgres2.js                                                               1.64 kB Γöé gzip:  0.70 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/public/fallback/_server.ts.js                               1.68 kB Γöé gzip:  0.83 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/restaurant/_page.server.ts.js                              1.75 kB Γöé gzip:  0.76 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/public/bootstrap/_server.ts.js                              1.76 kB Γöé gzip:  0.89 kB
+[WebServer] .svelte-kit/output/server/chunks/env.js                                                                     1.86 kB Γöé gzip:  0.77 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/public/slug-check/_server.ts.js                             1.92 kB Γöé gzip:  0.98 kB
+[WebServer] .svelte-kit/output/server/chunks/detection.js                                                               1.96 kB Γöé gzip:  0.82 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/tables/_page.server.ts.js                     1.99 kB Γöé gzip:  0.95 kB
+[WebServer] .svelte-kit/output/server/entries/hooks.server.js                                                           2.25 kB Γöé gzip:  1.01 kB
+[WebServer] .svelte-kit/output/server/chunks/schema.js                                                                  2.34 kB Γöé gzip:  1.23 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/organization/_page.server.ts.js                            2.37 kB Γöé gzip:  1.01 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(public)/r/_restaurantSlug_/table/_tableCode_/_page.server.ts.js    2.38 kB Γöé gzip:  1.13 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/callback/_page.server.ts.js                                    2.38 kB Γöé gzip:  0.95 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/_layout.svelte.js                                        2.50 kB Γöé gzip:  0.79 kB
+[WebServer] .svelte-kit/output/server/chunks/table-repository.js                                                        2.66 kB Γöé gzip:  1.31 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/settings/_page.server.ts.js                   2.70 kB Γöé gzip:  1.04 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js                               2.86 kB Γöé gzip:  1.20 kB
+[WebServer] .svelte-kit/output/server/chunks/client.js                                                                  2.94 kB Γöé gzip:  1.16 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/feedback/_page.server.ts.js                   2.96 kB Γöé gzip:  1.31 kB
+[WebServer] .svelte-kit/output/server/entries/fallbacks/error.svelte.js                                                 3.06 kB Γöé gzip:  1.24 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/import/_page.svelte.js                        3.17 kB Γöé gzip:  1.40 kB
+[WebServer] .svelte-kit/output/server/chunks/staff-repository.js                                                        3.17 kB Γöé gzip:  1.02 kB
+[WebServer] .svelte-kit/output/server/entries/pages/_layout.svelte.js                                                   3.18 kB Γöé gzip:  1.30 kB
+[WebServer] .svelte-kit/output/server/chunks/guest-interaction-service.js                                               3.27 kB Γöé gzip:  1.21 kB
+[WebServer] .svelte-kit/output/server/chunks/Icon.js                                                                    3.28 kB Γöé gzip:  1.19 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/onboarding/_page.server.ts.js                 3.37 kB Γöé gzip:  1.05 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js                               3.41 kB Γöé gzip:  1.60 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(staff)/staff/inbox/_page.server.ts.js                              3.55 kB Γöé gzip:  1.05 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/forgot-password/_page.svelte.js                                3.58 kB Γöé gzip:  1.32 kB
+[WebServer] .svelte-kit/output/server/chunks/Pagination.js                                                              3.75 kB Γöé gzip:  1.18 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/update-password/_page.svelte.js                                3.86 kB Γöé gzip:  1.51 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/_page.svelte.js                                            3.88 kB Γöé gzip:  1.36 kB
+[WebServer] .svelte-kit/output/server/chunks/metrics-repository.js                                                      3.93 kB Γöé gzip:  1.60 kB
+[WebServer] .svelte-kit/output/server/chunks/policy.js                                                                  3.94 kB Γöé gzip:  1.61 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/accept-invite/_page.server.ts.js                               3.99 kB Γöé gzip:  1.48 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/restaurants/_page.svelte.js                     4.02 kB Γöé gzip:  1.51 kB
+[WebServer] .svelte-kit/output/server/chunks/onboarding-repository.js                                                   4.04 kB Γöé gzip:  1.49 kB
+[WebServer] .svelte-kit/output/server/entries/pages/auth/accept-invite/_page.svelte.js                                  4.08 kB Γöé gzip:  1.30 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/(staff)/staff/inbox/events/_server.ts.js                        4.09 kB Γöé gzip:  1.60 kB
+[WebServer] .svelte-kit/output/server/chunks/menu-row-mapper.js                                                         4.13 kB Γöé gzip:  1.30 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/organizations/_page.svelte.js                   4.37 kB Γöé gzip:  1.61 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/restaurant/_page.svelte.js                                 4.51 kB Γöé gzip:  1.41 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/organization/_page.svelte.js                               4.74 kB Γöé gzip:  1.49 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/admin/embeddings/_server.ts.js                              4.86 kB Γöé gzip:  1.73 kB
+[WebServer] .svelte-kit/output/server/chunks/index-server.js                                                            4.87 kB Γöé gzip:  1.79 kB
+[WebServer] .svelte-kit/output/server/chunks/public-api-helpers.js                                                      4.90 kB Γöé gzip:  2.20 kB
+[WebServer] .svelte-kit/output/server/chunks/public-context.js                                                          5.07 kB Γöé gzip:  1.69 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/restaurants/_slug_/_page.svelte.js              5.09 kB Γöé gzip:  1.65 kB
+[WebServer] .svelte-kit/output/server/chunks/tenant-context.js                                                          5.64 kB Γöé gzip:  1.70 kB
+[WebServer] .svelte-kit/output/server/entries/pages/login/_page.svelte.js                                               5.70 kB Γöé gzip:  1.80 kB
+[WebServer] .svelte-kit/output/server/chunks/exports.js                                                                 5.81 kB Γöé gzip:  1.79 kB
+[WebServer] .svelte-kit/output/server/chunks/staff-inbox-service.js                                                     5.90 kB Γöé gzip:  2.25 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/organizations/_slug_/_page.svelte.js            6.13 kB Γöé gzip:  1.89 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/staff/_page.svelte.js                         6.34 kB Γöé gzip:  1.75 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/restaurant/setup/_page.server.ts.js                        6.46 kB Γöé gzip:  2.42 kB
+[WebServer] .svelte-kit/output/server/chunks/auth-factory.js                                                            6.64 kB Γöé gzip:  2.21 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/feedback/_page.svelte.js                      6.92 kB Γöé gzip:  2.15 kB
+[WebServer] .svelte-kit/output/server/entries/pages/demo/_page.svelte.js                                                7.09 kB Γöé gzip:  1.99 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/settings/_page.svelte.js                      7.43 kB Γöé gzip:  2.12 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/_layout.svelte.js                             7.47 kB Γöé gzip:  2.21 kB
+[WebServer] .svelte-kit/output/server/chunks/routing.js                                                                 7.66 kB Γöé gzip:  2.79 kB
+[WebServer] .svelte-kit/output/server/entries/pages/register/restaurant/setup/_page.svelte.js                           7.98 kB Γöé gzip:  2.39 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/_page.svelte.js                               8.17 kB Γöé gzip:  2.15 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/tables/_page.svelte.js                        8.38 kB Γöé gzip:  2.60 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/knowledge/_page.svelte.js                     8.56 kB Γöé gzip:  2.26 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/guide/_page.svelte.js                           8.76 kB Γöé gzip:  2.78 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/menu/_page.svelte.js                          8.77 kB Γöé gzip:  2.68 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(platform)/platform/analytics/_page.svelte.js                       8.89 kB Γöé gzip:  2.37 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/analytics/_page.svelte.js                     9.43 kB Γöé gzip:  2.42 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/guide/_page.svelte.js                        10.66 kB Γöé gzip:  3.13 kB
+[WebServer] .svelte-kit/output/server/chunks/platform-admin-service.js                                                 10.93 kB Γöé gzip:  2.89 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/onboarding/_page.svelte.js                   11.12 kB Γöé gzip:  2.91 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(staff)/staff/inbox/_page.svelte.js                                11.16 kB Γöé gzip:  2.61 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/menu/_page.server.ts.js                      11.58 kB Γöé gzip:  3.36 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/import/_page.server.ts.js                    12.53 kB Γöé gzip:  4.15 kB
+[WebServer] .svelte-kit/output/server/chunks/admin-menu-repository.js                                                  12.56 kB Γöé gzip:  2.94 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/staff/_page.server.ts.js                     13.03 kB Γöé gzip:  3.61 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(dashboard)/dashboard/knowledge/_page.server.ts.js                 13.07 kB Γöé gzip:  3.66 kB
+[WebServer] .svelte-kit/output/server/chunks/uneval.js                                                                 15.46 kB Γöé gzip:  4.25 kB
+[WebServer] .svelte-kit/output/server/chunks/factory.js                                                                17.93 kB Γöé gzip:  6.27 kB
+[WebServer] .svelte-kit/output/server/entries/endpoints/api/public/chat/_server.ts.js                                  19.09 kB Γöé gzip:  6.32 kB
+[WebServer] .svelte-kit/output/server/chunks/internal.js                                                               22.91 kB Γöé gzip:  6.85 kB
+[WebServer] .svelte-kit/output/server/chunks/restaurants.js                                                            23.23 kB Γöé gzip:  6.38 kB
+[WebServer] .svelte-kit/output/server/chunks/shared.js                                                                 25.17 kB Γöé gzip:  6.73 kB
+[WebServer] .svelte-kit/output/server/entries/pages/(public)/r/_restaurantSlug_/table/_tableCode_/_page.svelte.js      25.79 kB Γöé gzip:  5.41 kB
+[WebServer] .svelte-kit/output/server/entries/pages/_page.svelte.js                                                    32.86 kB Γöé gzip:  4.74 kB
+[WebServer] .svelte-kit/output/server/chunks/utils.js                                                                  36.33 kB Γöé gzip: 10.55 kB
+[WebServer] .svelte-kit/output/server/chunks/translations.svelte.js                                                    51.48 kB Γöé gzip: 13.94 kB
+[WebServer] .svelte-kit/output/server/remote-entry.js                                                                  54.20 kB Γöé gzip: 11.89 kB
+[WebServer] .svelte-kit/output/server/index.js                                                                        130.32 kB Γöé gzip: 33.21 kB
+[WebServer] .svelte-kit/output/server/chunks/server2.js                                                               133.57 kB Γöé gzip: 34.39 kB
+[WebServer] 
+[WebServer] [PLUGIN_TIMINGS] Your build spent significant time in plugins. Here is a breakdown:
+[WebServer]   - vite-plugin-sveltekit-guard (73%)
+[WebServer]   - vite-plugin-sveltekit-virtual-modules (10%)
+[WebServer]   - vite-plugin-svelte:compile (8%)
+[WebServer]   - vite-plugin-svelte:preprocess (7%)
+[WebServer] See https://rolldown.rs/options/checks#plugintimings for more details.
+[WebServer] 
+[WebServer] Γ£ô built in 28.50s
+[WebServer] 
+[WebServer] Run npm run preview to preview your production build locally.
+[WebServer] 
+[WebServer] > Using @sveltejs/adapter-node
+[WebServer]   Γ£ö done
+[WebServer] 
+[WebServer] > lingua@0.0.1 preview D:\Programming\project\Lingua
+[WebServer] > vite preview
+[WebServer] 
+[WebServer]   Γ₧£  Local:   http://localhost:4173/
+[WebServer]   Γ₧£  Network: use --host to expose
+
+Running 76 tests using 4 workers
+
+  Γ£ô   2 tests\e2e\admin-flow.spec.ts:30:2 ΓÇ║ Login page ΓÇ║ demo account selector has options (1.1s)
+  Γ£ô   4 tests\e2e\admin-flow.spec.ts:21:2 ΓÇ║ Login page ΓÇ║ renders sign-in heading and demo account selector (995ms)
+  Γ£ô   3 tests\e2e\admin-flow.spec.ts:38:2 ΓÇ║ Login page ΓÇ║ continue button is visible (1.1s)
+  Γ£ô   1 tests\e2e\admin-flow.spec.ts:48:2 ΓÇ║ Admin flow at 390px ΓÇ║ login renders correctly at narrow viewport (1.1s)
+  Γ£ô   5 tests\e2e\admin-flow.spec.ts:59:2 ΓÇ║ Dashboard overview ΓÇ║ renders heading and stat tiles (1.1s)
+  Γ£ô   7 tests\e2e\admin-flow.spec.ts:82:2 ΓÇ║ Dashboard overview ΓÇ║ navigation links are visible (1.1s)
+  Γ£ô   6 tests\e2e\admin-flow.spec.ts:71:2 ΓÇ║ Dashboard overview ΓÇ║ health section and staff queue are visible (1.1s)
+  Γ£ÿ   8 tests\e2e\admin-flow.spec.ts:95:2 ΓÇ║ Dashboard menu ΓÇ║ renders menu data page with restaurant selector (2.8s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ   9 tests\e2e\admin-flow.spec.ts:110:2 ΓÇ║ Dashboard menu ΓÇ║ shows table headers (2.4s)
+  Γ£ô  11 tests\e2e\admin-flow.spec.ts:151:2 ΓÇ║ Dashboard menu ΓÇ║ can toggle menu item availability (2.9s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  12 tests\e2e\admin-flow.spec.ts:206:2 ΓÇ║ Dashboard knowledge ΓÇ║ add note form opens and closes (927ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  13 tests\e2e\admin-flow.spec.ts:174:2 ΓÇ║ Dashboard menu ΓÇ║ can open publish menu modal (1.1s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  14 tests\e2e\admin-flow.spec.ts:191:2 ΓÇ║ Dashboard knowledge ΓÇ║ renders knowledge page with add button (1.0s)
+  -  15 tests\e2e\admin-flow.spec.ts:240:2 ΓÇ║ Dashboard knowledge ΓÇ║ can edit a knowledge note
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  17 tests\e2e\admin-flow.spec.ts:224:2 ΓÇ║ Dashboard knowledge ΓÇ║ can create a knowledge note (915ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  10 tests\e2e\admin-flow.spec.ts:125:2 ΓÇ║ Dashboard menu ΓÇ║ can edit a menu item (7.6s)
+  Γ£ÿ  16 tests\e2e\auth-flow.spec.ts:30:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ registration page renders all fields (5.2s)
+  Γ£ÿ  20 tests\e2e\auth-flow.spec.ts:47:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ has link to sign in page (5.3s)
+  Γ£ÿ  21 tests\e2e\auth-flow.spec.ts:60:2 ΓÇ║ Registration ΓÇö organization path ΓÇ║ registration page renders all fields (5.2s)
+  Γ£ô  23 tests\e2e\auth-flow.spec.ts:81:2 ΓÇ║ Registration setup step ΓÇ║ unauthenticated user is redirected to login (342ms)
+  Γ£ô  24 tests\e2e\auth-flow.spec.ts:95:2 ΓÇ║ Login page ΓÇ║ renders all required elements (299ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  25 tests\e2e\auth-flow.spec.ts:101:2 ΓÇ║ Login page ΓÇ║ redirects authenticated user away from login (656ms)
+  Γ£ô  26 tests\e2e\auth-flow.spec.ts:118:2 ΓÇ║ Forgot password ΓÇ║ page renders email field and submit button (321ms)
+  Γ£ô  27 tests\e2e\auth-flow.spec.ts:125:2 ΓÇ║ Forgot password ΓÇ║ submitting valid email shows confirmation (433ms)
+  Γ£ô  28 tests\e2e\auth-flow.spec.ts:133:2 ΓÇ║ Forgot password ΓÇ║ has back to login link (295ms)
+  Γ£ÿ  22 tests\e2e\auth-flow.spec.ts:69:2 ΓÇ║ Registration ΓÇö organization path ΓÇ║ has link to sign in page (5.3s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  18 tests\e2e\admin-flow.spec.ts:267:2 ΓÇ║ Dashboard knowledge ΓÇ║ can delete a knowledge note (1.0m)
+  Γ£ÿ  19 tests\e2e\auth-flow.spec.ts:40:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ shows error when form submitted empty (1.0m)
+[WebServer] error: invalid input syntax for type uuid: "org-bali-table-group"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async createCustomerSession (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/public-context.js:56:2)
+[WebServer]     at async createCustomerSessionForTable (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:22:15)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:64:12)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+  Γ£ô  31 tests\e2e\customer-flow.spec.ts:9:2 ΓÇ║ Customer flow at 360px ΓÇ║ renders restaurant hero and session bootstrap (550ms)
+[WebServer] error: invalid input syntax for type uuid: "org-bali-table-group"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async createCustomerSession (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/public-context.js:56:2)
+[WebServer]     at async createCustomerSessionForTable (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:22:15)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:64:12)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer] error: invalid input syntax for type uuid: "org-bali-table-group"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async createCustomerSession (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/public-context.js:56:2)
+[WebServer]     at async createCustomerSessionForTable (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:22:15)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:64:12)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer] error: invalid input syntax for type uuid: "org-bali-table-group"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async createCustomerSession (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/public-context.js:56:2)
+[WebServer]     at async createCustomerSessionForTable (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:22:15)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:64:12)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+  Γ£ô  32 tests\e2e\customer-flow.spec.ts:29:2 ΓÇ║ Customer flow at 360px ΓÇ║ preference chips toggle correctly (659ms)
+[WebServer] error: invalid input syntax for type uuid: "org-bali-table-group"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async createCustomerSession (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/public-context.js:56:2)
+[WebServer]     at async createCustomerSessionForTable (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:22:15)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/public/sessions/_server.ts.js:64:12)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+  Γ£ô  33 tests\e2e\customer-flow.spec.ts:43:2 ΓÇ║ Customer flow at 360px ΓÇ║ menu browse renders categories and items (500ms)
+  Γ£ô  34 tests\e2e\customer-flow.spec.ts:18:2 ΓÇ║ Customer flow at 360px ΓÇ║ language selector shows options in selected language (689ms)
+  Γ£ô  35 tests\e2e\customer-flow.spec.ts:55:2 ΓÇ║ Customer flow at 360px ΓÇ║ menu item card shows spice, price, and badges (592ms)
+  Γ£ô  36 tests\e2e\customer-flow.spec.ts:67:2 ΓÇ║ Customer flow at 360px ΓÇ║ selecting a menu item opens detail panel (698ms)
+  Γ£ô  37 tests\e2e\customer-flow.spec.ts:80:2 ΓÇ║ Customer flow at 360px ΓÇ║ detail panel shows verified or staff-confirm state (721ms)
+  Γ£ô  38 tests\e2e\customer-flow.spec.ts:95:2 ΓÇ║ Customer flow at 360px ΓÇ║ chat panel renders and shows empty state (645ms)
+  Γ£ô  39 tests\e2e\customer-flow.spec.ts:103:2 ΓÇ║ Customer flow at 360px ΓÇ║ chat panel shows suggestion chips (666ms)
+  Γ£ô  40 tests\e2e\customer-flow.spec.ts:111:2 ΓÇ║ Customer flow at 360px ΓÇ║ chat panel send button is disabled when empty (704ms)
+  Γ£ô  41 tests\e2e\customer-flow.spec.ts:122:2 ΓÇ║ Customer flow at 360px ΓÇ║ chat panel shows Speak to staff CTA (718ms)
+  Γ£ô  43 tests\e2e\customer-flow.spec.ts:143:2 ΓÇ║ Customer flow at 360px ΓÇ║ staff fallback CTA is visible (791ms)
+  Γ£ô  44 tests\e2e\customer-flow.spec.ts:157:2 ΓÇ║ Customer flow at 390px ΓÇ║ renders restaurant hero (646ms)
+  Γ£ÿ  45 tests\e2e\customer-flow.spec.ts:164:2 ΓÇ║ Customer flow at 390px ΓÇ║ menu category tabs scroll horizontally (595ms)
+  Γ£ô  46 tests\e2e\customer-flow.spec.ts:172:2 ΓÇ║ Customer flow at 390px ΓÇ║ chat panel input and send work (533ms)
+  Γ£ÿ  42 tests\e2e\customer-flow.spec.ts:128:2 ΓÇ║ Customer flow at 360px ΓÇ║ feedback buttons render and respond (6.0s)
+  Γ£ô  48 tests\e2e\customer-flow.spec.ts:189:2 ΓÇ║ Customer flow at 390px ΓÇ║ item detail shows allergen and dietary badges (495ms)
+  Γ£ÿ  29 tests\e2e\auth-flow.spec.ts:145:2 ΓÇ║ Update password page ΓÇ║ unauthenticated user is redirected (1.0m)
+  Γ£ÿ  30 tests\e2e\auth-flow.spec.ts:160:2 ΓÇ║ Logout ΓÇ║ logout redirects to login (1.0m)
+  Γ£ÿ  47 tests\e2e\customer-flow.spec.ts:182:2 ΓÇ║ Customer flow at 390px ΓÇ║ feedback sent confirmation persists (5.5s)
+  Γ£ô  51 tests\e2e\customer-flow.spec.ts:222:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ no horizontal overflow at 360px (435ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  53 tests\e2e\frontend-smoke.spec.ts:21:1 ΓÇ║ admin dashboard renders mocked phase 5 surfaces (829ms)
+[WebServer] error: invalid input syntax for type uuid: "rest-rempah-terrace"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async listFallbackRequests (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/staff-inbox-service.js:41:10)
+[WebServer]     at async load (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/pages/(staff)/staff/inbox/_page.server.ts.js:19:21)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:565:12)
+[WebServer]     at async load_server_data (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:555:9)
+[WebServer]     at async file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:2282:26
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  49 tests\e2e\customer-flow.spec.ts:208:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ renders restaurant hero with RTL text direction (5.2s)
+  Γ£ÿ  50 tests\e2e\customer-flow.spec.ts:215:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ chat panel renders correctly in RTL viewport (5.2s)
+  Γ£ÿ  52 tests\e2e\frontend-smoke.spec.ts:3:1 ΓÇ║ customer QR flow renders menu, chat, and feedback states (5.7s)
+  Γ£ÿ  54 tests\e2e\frontend-smoke.spec.ts:39:1 ΓÇ║ staff inbox renders selected fallback detail (5.5s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  57 tests\e2e\onboarding-flow.spec.ts:45:2 ΓÇ║ Onboarding wizard ΓÇ║ step 1 shows restaurant profile summary (873ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  55 tests\e2e\onboarding-flow.spec.ts:13:2 ΓÇ║ Registration confirm page ΓÇ║ renders email confirmation message (5.2s)
+  Γ£ô  58 tests\e2e\onboarding-flow.spec.ts:61:2 ΓÇ║ Onboarding wizard ΓÇ║ step 2 shows table setup form (805ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  59 tests\e2e\onboarding-flow.spec.ts:53:2 ΓÇ║ Onboarding wizard ΓÇ║ step 1 continue link points to step 2 (888ms)
+  Γ£ô  60 tests\e2e\onboarding-flow.spec.ts:81:2 ΓÇ║ Onboarding wizard ΓÇ║ step 3 shows create menu button (869ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  61 tests\e2e\onboarding-flow.spec.ts:90:2 ΓÇ║ Onboarding wizard ΓÇ║ step 4 shows completion and action links (971ms)
+  Γ£ÿ  56 tests\e2e\onboarding-flow.spec.ts:18:2 ΓÇ║ Registration confirm page ΓÇ║ has link back to login (5.3s)
+  Γ£ô  64 tests\e2e\platform-admin-flow.spec.ts:26:2 ΓÇ║ Platform admin ΓÇö overview ΓÇ║ non-platform user cannot access /platform (290ms)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  63 tests\e2e\onboarding-flow.spec.ts:71:2 ΓÇ║ Onboarding wizard ΓÇ║ step 2 prefix preview updates on input (1.1s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  62 tests\e2e\onboarding-flow.spec.ts:100:2 ΓÇ║ Onboarding wizard ΓÇ║ step progress indicator is visible (5.8s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  66 tests\e2e\platform-admin-flow.spec.ts:66:2 ΓÇ║ Platform admin ΓÇö organizations ΓÇ║ organization name links to detail page (5.7s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  65 tests\e2e\platform-admin-flow.spec.ts:50:2 ΓÇ║ Platform admin ΓÇö organizations ΓÇ║ organizations list renders table (1.0m)
+  Γ£ÿ  67 tests\e2e\platform-admin-flow.spec.ts:33:2 ΓÇ║ Platform admin ΓÇö overview ΓÇ║ platform overview renders stats after login (1.0m)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  68 tests\e2e\platform-admin-flow.spec.ts:87:2 ΓÇ║ Platform admin ΓÇö organization detail ΓÇ║ detail page renders status controls (1.0m)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  69 tests\e2e\platform-admin-flow.spec.ts:109:2 ΓÇ║ Platform admin ΓÇö organization detail ΓÇ║ restaurant list is visible on org detail (1.0m)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ÿ  71 tests\e2e\platform-admin-flow.spec.ts:145:2 ΓÇ║ Platform admin ΓÇö restaurants ΓÇ║ restaurant name links to detail page (5.6s)
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  73 tests\e2e\staff-flow.spec.ts:37:2 ΓÇ║ Staff management page ΓÇ║ invite dialog opens and closes (837ms)
+[WebServer] error: invalid input syntax for type uuid: "rest-rempah-terrace"
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async listFallbackRequests (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/chunks/staff-inbox-service.js:41:10)
+[WebServer]     at async load (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/pages/(staff)/staff/inbox/_page.server.ts.js:19:21)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:565:12)
+[WebServer]     at async load_server_data (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:555:9)
+[WebServer]     at async file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:2282:26
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+[WebServer] [vitals] Failed to insert web vitals: error: relation "web_vitals" does not exist
+[WebServer]     at D:\Programming\project\Lingua\node_modules\.pnpm\pg-pool@3.14.0_pg@8.21.0\node_modules\pg-pool\index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[WebServer]     at async insertWebVitals (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:17:2)
+[WebServer]     at async POST (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/entries/endpoints/api/internal/vitals/_server.ts.js:76:3)
+[WebServer]     at async render_endpoint (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:72:20)
+[WebServer]     at async resolve (file:///D:/Programming/project/Lingua/.svelte-kit/output/server/index.js:3506:88)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13)
+[WebServer]     at async resolveWithSentry (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:85:19)
+[WebServer]     at async instrumentHandle (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sentry+sveltekit@10.59.0_@_95fe12a0a014e2d3f3ee7e86acf26c9b/node_modules/@sentry/sveltekit/build/esm/server-common/handle.js:95:75)
+[WebServer]     at async fn (file:///D:/Programming/project/Lingua/node_modules/.pnpm/@sveltejs+kit@2.65.1_@opent_68454b99b0eb5061e4e92a65cfaef180/node_modules/@sveltejs/kit/src/exports/hooks/sequence.js:102:13) {
+[WebServer]   length: 109,
+[WebServer]   severity: 'ERROR',
+[WebServer]   code: '42P01',
+[WebServer]   detail: undefined,
+[WebServer]   hint: undefined,
+[WebServer]   position: '13',
+[WebServer]   internalPosition: undefined,
+[WebServer]   internalQuery: undefined,
+[WebServer]   where: undefined,
+[WebServer]   schema: undefined,
+[WebServer]   table: undefined,
+[WebServer]   column: undefined,
+[WebServer]   dataType: undefined,
+[WebServer]   constraint: undefined,
+[WebServer]   file: 'parse_relation.c',
+[WebServer]   line: '1449',
+[WebServer]   routine: 'parserOpenTable'
+[WebServer] }
+  Γ£ô  74 tests\e2e\staff-flow.spec.ts:56:2 ΓÇ║ Staff management page ΓÇ║ invite dialog validates empty email (901ms)
+  -  76 tests\e2e\staff-flow.spec.ts:98:2 ΓÇ║ Staff inbox ΓÇ║ empty state is shown when no requests
+  Γ£ÿ  72 tests\e2e\staff-flow.spec.ts:27:2 ΓÇ║ Staff management page ΓÇ║ renders team heading and member list (5.9s)
+  Γ£ÿ  75 tests\e2e\staff-flow.spec.ts:80:2 ΓÇ║ Staff inbox ΓÇ║ renders inbox heading (5.5s)
+  Γ£ÿ  70 tests\e2e\platform-admin-flow.spec.ts:130:2 ΓÇ║ Platform admin ΓÇö restaurants ΓÇ║ restaurants list renders table (1.0m)
+
+
+  1) tests\e2e\admin-flow.spec.ts:95:2 ΓÇ║ Dashboard menu ΓÇ║ renders menu data page with restaurant selector 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByLabel('Restaurant')
+    Expected: visible
+    Error: strict mode violation: getByLabel('Restaurant') resolved to 2 elements:
+        1) <select aria-label="Current restaurant" class="tap-target mt-3 w-full rounded-lg border border-lingua-border bg-white px-3 text-sm">ΓÇª</select> aka getByLabel('Current restaurant')
+        2) <select aria-label="Restaurant" class="tap-target rounded-lg border border-lingua-border bg-white px-3 text-sm">ΓÇª</select> aka getByLabel('Restaurant', { exact: true })
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByLabel('Restaurant')
+
+
+      103 |
+      104 | 		await expect(page.getByRole('heading', { name: /menu data/i })).toBeVisible();
+    > 105 | 		await expect(page.getByLabel('Restaurant')).toBeVisible();
+          | 		                                            ^
+      106 | 		await expect(page.getByRole('button', { name: /publish menu/i })).toBeVisible();
+      107 | 		await expect(page.getByPlaceholder(/search menu/i)).toBeVisible();
+      108 | 	});
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:105:47
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-menu--57bba-ge-with-restaurant-selector\error-context.md
+
+  2) tests\e2e\admin-flow.spec.ts:110:2 ΓÇ║ Dashboard menu ΓÇ║ shows table headers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Price')
+    Expected: visible
+    Error: strict mode violation: getByText('Price') resolved to 2 elements:
+        1) <p class="mt-2 text-lingua-subtle">Choose a restaurant, then review prices, availabiΓÇª</p> aka getByText('Choose a restaurant, then')
+        2) <th class="py-3 pr-4">Price</th> aka getByRole('columnheader', { name: 'Price' })
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('Price')
+
+
+      119 | 		await expect(page.getByText('Item')).toBeVisible();
+      120 | 		await expect(page.getByText('Category')).toBeVisible();
+    > 121 | 		await expect(page.getByText('Price')).toBeVisible();
+          | 		                                      ^
+      122 | 		await expect(page.getByText('Status')).toBeVisible();
+      123 | 	});
+      124 |
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:121:41
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-menu-shows-table-headers\error-context.md
+
+  3) tests\e2e\admin-flow.spec.ts:125:2 ΓÇ║ Dashboard menu ΓÇ║ can edit a menu item ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator:  getByRole('heading', { name: /edit item/i })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "not toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: /edit item/i })
+        14 ├ù locator resolved to <h3 class="text-lg font-semibold">Edit item</h3>
+           - unexpected value "visible"
+
+
+      146 | 		await page.getByRole('button', { name: /save changes/i }).click();
+      147 |
+    > 148 | 		await expect(page.getByRole('heading', { name: /edit item/i })).not.toBeVisible();
+          | 		                                                                    ^
+      149 | 	});
+      150 |
+      151 | 	test('can toggle menu item availability', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:148:71
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-menu-can-edit-a-menu-item\error-context.md
+
+  4) tests\e2e\admin-flow.spec.ts:191:2 ΓÇ║ Dashboard knowledge ΓÇ║ renders knowledge page with add button 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: /add note/i })
+    Expected: visible
+    Error: strict mode violation: getByRole('button', { name: /add note/i }) resolved to 2 elements:
+        1) <button class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 text-sm font-semibold text-white">ΓÇª</button> aka getByRole('button', { name: 'Add note' }).first()
+        2) <button class="mt-4 inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2 text-sm font-semibold text-white">ΓÇª</button> aka getByRole('article').getByRole('button', { name: 'Add note' })
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: /add note/i })
+
+
+      201 | 			page.getByRole('heading', { name: /approved notes for guest answers/i })
+      202 | 		).toBeVisible();
+    > 203 | 		await expect(page.getByRole('button', { name: /add note/i })).toBeVisible();
+          | 		                                                              ^
+      204 | 	});
+      205 |
+      206 | 	test('add note form opens and closes', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:203:65
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-knowl-f8978-wledge-page-with-add-button\error-context.md
+
+  5) tests\e2e\admin-flow.spec.ts:206:2 ΓÇ║ Dashboard knowledge ΓÇ║ add note form opens and closes ΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: locator.click: Error: strict mode violation: getByRole('button', { name: /add note/i }) resolved to 2 elements:
+        1) <button class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 text-sm font-semibold text-white">ΓÇª</button> aka getByRole('button', { name: 'Add note' }).first()
+        2) <button class="mt-4 inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2 text-sm font-semibold text-white">ΓÇª</button> aka getByRole('article').getByRole('button', { name: 'Add note' })
+
+    Call log:
+      - waiting for getByRole('button', { name: /add note/i })
+
+
+      212 | 		await page.goto('/dashboard/knowledge');
+      213 |
+    > 214 | 		await page.getByRole('button', { name: /add note/i }).click();
+          | 		                                                      ^
+      215 | 		await expect(page.getByRole('heading', { name: /add a knowledge note/i })).toBeVisible();
+      216 |
+      217 | 		const cancelButtons = page.getByRole('button', { name: /cancel/i });
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:214:57
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-knowl-b612f--note-form-opens-and-closes\error-context.md
+
+  6) tests\e2e\admin-flow.spec.ts:224:2 ΓÇ║ Dashboard knowledge ΓÇ║ can create a knowledge note ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: locator.click: Error: strict mode violation: getByRole('button', { name: /add note/i }) resolved to 2 elements:
+        1) <button class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 text-sm font-semibold text-white">ΓÇª</button> aka getByRole('button', { name: 'Add note' }).first()
+        2) <button class="mt-4 inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2 text-sm font-semibold text-white">ΓÇª</button> aka getByRole('article').getByRole('button', { name: 'Add note' })
+
+    Call log:
+      - waiting for getByRole('button', { name: /add note/i })
+
+
+      230 | 		await page.goto('/dashboard/knowledge');
+      231 |
+    > 232 | 		await page.getByRole('button', { name: /add note/i }).click();
+          | 		                                                      ^
+      233 | 		await page.getByLabel('Title').fill('Test Note Title');
+      234 | 		await page.getByLabel('Content').fill('This is test content for the knowledge note.');
+      235 | 		await page.getByRole('button', { name: /save/i }).click();
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:232:57
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-knowledge-can-create-a-knowledge-note\error-context.md
+
+  7) tests\e2e\admin-flow.spec.ts:267:2 ΓÇ║ Dashboard knowledge ΓÇ║ can delete a knowledge note ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('article').filter({ hasText: /^(?!Add note)/ }).first().getByLabel(/delete note/i)
+
+
+      285 |
+      286 | 		page.once('dialog', (dialog) => dialog.accept());
+    > 287 | 		await firstNote.getByLabel(/delete note/i).click();
+          | 		                                           ^
+      288 |
+      289 | 		if (noteTitle) {
+      290 | 			await expect(page.getByRole('heading', { name: noteTitle })).not.toBeVisible();
+        at D:\Programming\project\Lingua\tests\e2e\admin-flow.spec.ts:287:46
+
+    Error Context: tests\e2e\test-results\admin-flow-Dashboard-knowledge-can-delete-a-knowledge-note\error-context.md
+
+  8) tests\e2e\auth-flow.spec.ts:30:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ registration page renders all fields 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /register/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: /register/i })
+
+
+      31 | 		await page.goto('/register/restaurant');
+      32 |
+    > 33 | 		await expect(page.getByRole('heading', { name: /register/i })).toBeVisible();
+         | 		                                                               ^
+      34 | 		await expect(page.getByLabel(/your name/i)).toBeVisible();
+      35 | 		await expect(page.getByLabel(/email/i)).toBeVisible();
+      36 | 		await expect(page.getByLabel(/password/i)).toBeVisible();
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:33:66
+
+    Error Context: tests\e2e\test-results\auth-flow-Registration-ΓÇö-r-02068-ion-page-renders-all-fields\error-context.md
+
+  9) tests\e2e\auth-flow.spec.ts:40:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ shows error when form submitted empty 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /create|register/i })
+
+
+      40 | 	test('shows error when form submitted empty', async ({ page }) => {
+      41 | 		await page.goto('/register/restaurant');
+    > 42 | 		await page.getByRole('button', { name: /create|register/i }).click();
+         | 		                                                             ^
+      43 | 		// HTML5 validation prevents submission ΓÇö required fields should be marked
+      44 | 		await expect(page.getByLabel(/your name/i)).toBeFocused();
+      45 | 	});
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:42:64
+
+    Error Context: tests\e2e\test-results\auth-flow-Registration-ΓÇö-r-2d64e-r-when-form-submitted-empty\error-context.md
+
+  10) tests\e2e\auth-flow.spec.ts:47:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ has link to sign in page ΓöÇ
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /sign in/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('link', { name: /sign in/i })
+
+
+      48 | 		await page.goto('/register/restaurant');
+      49 | 		const link = page.getByRole('link', { name: /sign in/i });
+    > 50 | 		await expect(link).toBeVisible();
+         | 		                   ^
+      51 | 		await expect(link).toHaveAttribute('href', '/login');
+      52 | 	});
+      53 | });
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:50:22
+
+    Error Context: tests\e2e\test-results\auth-flow-Registration-ΓÇö-r-c4321-th-has-link-to-sign-in-page\error-context.md
+
+  11) tests\e2e\auth-flow.spec.ts:60:2 ΓÇ║ Registration ΓÇö organization path ΓÇ║ registration page renders all fields 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByLabel(/your name/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByLabel(/your name/i)
+
+
+      61 | 		await page.goto('/register/organization');
+      62 |
+    > 63 | 		await expect(page.getByLabel(/your name/i)).toBeVisible();
+         | 		                                            ^
+      64 | 		await expect(page.getByLabel(/organization name/i)).toBeVisible();
+      65 | 		await expect(page.getByLabel(/email/i)).toBeVisible();
+      66 | 		await expect(page.getByLabel(/password/i)).toBeVisible();
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:63:47
+
+    Error Context: tests\e2e\test-results\auth-flow-Registration-ΓÇö-o-baf94-ion-page-renders-all-fields\error-context.md
+
+  12) tests\e2e\auth-flow.spec.ts:69:2 ΓÇ║ Registration ΓÇö organization path ΓÇ║ has link to sign in page 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /sign in/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('link', { name: /sign in/i })
+
+
+      70 | 		await page.goto('/register/organization');
+      71 | 		const link = page.getByRole('link', { name: /sign in/i });
+    > 72 | 		await expect(link).toBeVisible();
+         | 		                   ^
+      73 | 	});
+      74 | });
+      75 |
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:72:22
+
+    Error Context: tests\e2e\test-results\auth-flow-Registration-ΓÇö-o-70604-th-has-link-to-sign-in-page\error-context.md
+
+  13) tests\e2e\auth-flow.spec.ts:145:2 ΓÇ║ Update password page ΓÇ║ unauthenticated user is redirected 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://localhost:4173/auth/forgot-password"
+    ============================================================
+
+      146 | 		await page.goto('/auth/update-password');
+      147 | 		// Should redirect to login since no active session
+    > 148 | 		await page.waitForURL(/\/login|update-password/);
+          | 		           ^
+      149 | 		const url = page.url();
+      150 | 		// Either redirected to login, or shown the form (recovery flow allows direct access)
+      151 | 		expect(url).toMatch(/login|update-password/);
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:148:14
+
+    Error Context: tests\e2e\test-results\auth-flow-Update-password--c584d-nticated-user-is-redirected\error-context.md
+
+  14) tests\e2e\auth-flow.spec.ts:160:2 ΓÇ║ Logout ΓÇ║ logout redirects to login ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /log ?out|sign ?out/i })
+        - locator resolved to <button type="submit" class="tap-target mt-2 w-full rounded-lg border border-lingua-border px-3 text-left text-sm font-semibold text-lingua-subtle">Sign out</button>
+      - attempting click action
+        2 ├ù waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - element is outside of the viewport
+        - retrying click action
+        - waiting 20ms
+        2 ├ù waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - element is outside of the viewport
+        - retrying click action
+          - waiting 100ms
+        113 ├ù waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - element is outside of the viewport
+          - retrying click action
+            - waiting 500ms
+
+
+      169 | 		const logoutBtn = page.getByRole('button', { name: /log ?out|sign ?out/i });
+      170 | 		if (await logoutBtn.isVisible()) {
+    > 171 | 			await logoutBtn.click();
+          | 			                ^
+      172 | 			await page.waitForURL(/\/login/);
+      173 | 			await expect(page).toHaveURL(/\/login/);
+      174 | 		} else {
+        at D:\Programming\project\Lingua\tests\e2e\auth-flow.spec.ts:171:20
+
+    Error Context: tests\e2e\test-results\auth-flow-Logout-logout-redirects-to-login\error-context.md
+
+  15) tests\e2e\customer-flow.spec.ts:128:2 ΓÇ║ Customer flow at 360px ΓÇ║ feedback buttons render and respond 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/thank you for your feedback/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/thank you for your feedback/i)
+
+
+      138 |
+      139 | 		await helpfulBtn.click();
+    > 140 | 		await expect(page.getByText(/thank you for your feedback/i)).toBeVisible({ timeout: 5000 });
+          | 		                                                             ^
+      141 | 	});
+      142 |
+      143 | 	test('staff fallback CTA is visible', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\customer-flow.spec.ts:140:64
+
+    Error Context: tests\e2e\test-results\customer-flow-Customer-flo-6a4d7--buttons-render-and-respond\error-context.md
+
+  16) tests\e2e\customer-flow.spec.ts:164:2 ΓÇ║ Customer flow at 390px ΓÇ║ menu category tabs scroll horizontally 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('section').filter({ hasText: 'Browse menu' }).locator('div.flex')
+    Expected: visible
+    Error: strict mode violation: locator('section').filter({ hasText: 'Browse menu' }).locator('div.flex') resolved to 10 elements:
+        1) <div class="flex items-center justify-between gap-3">ΓÇª</div> aka locator('div').filter({ hasText: 'Language and food preferences' }).nth(3)
+        2) <div aria-label="Food preferences" class="flex gap-2 overflow-x-auto pb-1">ΓÇª</div> aka getByLabel('Food preferences')
+        3) <div class="flex items-center justify-between gap-3">ΓÇª</div> aka getByText('Browse menu Menu details are based on restaurant-approved data. photo')
+        4) <div class="mt-4 flex gap-2 overflow-x-auto pb-1">ΓÇª</div> aka getByText('SignaturesRice PlatesDrinks')
+        5) <div class="flex items-start justify-between gap-3">ΓÇª</div> aka getByRole('button', { name: 'Slow Roasted Betutu Chicken' })
+        6) <div class="mt-3 flex flex-wrap gap-2">ΓÇª</div> aka getByRole('button', { name: 'Slow Roasted Betutu Chicken' })
+        7) <div class="flex flex-wrap gap-2">ΓÇª</div> aka getByRole('button', { name: 'Slow Roasted Betutu Chicken' })
+        8) <div class="flex items-start justify-between gap-3">ΓÇª</div> aka getByRole('button', { name: 'Jimbaran Grilled Fish Ikan' })
+        9) <div class="mt-3 flex flex-wrap gap-2">ΓÇª</div> aka getByRole('button', { name: 'Jimbaran Grilled Fish Ikan' })
+        10) <div class="flex flex-wrap gap-2">ΓÇª</div> aka getByRole('button', { name: 'Jimbaran Grilled Fish Ikan' })
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('section').filter({ hasText: 'Browse menu' }).locator('div.flex')
+
+
+      167 | 		await expect(page.getByText('Browse menu')).toBeVisible();
+      168 | 		const tabBar = page.locator('section').filter({ hasText: 'Browse menu' }).locator('div.flex');
+    > 169 | 		await expect(tabBar).toBeVisible();
+          | 		                     ^
+      170 | 	});
+      171 |
+      172 | 	test('chat panel input and send work', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\customer-flow.spec.ts:169:24
+
+    Error Context: tests\e2e\test-results\customer-flow-Customer-flo-79304-ry-tabs-scroll-horizontally\error-context.md
+
+  17) tests\e2e\customer-flow.spec.ts:182:2 ΓÇ║ Customer flow at 390px ΓÇ║ feedback sent confirmation persists 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/thank you for your feedback/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/thank you for your feedback/i)
+
+
+      184 |
+      185 | 		await page.getByRole('button', { name: /unclear/i }).click();
+    > 186 | 		await expect(page.getByText(/thank you for your feedback/i)).toBeVisible({ timeout: 5000 });
+          | 		                                                             ^
+      187 | 	});
+      188 |
+      189 | 	test('item detail shows allergen and dietary badges', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\customer-flow.spec.ts:186:64
+
+    Error Context: tests\e2e\test-results\customer-flow-Customer-flo-96b90--sent-confirmation-persists\error-context.md
+
+  18) tests\e2e\customer-flow.spec.ts:208:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ renders restaurant hero with RTL text direction 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Pantai Padi' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Pantai Padi' })
+
+
+      209 | 		await page.goto(RTL_TEST_URL);
+      210 |
+    > 211 | 		await expect(page.getByRole('heading', { name: 'Pantai Padi' })).toBeVisible();
+          | 		                                                                 ^
+      212 | 		await expect(page.getByText('Table A01')).toBeVisible();
+      213 | 	});
+      214 |
+        at D:\Programming\project\Lingua\tests\e2e\customer-flow.spec.ts:211:68
+
+    Error Context: tests\e2e\test-results\customer-flow-Arabic-RTL-l-3a21d-ero-with-RTL-text-direction\error-context.md
+
+  19) tests\e2e\customer-flow.spec.ts:215:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ chat panel renders correctly in RTL viewport 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByPlaceholder('Ask: Is this spicy?')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByPlaceholder('Ask: Is this spicy?')
+
+
+      216 | 		await page.goto(RTL_TEST_URL);
+      217 |
+    > 218 | 		await expect(page.getByPlaceholder('Ask: Is this spicy?')).toBeVisible();
+          | 		                                                           ^
+      219 | 		await expect(page.getByText('Ask about the menu')).toBeVisible();
+      220 | 	});
+      221 |
+        at D:\Programming\project\Lingua\tests\e2e\customer-flow.spec.ts:218:62
+
+    Error Context: tests\e2e\test-results\customer-flow-Arabic-RTL-l-018ea-s-correctly-in-RTL-viewport\error-context.md
+
+  20) tests\e2e\frontend-smoke.spec.ts:3:1 ΓÇ║ customer QR flow renders menu, chat, and feedback states 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/thank you for your feedback/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/thank you for your feedback/i)
+
+
+      16 |
+      17 | 	await page.getByRole('button', { name: /helpful/i }).click();
+    > 18 | 	await expect(page.getByText(/thank you for your feedback/i)).toBeVisible();
+         | 	                                                             ^
+      19 | });
+      20 |
+      21 | test('admin dashboard renders mocked phase 5 surfaces', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\frontend-smoke.spec.ts:18:63
+
+    Error Context: tests\e2e\test-results\frontend-smoke-customer-QR-24662-nu-chat-and-feedback-states\error-context.md
+
+  21) tests\e2e\frontend-smoke.spec.ts:39:1 ΓÇ║ staff inbox renders selected fallback detail ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /help requests/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: /help requests/i })
+
+
+      44 | 	await page.getByRole('button', { name: /continue/i }).click();
+      45 | 	await expect(page).toHaveURL(/\/staff\/inbox/);
+    > 46 | 	await expect(page.getByRole('heading', { name: /help requests/i })).toBeVisible();
+         | 	                                                                    ^
+      47 | 	await expect(page.getByText(/guest summary for staff/i)).toBeVisible();
+      48 | 	await expect(page.getByRole('link', { name: /open guest view/i })).toBeVisible();
+      49 | });
+        at D:\Programming\project\Lingua\tests\e2e\frontend-smoke.spec.ts:46:70
+
+    Error Context: tests\e2e\test-results\frontend-smoke-staff-inbox-renders-selected-fallback-detail\error-context.md
+
+  22) tests\e2e\onboarding-flow.spec.ts:13:2 ΓÇ║ Registration confirm page ΓÇ║ renders email confirmation message 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/check your email|confirm your email/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/check your email|confirm your email/i)
+
+
+      13 | 	test('renders email confirmation message', async ({ page }) => {
+      14 | 		await page.goto('/register/confirm');
+    > 15 | 		await expect(page.getByText(/check your email|confirm your email/i)).toBeVisible();
+         | 		                                                                     ^
+      16 | 	});
+      17 |
+      18 | 	test('has link back to login', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\onboarding-flow.spec.ts:15:72
+
+    Error Context: tests\e2e\test-results\onboarding-flow-Registrati-57802--email-confirmation-message\error-context.md
+
+  23) tests\e2e\onboarding-flow.spec.ts:18:2 ΓÇ║ Registration confirm page ΓÇ║ has link back to login ΓöÇΓöÇ
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /continue.*sign in|sign in|login/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('link', { name: /continue.*sign in|sign in|login/i })
+
+
+      19 | 		await page.goto('/register/confirm');
+      20 | 		// Link text is 'Continue to sign in' ΓÇö matches /sign in/i
+    > 21 | 		await expect(page.getByRole('link', { name: /continue.*sign in|sign in|login/i })).toBeVisible();
+         | 		                                                                                   ^
+      22 | 	});
+      23 | });
+      24 |
+        at D:\Programming\project\Lingua\tests\e2e\onboarding-flow.spec.ts:21:86
+
+    Error Context: tests\e2e\test-results\onboarding-flow-Registrati-6ae65-page-has-link-back-to-login\error-context.md
+
+  24) tests\e2e\onboarding-flow.spec.ts:100:2 ΓÇ║ Onboarding wizard ΓÇ║ step progress indicator is visible 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('ol li')
+    Expected: 7
+    Received: 4
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('ol li')
+        13 ├ù locator resolved to 4 elements
+           - unexpected value "4"
+
+
+      104 | 		// Step indicator should show 4 steps
+      105 | 		const steps = page.locator('ol li');
+    > 106 | 		await expect(steps).toHaveCount(7); // 4 steps + 3 dividers in the progress ol
+          | 		                    ^
+      107 | 	});
+      108 | });
+      109 |
+        at D:\Programming\project\Lingua\tests\e2e\onboarding-flow.spec.ts:106:23
+
+    Error Context: tests\e2e\test-results\onboarding-flow-Onboarding-d82b8-ogress-indicator-is-visible\error-context.md
+
+  25) tests\e2e\platform-admin-flow.spec.ts:33:2 ΓÇ║ Platform admin ΓÇö overview ΓÇ║ platform overview renders stats after login 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://localhost:4173/dashboard"
+    ============================================================
+
+      36 |
+      37 | 		await page.goto('/platform');
+    > 38 | 		await page.waitForURL(/\/platform/);
+         | 		           ^
+      39 |
+      40 | 		// Should show platform heading
+      41 | 		await expect(
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:38:14
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-8f5ea-w-renders-stats-after-login\error-context.md
+
+  26) tests\e2e\platform-admin-flow.spec.ts:50:2 ΓÇ║ Platform admin ΓÇö organizations ΓÇ║ organizations list renders table 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://localhost:4173/dashboard"
+    ============================================================
+
+      53 |
+      54 | 		await page.goto('/platform/organizations');
+    > 55 | 		await page.waitForURL(/platform|login/);
+         | 		           ^
+      56 | 		if (page.url().includes('login')) {
+      57 | 			test.skip(true, 'Not a super_admin session');
+      58 | 			return;
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:55:14
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-376ee-izations-list-renders-table\error-context.md
+
+  27) tests\e2e\platform-admin-flow.spec.ts:66:2 ΓÇ║ Platform admin ΓÇö organizations ΓÇ║ organization name links to detail page 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('tbody tr a').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('tbody tr a').first()
+
+
+      76 | 		// Click first org name link
+      77 | 		const firstLink = page.locator('tbody tr a').first();
+    > 78 | 		await expect(firstLink).toBeVisible({ timeout: 5000 });
+         | 		                        ^
+      79 | 		const href = await firstLink.getAttribute('href');
+      80 | 		expect(href).toMatch(/\/platform\/organizations\//);
+      81 | 	});
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:78:27
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-bc0f6-n-name-links-to-detail-page\error-context.md
+
+  28) tests\e2e\platform-admin-flow.spec.ts:87:2 ΓÇ║ Platform admin ΓÇö organization detail ΓÇ║ detail page renders status controls 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for locator('tbody tr a').first()
+
+
+       97 | 		// Navigate to first org detail
+       98 | 		const firstLink = page.locator('tbody tr a').first();
+    >  99 | 		await firstLink.click();
+          | 		                ^
+      100 | 		await page.waitForURL(/\/platform\/organizations\//);
+      101 |
+      102 | 		await expect(page.getByRole('heading')).toBeVisible();
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:99:19
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-c6b58-age-renders-status-controls\error-context.md
+
+  29) tests\e2e\platform-admin-flow.spec.ts:109:2 ΓÇ║ Platform admin ΓÇö organization detail ΓÇ║ restaurant list is visible on org detail 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://localhost:4173/dashboard"
+    ============================================================
+
+      112 |
+      113 | 		await page.goto('/platform/organizations/bali-table-group');
+    > 114 | 		await page.waitForURL(/platform|login/);
+          | 		           ^
+      115 | 		if (page.url().includes('login')) {
+      116 | 			test.skip(true, 'Not a super_admin session');
+      117 | 			return;
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:114:14
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-9bddc-st-is-visible-on-org-detail\error-context.md
+
+  30) tests\e2e\platform-admin-flow.spec.ts:130:2 ΓÇ║ Platform admin ΓÇö restaurants ΓÇ║ restaurants list renders table 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: page.waitForURL: Test timeout of 60000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+      navigated to "http://localhost:4173/dashboard"
+    ============================================================
+
+      133 |
+      134 | 		await page.goto('/platform/restaurants');
+    > 135 | 		await page.waitForURL(/platform|login/);
+          | 		           ^
+      136 | 		if (page.url().includes('login')) {
+      137 | 			test.skip(true, 'Not a super_admin session');
+      138 | 			return;
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:135:14
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-4563c-taurants-list-renders-table\error-context.md
+
+  31) tests\e2e\platform-admin-flow.spec.ts:145:2 ΓÇ║ Platform admin ΓÇö restaurants ΓÇ║ restaurant name links to detail page 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('tbody tr a').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('tbody tr a').first()
+
+
+      154 |
+      155 | 		const firstLink = page.locator('tbody tr a').first();
+    > 156 | 		await expect(firstLink).toBeVisible({ timeout: 5000 });
+          | 		                        ^
+      157 | 		const href = await firstLink.getAttribute('href');
+      158 | 		expect(href).toMatch(/\/platform\/restaurants\//);
+      159 | 	});
+        at D:\Programming\project\Lingua\tests\e2e\platform-admin-flow.spec.ts:156:27
+
+    Error Context: tests\e2e\test-results\platform-admin-flow-Platfo-3dd48-t-name-links-to-detail-page\error-context.md
+
+  32) tests\e2e\staff-flow.spec.ts:27:2 ΓÇ║ Staff management page ΓÇ║ renders team heading and member list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /team/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: /team/i })
+
+
+      30 |
+      31 | 		await page.goto('/dashboard/staff');
+    > 32 | 		await expect(page.getByRole('heading', { name: /team/i })).toBeVisible();
+         | 		                                                           ^
+      33 | 		// At least one member row should appear
+      34 | 		await expect(page.locator('tbody tr').first()).toBeVisible({ timeout: 5000 });
+      35 | 	});
+        at D:\Programming\project\Lingua\tests\e2e\staff-flow.spec.ts:32:62
+
+    Error Context: tests\e2e\test-results\staff-flow-Staff-managemen-dfdd7-eam-heading-and-member-list\error-context.md
+
+  33) tests\e2e\staff-flow.spec.ts:80:2 ΓÇ║ Staff inbox ΓÇ║ renders inbox heading ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /inbox|requests/i })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('heading', { name: /inbox|requests/i })
+
+
+      93 | 		}
+      94 |
+    > 95 | 		await expect(page.getByRole('heading', { name: /inbox|requests/i })).toBeVisible();
+         | 		                                                                     ^
+      96 | 	});
+      97 |
+      98 | 	test('empty state is shown when no requests', async ({ page }) => {
+        at D:\Programming\project\Lingua\tests\e2e\staff-flow.spec.ts:95:72
+
+    Error Context: tests\e2e\test-results\staff-flow-Staff-inbox-renders-inbox-heading\error-context.md
+
+  33 failed
+    tests\e2e\admin-flow.spec.ts:95:2 ΓÇ║ Dashboard menu ΓÇ║ renders menu data page with restaurant selector 
+    tests\e2e\admin-flow.spec.ts:110:2 ΓÇ║ Dashboard menu ΓÇ║ shows table headers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\admin-flow.spec.ts:125:2 ΓÇ║ Dashboard menu ΓÇ║ can edit a menu item ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\admin-flow.spec.ts:191:2 ΓÇ║ Dashboard knowledge ΓÇ║ renders knowledge page with add button 
+    tests\e2e\admin-flow.spec.ts:206:2 ΓÇ║ Dashboard knowledge ΓÇ║ add note form opens and closes ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\admin-flow.spec.ts:224:2 ΓÇ║ Dashboard knowledge ΓÇ║ can create a knowledge note ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\admin-flow.spec.ts:267:2 ΓÇ║ Dashboard knowledge ΓÇ║ can delete a knowledge note ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\auth-flow.spec.ts:30:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ registration page renders all fields 
+    tests\e2e\auth-flow.spec.ts:40:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ shows error when form submitted empty 
+    tests\e2e\auth-flow.spec.ts:47:2 ΓÇ║ Registration ΓÇö restaurant path ΓÇ║ has link to sign in page ΓöÇΓöÇΓöÇ
+    tests\e2e\auth-flow.spec.ts:60:2 ΓÇ║ Registration ΓÇö organization path ΓÇ║ registration page renders all fields 
+    tests\e2e\auth-flow.spec.ts:69:2 ΓÇ║ Registration ΓÇö organization path ΓÇ║ has link to sign in page ΓöÇ
+    tests\e2e\auth-flow.spec.ts:145:2 ΓÇ║ Update password page ΓÇ║ unauthenticated user is redirected ΓöÇΓöÇ
+    tests\e2e\auth-flow.spec.ts:160:2 ΓÇ║ Logout ΓÇ║ logout redirects to login ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\customer-flow.spec.ts:128:2 ΓÇ║ Customer flow at 360px ΓÇ║ feedback buttons render and respond 
+    tests\e2e\customer-flow.spec.ts:164:2 ΓÇ║ Customer flow at 390px ΓÇ║ menu category tabs scroll horizontally 
+    tests\e2e\customer-flow.spec.ts:182:2 ΓÇ║ Customer flow at 390px ΓÇ║ feedback sent confirmation persists 
+    tests\e2e\customer-flow.spec.ts:208:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ renders restaurant hero with RTL text direction 
+    tests\e2e\customer-flow.spec.ts:215:2 ΓÇ║ Arabic RTL layout at 360px ΓÇ║ chat panel renders correctly in RTL viewport 
+    tests\e2e\frontend-smoke.spec.ts:3:1 ΓÇ║ customer QR flow renders menu, chat, and feedback states 
+    tests\e2e\frontend-smoke.spec.ts:39:1 ΓÇ║ staff inbox renders selected fallback detail ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\onboarding-flow.spec.ts:13:2 ΓÇ║ Registration confirm page ΓÇ║ renders email confirmation message 
+    tests\e2e\onboarding-flow.spec.ts:18:2 ΓÇ║ Registration confirm page ΓÇ║ has link back to login ΓöÇΓöÇΓöÇΓöÇ
+    tests\e2e\onboarding-flow.spec.ts:100:2 ΓÇ║ Onboarding wizard ΓÇ║ step progress indicator is visible 
+    tests\e2e\platform-admin-flow.spec.ts:33:2 ΓÇ║ Platform admin ΓÇö overview ΓÇ║ platform overview renders stats after login 
+    tests\e2e\platform-admin-flow.spec.ts:50:2 ΓÇ║ Platform admin ΓÇö organizations ΓÇ║ organizations list renders table 
+    tests\e2e\platform-admin-flow.spec.ts:66:2 ΓÇ║ Platform admin ΓÇö organizations ΓÇ║ organization name links to detail page 
+    tests\e2e\platform-admin-flow.spec.ts:87:2 ΓÇ║ Platform admin ΓÇö organization detail ΓÇ║ detail page renders status controls 
+    tests\e2e\platform-admin-flow.spec.ts:109:2 ΓÇ║ Platform admin ΓÇö organization detail ΓÇ║ restaurant list is visible on org detail 
+    tests\e2e\platform-admin-flow.spec.ts:130:2 ΓÇ║ Platform admin ΓÇö restaurants ΓÇ║ restaurants list renders table 
+    tests\e2e\platform-admin-flow.spec.ts:145:2 ΓÇ║ Platform admin ΓÇö restaurants ΓÇ║ restaurant name links to detail page 
+    tests\e2e\staff-flow.spec.ts:27:2 ΓÇ║ Staff management page ΓÇ║ renders team heading and member list 
+    tests\e2e\staff-flow.spec.ts:80:2 ΓÇ║ Staff inbox ΓÇ║ renders inbox heading ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  2 skipped
+  41 passed (4.4m)
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

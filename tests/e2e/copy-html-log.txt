@@ -1,0 +1,232 @@
+admin-flow.spec.ts
+Dashboard overview › renders heading and stat tiles
+1.0m
+admin-flow.spec.ts:59
+Dashboard overview › health section and staff queue are visible
+1.0m
+admin-flow.spec.ts:71
+Dashboard overview › navigation links are visible
+1.0m
+admin-flow.spec.ts:82
+Dashboard menu › renders menu data page with restaurant selector
+1.0m
+admin-flow.spec.ts:95
+Dashboard menu › shows table headers
+1.0m
+admin-flow.spec.ts:110
+Dashboard menu › can edit a menu item
+1.0m
+admin-flow.spec.ts:125
+Dashboard menu › can toggle menu item availability
+1.0m
+admin-flow.spec.ts:151
+Dashboard menu › can open publish menu modal
+1.0m
+admin-flow.spec.ts:174
+Dashboard knowledge › renders knowledge page with add button
+1.0m
+admin-flow.spec.ts:191
+Dashboard knowledge › add note form opens and closes
+1.0m
+admin-flow.spec.ts:206
+Dashboard knowledge › can create a knowledge note
+1.0m
+admin-flow.spec.ts:224
+Dashboard knowledge › can edit a knowledge note
+1.0m
+admin-flow.spec.ts:240
+Dashboard knowledge › can delete a knowledge note
+1.0m
+admin-flow.spec.ts:267
+Login page › renders sign-in heading and demo account selector
+1.2s
+admin-flow.spec.ts:21
+Login page › demo account selector has options
+1.2s
+admin-flow.spec.ts:30
+Login page › continue button is visible
+1.2s
+admin-flow.spec.ts:38
+Admin flow at 390px › login renders correctly at narrow viewport
+1.2s
+admin-flow.spec.ts:48
+onboarding-flow.spec.ts
+Registration confirm page › renders email confirmation message
+5.3s
+onboarding-flow.spec.ts:13
+Registration confirm page › has link back to login
+5.3s
+onboarding-flow.spec.ts:18
+Onboarding wizard › step 1 shows restaurant profile summary
+1.0m
+onboarding-flow.spec.ts:45
+Onboarding wizard › step 1 continue link points to step 2
+1.0m
+onboarding-flow.spec.ts:53
+Onboarding wizard › step 2 shows table setup form
+1.0m
+onboarding-flow.spec.ts:61
+Onboarding wizard › step 2 prefix preview updates on input
+1.0m
+onboarding-flow.spec.ts:71
+Onboarding wizard › step 3 shows create menu button
+1.0m
+onboarding-flow.spec.ts:81
+Onboarding wizard › step 4 shows completion and action links
+1.0m
+onboarding-flow.spec.ts:90
+Onboarding wizard › step progress indicator is visible
+1.0m
+onboarding-flow.spec.ts:100
+auth-flow.spec.ts
+Registration — restaurant path › registration page renders all fields
+5.5s
+auth-flow.spec.ts:30
+Registration — restaurant path › shows error when form submitted empty
+1.0m
+auth-flow.spec.ts:40
+Registration — restaurant path › has link to sign in page
+5.5s
+auth-flow.spec.ts:47
+Registration — organization path › registration page renders all fields
+5.4s
+auth-flow.spec.ts:60
+Registration — organization path › has link to sign in page
+5.4s
+auth-flow.spec.ts:69
+Login page › redirects authenticated user away from login
+1.0m
+auth-flow.spec.ts:101
+Update password page › unauthenticated user is redirected
+1.0m
+auth-flow.spec.ts:145
+Logout › logout redirects to login
+1.0m
+auth-flow.spec.ts:160
+Registration setup step › unauthenticated user is redirected to login
+598ms
+auth-flow.spec.ts:81
+Login page › renders all required elements
+586ms
+auth-flow.spec.ts:95
+Forgot password › page renders email field and submit button
+621ms
+auth-flow.spec.ts:118
+Forgot password › submitting valid email shows confirmation
+679ms
+auth-flow.spec.ts:125
+Forgot password › has back to login link
+338ms
+auth-flow.spec.ts:133
+platform-admin-flow.spec.ts
+Platform admin — overview › platform overview renders stats after login
+1.0m
+platform-admin-flow.spec.ts:33
+Platform admin — organizations › organizations list renders table
+1.0m
+platform-admin-flow.spec.ts:50
+Platform admin — organizations › organization name links to detail page
+1.0m
+platform-admin-flow.spec.ts:66
+Platform admin — organization detail › detail page renders status controls
+1.0m
+platform-admin-flow.spec.ts:87
+Platform admin — organization detail › restaurant list is visible on org detail
+1.0m
+platform-admin-flow.spec.ts:109
+Platform admin — restaurants › restaurants list renders table
+1.0m
+platform-admin-flow.spec.ts:130
+Platform admin — restaurants › restaurant name links to detail page
+1.0m
+platform-admin-flow.spec.ts:145
+Platform admin — overview › non-platform user cannot access /platform
+325ms
+platform-admin-flow.spec.ts:26
+staff-flow.spec.ts
+Staff management page › renders team heading and member list
+1.0m
+staff-flow.spec.ts:27
+Staff management page › invite dialog opens and closes
+1.0m
+staff-flow.spec.ts:37
+Staff management page › invite dialog validates empty email
+1.0m
+staff-flow.spec.ts:56
+Staff inbox › renders inbox heading
+5.7s
+staff-flow.spec.ts:80
+customer-flow.spec.ts
+Customer flow at 360px › feedback buttons render and respond
+5.7s
+customer-flow.spec.ts:128
+Customer flow at 390px › menu category tabs scroll horizontally
+806ms
+customer-flow.spec.ts:164
+Customer flow at 390px › feedback sent confirmation persists
+5.8s
+customer-flow.spec.ts:182
+Customer flow at 360px › renders restaurant hero and session bootstrap
+1.2s
+customer-flow.spec.ts:9
+Customer flow at 360px › language selector shows options in selected language
+516ms
+customer-flow.spec.ts:18
+Customer flow at 360px › preference chips toggle correctly
+751ms
+customer-flow.spec.ts:29
+Customer flow at 360px › menu browse renders categories and items
+503ms
+customer-flow.spec.ts:43
+Customer flow at 360px › menu item card shows spice, price, and badges
+565ms
+customer-flow.spec.ts:55
+Customer flow at 360px › selecting a menu item opens detail panel
+612ms
+customer-flow.spec.ts:67
+Customer flow at 360px › detail panel shows verified or staff-confirm state
+785ms
+customer-flow.spec.ts:80
+Customer flow at 360px › chat panel renders and shows empty state
+730ms
+customer-flow.spec.ts:95
+Customer flow at 360px › chat panel shows suggestion chips
+629ms
+customer-flow.spec.ts:103
+Customer flow at 360px › chat panel send button is disabled when empty
+692ms
+customer-flow.spec.ts:111
+Customer flow at 360px › chat panel shows Speak to staff CTA
+611ms
+customer-flow.spec.ts:122
+Customer flow at 360px › staff fallback CTA is visible
+619ms
+customer-flow.spec.ts:143
+Customer flow at 390px › renders restaurant hero
+919ms
+customer-flow.spec.ts:157
+Customer flow at 390px › chat panel input and send work
+812ms
+customer-flow.spec.ts:172
+Customer flow at 390px › item detail shows allergen and dietary badges
+880ms
+customer-flow.spec.ts:189
+Arabic RTL layout at 360px › renders restaurant hero with RTL text direction
+674ms
+customer-flow.spec.ts:208
+Arabic RTL layout at 360px › chat panel renders correctly in RTL viewport
+670ms
+customer-flow.spec.ts:215
+Arabic RTL layout at 360px › no horizontal overflow at 360px
+729ms
+customer-flow.spec.ts:222
+frontend-smoke.spec.ts
+customer QR flow renders menu, chat, and feedback states
+5.9s
+frontend-smoke.spec.ts:3
+admin dashboard renders mocked phase 5 surfaces
+5.8s
+frontend-smoke.spec.ts:21
+staff inbox renders selected fallback detail
+5.6s
+frontend-smoke.spec.ts:39
