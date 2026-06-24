@@ -62,49 +62,47 @@
 		{:else}
 			<div class="grid gap-3">
 				{#each members as member (member.id)}
-					<div
-						class="flex items-center justify-between rounded-lg border border-lingua-border p-3"
-					>
+					<div class="flex items-center justify-between rounded-lg border border-lingua-border p-3">
 						<div>
 							<p class="font-semibold text-lingua-text">{member.name}</p>
 							<p class="text-sm text-lingua-subtle">{member.email}</p>
 						</div>
-					<div class="flex items-center gap-2">
-						{#if isOwner && member.userId !== tenant.user.id}
-							<!-- Role change form -->
-							<form method="POST" action="?/changeRole" use:enhance>
-								<input type="hidden" name="membershipId" value={member.id} />
-								<select
-									name="role"
-									value={member.role}
-									onchange={(e) => e.currentTarget.form?.requestSubmit()}
-									class="rounded-lg border border-lingua-border bg-lingua-bg px-2 py-1 text-xs font-semibold text-lingua-primary"
-									aria-label="Change role for {member.name}"
+						<div class="flex items-center gap-2">
+							{#if isOwner && member.userId !== tenant.user.id}
+								<!-- Role change form -->
+								<form method="POST" action="?/changeRole" use:enhance>
+									<input type="hidden" name="membershipId" value={member.id} />
+									<select
+										name="role"
+										value={member.role}
+										onchange={(e) => e.currentTarget.form?.requestSubmit()}
+										class="rounded-lg border border-lingua-border bg-lingua-bg px-2 py-1 text-xs font-semibold text-lingua-primary"
+										aria-label="Change role for {member.name}"
+									>
+										<option value="staff">Staff</option>
+										<option value="manager">Manager</option>
+										<option value="owner">Owner</option>
+									</select>
+								</form>
+								<!-- Remove form -->
+								<form method="POST" action="?/remove" use:enhance>
+									<input type="hidden" name="membershipId" value={member.id} />
+									<button
+										type="submit"
+										class="tap-target rounded-lg p-2 text-red-600 hover:bg-red-50"
+										title="Remove member"
+									>
+										<Trash2 size={16} />
+									</button>
+								</form>
+							{:else}
+								<span
+									class="rounded-full bg-lingua-primary-soft px-3 py-1 text-xs font-semibold text-lingua-primary"
 								>
-									<option value="staff">Staff</option>
-									<option value="manager">Manager</option>
-									<option value="owner">Owner</option>
-								</select>
-							</form>
-							<!-- Remove form -->
-							<form method="POST" action="?/remove" use:enhance>
-								<input type="hidden" name="membershipId" value={member.id} />
-								<button
-									type="submit"
-									class="tap-target rounded-lg p-2 text-red-600 hover:bg-red-50"
-									title="Remove member"
-								>
-									<Trash2 size={16} />
-								</button>
-							</form>
-						{:else}
-							<span
-								class="rounded-full bg-lingua-primary-soft px-3 py-1 text-xs font-semibold text-lingua-primary"
-							>
-								{member.role}
-							</span>
-						{/if}
-					</div>
+									{member.role}
+								</span>
+							{/if}
+						</div>
 					</div>
 				{/each}
 			</div>
@@ -121,9 +119,7 @@
 
 			<div class="grid gap-3">
 				{#each invites as invite (invite.id)}
-					<div
-						class="flex items-center justify-between rounded-lg border border-lingua-border p-3"
-					>
+					<div class="flex items-center justify-between rounded-lg border border-lingua-border p-3">
 						<div>
 							<p class="font-semibold text-lingua-text">{invite.email}</p>
 							<p class="text-sm text-lingua-subtle">
@@ -158,7 +154,6 @@
 
 <!-- Invite Dialog -->
 {#if showInviteDialog}
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div
 		role="dialog"
 		aria-modal="true"

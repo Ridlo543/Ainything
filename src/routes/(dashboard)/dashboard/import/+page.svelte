@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { AlertTriangle, Camera, CheckCircle2, Upload, X } from '@lucide/svelte';
-	import type { PageData, ActionData } from './$types';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+	import type { PageData } from './$types';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
 
 	type OcrItem = {
 		name: string;
@@ -75,12 +76,7 @@
 		return `${Math.round(score * 100)}%`;
 	}
 
-	let editedItems = $state<Map<number, Partial<OcrItem>>>(new Map());
-
-	function updateField(idx: number, field: string, value: unknown) {
-		const current = editedItems.get(idx) ?? {};
-		editedItems.set(idx, { ...current, [field]: value });
-	}
+	let editedItems = new SvelteMap<number, Partial<OcrItem>>();
 
 	function getItem(idx: number): OcrItem {
 		const base = scanResult!.items[idx]!;
@@ -89,10 +85,10 @@
 		return { ...base, ...edits };
 	}
 
-	let rejectedIndices = $state<Set<number>>(new Set());
+	let rejectedIndices = new SvelteSet<number>();
 
 	function toggleReject(idx: number) {
-		const next = new Set(rejectedIndices);
+		const next = new SvelteSet(rejectedIndices);
 		if (next.has(idx)) {
 			next.delete(idx);
 		} else {
@@ -131,8 +127,8 @@
 					if (data.scan) {
 						scanResult = data.scan;
 						importResult = null;
-						editedItems = new Map();
-						rejectedIndices = new Set();
+						editedItems = new SvelteMap();
+						rejectedIndices = new SvelteSet();
 					}
 				}
 			};
@@ -206,7 +202,8 @@
 
 			<!-- Items Review -->
 			<div class="mt-4 grid gap-3">
-				{#each scanResult.items as item, idx}
+				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+				{#each scanResult.items as item, idx (idx)}
 					{@const isRejected = rejectedIndices.has(idx)}
 					{@const display = getItem(idx)}
 					<article
@@ -241,7 +238,7 @@
 
 						<!-- Confidence scores -->
 						<div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-							{#each [{ label: 'Name', score: display.nameConfidence }, { label: 'Category', score: display.categoryConfidence }, { label: 'Price', score: display.priceConfidence }, { label: 'Spice', score: display.spiceLevelConfidence }] as field}
+							{#each [{ label: 'Name', score: display.nameConfidence }, { label: 'Category', score: display.categoryConfidence }, { label: 'Price', score: display.priceConfidence }, { label: 'Spice', score: display.spiceLevelConfidence }] as field (field.label)}
 								<span
 									class="rounded-md border px-2 py-1 text-xs font-medium {confidenceBg(
 										field.score
@@ -254,7 +251,7 @@
 
 						<!-- Dietary flags and allergens from OCR -->
 						<div class="mt-2 flex flex-wrap gap-1.5">
-							{#each display.dietaryFlags as flag}
+							{#each display.dietaryFlags as flag (flag)}
 								<span
 									class="rounded-full bg-lingua-primary-soft px-2 py-0.5 text-xs font-medium text-lingua-primary"
 								>
@@ -264,7 +261,7 @@
 						</div>
 						{#if display.allergens.length > 0}
 							<div class="mt-1.5 flex flex-wrap gap-1.5">
-								{#each display.allergens as allergen}
+								{#each display.allergens as allergen (allergen)}
 									<span class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
 										{allergen}
 									</span>
@@ -366,8 +363,9 @@
 				{/each}
 			</div>
 			<p class="mt-3 text-sm text-lingua-subtle">
-				Go to <a
-					href="/dashboard/menu?restaurant={activeRestaurant.slug}"
+				Go to
+				<a
+					href={'/dashboard/menu?restaurant=' + activeRestaurant.slug}
 					class="font-semibold text-lingua-primary underline">Menu data</a
 				> to review and publish.
 			</p>

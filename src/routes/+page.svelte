@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import { resolve } from '$app/paths';
 	import Navbar from '$lib/ui/Navbar.svelte';
 	import Footer from '$lib/ui/Footer.svelte';
 	import {
 		QrCode,
 		Globe,
-		MessageCircle,
 		Languages,
 		Bot,
 		Inbox,
@@ -29,9 +29,7 @@
 	<section
 		class="relative overflow-hidden bg-gradient-to-b from-lingua-primary-soft/30 via-white to-white pb-20 pt-28 dark:from-lingua-primary-soft/20 dark:via-lingua-bg dark:to-lingua-bg sm:pt-36"
 	>
-		<div
-			class="app-container relative z-10 flex flex-col items-center text-center"
-		>
+		<div class="app-container relative z-10 flex flex-col items-center text-center">
 			<div
 				class="mb-6 inline-flex items-center gap-2 rounded-full border border-lingua-border bg-white px-4 py-1.5 text-xs font-medium text-lingua-primary shadow-sm dark:bg-lingua-surface"
 			>
@@ -45,15 +43,13 @@
 				{t('page.landing.hero.heading')}
 			</h1>
 
-			<p
-				class="mt-6 max-w-2xl text-lg leading-relaxed text-lingua-subtle sm:text-xl"
-			>
+			<p class="mt-6 max-w-2xl text-lg leading-relaxed text-lingua-subtle sm:text-xl">
 				{t('page.landing.hero.description')}
 			</p>
 
 			<div class="mt-10 flex flex-col items-center gap-4 sm:flex-row">
 				<a
-					href="/register/restaurant"
+					href={resolve('/register/restaurant')}
 					class="inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-7 py-3.5 text-base font-bold text-white shadow-lg transition-all hover:bg-lingua-primary-strong hover:shadow-xl"
 				>
 					{t('page.landing.hero.cta.primary')}
@@ -72,10 +68,7 @@
 			</p>
 		</div>
 
-		<div
-			class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-			aria-hidden="true"
-		>
+		<div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
 			<div
 				class="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lingua-primary-soft/20 blur-3xl dark:bg-lingua-primary-soft/30"
 			></div>
@@ -93,7 +86,9 @@
 			</h2>
 
 			<div class="mt-14 grid gap-8 md:grid-cols-3">
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="flex h-12 w-12 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -107,7 +102,9 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="flex h-12 w-12 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -121,7 +118,9 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="flex h-12 w-12 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -139,14 +138,19 @@
 	</section>
 
 	<!-- ─── How It Works ─── -->
-	<section id="how-it-works" class="border-t border-lingua-border bg-lingua-muted/50 py-20 dark:bg-lingua-muted/10 sm:py-28">
+	<section
+		id="how-it-works"
+		class="border-t border-lingua-border bg-lingua-muted/50 py-20 dark:bg-lingua-muted/10 sm:py-28"
+	>
 		<div class="app-container">
 			<h2 class="text-center text-2xl font-bold text-lingua-text sm:text-3xl">
 				{t('page.landing.how.title')}
 			</h2>
 
 			<div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-				<div class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface">
+				<div
+					class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -160,7 +164,9 @@
 					</p>
 				</div>
 
-				<div class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface">
+				<div
+					class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -174,7 +180,9 @@
 					</p>
 				</div>
 
-				<div class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface">
+				<div
+					class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -188,7 +196,9 @@
 					</p>
 				</div>
 
-				<div class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface">
+				<div
+					class="relative rounded-xl border border-lingua-border bg-white p-6 text-center shadow-sm dark:bg-lingua-surface"
+				>
 					<div
 						class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-lingua-primary-soft text-lingua-primary"
 					>
@@ -206,15 +216,22 @@
 	</section>
 
 	<!-- ─── Features ─── -->
-	<section id="features" class="border-t border-lingua-border bg-white py-20 dark:bg-lingua-bg sm:py-28">
+	<section
+		id="features"
+		class="border-t border-lingua-border bg-white py-20 dark:bg-lingua-bg sm:py-28"
+	>
 		<div class="app-container">
 			<h2 class="text-center text-2xl font-bold text-lingua-text sm:text-3xl">
 				{t('page.landing.features.title')}
 			</h2>
 
 			<div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-				<div class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface"
+				>
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
+					>
 						<Building2 size={20} />
 					</div>
 					<h3 class="mt-4 font-semibold text-lingua-text">
@@ -225,8 +242,12 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface"
+				>
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
+					>
 						<Shield size={20} />
 					</div>
 					<h3 class="mt-4 font-semibold text-lingua-text">
@@ -237,8 +258,12 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface"
+				>
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
+					>
 						<BarChart3 size={20} />
 					</div>
 					<h3 class="mt-4 font-semibold text-lingua-text">
@@ -249,8 +274,12 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface"
+				>
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
+					>
 						<Kanban size={20} />
 					</div>
 					<h3 class="mt-4 font-semibold text-lingua-text">
@@ -261,8 +290,12 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface"
+				>
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
+					>
 						<BookOpen size={20} />
 					</div>
 					<h3 class="mt-4 font-semibold text-lingua-text">
@@ -273,8 +306,12 @@
 					</p>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-6 shadow-sm dark:bg-lingua-surface"
+				>
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-lg bg-lingua-primary-soft text-lingua-primary"
+					>
 						<Smartphone size={20} />
 					</div>
 					<h3 class="mt-4 font-semibold text-lingua-text">
@@ -289,7 +326,9 @@
 	</section>
 
 	<!-- ─── Social Proof ─── -->
-	<section class="border-t border-lingua-border bg-lingua-primary-soft/20 py-16 dark:bg-lingua-primary-soft/10 sm:py-20">
+	<section
+		class="border-t border-lingua-border bg-lingua-primary-soft/20 py-16 dark:bg-lingua-primary-soft/10 sm:py-20"
+	>
 		<div class="app-container text-center">
 			<p class="text-lg font-medium text-lingua-text sm:text-xl">
 				{t('page.landing.social.title')}
@@ -320,7 +359,9 @@
 			</h2>
 
 			<div class="mt-14 grid gap-8 md:grid-cols-3">
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<div class="flex gap-0.5">
 						<Star class="fill-lingua-primary text-lingua-primary" size={18} />
 						<Star class="fill-lingua-primary text-lingua-primary" size={18} />
@@ -341,7 +382,9 @@
 					</div>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<div class="flex gap-0.5">
 						<Star class="fill-lingua-primary text-lingua-primary" size={18} />
 						<Star class="fill-lingua-primary text-lingua-primary" size={18} />
@@ -362,7 +405,9 @@
 					</div>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<div class="flex gap-0.5">
 						<Star class="fill-lingua-primary text-lingua-primary" size={18} />
 						<Star class="fill-lingua-primary text-lingua-primary" size={18} />
@@ -387,14 +432,19 @@
 	</section>
 
 	<!-- ─── Pricing ─── -->
-	<section id="pricing" class="border-t border-lingua-border bg-lingua-muted/50 py-20 dark:bg-lingua-muted/10 sm:py-28">
+	<section
+		id="pricing"
+		class="border-t border-lingua-border bg-lingua-muted/50 py-20 dark:bg-lingua-muted/10 sm:py-28"
+	>
 		<div class="app-container">
 			<h2 class="text-center text-2xl font-bold text-lingua-text sm:text-3xl">
 				{t('page.landing.pricing.title')}
 			</h2>
 
 			<div class="mt-14 grid gap-8 md:grid-cols-3">
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<h3 class="text-lg font-bold text-lingua-text">
 						{t('page.landing.pricing.starter.name')}
 					</h3>
@@ -402,7 +452,7 @@
 						<span class="text-4xl font-extrabold text-lingua-text">Free</span>
 					</div>
 					<ul class="mt-6 space-y-3">
-						{#each t('page.landing.pricing.starter.features').split(' + ') as feature}
+						{#each t('page.landing.pricing.starter.features').split(' + ') as feature (feature)}
 							<li class="flex items-start gap-2 text-sm text-lingua-subtle">
 								<Check size={16} class="mt-0.5 shrink-0 text-lingua-success" />
 								{feature}
@@ -410,7 +460,7 @@
 						{/each}
 					</ul>
 					<a
-						href="/register/restaurant"
+						href={resolve('/register/restaurant')}
 						class="mt-8 block rounded-lg border border-lingua-border px-5 py-3 text-center text-sm font-semibold text-lingua-text transition-colors hover:bg-lingua-muted"
 					>
 						{t('page.landing.pricing.cta')}
@@ -433,7 +483,7 @@
 						<span class="text-sm text-lingua-subtle">/mo</span>
 					</div>
 					<ul class="mt-6 space-y-3">
-						{#each t('page.landing.pricing.pro.features').split(' + ') as feature}
+						{#each t('page.landing.pricing.pro.features').split(' + ') as feature (feature)}
 							<li class="flex items-start gap-2 text-sm text-lingua-subtle">
 								<Check size={16} class="mt-0.5 shrink-0 text-lingua-success" />
 								{feature}
@@ -441,14 +491,16 @@
 						{/each}
 					</ul>
 					<a
-						href="/register/restaurant"
+						href={resolve('/register/restaurant')}
 						class="mt-8 block rounded-lg bg-lingua-primary px-5 py-3 text-center text-sm font-bold text-white shadow-sm transition-all hover:bg-lingua-primary-strong hover:shadow-md"
 					>
 						{t('page.landing.pricing.cta')}
 					</a>
 				</div>
 
-				<div class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface">
+				<div
+					class="rounded-xl border border-lingua-border bg-white p-8 shadow-sm dark:bg-lingua-surface"
+				>
 					<h3 class="text-lg font-bold text-lingua-text">
 						{t('page.landing.pricing.enterprise.name')}
 					</h3>
@@ -456,7 +508,7 @@
 						<span class="text-4xl font-extrabold text-lingua-text">Custom</span>
 					</div>
 					<ul class="mt-6 space-y-3">
-						{#each t('page.landing.pricing.enterprise.features').split(' + ') as feature}
+						{#each t('page.landing.pricing.enterprise.features').split(' + ') as feature (feature)}
 							<li class="flex items-start gap-2 text-sm text-lingua-subtle">
 								<Check size={16} class="mt-0.5 shrink-0 text-lingua-success" />
 								{feature}
@@ -464,7 +516,7 @@
 						{/each}
 					</ul>
 					<a
-						href="/register/restaurant"
+						href={resolve('/register/restaurant')}
 						class="mt-8 block rounded-lg border border-lingua-border px-5 py-3 text-center text-sm font-semibold text-lingua-text transition-colors hover:bg-lingua-muted"
 					>
 						{t('page.landing.pricing.cta')}
@@ -482,7 +534,7 @@
 			</h2>
 			<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
 				<a
-					href="/register/restaurant"
+					href={resolve('/register/restaurant')}
 					class="inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-7 py-3.5 text-base font-bold text-white shadow-lg transition-all hover:bg-lingua-primary-strong hover:shadow-xl"
 				>
 					{t('page.landing.final.cta')}

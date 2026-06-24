@@ -35,8 +35,7 @@ export function resolveMockTenantContext(
 
 	const membership =
 		memberships.find(
-			(item) =>
-				item.userId === user.id && item.organizationId === primaryMembership.organizationId
+			(item) => item.userId === user.id && item.organizationId === primaryMembership.organizationId
 		) ?? memberships.find((item) => item.userId === user.id);
 
 	if (!membership) {

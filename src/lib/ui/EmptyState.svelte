@@ -17,9 +17,13 @@
 </script>
 
 {#if variant === 'card'}
-	<div class="col-span-full rounded-lg border border-lingua-border bg-lingua-surface p-6 text-center">
+	<div
+		class="col-span-full rounded-lg border border-lingua-border bg-lingua-surface p-6 text-center"
+	>
 		{#if icon}
-			<div class="mx-auto inline-flex rounded-lg bg-lingua-primary-soft p-3 text-lingua-primary-strong">
+			<div
+				class="mx-auto inline-flex rounded-lg bg-lingua-primary-soft p-3 text-lingua-primary-strong"
+			>
 				{@render icon()}
 			</div>
 		{/if}
@@ -34,7 +38,9 @@
 		{/if}
 	</div>
 {:else}
-	<div class="rounded-lg border border-lingua-border bg-lingua-surface p-6 text-sm text-lingua-subtle">
+	<div
+		class="rounded-lg border border-lingua-border bg-lingua-surface p-6 text-sm text-lingua-subtle"
+	>
 		{title}
 	</div>
 {/if}

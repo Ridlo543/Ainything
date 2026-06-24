@@ -1,7 +1,17 @@
 import type { ChatRole, ChatSafetyStatus } from './types';
 
-export const CHAT_ROLE_CODES = ['customer', 'assistant', 'staff', 'system'] as const satisfies readonly ChatRole[];
-export const CHAT_SAFETY_CODES = ['ok', 'low-confidence', 'needs-staff', 'blocked'] as const satisfies readonly ChatSafetyStatus[];
+export const CHAT_ROLE_CODES = [
+	'customer',
+	'assistant',
+	'staff',
+	'system'
+] as const satisfies readonly ChatRole[];
+export const CHAT_SAFETY_CODES = [
+	'ok',
+	'low-confidence',
+	'needs-staff',
+	'blocked'
+] as const satisfies readonly ChatSafetyStatus[];
 
 export const SAFETY_CONFIDENCE: Record<ChatSafetyStatus, number> = {
 	ok: 1.0,

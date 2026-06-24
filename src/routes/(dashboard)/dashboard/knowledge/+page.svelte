@@ -40,7 +40,6 @@
 	let creating = $state(false);
 
 	// Re-index button state (already implemented in earlier session).
-	// eslint-disable-next-line svelte/prefer-writable-derived
 	let reindexState = $state<{
 		loading: boolean;
 		message: string;

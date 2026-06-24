@@ -52,5 +52,3 @@ export type CustomerSessionPreferences = {
 	dietaryPreferences: DietaryPreferenceCode[];
 	allergenNotes?: string;
 };
-
-

@@ -134,10 +134,12 @@
 			<nav class="mt-3 flex-1 space-y-1 overflow-y-auto">
 				{#each nav as item (item.href)}
 					<a
-						class="tap-target flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors {isActive(item.href)
+						class="tap-target flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors {isActive(
+							item.href
+						)
 							? 'bg-lingua-primary-soft text-lingua-primary-strong'
 							: 'text-lingua-text hover:bg-lingua-primary-soft'}"
-						href={item.href}
+						href={resolve(item.href)}
 						aria-current={isActive(item.href) ? 'page' : undefined}
 					>
 						<item.icon size={18} />

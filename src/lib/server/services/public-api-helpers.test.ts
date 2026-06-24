@@ -18,7 +18,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	errorMock.mockImplementation((status: number, message: string) => {
 		const err = new Error(message);
-		(err as any).status = status;
+		(err as unknown as Record<string, unknown>).status = status;
 		throw err;
 	});
 });

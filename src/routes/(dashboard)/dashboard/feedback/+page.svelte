@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { Star, CheckCircle } from '@lucide/svelte';
 	import { page } from '$app/stores';
+	import { resolve } from '$app/paths';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -28,14 +29,16 @@
 	</p>
 
 	{#if submitted || alreadySubmitted}
-		<div class="flex flex-col items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-900/20">
+		<div
+			class="flex flex-col items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-800 dark:bg-emerald-900/20"
+		>
 			<CheckCircle class="text-emerald-600" size={36} />
 			<h2 class="text-base font-semibold text-emerald-900 dark:text-emerald-300">Thank you!</h2>
 			<p class="text-sm text-emerald-700 dark:text-emerald-400">
 				Your feedback has been recorded. We’ll use it to improve Lingua before the beta launch.
 			</p>
 			<a
-				href="/dashboard"
+				href={resolve('/dashboard')}
 				class="mt-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
 			>
 				Back to dashboard
@@ -56,7 +59,9 @@
 			<input type="hidden" name="organizationId" value={tenant.organization.id} />
 
 			{#if form?.error}
-				<p class="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
+				<p
+					class="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400"
+				>
 					{form.error}
 				</p>
 			{/if}
@@ -68,7 +73,7 @@
 				</legend>
 				<input type="hidden" name="overallRating" value={rating} />
 				<div class="flex gap-1">
-					{#each [1, 2, 3, 4, 5] as star}
+					{#each [1, 2, 3, 4, 5] as star (star)}
 						<button
 							type="button"
 							aria-label="{star} star{star !== 1 ? 's' : ''}"
@@ -95,7 +100,10 @@
 
 			<!-- AI accuracy -->
 			<div>
-				<label for="aiAccuracy" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+				<label
+					for="aiAccuracy"
+					class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+				>
 					How accurate were the AI answers?
 				</label>
 				<select
@@ -113,7 +121,10 @@
 
 			<!-- Setup difficulty -->
 			<div>
-				<label for="setupDifficulty" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+				<label
+					for="setupDifficulty"
+					class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+				>
 					How easy was setup?
 				</label>
 				<select
@@ -136,11 +147,15 @@
 					Would you recommend Lingua to another restaurant?
 				</legend>
 				<div class="flex gap-4">
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+					<label
+						class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+					>
 						<input type="radio" name="wouldRecommend" value="yes" class="accent-indigo-600" />
 						Yes
 					</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+					<label
+						class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+					>
 						<input type="radio" name="wouldRecommend" value="no" class="accent-indigo-600" />
 						No
 					</label>
@@ -149,7 +164,10 @@
 
 			<!-- Comment -->
 			<div>
-				<label for="comment" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+				<label
+					for="comment"
+					class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+				>
 					Anything else? (optional)
 				</label>
 				<textarea

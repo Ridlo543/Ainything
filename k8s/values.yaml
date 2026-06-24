@@ -18,11 +18,11 @@ service:
 # Environment variables
 env:
   NODE_ENV: production
-  USE_MOCK_BACKEND: "false"
+  USE_MOCK_BACKEND: 'false'
   AUTH_PROVIDER: mock
   LLM_PROVIDER: mock
-  AI_DAILY_CAP: "500"
-  EMBEDDING_ENABLED: "false"
+  AI_DAILY_CAP: '500'
+  EMBEDDING_ENABLED: 'false'
 
 # Resource limits and requests
 resources:

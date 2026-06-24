@@ -41,9 +41,9 @@ const LIMITS: Record<RateLimitEndpoint, { max: number; windowSec: number }> = {
 	'slug-check': { max: 30, windowSec: 60 },
 	// Authenticated endpoints — still rate-limited to prevent abuse
 	'password-reset': { max: 5, windowSec: 300 }, // 5 per 5 min per IP
-	'embeddings': { max: 10, windowSec: 60 }, // 10 per min per user
-	'vitals': { max: 60, windowSec: 60 }, // 60 batches per min per IP
-	'metrics': { max: 60, windowSec: 60 } // 60 req per min per authenticated user
+	embeddings: { max: 10, windowSec: 60 }, // 10 per min per user
+	vitals: { max: 60, windowSec: 60 }, // 60 batches per min per IP
+	metrics: { max: 60, windowSec: 60 } // 60 req per min per authenticated user
 };
 
 // Lua: atomic increment + set expiry only on first hit (so the window starts at first

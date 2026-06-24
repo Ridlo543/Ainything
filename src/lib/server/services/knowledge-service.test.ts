@@ -41,9 +41,7 @@ const USER = {
 	email: 'owner@test.com',
 	name: 'Owner',
 	platformRole: 'org_owner' as const,
-	memberships: [
-		{ organizationId: 'org-1', restaurantIds: ['rest-1'], role: 'org_owner' as const }
-	]
+	memberships: [{ organizationId: 'org-1', restaurantIds: ['rest-1'], role: 'org_owner' as const }]
 };
 
 const ORG_ID = 'org-1';

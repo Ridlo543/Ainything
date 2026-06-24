@@ -3,10 +3,7 @@ import { getPlatformAnalytics } from '$lib/server/services/platform-admin-servic
 import { appEnv } from '$lib/server/config/env';
 
 export const load: PageServerLoad = async ({ url }) => {
-	const windowDays = Math.min(
-		Math.max(Number(url.searchParams.get('days') ?? '30'), 7),
-		90
-	);
+	const windowDays = Math.min(Math.max(Number(url.searchParams.get('days') ?? '30'), 7), 90);
 
 	let analytics = null;
 	if (appEnv.databaseUrl) {

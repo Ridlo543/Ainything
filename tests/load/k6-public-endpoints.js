@@ -64,9 +64,9 @@ export const options = {
 			stages: [
 				{ duration: '30s', target: 10 }, // ramp up
 				{ duration: '90s', target: 10 }, // hold
-				{ duration: '15s', target: 0 }, // ramp down
-			],
-		},
+				{ duration: '15s', target: 0 } // ramp down
+			]
+		}
 	},
 	thresholds: {
 		// 95th percentile response times
@@ -79,8 +79,8 @@ export const options = {
 		session_errors: ['rate<0.05'],
 		chat_errors: ['rate<0.05'],
 		feedback_errors: ['rate<0.05'],
-		fallback_errors: ['rate<0.05'],
-	},
+		fallback_errors: ['rate<0.05']
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -89,20 +89,20 @@ export const options = {
 
 const headers = {
 	'Content-Type': 'application/json',
-	Accept: 'application/json',
+	Accept: 'application/json'
 };
 
 function post(path, body, extraHeaders = {}) {
 	return http.post(`${BASE_URL}${path}`, JSON.stringify(body), {
 		headers: { ...headers, ...extraHeaders },
-		tags: { endpoint: path },
+		tags: { endpoint: path }
 	});
 }
 
 function get(path) {
 	return http.get(`${BASE_URL}${path}`, {
 		headers: { Accept: 'application/json' },
-		tags: { endpoint: path },
+		tags: { endpoint: path }
 	});
 }
 
@@ -112,9 +112,7 @@ function get(path) {
 
 export default function () {
 	// 1. Bootstrap — load restaurant + menu
-	const bootRes = get(
-		`/api/public/bootstrap?restaurant=${RESTAURANT_SLUG}&table=${TABLE_CODE}`
-	);
+	const bootRes = get(`/api/public/bootstrap?restaurant=${RESTAURANT_SLUG}&table=${TABLE_CODE}`);
 	bootstrapDuration.add(bootRes.timings.duration);
 	bootstrapErrors.add(
 		!check(bootRes, {
@@ -126,7 +124,7 @@ export default function () {
 				} catch {
 					return false;
 				}
-			},
+			}
 		})
 	);
 
@@ -136,7 +134,7 @@ export default function () {
 	const sessRes = post('/api/public/sessions', {
 		restaurantSlug: RESTAURANT_SLUG,
 		tableCode: TABLE_CODE,
-		preferences: { language: 'en' },
+		preferences: { language: 'en' }
 	});
 	sessionDuration.add(sessRes.timings.duration);
 	sessionErrors.add(
@@ -148,7 +146,7 @@ export default function () {
 				} catch {
 					return false;
 				}
-			},
+			}
 		})
 	);
 
@@ -173,7 +171,7 @@ export default function () {
 		{
 			restaurantSlug: RESTAURANT_SLUG,
 			tableCode: TABLE_CODE,
-			message: 'Is the Nasi Goreng halal?',
+			message: 'Is the Nasi Goreng halal?'
 		},
 		sessionHeader
 	);
@@ -187,7 +185,7 @@ export default function () {
 				} catch {
 					return false;
 				}
-			},
+			}
 		})
 	);
 
@@ -199,13 +197,13 @@ export default function () {
 		{
 			restaurantSlug: RESTAURANT_SLUG,
 			tableCode: TABLE_CODE,
-			rating: 'helpful',
+			rating: 'helpful'
 		},
 		sessionHeader
 	);
 	feedbackErrors.add(
 		!check(fbRes, {
-			'feedback 201': (r) => r.status === 201,
+			'feedback 201': (r) => r.status === 201
 		})
 	);
 
@@ -218,13 +216,13 @@ export default function () {
 			{
 				restaurantSlug: RESTAURANT_SLUG,
 				tableCode: TABLE_CODE,
-				reason: 'guest_requested',
+				reason: 'guest_requested'
 			},
 			sessionHeader
 		);
 		fallbackErrors.add(
 			!check(fallRes, {
-				'fallback 201': (r) => r.status === 201,
+				'fallback 201': (r) => r.status === 201
 			})
 		);
 	}

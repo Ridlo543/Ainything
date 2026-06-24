@@ -12,19 +12,12 @@
 
 	const scopedRestaurants = $derived(data.tenant.restaurants);
 
-	// eslint-disable-next-line svelte/prefer-writable-derived -- requests is mutated by SSE events and optimistic form updates
-	// svelte-ignore state_referenced_locally -- intentional: initial value only, $effect below handles reactivity
-	let requests = $state<StaffRequest[]>(data.requests ?? []);
-	$effect(() => {
-		requests = data.requests ?? [];
-	});
+	let requests = $state(data.requests ?? []);
 
 	// selectedId tracks which request is selected. It starts empty and falls back
 	// to the first request automatically via the `selected` derived below.
 	let selectedId = $state('');
-	const selected = $derived(
-		requests.find((r) => r.id === selectedId) ?? requests[0]
-	);
+	const selected = $derived(requests.find((r) => r.id === selectedId) ?? requests[0]);
 	const restaurant = $derived(
 		selected
 			? (scopedRestaurants.find((item) => item.id === selected.restaurantId) ??
@@ -125,7 +118,9 @@
 			</div>
 
 			{#if form && 'message' in form && form.message}
-				<div class="rounded-lg border border-lingua-danger/30 bg-lingua-danger-soft px-4 py-3 text-sm text-lingua-danger">
+				<div
+					class="rounded-lg border border-lingua-danger/30 bg-lingua-danger-soft px-4 py-3 text-sm text-lingua-danger"
+				>
 					{form.message}
 				</div>
 			{/if}
@@ -167,9 +162,11 @@
 							{selected.guestNeed}
 						</p>
 					</div>
-				<div class="rounded-lg bg-lingua-warning-soft px-3 py-2 text-sm font-semibold text-lingua-warning">
-					{tWithVars('staff.inbox.detail.priority', { priority: selected.priority })}
-				</div>
+					<div
+						class="rounded-lg bg-lingua-warning-soft px-3 py-2 text-sm font-semibold text-lingua-warning"
+					>
+						{tWithVars('staff.inbox.detail.priority', { priority: selected.priority })}
+					</div>
 				</div>
 
 				<div class="mt-5 grid gap-4 lg:grid-cols-3">

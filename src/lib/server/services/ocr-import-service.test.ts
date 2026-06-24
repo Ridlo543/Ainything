@@ -32,8 +32,9 @@ const { scanMenuImage, importOcrItems } = await import('./ocr-import-service');
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	withUserContextMock.mockImplementation(async (_userId: string, fn: Function) =>
-		fn({ query: vi.fn().mockResolvedValue({ rows: [{ id: 'new-draft-id' }] }) })
+	withUserContextMock.mockImplementation(
+		async (_userId: string, fn: (...args: unknown[]) => unknown) =>
+			fn({ query: vi.fn().mockResolvedValue({ rows: [{ id: 'new-draft-id' }] }) })
 	);
 });
 
@@ -74,10 +75,12 @@ describe('importOcrItems', () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
 		loadMenusForRestaurantMock.mockResolvedValue([{ id: 'draft-1', status: 'draft', version: 1 }]);
 		ensureCategoryMock.mockResolvedValue('cat-1');
-		insertMenuItemMock.mockImplementation(async (_client: unknown, opts: any) => ({
-			id: `item-${opts.name}`,
-			name: opts.name
-		}));
+		insertMenuItemMock.mockImplementation(
+			async (_client: unknown, opts: Record<string, unknown>) => ({
+				id: `item-${opts.name}`,
+				name: opts.name
+			})
+		);
 
 		const ocrResult = {
 			rawText: 'Nasi Goreng 50000',

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Store, ArrowLeft, UserPlus } from '@lucide/svelte';
+	import { resolve } from '$app/paths';
 	import type { PageData, ActionData } from './$types';
 
 	let { data, form }: { data: PageData; form?: ActionData } = $props();
@@ -17,7 +18,7 @@
 	<div class="app-container grid min-h-[calc(100vh-80px)] place-items-center">
 		<section class="surface w-full max-w-lg rounded-lg p-5 sm:p-7">
 			<a
-				href="/register"
+				href={resolve('/register')}
 				class="tap-target mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-lingua-subtle hover:text-lingua-text"
 			>
 				<ArrowLeft size={15} /> Back to options
@@ -37,7 +38,9 @@
 
 			{#if data.isMock}
 				<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-					Registration is disabled in demo mode. <a href="/login" class="underline">Sign in</a> instead.
+					Registration is disabled in demo mode. <a href={resolve('/login')} class="underline"
+						>Sign in</a
+					> instead.
 				</div>
 			{:else}
 				<form method="POST" action="?/register" class="mt-6 grid gap-4">

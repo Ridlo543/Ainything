@@ -1,7 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { createSupabaseServerClient } from '$lib/server/auth/supabase-client';
 import { appEnv } from '$lib/server/config/env';
 
 const emailSchema = z.object({

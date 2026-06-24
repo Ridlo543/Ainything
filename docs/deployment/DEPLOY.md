@@ -98,25 +98,25 @@ cp .env.production .env.production.local
 
 See `.env.production` for the full template. Key values to set:
 
-| Variable | Where to get it |
-|---|---|
-| `PUBLIC_APP_URL` | Your domain, e.g. `https://lingua.example.com` |
-| `ORIGIN` | Same as `PUBLIC_APP_URL` (required for SvelteKit CSRF) |
-| `DATABASE_URL` | Supabase pooled connection string |
-| `DIRECT_URL` | Supabase direct connection string |
-| `REDIS_URL` | Upstash or self-hosted Redis URL |
-| `SESSION_SECRET` | `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"` |
-| `PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret) |
-| `AUTH_PROVIDER` | `supabase` |
-| `LLM_PROVIDER` | `tokenrouter` or `openai` |
-| `TOKENROUTER_API_KEY` | From tokenrouter.com |
-| `SMTP_HOST` | Your SMTP host (or leave blank to use MockEmailProvider) |
-| `SMTP_PORT` | Usually `587` (STARTTLS) or `465` (SSL) |
-| `SMTP_USER` | SMTP username |
-| `SMTP_PASS` | SMTP password |
-| `SMTP_FROM` | `Lingua <noreply@lingua.example.com>` |
+| Variable                          | Where to get it                                                               |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| `PUBLIC_APP_URL`                  | Your domain, e.g. `https://lingua.example.com`                                |
+| `ORIGIN`                          | Same as `PUBLIC_APP_URL` (required for SvelteKit CSRF)                        |
+| `DATABASE_URL`                    | Supabase pooled connection string                                             |
+| `DIRECT_URL`                      | Supabase direct connection string                                             |
+| `REDIS_URL`                       | Upstash or self-hosted Redis URL                                              |
+| `SESSION_SECRET`                  | `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"` |
+| `PUBLIC_SUPABASE_URL`             | Supabase project URL                                                          |
+| `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon key                                                             |
+| `SUPABASE_SERVICE_ROLE_KEY`       | Supabase service role key (secret)                                            |
+| `AUTH_PROVIDER`                   | `supabase`                                                                    |
+| `LLM_PROVIDER`                    | `tokenrouter` or `openai`                                                     |
+| `TOKENROUTER_API_KEY`             | From tokenrouter.com                                                          |
+| `SMTP_HOST`                       | Your SMTP host (or leave blank to use MockEmailProvider)                      |
+| `SMTP_PORT`                       | Usually `587` (STARTTLS) or `465` (SSL)                                       |
+| `SMTP_USER`                       | SMTP username                                                                 |
+| `SMTP_PASS`                       | SMTP password                                                                 |
+| `SMTP_FROM`                       | `Lingua <noreply@lingua.example.com>`                                         |
 
 ---
 

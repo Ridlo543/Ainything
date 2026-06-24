@@ -1,7 +1,11 @@
 <script lang="ts">
 	type Tone = 'neutral' | 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
 
-	let { label, tone = 'neutral', shape = 'rounded' }: { label: string; tone?: Tone; shape?: 'rounded' | 'pill' } = $props();
+	let {
+		label,
+		tone = 'neutral',
+		shape = 'rounded'
+	}: { label: string; tone?: Tone; shape?: 'rounded' | 'pill' } = $props();
 
 	const toneClass: Record<Tone, string> = {
 		neutral: 'border-lingua-border bg-lingua-muted text-lingua-text',

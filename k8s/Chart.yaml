@@ -6,7 +6,7 @@ name: lingua
 description: QR-based AI menu assistant for tourist-heavy restaurants
 type: application
 version: 0.1.0
-appVersion: "1.0.0"
+appVersion: '1.0.0'
 keywords:
   - restaurant
   - ai

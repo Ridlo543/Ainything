@@ -144,9 +144,7 @@ test.describe('Customer flow at 360px', () => {
 		await page.goto(TEST_URL);
 
 		// Button text depends on chat state; always present in idle state
-		const staffBtn = page
-			.getByRole('button', { name: /speak to staff|ask staff/i })
-			.first();
+		const staffBtn = page.getByRole('button', { name: /speak to staff|ask staff/i }).first();
 		await expect(staffBtn).toBeVisible();
 	});
 });

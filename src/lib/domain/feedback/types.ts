@@ -1,4 +1,9 @@
-export type FeedbackIssueType = 'wrong-info' | 'missing-info' | 'too-slow' | 'language-problem' | 'other';
+export type FeedbackIssueType =
+	| 'wrong-info'
+	| 'missing-info'
+	| 'too-slow'
+	| 'language-problem'
+	| 'other';
 
 export type Feedback = {
 	id: string;

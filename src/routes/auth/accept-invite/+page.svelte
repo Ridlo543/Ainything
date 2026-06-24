@@ -2,6 +2,7 @@
 	import { Eye, EyeOff, CheckCircle2, Mail } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { data }: { data: PageData } = $props();
 
@@ -21,16 +22,18 @@
 
 <div class="flex min-h-screen items-center justify-center bg-lingua-bg px-4">
 	<div class="w-full max-w-sm">
-		<a href="/" class="mb-8 block text-center text-2xl font-bold text-lingua-primary">Lingua</a>
+		<a href={resolve('/')} class="mb-8 block text-center text-2xl font-bold text-lingua-primary"
+			>Lingua</a
+		>
 
 		{#if loadError}
 			<div class="surface rounded-lg p-6 text-center">
 				<p class="font-semibold text-lingua-text">Invalid Invite</p>
 				<p class="mt-2 text-sm text-lingua-subtle">{loadError}</p>
 				<a
-					href="/login"
+					href={resolve('/login')}
 					class="mt-4 block text-sm font-semibold text-lingua-primary hover:underline"
-				>Back to login</a
+					>Back to login</a
 				>
 			</div>
 		{:else if sent}
@@ -60,7 +63,8 @@
 				<div class="mt-4 flex rounded-lg border border-lingua-border">
 					<button
 						type="button"
-						class="flex-1 rounded-l-lg py-2 text-sm font-semibold transition-colors {mode === 'register'
+						class="flex-1 rounded-l-lg py-2 text-sm font-semibold transition-colors {mode ===
+						'register'
 							? 'bg-lingua-primary text-white'
 							: 'text-lingua-subtle hover:bg-lingua-primary-soft'}"
 						onclick={() => (mode = 'register')}
@@ -69,7 +73,8 @@
 					</button>
 					<button
 						type="button"
-						class="flex-1 rounded-r-lg py-2 text-sm font-semibold transition-colors {mode === 'login'
+						class="flex-1 rounded-r-lg py-2 text-sm font-semibold transition-colors {mode ===
+						'login'
 							? 'bg-lingua-primary text-white'
 							: 'text-lingua-subtle hover:bg-lingua-primary-soft'}"
 						onclick={() => (mode = 'login')}
@@ -81,7 +86,7 @@
 				<form
 					method="POST"
 					action="?/accept"
-					use:enhance={({ formData, cancel }) => {
+					use:enhance={({ formData }) => {
 						formData.set('mode', mode);
 						return async ({ result, update }) => {
 							if (result.type === 'success' && result.data?.sent) {

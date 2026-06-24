@@ -11,7 +11,9 @@ export default defineConfig({
 	workers: isCI ? 2 : 4,
 	// Retry flaky tests once in CI
 	retries: isCI ? 1 : 0,
-	reporter: isCI ? [['github'], ['html', { outputFolder: 'playwright-report', open: 'never' }]] : [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
+	reporter: isCI
+		? [['github'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
+		: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
 	outputDir: 'tests/e2e/test-results',
 	webServer: {
 		command: 'pnpm run build && pnpm run preview',

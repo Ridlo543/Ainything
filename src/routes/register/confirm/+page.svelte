@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { MailCheck, ArrowRight } from '@lucide/svelte';
+	import { resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -14,10 +15,11 @@
 			</span>
 			<h1 class="mt-4 text-2xl font-semibold text-lingua-text">Check your email</h1>
 			<p class="mt-3 text-sm leading-6 text-lingua-subtle">
-				We sent a verification link to your email address. Click it to confirm your account, then you can set up your restaurant.
+				We sent a verification link to your email address. Click it to confirm your account, then
+				you can set up your restaurant.
 			</p>
 			<a
-				href="/login"
+				href={resolve('/login')}
 				class="tap-target mt-6 inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
 			>
 				Continue to sign in <ArrowRight size={16} />

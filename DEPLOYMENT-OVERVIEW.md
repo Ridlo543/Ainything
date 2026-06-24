@@ -3,6 +3,7 @@
 This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
 
 ## Prerequisites
+
 - Docker 24+ or Podman 5+ installed
 - Kubernetes 1.28+ (for k8s deployment)
 - Node.js 20+ (for development)
@@ -11,18 +12,21 @@ This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
 ## Quick Start
 
 ### Local Development
+
 ```bash
 make local              # Start Docker Compose
 make local-down         # Stop Docker Compose
 ```
 
 ### Production Build
+
 ```bash
 make build              # Build Docker image
 make k8s               # Deploy to Kubernetes
 ```
 
 ### Load Testing
+
 ```bash
 make load-test         # Run load tests with K6
 ```
@@ -30,17 +34,20 @@ make load-test         # Run load tests with K6
 ## Deployment Options
 
 ### 1. Docker Compose (Local/Staging)
+
 - Use for development and testing
 - All services in one host
 - Easy to start/stop
 
 ### 2. Kubernetes (Production)
+
 - Use for production deployment
 - Horizontal scaling
 - Self-healing
 - Advanced monitoring
 
 ### 3. Podman (Alternative to Docker)
+
 - Rootless containers
 - SELinux integrated
 - Drop-in replacement for Docker

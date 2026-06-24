@@ -171,10 +171,10 @@ export async function updateOrganizationStatus(
 	status: 'active' | 'paused' | 'archived'
 ): Promise<void> {
 	const pool = getPool();
-	await pool.query(
-		`UPDATE organizations SET status = $1, updated_at = now() WHERE id = $2::uuid`,
-		[status, id]
-	);
+	await pool.query(`UPDATE organizations SET status = $1, updated_at = now() WHERE id = $2::uuid`, [
+		status,
+		id
+	]);
 }
 
 export async function getRestaurantBySlugRow(
@@ -278,8 +278,8 @@ export async function updateRestaurantStatus(
 	status: 'active' | 'paused' | 'archived'
 ): Promise<void> {
 	const pool = getPool();
-	await pool.query(
-		`UPDATE restaurants SET status = $1, updated_at = now() WHERE id = $2::uuid`,
-		[status, id]
-	);
+	await pool.query(`UPDATE restaurants SET status = $1, updated_at = now() WHERE id = $2::uuid`, [
+		status,
+		id
+	]);
 }

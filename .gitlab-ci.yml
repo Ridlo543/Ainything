@@ -7,9 +7,9 @@ stages:
   - deploy
 
 variables:
-  NODE_VERSION: "20"
-  DOCKER_TLS_CERTDIR: "/certs"
-  CI_DEBUG_TRACE: "false"
+  NODE_VERSION: '20'
+  DOCKER_TLS_CERTDIR: '/certs'
+  CI_DEBUG_TRACE: 'false'
 
 # Cache dependencies
 cache:

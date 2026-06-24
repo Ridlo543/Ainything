@@ -7,7 +7,8 @@ export class MockWhatsappProvider implements WhatsappProvider {
 		this.prefix = prefix;
 	}
 
-	async sendMessage(request: WhatsappMessageRequest): Promise<WhatsappMessageResult> {
+	async sendMessage(_request: WhatsappMessageRequest): Promise<WhatsappMessageResult> {
+		void _request;
 		return {
 			messageId: `${this.prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
 			status: 'sent',

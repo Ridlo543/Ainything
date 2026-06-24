@@ -9,9 +9,7 @@ test('customer QR flow renders menu, chat, and feedback states', async ({ page }
 	await expect(page.getByText('Ask about the menu')).toBeVisible();
 
 	// Staff fallback button (may say 'Speak to staff' or 'Ask staff directly')
-	const staffBtn = page
-		.getByRole('button', { name: /speak to staff|ask staff/i })
-		.first();
+	const staffBtn = page.getByRole('button', { name: /speak to staff|ask staff/i }).first();
 	await expect(staffBtn).toBeVisible();
 
 	await page.getByRole('button', { name: /helpful/i }).click();

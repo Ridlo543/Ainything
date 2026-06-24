@@ -108,13 +108,13 @@ describe('generateEmbeddingsForRestaurant', () => {
 	});
 
 	it('returns zero results when provider does not support embed', async () => {
-		const { generateEmbeddingsForRestaurant: generateNoEmbed } = await vi.importActual<typeof import('./embedding-worker')>('./embedding-worker');
 		vi.doMock('$lib/server/providers/llm/factory', () => ({
-			getLlmProvider: () => ({}) as any
+			getLlmProvider: () => ({}) as unknown
 		}));
 
 		// Re-import with the no-embed mock
-		const noEmbedModule = await vi.importActual<typeof import('./embedding-worker')>('./embedding-worker');
+		const noEmbedModule =
+			await vi.importActual<typeof import('./embedding-worker')>('./embedding-worker');
 		const result = await noEmbedModule.generateEmbeddingsForRestaurant(RESTAURANT_ID);
 
 		expect(result).toEqual({ generated: 0, skipped: 0 });

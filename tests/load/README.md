@@ -1,16 +1,19 @@
 # Load Testing Guide for Lingua
 
 ## Overview
+
 Load testing infrastructure using K6 for 100+ concurrent users.
 
 ## Quick Start
 
 ### Local (K6 installed)
+
 ```bash
 k6 run tests/load/lingua-load-test.js
 ```
 
 ### With Docker
+
 ```bash
 docker run --rm \
   -v $(pwd):/tests \
@@ -19,6 +22,7 @@ docker run --rm \
 ```
 
 ### With Podman
+
 ```bash
 podman run --rm \
   -v $(pwd):/tests:Z \

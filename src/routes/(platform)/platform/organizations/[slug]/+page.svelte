@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 	import EmptyState from '$lib/ui/EmptyState.svelte';
@@ -20,8 +21,7 @@
 	};
 
 	// Optimistic status — update immediately on form submission, revert on error.
-	let optimisticStatus = $state('');
-	$effect(() => { optimisticStatus = org.status; });
+	let optimisticStatus = $state(org.status);
 </script>
 
 <svelte:head>
@@ -32,7 +32,10 @@
 	<!-- Header -->
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 		<div>
-			<a href="/platform/organizations" class="text-sm text-slate-500 hover:text-slate-700">
+			<a
+				href={resolve('/platform/organizations')}
+				class="text-sm text-slate-500 hover:text-slate-700"
+			>
 				&larr; Organizations
 			</a>
 			<h1 class="mt-2 text-2xl font-bold text-slate-900">{org.name}</h1>
@@ -80,7 +83,7 @@
 			Suspending an organization hides it from active tenants. Archiving is permanent.
 		</p>
 		<div class="mt-4 flex flex-wrap gap-3">
-			{#each ['active', 'paused', 'archived'] as s}
+			{#each ['active', 'paused', 'archived'] as s (s)}
 				{@const isCurrent = optimisticStatus === s}
 				<form
 					method="POST"
@@ -97,8 +100,8 @@
 						disabled={isCurrent}
 						class="rounded-md border px-4 py-2 text-sm font-medium transition-colors
 							{isCurrent
-								? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-								: 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}
+							? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
+							: 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'}
 							{s === 'archived' && !isCurrent ? 'hover:border-red-300 hover:text-red-700' : ''}"
 					>
 						{#if s === 'active'}Activate{:else if s === 'paused'}Suspend{:else}Archive{/if}
@@ -112,14 +115,14 @@
 	<div>
 		<h2 class="text-base font-semibold text-slate-900">Restaurants</h2>
 		{#if data.restaurants.length === 0}
-				<div class="mt-4"><EmptyState title="No restaurants in this organization." /></div>
+			<div class="mt-4"><EmptyState title="No restaurants in this organization." /></div>
 		{:else}
 			<ul class="mt-4 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
-				{#each data.restaurants as r}
+				{#each data.restaurants as r (r.id)}
 					<li class="flex items-center justify-between px-4 py-3">
 						<div>
 							<a
-								href="/platform/restaurants/{r.slug}"
+								href={'/platform/restaurants/' + r.slug}
 								class="text-sm font-medium text-slate-900 hover:text-blue-600"
 							>
 								{r.name}
@@ -130,7 +133,11 @@
 							<span class="text-xs text-slate-500">{r.tableCount} tables</span>
 							<Badge
 								label={r.status}
-								tone={r.status === 'active' ? 'success' : r.status === 'paused' ? 'warning' : 'neutral'}
+								tone={r.status === 'active'
+									? 'success'
+									: r.status === 'paused'
+										? 'warning'
+										: 'neutral'}
 								shape="pill"
 							/>
 						</div>

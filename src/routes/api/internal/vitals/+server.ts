@@ -12,7 +12,7 @@
  * Response: 204 No Content on success.
  */
 
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { insertWebVitals, type VitalsInsert } from '$lib/server/repositories/web-vitals-repository';
 import { appEnv } from '$lib/server/config/env';
@@ -67,13 +67,15 @@ export const POST: RequestHandler = async ({ request }) => {
 	const entries = (body as unknown[])
 		.slice(0, MAX_BATCH)
 		.filter(isValidEntry)
-		.map((e): VitalsInsert => ({
-			restaurantId: e.restaurantId ?? null,
-			name: e.name as VitalsInsert['name'],
-			value: Math.round(e.value * 100) / 100,
-			rating: e.rating as VitalsInsert['rating'],
-			path: e.path.slice(0, 500),
-		}));
+		.map(
+			(e): VitalsInsert => ({
+				restaurantId: e.restaurantId ?? null,
+				name: e.name as VitalsInsert['name'],
+				value: Math.round(e.value * 100) / 100,
+				rating: e.rating as VitalsInsert['rating'],
+				path: e.path.slice(0, 500)
+			})
+		);
 
 	if (entries.length === 0) {
 		return new Response(null, { status: 204 });
@@ -103,7 +105,7 @@ export const OPTIONS: RequestHandler = ({ request }) => {
 			'Access-Control-Allow-Origin': allowed ? origin : '',
 			'Access-Control-Allow-Methods': 'POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type',
-			'Vary': 'Origin',
-		},
+			Vary: 'Origin'
+		}
 	});
 };

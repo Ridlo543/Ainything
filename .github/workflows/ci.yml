@@ -37,7 +37,7 @@ jobs:
       # DB access — lingua_app role is created by migration 0001
       DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
       DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
-      RUN_DB_TESTS: "true"
+      RUN_DB_TESTS: 'true'
       # Stub values for env.ts — real secrets not needed for unit tests
       PUBLIC_APP_URL: http://localhost:5173
       PUBLIC_SUPABASE_URL: http://localhost:54321
@@ -57,7 +57,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
           cache: pnpm
 
       - name: Install dependencies
@@ -104,7 +104,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
           cache: pnpm
 
       - name: Install dependencies
@@ -165,7 +165,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
           cache: pnpm
 
       - name: Install dependencies

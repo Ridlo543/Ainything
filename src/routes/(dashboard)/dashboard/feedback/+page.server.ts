@@ -10,9 +10,7 @@ const pilotFeedbackSchema = z.object({
 		.transform(Number)
 		.pipe(z.number().int().min(1).max(5, 'Rating must be 1–5')),
 	aiAccuracy: z.enum(['excellent', 'good', 'acceptable', 'poor']).optional(),
-	setupDifficulty: z
-		.enum(['very-easy', 'easy', 'neutral', 'hard', 'very-hard'])
-		.optional(),
+	setupDifficulty: z.enum(['very-easy', 'easy', 'neutral', 'hard', 'very-hard']).optional(),
 	wоuldRecommend: z
 		.string()
 		.optional()

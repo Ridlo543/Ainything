@@ -59,16 +59,12 @@ export const appEnv = {
 
 	// Supabase
 	// Supports both `@supabase/ssr` (PUBLIC_*) and `@supabase/server` (SUPABASE_*) env conventions
-	supabaseUrl:
-		env.SUPABASE_URL ||
-		publicEnv.PUBLIC_SUPABASE_URL,
+	supabaseUrl: env.SUPABASE_URL || publicEnv.PUBLIC_SUPABASE_URL,
 	supabaseAnonKey:
 		env.SUPABASE_PUBLISHABLE_KEY ||
 		publicEnv.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
 		publicEnv.PUBLIC_SUPABASE_ANON_KEY,
-	supabaseServiceRoleKey:
-		env.SUPABASE_SECRET_KEY ||
-		env.SUPABASE_SERVICE_ROLE_KEY,
+	supabaseServiceRoleKey: env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY,
 	supabaseJwksUrl: env.SUPABASE_JWKS_URL
 };
 

@@ -11,7 +11,7 @@
  */
 
 import { getOcrProvider } from '$lib/server/providers/ocr/factory';
-import type { OcrScanResult, OcrMenuItem } from '$lib/server/providers/ocr/types';
+import type { OcrScanResult } from '$lib/server/providers/ocr/types';
 import type { AuthUser } from '$lib/domain/auth/types';
 import type { MenuSourceType, LanguageTag, MenuItem } from '$lib/domain/menu/types';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';

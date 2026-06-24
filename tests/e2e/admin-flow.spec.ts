@@ -21,9 +21,7 @@ test.describe('Login page', () => {
 	test('renders sign-in heading and demo account selector', async ({ page }) => {
 		await page.goto('/login');
 
-		await expect(
-			page.getByRole('heading', { name: /sign in/i })
-		).toBeVisible();
+		await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 		await expect(page.getByLabel('Demo account')).toBeVisible();
 	});
 
@@ -48,9 +46,7 @@ test.describe('Admin flow at 390px', () => {
 	test('login renders correctly at narrow viewport', async ({ page }) => {
 		await page.goto('/login');
 
-		await expect(
-			page.getByRole('heading', { name: /sign in/i })
-		).toBeVisible();
+		await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 		await expect(page.getByLabel('Demo account')).toBeVisible();
 	});
 });
@@ -188,7 +184,10 @@ test.describe('Dashboard menu', () => {
 			return;
 		}
 
-		await page.getByRole('button', { name: /cancel/i }).last().click();
+		await page
+			.getByRole('button', { name: /cancel/i })
+			.last()
+			.click();
 	});
 });
 
@@ -216,7 +215,10 @@ test.describe('Dashboard knowledge', () => {
 		}
 		await page.goto('/dashboard/knowledge');
 
-		await page.getByRole('button', { name: /add note/i }).first().click();
+		await page
+			.getByRole('button', { name: /add note/i })
+			.first()
+			.click();
 		await expect(page.getByRole('heading', { name: /add a knowledge note/i })).toBeVisible();
 
 		const cancelButtons = page.getByRole('button', { name: /cancel/i });
@@ -234,7 +236,10 @@ test.describe('Dashboard knowledge', () => {
 		}
 		await page.goto('/dashboard/knowledge');
 
-		await page.getByRole('button', { name: /add note/i }).first().click();
+		await page
+			.getByRole('button', { name: /add note/i })
+			.first()
+			.click();
 		await expect(page.getByRole('heading', { name: /add a knowledge note/i })).toBeVisible();
 	});
 

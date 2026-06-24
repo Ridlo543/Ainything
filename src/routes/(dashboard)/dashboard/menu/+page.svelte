@@ -104,8 +104,7 @@
 	);
 	const warningIssues = $derived(
 		preflight?.issues.filter(
-			(issue) =>
-				!issue.issues.some((msg) => msg.includes('required') || msg.includes('negative'))
+			(issue) => !issue.issues.some((msg) => msg.includes('required') || msg.includes('negative'))
 		) ?? []
 	);
 	const canPublish = $derived(blockingIssues.length === 0);
@@ -285,7 +284,9 @@
 	></div>
 
 	<!-- Drawer panel -->
-	<div class="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-lingua-surface shadow-xl">
+	<div
+		class="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto bg-lingua-surface shadow-xl"
+	>
 		<div class="flex items-center justify-between border-b border-lingua-border p-4">
 			<h3 class="text-lg font-semibold">Edit item</h3>
 			<button
@@ -407,10 +408,9 @@
 					</select>
 				</div>
 				<div class="flex items-center gap-2">
-					<label
-						for="availability-toggle"
-						class="mb-1 block text-sm font-medium text-lingua-text"
-					>Available</label>
+					<label for="availability-toggle" class="mb-1 block text-sm font-medium text-lingua-text"
+						>Available</label
+					>
 					<button
 						id="availability-toggle"
 						type="button"
@@ -515,8 +515,8 @@
 	>
 		<h3 class="text-lg font-semibold text-lingua-text">Publish menu?</h3>
 		<p class="mt-1 text-sm text-lingua-subtle">
-			This will make the current draft live for guests at <strong>{selectedRestaurant.name}</strong>.
-			The previously published menu will be archived.
+			This will make the current draft live for guests at <strong>{selectedRestaurant.name}</strong
+			>. The previously published menu will be archived.
 		</p>
 
 		<!-- Pre-flight checklist -->
@@ -538,7 +538,9 @@
 		{/if}
 
 		{#if warningIssues.length > 0}
-			<div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/20">
+			<div
+				class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/20"
+			>
 				<div class="flex items-center gap-2 text-amber-800 dark:text-amber-400">
 					<AlertTriangle size={15} />
 					<span class="text-sm font-semibold">
@@ -546,8 +548,8 @@
 					</span>
 				</div>
 				<p class="mt-1 text-xs text-amber-700 dark:text-amber-400">
-					Guests will be asked to confirm allergy/dietary info with staff for these items.
-					You can still publish.
+					Guests will be asked to confirm allergy/dietary info with staff for these items. You can
+					still publish.
 				</p>
 				<ul class="mt-2 space-y-1 text-xs text-amber-700 dark:text-amber-400">
 					{#each warningIssues as issue (issue.itemId)}
@@ -558,7 +560,9 @@
 		{/if}
 
 		{#if blockingIssues.length === 0 && warningIssues.length === 0}
-			<div class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-700 dark:bg-emerald-900/20">
+			<div
+				class="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-700 dark:bg-emerald-900/20"
+			>
 				<div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
 					<Check size={15} />
 					<span class="text-sm font-semibold">All items are verified — ready to publish</span>
@@ -568,7 +572,9 @@
 
 		<!-- Server-side publish errors (after attempted publish) -->
 		{#if form?.publishIssues && form.publishIssues.length > 0}
-			<div class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+			<div
+				class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20"
+			>
 				<div class="flex items-center gap-2 text-red-700 dark:text-red-400">
 					<AlertTriangle size={15} />
 					<span class="text-sm font-semibold">Server validation failed</span>

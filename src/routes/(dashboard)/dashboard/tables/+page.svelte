@@ -128,7 +128,9 @@
 					<p class="print-restaurant">{selectedRestaurant.name}</p>
 					<p class="print-table-code">{table.code}</p>
 					<p class="print-instruction">Scan to view menu &amp; chat with our AI assistant.</p>
-					<p class="print-instruction">Bahasa Indonesia &bull; English &bull; 日本語 &bull; 中文 &bull; عربي</p>
+					<p class="print-instruction">
+						Bahasa Indonesia &bull; English &bull; 日本語 &bull; 中文 &bull; عربي
+					</p>
 					<p class="print-url">{buildQrUrl(table)}</p>
 				</div>
 				<div class="print-qr">

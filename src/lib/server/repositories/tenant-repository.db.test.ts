@@ -50,17 +50,14 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 				`
 			);
 
-		// The public_active_select policy exposes ALL active restaurants to lingua_app.
-		const slugs = result.rows.map((row) => row.slug);
-		expect(slugs).toEqual(expect.arrayContaining([
-			'rempah-terrace',
-			'senja-ramen-bali',
-			'taman-sate',
-			'uma-karang'
-		]));
-		// Must not expose inactive restaurants
-		expect(slugs).not.toContain('taman-sate-inactive');
-		expect(slugs.every(s => !s.includes('inactive'))).toBe(true);
+			// The public_active_select policy exposes ALL active restaurants to lingua_app.
+			const slugs = result.rows.map((row) => row.slug);
+			expect(slugs).toEqual(
+				expect.arrayContaining(['rempah-terrace', 'senja-ramen-bali', 'taman-sate', 'uma-karang'])
+			);
+			// Must not expose inactive restaurants
+			expect(slugs).not.toContain('taman-sate-inactive');
+			expect(slugs.every((s) => !s.includes('inactive'))).toBe(true);
 		});
 	});
 

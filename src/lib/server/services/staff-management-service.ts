@@ -1,6 +1,11 @@
 import { randomBytes } from 'crypto';
 import type { z } from 'zod';
-import { inviteStaffSchema, removeMemberSchema, cancelInviteSchema, changeRoleSchema } from '$lib/domain/staff/schema';
+import {
+	inviteStaffSchema,
+	removeMemberSchema,
+	cancelInviteSchema,
+	changeRoleSchema
+} from '$lib/domain/staff/schema';
 import {
 	listMembershipsWithUsers,
 	listPendingInvitesWithInviter,
@@ -90,7 +95,11 @@ export async function inviteStaff(params: {
 	role: string;
 	appUrl: string;
 }): Promise<{ inviteId: string; token: string }> {
-	const parsed = parseInput({ email: params.email, role: params.role }, inviteStaffSchema, 'invite');
+	const parsed = parseInput(
+		{ email: params.email, role: params.role },
+		inviteStaffSchema,
+		'invite'
+	);
 	const { email, role } = parsed as { email: string; role: string };
 
 	const token = randomBytes(32).toString('hex');

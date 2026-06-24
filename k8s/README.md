@@ -1,9 +1,11 @@
 # Kubernetes Manifests README
 
 ## Overview
+
 Production-ready Kubernetes manifests for Lingua with Podman/Docker support.
 
 ## Prerequisites
+
 - kubectl configured
 - access to Kubernetes cluster
 - Docker/Podman registry for images
@@ -11,21 +13,25 @@ Production-ready Kubernetes manifests for Lingua with Podman/Docker support.
 ## Quick Start
 
 ### 1. Create Namespace
+
 ```bash
 kubectl apply -f k8s/manifests.yml
 ```
 
 ### 2. Apply Secrets
+
 ```bash
 kubectl apply -f k8s/secrets.yml
 ```
 
 ### 3. Apply RBAC
+
 ```bash
 kubectl apply -f k8s/rbac.yml
 ```
 
 ### 4. Apply Storage
+
 ```bash
 kubectl apply -f k8s/storage.yml
 ```
@@ -66,16 +72,19 @@ kubectl get hpa -n lingua
 ## Podman-Specific Considerations
 
 ### Build with Podman
+
 ```bash
 podman build -t lingua:latest .
 ```
 
 ### Push to Registry
+
 ```bash
 podman push lingua:latest registry.example.com/lingua:latest
 ```
 
 ### Run Locally with Podman
+
 ```bash
 podman run -d \
   -p 3000:3000 \
@@ -86,16 +95,19 @@ podman run -d \
 ## Troubleshooting
 
 ### Check Logs
+
 ```bash
 kubectl logs -n lingua -l app=lingua --tail=100
 ```
 
 ### Describe Pod
+
 ```bash
 kubectl describe pod -n lingua -l app=lingua
 ```
 
 ### Exec into Pod
+
 ```bash
 kubectl exec -n lingua -it $(kubectl get pods -n lingua -o name | head -1) -- /bin/sh
 ```

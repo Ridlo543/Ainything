@@ -26,7 +26,10 @@ test.describe('Staff management page', () => {
 
 	test('renders team heading and member list', async ({ page }) => {
 		const ok = await loginWithDemoAccount(page);
-		if (!ok) { test.skip(true, 'No mock sessions'); return; }
+		if (!ok) {
+			test.skip(true, 'No mock sessions');
+			return;
+		}
 
 		await page.goto('/dashboard/staff');
 		await expect(page.getByRole('heading', { name: /staff management/i })).toBeVisible();
@@ -41,11 +44,14 @@ test.describe('Staff management page', () => {
 
 	test('invite dialog opens and closes', async ({ page }) => {
 		const ok = await loginWithDemoAccount(page);
-		if (!ok) { test.skip(true, 'No mock sessions'); return; }
+		if (!ok) {
+			test.skip(true, 'No mock sessions');
+			return;
+		}
 
 		await page.goto('/dashboard/staff');
 		const inviteBtn = page.getByRole('button', { name: /invite/i });
-		if (!await inviteBtn.isVisible()) {
+		if (!(await inviteBtn.isVisible())) {
 			test.skip(true, 'Invite button not visible (not owner)');
 			return;
 		}
@@ -60,11 +66,14 @@ test.describe('Staff management page', () => {
 
 	test('invite dialog validates empty email', async ({ page }) => {
 		const ok = await loginWithDemoAccount(page);
-		if (!ok) { test.skip(true, 'No mock sessions'); return; }
+		if (!ok) {
+			test.skip(true, 'No mock sessions');
+			return;
+		}
 
 		await page.goto('/dashboard/staff');
 		const inviteBtn = page.getByRole('button', { name: /invite/i });
-		if (!await inviteBtn.isVisible()) {
+		if (!(await inviteBtn.isVisible())) {
 			test.skip(true, 'Invite button not visible (not owner)');
 			return;
 		}
@@ -91,7 +100,10 @@ test.describe('Staff inbox', () => {
 			const select = page.getByLabel('Demo account');
 			const opts = await select.locator('option').allInnerTexts();
 			const staffOpt = opts.find((o) => o.toLowerCase().includes('staff'));
-			if (!staffOpt) { test.skip(true, 'No staff demo account'); return; }
+			if (!staffOpt) {
+				test.skip(true, 'No staff demo account');
+				return;
+			}
 			await select.selectOption({ label: staffOpt });
 			await page.getByRole('button', { name: 'Continue' }).click();
 			await page.waitForURL(/inbox/);

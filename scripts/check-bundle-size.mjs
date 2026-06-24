@@ -42,7 +42,7 @@ function formatKB(bytes) {
 function check() {
 	if (!fs.existsSync(BUILD_DIR)) {
 		console.log(`[bundle-check] Build directory '${BUILD_DIR}' not found — skipping.`);
-		console.log('[bundle-check] Run \`pnpm build\` first to generate bundle output.');
+		console.log('[bundle-check] Run `pnpm build` first to generate bundle output.');
 		process.exit(0);
 	}
 
@@ -56,7 +56,7 @@ function check() {
 
 	// Measure gzipped sizes of client-side assets only
 	const { total: jsTotal, files: jsFiles } = walkCollect(clientDir, '.js');
-	const { total: cssTotal, files: cssFiles } = walkCollect(clientDir, '.css');
+	const { total: cssTotal } = walkCollect(clientDir, '.css');
 
 	console.log(`\nBundle size report (${clientDir}, gzipped):`);
 	console.log(`  JS:  ${formatKB(jsTotal)}  (budget: ${formatKB(MAX_KB.js * 1024)})`);

@@ -17,16 +17,16 @@ metadata:
   name: lingua-config
   namespace: lingua
 data:
-  NODE_ENV: "production"
-  USE_MOCK_BACKEND: "false"
-  SESSION_SECRET: "change-me-in-production-use-secrets-manager"
-  DATABASE_URL: "postgresql://postgres:password@postgres:5432/lingua"
-  DIRECT_URL: "postgresql://postgres:password@postgres:5432/lingua?sslmode=disable"
-  REDIS_URL: "redis://redis:6379"
-  AUTH_PROVIDER: "mock"
-  LLM_PROVIDER: "mock"
-  AI_DAILY_CAP: "500"
-  EMBEDDING_ENABLED: "false"
+  NODE_ENV: 'production'
+  USE_MOCK_BACKEND: 'false'
+  SESSION_SECRET: 'change-me-in-production-use-secrets-manager'
+  DATABASE_URL: 'postgresql://postgres:password@postgres:5432/lingua'
+  DIRECT_URL: 'postgresql://postgres:password@postgres:5432/lingua?sslmode=disable'
+  REDIS_URL: 'redis://redis:6379'
+  AUTH_PROVIDER: 'mock'
+  LLM_PROVIDER: 'mock'
+  AI_DAILY_CAP: '500'
+  EMBEDDING_ENABLED: 'false'
 
 ---
 # Secret for sensitive configuration
@@ -37,10 +37,10 @@ metadata:
   namespace: lingua
 type: Opaque
 stringData:
-  SESSION_SECRET: "production-session-secret-rotate-regularly"
-  DATABASE_URL: "postgresql://postgres:password@postgres:5432/lingua"
-  DIRECT_URL: "postgresql://postgres:password@postgres:5432/lingua?sslmode=disable"
-  REDIS_URL: "redis://redis:6379"
+  SESSION_SECRET: 'production-session-secret-rotate-regularly'
+  DATABASE_URL: 'postgresql://postgres:password@postgres:5432/lingua'
+  DIRECT_URL: 'postgresql://postgres:password@postgres:5432/lingua?sslmode=disable'
+  REDIS_URL: 'redis://redis:6379'
 
 ---
 # PostgreSQL StatefulSet
@@ -80,7 +80,7 @@ spec:
     - metadata:
         name: postgres-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: ['ReadWriteOnce']
         resources:
           requests:
             storage: 10Gi
@@ -182,11 +182,11 @@ spec:
             periodSeconds: 10
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: '256Mi'
+              cpu: '250m'
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: '512Mi'
+              cpu: '500m'
 
 ---
 # Lingua Service

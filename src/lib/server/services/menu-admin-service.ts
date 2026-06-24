@@ -224,9 +224,7 @@ export async function publishDraftMenu(
 	// Uses BullMQ queue so processing happens asynchronously outside the HTTP request.
 	if (appEnv.embeddingEnabled) {
 		import('$lib/server/queue/embedding-queue')
-			.then(({ enqueueEmbeddingJob }) =>
-				enqueueEmbeddingJob(activeRestaurant.id)
-			)
+			.then(({ enqueueEmbeddingJob }) => enqueueEmbeddingJob(activeRestaurant.id))
 			.catch((err) => {
 				console.error(
 					`[menu-admin-service] Failed to enqueue embedding job for ${activeRestaurant.id}:`,

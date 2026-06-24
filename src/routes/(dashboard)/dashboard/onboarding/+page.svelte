@@ -1,7 +1,16 @@
 <script lang="ts">
 	import type { PageData, ActionData } from './$types';
 	import { enhance } from '$app/forms';
-	import { CheckCircle, Circle, ArrowRight, Table2, BookOpen, QrCode, Rocket } from '@lucide/svelte';
+	import { resolve } from '$app/paths';
+	import {
+		CheckCircle,
+		Circle,
+		ArrowRight,
+		Table2,
+		BookOpen,
+		QrCode,
+		Rocket
+	} from '@lucide/svelte';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -37,7 +46,7 @@
 
 	<!-- Step progress -->
 	<ol class="mb-10 flex items-center gap-0">
-		{#each STEPS as s, i}
+		{#each STEPS as s, i (i)}
 			{@const done = step > i + 1}
 			{@const active = step === i + 1}
 			<li class="flex flex-1 flex-col items-center gap-1.5">
@@ -56,7 +65,7 @@
 					{/if}
 				</div>
 				<span
-				class="hidden text-center text-xs sm:block
+					class="hidden text-center text-xs sm:block
 					{active ? 'font-semibold text-lingua-primary' : 'text-lingua-subtle'}"
 				>
 					{s.label}
@@ -82,17 +91,16 @@
 				<dd class="font-medium text-lingua-text">{restaurant.name}</dd>
 				<dt class="text-lingua-subtle">Slug</dt>
 				<dd class="font-mono text-lingua-text">{restaurant.slug}</dd>
-			<dt class="text-lingua-subtle">Location</dt>
-			<dd class="text-lingua-text">{restaurant.location || '—'}</dd>
+				<dt class="text-lingua-subtle">Location</dt>
+				<dd class="text-lingua-text">{restaurant.location || '—'}</dd>
 			</dl>
 			<a
-				href="/dashboard/onboarding?step=2"
+				href={resolve('/dashboard/onboarding?step=2')}
 				class="mt-6 inline-flex items-center gap-2 rounded-md bg-lingua-primary px-4 py-2 text-sm font-semibold text-white hover:bg-lingua-primary/90"
 			>
 				Continue <ArrowRight size={16} />
 			</a>
 		</div>
-
 	{:else if step === 2}
 		<!-- Step 2: Set up tables -->
 		<div class="rounded-lg border border-lingua-border bg-lingua-surface p-6">
@@ -102,7 +110,9 @@
 			</p>
 
 			{#if form?.action === 'setupTables' && form?.error}
-				<p class="mb-4 rounded border border-lingua-danger/30 bg-lingua-danger-soft/20 px-3 py-2 text-sm text-lingua-danger">
+				<p
+					class="mb-4 rounded border border-lingua-danger/30 bg-lingua-danger-soft/20 px-3 py-2 text-sm text-lingua-danger"
+				>
 					{form.error}
 				</p>
 			{/if}
@@ -123,10 +133,7 @@
 
 				<div class="mb-4 grid grid-cols-2 gap-4">
 					<div>
-						<label
-							for="count"
-							class="mb-1 block text-sm font-medium text-lingua-text"
-						>
+						<label for="count" class="mb-1 block text-sm font-medium text-lingua-text">
 							Number of tables
 						</label>
 						<input
@@ -140,10 +147,7 @@
 						/>
 					</div>
 					<div>
-						<label
-							for="prefix"
-							class="mb-1 block text-sm font-medium text-lingua-text"
-						>
+						<label for="prefix" class="mb-1 block text-sm font-medium text-lingua-text">
 							Code prefix
 						</label>
 						<input
@@ -159,7 +163,7 @@
 				</div>
 
 				<p class="mb-5 text-xs text-lingua-subtle">
-					Preview: {tablePrefix || 'T'}01, {tablePrefix || 'T'}02 …{' '}{tablePrefix || 'T'}{String(
+					Preview: {tablePrefix || 'T'}01, {tablePrefix || 'T'}02 … {tablePrefix || 'T'}{String(
 						Number(tableCount) || 1
 					).padStart(2, '0')}
 				</p>
@@ -174,7 +178,6 @@
 				</button>
 			</form>
 		</div>
-
 	{:else if step === 3}
 		<!-- Step 3: Create draft menu -->
 		<div class="rounded-lg border border-lingua-border bg-lingua-surface p-6">
@@ -185,7 +188,9 @@
 			</p>
 
 			{#if form?.action === 'createDraftMenu' && form?.error}
-				<p class="mb-4 rounded border border-lingua-danger/30 bg-lingua-danger-soft/20 px-3 py-2 text-sm text-lingua-danger">
+				<p
+					class="mb-4 rounded border border-lingua-danger/30 bg-lingua-danger-soft/20 px-3 py-2 text-sm text-lingua-danger"
+				>
 					{form.error}
 				</p>
 			{/if}
@@ -214,7 +219,6 @@
 				</button>
 			</form>
 		</div>
-
 	{:else if step === 4}
 		<!-- Step 4: QR codes ready -->
 		<div class="rounded-lg border border-lingua-border bg-lingua-surface p-6">
@@ -223,24 +227,24 @@
 				<h2 class="font-semibold">You're all set!</h2>
 			</div>
 			<p class="mb-5 text-sm text-lingua-subtle">
-				Your tables and draft menu are ready. Head to the Tables page to download your QR codes,
-				or go to Menu to import your first items.
+				Your tables and draft menu are ready. Head to the Tables page to download your QR codes, or
+				go to Menu to import your first items.
 			</p>
 			<div class="flex flex-wrap gap-3">
 				<a
-					href="/dashboard/tables"
+					href={resolve('/dashboard/tables')}
 					class="inline-flex items-center gap-2 rounded-md bg-lingua-primary px-4 py-2 text-sm font-semibold text-white hover:bg-lingua-primary/90"
 				>
 					<QrCode size={16} /> View QR codes
 				</a>
 				<a
-					href="/dashboard/import"
+					href={resolve('/dashboard/import')}
 					class="inline-flex items-center gap-2 rounded-md border border-lingua-border bg-lingua-surface px-4 py-2 text-sm font-semibold text-lingua-text hover:bg-lingua-muted"
 				>
 					<BookOpen size={16} /> Import menu
 				</a>
 				<a
-					href="/dashboard"
+					href={resolve('/dashboard')}
 					class="text-sm text-lingua-subtle underline hover:text-lingua-text self-center"
 				>
 					Skip to dashboard

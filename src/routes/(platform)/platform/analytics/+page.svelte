@@ -65,13 +65,13 @@
 		</div>
 		<!-- Window selector -->
 		<div class="flex gap-1">
-			{#each WINDOWS as w}
+			{#each WINDOWS as w (w)}
 				<a
-					href="/platform/analytics?days={w}"
+					href={'/platform/analytics?days=' + w}
 					class="rounded px-2.5 py-1 text-xs font-medium transition-colors
 						{windowDays === w
-							? 'bg-indigo-600 text-white'
-							: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
+						? 'bg-indigo-600 text-white'
+						: 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
 				>
 					{w}d
 				</a>
@@ -110,7 +110,9 @@
 					Fallback rate
 				</div>
 				<div class="text-2xl font-bold {valueTone[ft]}">{analytics.fallbackRate}%</div>
-				<div class="mt-0.5 text-xs text-gray-400">{analytics.totalFallbacks.toLocaleString()} escalated</div>
+				<div class="mt-0.5 text-xs text-gray-400">
+					{analytics.totalFallbacks.toLocaleString()} escalated
+				</div>
 			</div>
 
 			<!-- Helpful rate -->
@@ -120,7 +122,9 @@
 					Helpful rate
 				</div>
 				<div class="text-2xl font-bold {valueTone[ht]}">{analytics.helpfulRate}%</div>
-				<div class="mt-0.5 text-xs text-gray-400">{analytics.totalFeedback.toLocaleString()} rated</div>
+				<div class="mt-0.5 text-xs text-gray-400">
+					{analytics.totalFeedback.toLocaleString()} rated
+				</div>
 			</div>
 
 			<!-- P95 latency -->
@@ -169,11 +173,7 @@
 			Quick links
 		</h2>
 		<div class="grid gap-2 sm:grid-cols-3">
-			{#each [
-				{ href: '/platform/organizations', label: 'All organizations', icon: Building2 },
-				{ href: '/platform/restaurants', label: 'All restaurants', icon: Utensils },
-				{ href: '/platform', label: 'Platform overview', icon: Activity }
-			] as link}
+			{#each [{ href: '/platform/organizations', label: 'All organizations', icon: Building2 }, { href: '/platform/restaurants', label: 'All restaurants', icon: Utensils }, { href: '/platform', label: 'Platform overview', icon: Activity }] as link (link.href)}
 				{@const Icon = link.icon}
 				<a
 					href={link.href}

@@ -112,7 +112,8 @@ const MOCK_RAW_TEXT = [
  * tested end-to-end.
  */
 export class MockOcrProvider implements OcrProvider {
-	async scan(input: OcrScanInput): Promise<OcrScanResult> {
+	async scan(_input: OcrScanInput): Promise<OcrScanResult> {
+		void _input;
 		return {
 			items: MOCK_ITEMS,
 			rawText: MOCK_RAW_TEXT,

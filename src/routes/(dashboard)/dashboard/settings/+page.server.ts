@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { restaurantSettingsSchema } from '$lib/domain/restaurant/schema';
 import {
@@ -55,7 +55,10 @@ export const actions: Actions = {
 		}
 
 		if (membership.role !== 'org_owner' && membership.role !== 'restaurant_admin') {
-			return fail(403, { error: 'Only owners can update restaurant settings', fields: null as FieldMap });
+			return fail(403, {
+				error: 'Only owners can update restaurant settings',
+				fields: null as FieldMap
+			});
 		}
 
 		const formData = await request.formData();

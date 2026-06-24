@@ -211,29 +211,29 @@
 					</div>
 					<Languages class="text-lingua-primary" size={24} />
 				</div>
-			<div class="mt-4 grid gap-3 sm:grid-cols-[220px_1fr]">
-				<select
-					class="tap-target rounded-lg border border-lingua-border bg-lingua-surface px-3 text-sm"
-					bind:value={selectedLanguage}
-					aria-label={t('language.selector.label')}
-					dir={isRtl(selectedLanguage) ? 'rtl' : 'ltr'}
-				>
-					{#each data.restaurant.languages as lang (lang)}
-						<option value={lang}>{languageDisplayName(lang, selectedLanguage as never)}</option>
-					{/each}
-				</select>
-				<PreferenceChips selected={prefAsDietaryFlags} onToggle={togglePreference} />
-			</div>
-			<p class="mt-3 text-xs text-lingua-subtle">
-				{t('bootstrap.privacy')}
-				<button
-					type="button"
-					class="underline hover:text-lingua-text"
-					onclick={() => (showPrivacyNotice = true)}
-				>
-					{t('bootstrap.privacy.link')}
-				</button>
-			</p>
+				<div class="mt-4 grid gap-3 sm:grid-cols-[220px_1fr]">
+					<select
+						class="tap-target rounded-lg border border-lingua-border bg-lingua-surface px-3 text-sm"
+						bind:value={selectedLanguage}
+						aria-label={t('language.selector.label')}
+						dir={isRtl(selectedLanguage) ? 'rtl' : 'ltr'}
+					>
+						{#each data.restaurant.languages as lang (lang)}
+							<option value={lang}>{languageDisplayName(lang, selectedLanguage as never)}</option>
+						{/each}
+					</select>
+					<PreferenceChips selected={prefAsDietaryFlags} onToggle={togglePreference} />
+				</div>
+				<p class="mt-3 text-xs text-lingua-subtle">
+					{t('bootstrap.privacy')}
+					<button
+						type="button"
+						class="underline hover:text-lingua-text"
+						onclick={() => (showPrivacyNotice = true)}
+					>
+						{t('bootstrap.privacy.link')}
+					</button>
+				</p>
 			</div>
 
 			{#if hasMenu}
@@ -403,7 +403,6 @@
 
 {#if showPrivacyNotice}
 	<!-- Privacy notice modal -->
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div
 		role="dialog"
 		aria-modal="true"
@@ -413,12 +412,12 @@
 		onclick={() => (showPrivacyNotice = false)}
 		onkeydown={(e) => e.key === 'Escape' && (showPrivacyNotice = false)}
 	>
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		class="surface w-full max-w-md rounded-t-2xl p-6 sm:rounded-2xl"
-		onclick={(e) => e.stopPropagation()}
-		onkeydown={(e) => e.stopPropagation()}
-	>
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="surface w-full max-w-md rounded-t-2xl p-6 sm:rounded-2xl"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => e.stopPropagation()}
+		>
 			<h2 class="mb-4 text-base font-semibold text-lingua-text">{t('privacy.title')}</h2>
 			<ul class="space-y-3 text-sm leading-6 text-lingua-subtle">
 				<li>{t('privacy.session')}</li>

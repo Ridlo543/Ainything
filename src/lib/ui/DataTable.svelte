@@ -34,8 +34,11 @@
 		<table class="min-w-full divide-y divide-lingua-border text-left text-sm">
 			<thead>
 				<tr>
-					{#each columns as col}
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase text-lingua-subtle {col.class ?? ''}">
+					{#each columns as col (col.key)}
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase text-lingua-subtle {col.class ??
+								''}"
+						>
 							{col.label}
 						</th>
 					{/each}
@@ -44,7 +47,7 @@
 			<tbody class="divide-y divide-lingua-border">
 				{#each items as item (item.id)}
 					<tr>
-						{#each columns as col}
+						{#each columns as col (col.key)}
 							<td class="px-4 py-3 text-sm text-lingua-text">
 								{@render cell(item, col.key)}
 							</td>

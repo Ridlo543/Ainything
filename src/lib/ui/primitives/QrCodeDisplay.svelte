@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Download, Printer } from '@lucide/svelte';
-	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
 
 	type Props = {
@@ -92,13 +91,13 @@
 			{error}
 		</div>
 	{:else}
-		<!-- The QR SVG is generated from `qrcode` and is a static string; safe to render via {@html}. -->
 		<div
 			class="overflow-hidden rounded"
 			style="width: {size}px; height: {size}px;"
 			aria-label={label ? `QR code for ${label}` : 'QR code'}
 			role="img"
 		>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html svgMarkup}
 		</div>
 	{/if}

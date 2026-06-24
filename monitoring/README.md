@@ -1,21 +1,25 @@
 # Monitoring Stack for Lingua
 
 ## Overview
+
 Complete monitoring with Prometheus, Grafana, and exporters.
 
 ## Services
 
 ### Prometheus
+
 - Metrics collection and storage
 - Port: 9090
 - Configuration: `monitoring/prometheus.yml`
 
 ### Grafana
+
 - Dashboards and visualization
 - Port: 3000
 - Default credentials: admin/admin
 
 ### Exporters
+
 - PostgreSQL Exporter: Port 9187
 - Redis Exporter: Port 9121
 
@@ -44,6 +48,7 @@ make monitoring-down
 ## Alerting
 
 Configured in `monitoring/prometheus-rules.yml`:
+
 - High error rate (>1%)
 - High latency (P95 >2s)
 - High memory usage (>80%)

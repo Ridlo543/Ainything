@@ -8,6 +8,7 @@
 ---
 
 ## Phase 0 — Quick Wins (Safety & Correctness)
+
 **Priority:** Critical | **Est:** 1-2 sessions | **Risk:** Low
 
 - [x] Sanitize error messages (prevent raw `err.message` leak to client)
@@ -16,6 +17,7 @@
 - [x] Fix `as any` type casts
 
 ## Phase 1 — Repository Layer Extraction
+
 **Priority:** High | **Est:** 2-3 sessions | **Risk:** Medium
 
 **Goal:** Move all inline SQL out of service files into dedicated repository modules. Service files should import repositories, not call `getPool()` or `query()` directly.
@@ -35,17 +37,19 @@
 - [x] Integration tests for new repositories (existing service tests pass: 11/11)
 
 ## Phase 2 — Test Coverage for Critical Services
+
 **Priority:** High | **Est:** 2-3 sessions | **Risk:** Medium
 
-| Service | Test file | Tests |
-|---|---|---|
-| `menu-admin-service.ts` | `menu-admin-service.test.ts` | 9 tests |
-| `ocr-import-service.ts` | `ocr-import-service.test.ts` | 4 tests |
-| `embedding-worker.ts` | `embedding-worker.test.ts` | 5 tests |
-| `table-service.ts` | `table-service.test.ts` | 4 tests |
+| Service                 | Test file                    | Tests    |
+| ----------------------- | ---------------------------- | -------- |
+| `menu-admin-service.ts` | `menu-admin-service.test.ts` | 9 tests  |
+| `ocr-import-service.ts` | `ocr-import-service.test.ts` | 4 tests  |
+| `embedding-worker.ts`   | `embedding-worker.test.ts`   | 5 tests  |
+| `table-service.ts`      | `table-service.test.ts`      | 4 tests  |
 | `public-api-helpers.ts` | `public-api-helpers.test.ts` | 13 tests |
 
 ## Phase 3 — UI Component Extraction
+
 **Priority:** Medium | **Est:** 1-2 sessions | **Risk:** Low
 
 **Goal:** Extract repeated UI patterns into shared, testable components under `src/lib/ui/`.
@@ -59,6 +63,7 @@
 - [x] Refactor routes to use components
 
 ## Phase 4 — Missing Domain Modules
+
 **Priority:** Medium | **Est:** 1-2 sessions | **Risk:** Low
 
 **Goal:** Create dedicated domain modules for product features that currently lack structured types, schemas, and policies.
@@ -69,6 +74,7 @@
 - [x] Create `domain/ai/` — types, schema, policy for AI interaction events
 
 ## Phase 5 — Documentation Sync
+
 **Priority:** Low | **Est:** 0.5 session | **Risk:** None
 
 **Goal:** Bring `docs/ARCHITECTURE.md` in line with actual codebase structure.
@@ -81,6 +87,7 @@
 - [x] Remove non-existent module references
 
 ## Phase 6 — Infrastructure for Scale
+
 **Priority:** High | **Status:** Production Readiness
 
 - [x] Queue system (BullMQ + Redis for embedding/OCR background jobs)

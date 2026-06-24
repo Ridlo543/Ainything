@@ -1,5 +1,4 @@
 import { getPool } from '$lib/server/db/postgres';
-import type { z } from 'zod';
 
 export type MembershipRow = {
 	id: string;
@@ -155,7 +154,9 @@ export type RestaurantSettingsRow = {
 	status: string;
 };
 
-export async function getRestaurantSettings(restaurantId: string): Promise<RestaurantSettingsRow | null> {
+export async function getRestaurantSettings(
+	restaurantId: string
+): Promise<RestaurantSettingsRow | null> {
 	const pool = getPool();
 	const result = await pool.query<RestaurantSettingsRow>(
 		`SELECT id, name, slug, location, segment, timezone, default_language_tag, language_tags, description, status
@@ -184,9 +185,14 @@ export async function updateRestaurantSettings(
 		     default_language_tag = $5, description = $6, updated_at = now()
 		 WHERE id = $7 AND organization_id = $8`,
 		[
-			data.name, data.location, data.segment, data.timezone,
-			data.defaultLanguageTag, data.description,
-			restaurantId, organizationId
+			data.name,
+			data.location,
+			data.segment,
+			data.timezone,
+			data.defaultLanguageTag,
+			data.description,
+			restaurantId,
+			organizationId
 		]
 	);
 }

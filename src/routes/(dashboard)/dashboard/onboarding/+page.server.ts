@@ -82,7 +82,10 @@ export const actions: Actions = {
 			});
 		} catch (err) {
 			console.error('[onboarding] createTablesForRestaurant error:', err);
-			return fail(500, { action: 'setupTables', error: 'Failed to create tables. Please try again.' });
+			return fail(500, {
+				action: 'setupTables',
+				error: 'Failed to create tables. Please try again.'
+			});
 		}
 
 		redirect(303, '/dashboard/onboarding?step=3');
@@ -120,7 +123,10 @@ export const actions: Actions = {
 			});
 		} catch (err) {
 			console.error('[onboarding] createDraftMenu error:', err);
-			return fail(500, { action: 'createDraftMenu', error: 'Failed to create menu. Please try again.' });
+			return fail(500, {
+				action: 'createDraftMenu',
+				error: 'Failed to create menu. Please try again.'
+			});
 		}
 
 		redirect(303, '/dashboard/onboarding?step=4');

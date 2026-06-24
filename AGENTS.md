@@ -94,12 +94,12 @@ If implementation chooses different tools, update `docs/Technical_Specification.
 
 Environment strategy:
 
-| File | Purpose | DB Target |
-|------|---------|-----------|
-| `.env.test` | Test suite (committed) | Local PostgreSQL |
-| `.env.development` | Dev server (committed) | Local PostgreSQL |
-| `.env.production` | Production template (committed) | Supabase |
-| `.env` | Developer overrides (gitignored) | Any |
+| File               | Purpose                          | DB Target        |
+| ------------------ | -------------------------------- | ---------------- |
+| `.env.test`        | Test suite (committed)           | Local PostgreSQL |
+| `.env.development` | Dev server (committed)           | Local PostgreSQL |
+| `.env.production`  | Production template (committed)  | Supabase         |
+| `.env`             | Developer overrides (gitignored) | Any              |
 
 Test workflow:
 

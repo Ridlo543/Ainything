@@ -79,7 +79,7 @@ Request → hooks.server.ts
 
 Each protected route group has a layout server load that checks the role:
 
-| Route Group     | Required Role                     | Redirect if unauthorized |
+| Route Group    | Required Role                     | Redirect if unauthorized |
 | -------------- | --------------------------------- | ------------------------ |
 | `(platform)/`  | `super_admin`                     | → `/dashboard`           |
 | `(dashboard)/` | `org_owner` or `restaurant_admin` | → `/login`               |
@@ -576,12 +576,12 @@ All DB tests run against **local PostgreSQL** (Podman/Docker), never Supabase re
 
 **Environment strategy:**
 
-| File | Purpose | DB Target |
-|------|---------|-----------|
-| `.env.test` | Test suite (committed) | Local PostgreSQL |
-| `.env.development` | Dev server (committed) | Local PostgreSQL |
-| `.env.production` | Production template (committed) | Supabase |
-| `.env` | Developer overrides (gitignored) | Any |
+| File               | Purpose                          | DB Target        |
+| ------------------ | -------------------------------- | ---------------- |
+| `.env.test`        | Test suite (committed)           | Local PostgreSQL |
+| `.env.development` | Dev server (committed)           | Local PostgreSQL |
+| `.env.production`  | Production template (committed)  | Supabase         |
+| `.env`             | Developer overrides (gitignored) | Any              |
 
 **Test workflow:**
 

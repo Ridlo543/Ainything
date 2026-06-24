@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Mail, ArrowLeft, MailCheck } from '@lucide/svelte';
-	import type { PageData, ActionData } from './$types';
+	import { resolve } from '$app/paths';
+	import type { ActionData } from './$types';
 
-	let { data, form }: { data: PageData; form?: ActionData } = $props();
+	let { form }: { form?: ActionData } = $props();
 
 	const sent = $derived((form as { sent?: boolean } | undefined)?.sent === true);
 	const sentEmail = $derived((form as { email?: string } | undefined)?.email ?? '');
@@ -18,7 +19,6 @@
 <main class="min-h-screen py-6 sm:py-10">
 	<div class="app-container grid min-h-[calc(100vh-80px)] place-items-center">
 		<section class="surface w-full max-w-lg rounded-lg p-5 text-center sm:p-7">
-
 			{#if sent}
 				<!-- Success state -->
 				<span class="inline-flex rounded-lg bg-green-100 p-3 text-green-600">
@@ -26,16 +26,15 @@
 				</span>
 				<h1 class="mt-4 text-2xl font-semibold text-lingua-text">Check your email</h1>
 				<p class="mt-3 text-sm leading-6 text-lingua-subtle">
-					If <strong>{sentEmail}</strong> is registered, we've sent a password reset link.
-					Check your inbox and spam folder.
+					If <strong>{sentEmail}</strong> is registered, we've sent a password reset link. Check your
+					inbox and spam folder.
 				</p>
 				<a
-					href="/login"
+					href={resolve('/login')}
 					class="tap-target mt-6 inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
 				>
 					Back to sign in
 				</a>
-
 			{:else}
 				<!-- Request form -->
 				<span class="inline-flex rounded-lg bg-lingua-primary-soft p-3 text-lingua-primary">
@@ -78,13 +77,12 @@
 				</form>
 
 				<a
-					href="/login"
+					href={resolve('/login')}
 					class="tap-target mt-5 inline-flex items-center justify-center gap-1.5 text-sm text-lingua-subtle hover:text-lingua-text"
 				>
 					<ArrowLeft size={14} /> Back to sign in
 				</a>
 			{/if}
-
 		</section>
 	</div>
 </main>

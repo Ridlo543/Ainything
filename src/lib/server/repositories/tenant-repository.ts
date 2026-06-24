@@ -1,12 +1,15 @@
 import type { AuthUser, OrgMembership } from '$lib/domain/auth/types';
-import type { Allergen, DietaryFlag, MenuItem, MenuSourceType, TenantContext } from '$lib/domain/menu/types';
+import type {
+	Allergen,
+	DietaryFlag,
+	MenuItem,
+	MenuSourceType,
+	TenantContext
+} from '$lib/domain/menu/types';
 import type { MenuImportIssue } from '$lib/domain/menu/types';
 import type { Membership, Organization } from '$lib/domain/menu/types';
 import { query, withUserContext, type DatabaseClient } from '$lib/server/db/postgres';
-import {
-	mapRestaurantRow,
-	type RestaurantRow
-} from '$lib/server/repositories/menu-row-mapper';
+import { mapRestaurantRow, type RestaurantRow } from '$lib/server/repositories/menu-row-mapper';
 
 function mapMembershipRole(role: Membership['role']): OrgMembership['role'] {
 	switch (role) {

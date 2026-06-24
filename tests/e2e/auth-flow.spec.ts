@@ -26,83 +26,83 @@ async function loginWithDemoAccount(page: import('@playwright/test').Page): Prom
 // Registration — restaurant path
 // ---------------------------------------------------------------------------
 
-	test.describe('Registration — restaurant path', () => {
-		test('registration page renders all fields', async ({ page }) => {
-			await page.goto('/register/restaurant');
+test.describe('Registration — restaurant path', () => {
+	test('registration page renders all fields', async ({ page }) => {
+		await page.goto('/register/restaurant');
 
-			const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-			if (isMock) {
-				test.skip(true, 'Form hidden in mock mode');
-				return;
-			}
+		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
+		if (isMock) {
+			test.skip(true, 'Form hidden in mock mode');
+			return;
+		}
 
-			await expect(page.getByRole('heading', { name: /register/i })).toBeVisible();
-			await expect(page.getByLabel(/your name/i)).toBeVisible();
-			await expect(page.getByLabel(/email/i)).toBeVisible();
-			await expect(page.getByLabel(/password/i)).toBeVisible();
-			await expect(page.getByLabel(/restaurant name/i)).toBeVisible();
-		});
-
-		test('shows error when form submitted empty', async ({ page }) => {
-			await page.goto('/register/restaurant');
-			const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-			if (isMock) {
-				test.skip(true, 'Form hidden in mock mode');
-				return;
-			}
-			await page.getByRole('button', { name: /create|register/i }).click();
-			// HTML5 validation prevents submission — required fields should be marked
-			await expect(page.getByLabel(/your name/i)).toBeFocused();
-		});
-
-		test('has link to sign in page', async ({ page }) => {
-			await page.goto('/register/restaurant');
-
-			const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-			if (isMock) {
-				test.skip(true, 'Form hidden in mock mode');
-				return;
-			}
-
-			const link = page.getByRole('link', { name: /sign in/i });
-			await expect(link).toBeVisible();
-		});
+		await expect(page.getByRole('heading', { name: /register/i })).toBeVisible();
+		await expect(page.getByLabel(/your name/i)).toBeVisible();
+		await expect(page.getByLabel(/email/i)).toBeVisible();
+		await expect(page.getByLabel(/password/i)).toBeVisible();
+		await expect(page.getByLabel(/restaurant name/i)).toBeVisible();
 	});
+
+	test('shows error when form submitted empty', async ({ page }) => {
+		await page.goto('/register/restaurant');
+		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
+		if (isMock) {
+			test.skip(true, 'Form hidden in mock mode');
+			return;
+		}
+		await page.getByRole('button', { name: /create|register/i }).click();
+		// HTML5 validation prevents submission — required fields should be marked
+		await expect(page.getByLabel(/your name/i)).toBeFocused();
+	});
+
+	test('has link to sign in page', async ({ page }) => {
+		await page.goto('/register/restaurant');
+
+		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
+		if (isMock) {
+			test.skip(true, 'Form hidden in mock mode');
+			return;
+		}
+
+		const link = page.getByRole('link', { name: /sign in/i });
+		await expect(link).toBeVisible();
+	});
+});
 
 // ---------------------------------------------------------------------------
 // Registration — organization path
 // ---------------------------------------------------------------------------
 
-	test.describe('Registration — organization path', () => {
-		test('registration page renders all fields', async ({ page }) => {
-			await page.goto('/register/organization');
+test.describe('Registration — organization path', () => {
+	test('registration page renders all fields', async ({ page }) => {
+		await page.goto('/register/organization');
 
-			const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-			if (isMock) {
-				test.skip(true, 'Form hidden in mock mode');
-				return;
-			}
+		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
+		if (isMock) {
+			test.skip(true, 'Form hidden in mock mode');
+			return;
+		}
 
-			await expect(page.getByRole('heading', { name: /register/i })).toBeVisible();
-			await expect(page.getByLabel(/your name/i)).toBeVisible();
-			await expect(page.getByLabel(/organization name/i)).toBeVisible();
-			await expect(page.getByLabel(/email/i)).toBeVisible();
-			await expect(page.getByLabel(/password/i)).toBeVisible();
-		});
-
-		test('has link to sign in page', async ({ page }) => {
-			await page.goto('/register/organization');
-
-			const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-			if (isMock) {
-				test.skip(true, 'Form hidden in mock mode');
-				return;
-			}
-
-			const link = page.getByRole('link', { name: /sign in/i });
-			await expect(link).toBeVisible();
-		});
+		await expect(page.getByRole('heading', { name: /register/i })).toBeVisible();
+		await expect(page.getByLabel(/your name/i)).toBeVisible();
+		await expect(page.getByLabel(/organization name/i)).toBeVisible();
+		await expect(page.getByLabel(/email/i)).toBeVisible();
+		await expect(page.getByLabel(/password/i)).toBeVisible();
 	});
+
+	test('has link to sign in page', async ({ page }) => {
+		await page.goto('/register/organization');
+
+		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
+		if (isMock) {
+			test.skip(true, 'Form hidden in mock mode');
+			return;
+		}
+
+		const link = page.getByRole('link', { name: /sign in/i });
+		await expect(link).toBeVisible();
+	});
+});
 
 // ---------------------------------------------------------------------------
 // Registration setup step (Step 2)
@@ -158,7 +158,9 @@ test.describe('Forgot password', () => {
 		await page.getByLabel(/email/i).fill('test@example.com');
 		await page.getByRole('button', { name: /send/i }).click();
 		// Should show sent confirmation (always returns sent:true to prevent enumeration)
-		await expect(page.getByText(/check your email|sent|confirmation/i).first()).toBeVisible({ timeout: 5000 });
+		await expect(page.getByText(/check your email|sent|confirmation/i).first()).toBeVisible({
+			timeout: 5000
+		});
 	});
 
 	test('has back to login link', async ({ page }) => {

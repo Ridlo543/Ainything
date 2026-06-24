@@ -11,18 +11,6 @@ function getSystemTheme(): ResolvedTheme {
 	return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-function readStoredMode(): ThemeMode {
-	if (!browser) return 'system';
-	const stored = document.cookie
-		.split('; ')
-		.find((row) => row.startsWith(`${COOKIE_KEY}=`))
-		?.split('=')[1];
-	if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
-	const ls = localStorage.getItem(STORAGE_KEY);
-	if (ls === 'light' || ls === 'dark' || ls === 'system') return ls;
-	return 'system';
-}
-
 function applyTheme(resolved: ResolvedTheme) {
 	if (!browser) return;
 	document.documentElement.dataset.theme = resolved;

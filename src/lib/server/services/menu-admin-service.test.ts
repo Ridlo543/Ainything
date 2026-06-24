@@ -1,3 +1,4 @@
+import type { MenuItem } from '$lib/domain/menu/types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const withUserContextMock = vi.fn();
@@ -49,7 +50,9 @@ const {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	withUserContextMock.mockImplementation(async (_userId: string, fn: Function) => fn({}));
+	withUserContextMock.mockImplementation(
+		async (_userId: string, fn: (...args: unknown[]) => unknown) => fn({})
+	);
 });
 
 const USER = {
@@ -83,8 +86,13 @@ describe('editMenuItem', () => {
 				price: 50000,
 				isAvailable: true,
 				dietaryFlags: [],
-				allergens: []
-			} as any
+				allergens: [],
+				description: '',
+				spiceLevel: 0,
+				confidence: 'verified',
+				itemId: 'item-1',
+				restaurant: 'bali-kafe'
+			}
 		});
 
 		expect(result.name).toBe('Nasi Goreng');
@@ -100,7 +108,18 @@ describe('editMenuItem', () => {
 			editMenuItem(USER, {
 				restaurantSlug: 'bali-kafe',
 				itemId: 'missing',
-				input: { name: 'X', dietaryFlags: [], allergens: [] } as any
+				input: {
+					name: 'X',
+					dietaryFlags: [],
+					allergens: [],
+					description: '',
+					spiceLevel: 0,
+					confidence: 'verified',
+					itemId: 'missing',
+					restaurant: 'bali-kafe',
+					price: 0,
+					isAvailable: false
+				}
 			})
 		).rejects.toThrow('not found or access denied');
 	});
@@ -190,37 +209,49 @@ describe('publishDraftMenu', () => {
 
 describe('validateMenuForPublish', () => {
 	it('returns ok for valid items', () => {
-		const items = [
+		const items: MenuItem[] = [
 			{
 				id: 'i1',
+				category: 'Main',
 				name: 'Nasi Goreng',
+				localName: undefined,
+				description: '',
 				price: 50000,
 				currency: 'IDR',
-				category: 'Main',
+				image: '',
+				spiceLevel: 0,
 				isAvailable: true,
+				isSignature: false,
 				dietaryFlags: [],
 				allergens: [],
+				goodFor: [],
 				confidence: 'verified'
 			}
-		] as any;
+		];
 		const result = validateMenuForPublish(items);
 		expect(result.ok).toBe(true);
 	});
 
 	it('returns issues for items missing name', () => {
-		const items = [
+		const items: MenuItem[] = [
 			{
 				id: 'i1',
+				category: 'Main',
 				name: '',
+				localName: undefined,
+				description: '',
 				price: 50000,
 				currency: 'IDR',
-				category: 'Main',
+				image: '',
+				spiceLevel: 0,
 				isAvailable: true,
+				isSignature: false,
 				dietaryFlags: [],
 				allergens: [],
+				goodFor: [],
 				confidence: 'verified'
 			}
-		] as any;
+		] as MenuItem[];
 		const result = validateMenuForPublish(items);
 		expect(result.ok).toBe(false);
 		expect(result.issues.length).toBeGreaterThan(0);

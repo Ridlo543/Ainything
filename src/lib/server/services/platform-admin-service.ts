@@ -95,11 +95,11 @@ export type PlatformAnalytics = {
 	windowDays: number;
 	totalChatEvents: number;
 	totalFallbacks: number;
-	fallbackRate: number;       // 0–100
+	fallbackRate: number; // 0–100
 	totalFeedback: number;
 	helpfulFeedback: number;
-	helpfulRate: number;        // 0–100
-	latencyP95: number | null;  // ms
+	helpfulRate: number; // 0–100
+	latencyP95: number | null; // ms
 	newOrganizations7d: number;
 	newRestaurants7d: number;
 };
@@ -165,9 +165,7 @@ export async function listOrganizations(opts?: {
 	);
 }
 
-export async function getOrganizationDetail(
-	slug: string
-): Promise<PlatformOrganizationDetail> {
+export async function getOrganizationDetail(slug: string): Promise<PlatformOrganizationDetail> {
 	const row = await getOrganizationBySlugRow(slug);
 	if (!row) throw new PlatformAdminNotFoundError(`Organization '${slug}' not found`);
 	return {
@@ -233,9 +231,7 @@ export async function listRestaurants(opts?: {
 	);
 }
 
-export async function getRestaurantDetail(
-	slug: string
-): Promise<PlatformRestaurantDetail> {
+export async function getRestaurantDetail(slug: string): Promise<PlatformRestaurantDetail> {
 	const row = await getRestaurantBySlugRow(slug);
 	if (!row) throw new PlatformAdminNotFoundError(`Restaurant '${slug}' not found`);
 	return {

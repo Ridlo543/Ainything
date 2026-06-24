@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions: Actions = {
-	setStatus: async ({ params, request }) => {
+	setStatus: async ({ request }) => {
 		const formData = await request.formData();
 		const status = formData.get('status') as string;
 		const organizationId = formData.get('organizationId') as string;

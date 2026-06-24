@@ -73,8 +73,8 @@
 			<p class="text-sm font-semibold text-lingua-primary">Settings</p>
 			<h1 class="mt-2 text-3xl font-semibold">Restaurant Settings</h1>
 			<p class="mt-2 max-w-3xl text-lingua-subtle">
-				Manage the details for <strong>{tenant.activeRestaurant.name}</strong>. Changes
-				apply immediately to your guest-facing menu.
+				Manage the details for <strong>{tenant.activeRestaurant.name}</strong>. Changes apply
+				immediately to your guest-facing menu.
 			</p>
 		</div>
 	</div>
@@ -123,7 +123,9 @@
 					readonly
 					title="Slug cannot be changed after creation"
 				/>
-				<span class="text-xs font-normal text-lingua-subtle">Slug cannot be changed after creation.</span>
+				<span class="text-xs font-normal text-lingua-subtle"
+					>Slug cannot be changed after creation.</span
+				>
 			</label>
 
 			<!-- Workspace host (read-only) -->
@@ -153,7 +155,7 @@
 					class="tap-target rounded-lg border border-lingua-border px-3 font-normal"
 					disabled={!isOwner}
 				>
-					{#each SEGMENTS as seg}
+					{#each SEGMENTS as seg (seg)}
 						<option value={seg}>{segmentLabels[seg] ?? seg}</option>
 					{/each}
 				</select>
@@ -182,7 +184,7 @@
 					class="tap-target rounded-lg border border-lingua-border px-3 font-normal"
 					disabled={!isOwner}
 				>
-					{#each LANGUAGE_TAGS as tag}
+					{#each LANGUAGE_TAGS as tag (tag)}
 						<option value={tag}>{languageLabels[tag] ?? tag}</option>
 					{/each}
 				</select>
@@ -197,7 +199,7 @@
 					class="tap-target rounded-lg border border-lingua-border px-3 font-normal"
 					disabled={!isOwner}
 				>
-					{#each TIMEZONES as tz}
+					{#each TIMEZONES as tz (tz)}
 						<option value={tz}>{tz}</option>
 					{/each}
 				</select>

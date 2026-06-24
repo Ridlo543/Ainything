@@ -82,9 +82,7 @@
 	</div>
 
 	{#if mobileOpen}
-		<div
-			class="border-t border-lingua-border bg-lingua-surface px-4 py-4 shadow-lg md:hidden"
-		>
+		<div class="border-t border-lingua-border bg-lingua-surface px-4 py-4 shadow-lg md:hidden">
 			<div class="flex flex-col gap-1">
 				{#each NAV_LINKS as link (link.href)}
 					<a

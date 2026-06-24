@@ -635,11 +635,13 @@
 ## 2026-06-23 RLS Fix + Landing Page Completion
 
 **RLS fix — `customer_sessions` INSERT with `RETURNING`:**
+
 - Root cause: `INSERT ... RETURNING id::text` evaluates the SELECT policy (`customer_sessions_tenant_select`) on the returned row. For public sessions, `app.current_user_external_id()` is NULL → `app.has_restaurant_access()` returns FALSE → the error "new row violates row-level security policy".
 - Fix: generate UUID client-side (`crypto.randomUUID()`), insert with explicit `id` column, remove `RETURNING`, return `id` directly. This bypasses SELECT policy evaluation entirely.
 - Cleaned up debug artifacts left by previous agent (`db/test-insert*.sql`, `db/migrations/0012_temp_relax_customer_session_rls.sql`, `db/postgres*.log`, `db/enable-logging.sql`).
 
 **Platform landing page completion:**
+
 - Rewrote `src/routes/+page.svelte` (55 lines → full marketing landing page):
   - Integrated existing `Navbar.svelte` (i18n-aware fixed navbar with ThemeToggle, scroll blur, mobile hamburger) and `Footer.svelte` (4-column grid: brand, product, company, legal).
   - All sections use `t()` from `$lib/i18n` for all user-facing strings.
@@ -653,16 +655,19 @@
 ## 2026-06-23 Registration Step 2 + Password Reset + Staff Management
 
 **Registration flow Step 2 (`/register/restaurant/setup`):**
+
 - Created `src/routes/register/restaurant/setup/+page.svelte`: 2-step visual indicator, restaurant name input with auto-slug generation (client-side slugify via `$effect`), slug input with reset button, segment select, location input, defaultLanguageTag select, timezone select, error display, submit button.
 - Created `src/routes/register/restaurant/setup/+page.server.ts`: Zod-validated form action; creates organization (slug = restaurant slug), restaurant, membership (role=owner), membership_restaurants row; auto-redirects to `/dashboard`.
 - Updated `src/routes/auth/callback/+page.server.ts`: new users with no memberships redirect to `/register/restaurant/setup`; type=recovery redirects to `/auth/update-password`.
 
 **Password reset flow:**
+
 - Created `src/routes/auth/forgot-password/+page.svelte` + `+page.server.ts`: email form with success state, calls `supabase.auth.resetPasswordForEmail` with `redirectTo=$PUBLIC_APP_URL/auth/callback?type=recovery`, always returns `sent:true` to prevent email enumeration.
 - Created `src/routes/auth/update-password/+page.svelte` + `+page.server.ts`: new password + confirm fields with show/hide toggles, Zod refine for password match, calls `supabase.auth.updateUser({password})`, redirects to `/dashboard` on success.
 - Updated login page: "Forgot password" link points to `/auth/forgot-password`.
 
 **Staff management (`/dashboard/staff`):**
+
 - Migration `0012_staff_invites.sql`: `invites` table (organization_id, email, role, invited_by_user_id, token UNIQUE, expires_at, accepted_at). Applied to local DB.
 - Created `src/lib/server/repositories/staff-repository.ts`: `listMembershipsWithUsers`, `listPendingInvitesWithInviter`, `createInvite`, `deleteMembership`, `deleteInvite`, `findInviteByToken`, `markInviteAccepted`.
 - Created `src/lib/domain/staff/schema.ts`: `inviteStaffSchema`, `removeMemberSchema`, `cancelInviteSchema` (Zod).
@@ -676,10 +681,12 @@
 ## 2026-06-23 Accept Invite + Email + Role Change + Restaurant Settings
 
 **Accept invite flow (`/auth/accept-invite?token=...`):**
+
 - Created `src/routes/auth/accept-invite/+page.server.ts`: load validates token via `findInviteByToken` (expired/missing returns error state). Action supports `mode=register` (Supabase signUp + emailRedirectTo with invite_token) and `mode=login` (signInWithPassword, upsert membership in transaction, `markInviteAccepted`, redirect `/dashboard`).
 - Created `src/routes/auth/accept-invite/+page.svelte`: shows invalid/sent/form states. Toggles between "New account" and "Existing account" modes. Email field pre-filled and disabled. Password + confirm fields with show/hide.
 
 **Email infrastructure (nodemailer):**
+
 - Installed `nodemailer@6.9.13` + `@types/nodemailer@6.4.14`.
 - Created `src/lib/server/email/types.ts`: `EmailProvider` interface, `SendEmailParams` type.
 - Created `src/lib/server/email/mock-email-provider.ts`: logs to console in dev.
@@ -691,6 +698,7 @@
 - Updated `src/routes/(dashboard)/dashboard/staff/+page.svelte`: added hidden `organizationName` input to invite form.
 
 **Role change:**
+
 - Added `changeRoleSchema` to `src/lib/domain/staff/schema.ts`.
 - Added `updateMembershipRole()` to `src/lib/server/repositories/staff-repository.ts`.
 - Added `changeRole()` to `src/lib/server/services/staff-management-service.ts` (owner-only).
@@ -698,6 +706,7 @@
 - Updated `+page.svelte`: member rows for non-self now show inline role `<select>` with `onchange` auto-submit instead of a static badge.
 
 **Restaurant settings (`/dashboard/settings`):**
+
 - Created `src/lib/domain/restaurant/schema.ts`: `SEGMENTS`, `LANGUAGE_TAGS`, `TIMEZONES` const tuples + `restaurantSettingsSchema` (Zod).
 - Added `getRestaurantSettings()` + `updateRestaurantSettings()` to `src/lib/server/repositories/staff-repository.ts`.
 - Created `src/routes/(dashboard)/dashboard/settings/+page.server.ts`: load (DB or tenant fallback), default action (Zod validation, `updateRestaurantSettings`, owner/org_owner guard).
@@ -709,14 +718,17 @@
 ## 2026-06-23 Pilot Blockers: Inbox State Bug + Dockerfile ORIGIN + Web Vitals
 
 **Staff inbox stale state fix (C3):**
+
 - Changed `let selectedId = $state(requests[0]?.id ?? '')` to `let selectedId = $state('')`.
 - `selected` remains `$derived(requests.find((r) => r.id === selectedId) ?? requests[0])` — correctly tracks live `requests` array on SSE updates.
 - Bug: the old initializer captured `requests[0]` at mount time; when SSE pushed a new request to the front, `selectedId` still held the old id and `selected` showed the wrong item. Now `selectedId` is empty and falls back to `requests[0]` dynamically.
 
 **Dockerfile ORIGIN (I1):**
+
 - Already fixed in a prior session (`ENV ORIGIN=`). Updated TODO.md to mark `[x]`.
 
 **Web Vitals wiring to backend (G3):**
+
 - Created `db/migrations/0013_web_vitals.sql`: `web_vitals` table (id, restaurant_id nullable FK, name CHECK IN LCP/FID/INP/CLS/TTFB, value numeric, rating CHECK, path, reported_at). Indexes on restaurant_id, reported_at DESC, name+rating. `GRANT INSERT, SELECT` to `lingua_app`.
 - Applied migration: `pnpm db:migrate` → `applied 0013_web_vitals`.
 - Created `src/lib/server/repositories/web-vitals-repository.ts`: `insertWebVitals(entries[])` — batch multi-row INSERT.
@@ -730,9 +742,11 @@
 ## 2026-06-23 A3 Registration Gaps: Auto-Create Org + Slug Validation
 
 **Auto-create organization (A3 item 4) — already done, documented:**
+
 - `provisionOrganizationAndRestaurant()` in `src/lib/server/repositories/onboarding-repository.ts` already creates org + restaurant + membership + sets `default_organization_id` in a single transaction. The TODO item was a documentation gap, not an implementation gap. Marked `[x]`.
 
 **Server-side slug validation endpoint (A3 item 5):**
+
 - Added `'slug-check': { max: 30, windowSec: 60 }` to `RateLimitEndpoint` union and `LIMITS` map in `src/lib/server/services/rate-limiter.ts`.
 - Created `src/routes/api/public/slug-check/+server.ts`: `GET /api/public/slug-check?slug=&type=restaurant|organization|both`. Validates slug format (Zod), calls `isRestaurantSlugAvailable` and/or `isOrganizationSlugAvailable`, returns `{ available: boolean, slug: string }`. Rate-limited at 30/60s per IP. Fail-open on DB error. `Cache-Control: private, max-age=5`.
 - Updated `src/routes/register/restaurant/setup/+page.svelte`: added real-time slug availability UI with 400ms debounce. States: `idle` / `checking` (spinner) / `available` (green checkmark) / `taken` (red X + message) / `error` (neutral message). Wired to both `onNameInput` and `onSlugInput` and `resetSlug`.
@@ -742,6 +756,7 @@
 ## 2026-06-23 Platform Admin Detail Pages + CI Pipeline + Onboarding Wizard + Tenant Test Fix
 
 **Platform admin detail pages (B3, B4):**
+
 - Added `getOrganizationBySlugRow()`, `getRestaurantBySlugRow()`, `updateOrganizationStatus()`, `updateRestaurantStatus()` to `src/lib/server/repositories/platform-repository.ts`.
 - Added `getOrganizationDetail()`, `setOrganizationStatus()`, `getRestaurantDetail()`, `setRestaurantStatus()` to `src/lib/server/services/platform-admin-service.ts`.
 - Added `updateOrgStatusSchema` + `updateRestaurantStatusSchema` to `src/lib/domain/platform/schema.ts`.
@@ -751,10 +766,12 @@
 - Updated `docs/TODO.md`: B3, B4, B5 platform-repository item → `[x]`.
 
 **CI pipeline (I3):**
+
 - `.github/workflows/ci.yml` already existed (created in prior session). Confirmed: 3-job pipeline (check+unit → build → e2e), postgres:16-alpine service, pnpm cache, Playwright chromium.
 - Updated `docs/TODO.md`: I3 CI workflow → `[x]`.
 
 **Onboarding wizard Phase D2 (`/dashboard/onboarding`):**
+
 - Created `src/routes/(dashboard)/dashboard/onboarding/+page.server.ts`: load returns `tenant` + `step` from URL. Actions: `setupTables` (calls `createTablesForRestaurant`, redirects to step=3), `createDraftMenu` (calls `createDraftMenu`, redirects to step=4).
 - Created `src/routes/(dashboard)/dashboard/onboarding/+page.svelte`: 4-step progress indicator (profile → tables → menu → QR). Step 1 shows read-only profile summary with continue link. Step 2 has count+prefix form with live preview (T01…Tnn). Step 3 one-click draft menu creation. Step 4 completion with links to QR codes and menu import.
 - `createTablesForRestaurant()` already existed in `table-repository.ts` (bulk INSERT with `ON CONFLICT DO NOTHING`).
@@ -762,6 +779,7 @@
 - Updated `docs/TODO.md`: D2 wizard steps 1–4 → `[x]`.
 
 **Fix tenant-repository.db.test.ts (pre-existing failure):**
+
 - Test `'owner sees all restaurants in their own organization'` expected `slugs.length === 2` but seed has 3 Bali restaurants (uma-karang, senja-ramen-bali, pantai-padi).
 - Fixed assertion: `toBe(3)` + three explicit `toContain` checks.
 - `pnpm test:unit` now 309 passed, 0 failed, 21 skipped (35 test files).
@@ -771,22 +789,26 @@
 ## 2026-06-23 D3 Pre-Publish Checklist + A3 /register/organization + J1 E2E Specs + J1 Security Hardening
 
 **D3 Pre-publish checklist UI:**
+
 - Added `validateMenuForPublish(items)` pre-flight call to `src/routes/(dashboard)/dashboard/menu/+page.server.ts` load; result returned as `preflightValidation`.
 - Updated `+page.svelte`: derived `blockingIssues`, `warningIssues`, `canPublish` from `preflightValidation`.
 - Publish button shows `AlertTriangle` icon when issues exist.
 - Publish confirmation modal now shows: blocking issues section (red, publish submit disabled + 'Fix issues first' label), warnings section (amber, publish still allowed), all-clear section (emerald), server-side `publishIssues` fallback.
 
 **A3 /register/organization flow:**
+
 - Created `src/routes/register/organization/+page.server.ts`: Zod schema (name/organizationName/email/password), local `slugify()`, `isOrganizationSlugAvailable` check before `authProvider.register()`, saves `organizationName` to `user_metadata`, redirects to `/register/confirm`.
 - Created `src/routes/register/organization/+page.svelte`: 4-field form (name, organizationName, email, password), error display, mock guard, sign-in link.
 
 **J1 E2E Playwright specs (4 new spec files):**
+
 - `tests/e2e/auth-flow.spec.ts`: registration (restaurant+org paths), login redirect, forgot-password, update-password, logout.
 - `tests/e2e/staff-flow.spec.ts`: staff management page, invite dialog, staff inbox.
 - `tests/e2e/onboarding-flow.spec.ts`: registration confirm, wizard steps 1–4, progress indicator.
 - `tests/e2e/platform-admin-flow.spec.ts`: access guard, org list, org detail, restaurant list.
 
 **J1 Security hardening:**
+
 - Created `db/migrations/0015_security_fixes.sql`: RLS enabled + tenant-scoped policies for `invites`, `web_vitals`, `chat_messages`, `ai_events`, `menu_import_issues`, `organizations`, `restaurants`, `memberships`, `membership_restaurants`, `app_users`, `fallback_requests`. Applied via `pnpm db:migrate`.
 - Added `'password-reset'` (5/300s), `'embeddings'` (10/60s), `'vitals'` (60/60s) to `RateLimitEndpoint` and `LIMITS` in `rate-limiter.ts`.
 - Wired `applyRateLimit('password-reset', ...)` to `src/routes/api/auth/reset-password/+server.ts` (also added Zod validation).
@@ -800,6 +822,7 @@
 ## 2026-06-23 — G2 Platform Analytics + A3 Post-verify Redirect + B2 Quick Links
 
 ### Changed
+
 - `db/migrations/0015_security_fixes.sql` — RLS policies for invites, web_vitals, chat_messages, ai_events, organizations, restaurants, memberships, app_users
 - `src/lib/server/services/rate-limiter.ts` — added password-reset (5/300s), embeddings (10/60s), vitals (60/60s)
 - `src/routes/api/auth/reset-password/+server.ts` — Zod + rate limit
@@ -814,12 +837,14 @@
 - `src/routes/auth/callback/+page.server.ts` — post-verification redirect to /dashboard/onboarding?step=1 when code present
 
 ### Verified
+
 - `pnpm check` — 0 errors, 10 warnings (all pre-existing)
 - `pnpm test:unit` — 309 passed, 21 skipped, 0 failed
 
 ## 2026-06-23 B3 Status Filter + D1 Subdomain Service + C1 workspace_host + playwright.config.ts + E2E Fixes
 
 ### Changed
+
 - `playwright.config.ts` — added `fullyParallel`, `workers` (CI:2/local:4), `retries` (CI:1/local:0), `reporter` (CI:github/local:list), `reuseExistingServer: !isCI` (skips rebuild when dev server already running)
 - `src/lib/domain/platform/schema.ts` — added `PlatformStatusFilter` type + `status` field (default `'all'`) to `listOrganizationsSchema` and `listRestaurantsSchema`
 - `src/lib/server/repositories/platform-repository.ts` — `listOrganizationsRows()` and `listRestaurantsRows()` now accept optional `status` param with dynamic WHERE clause
@@ -840,6 +865,7 @@
 - `docs/TODO.md` — B3 status filter, D1 subdomain, C1 workspace_host marked `[x]`
 
 ### Verified
+
 - `pnpm check` — 0 errors, 10 warnings (all pre-existing)
 - `pnpm test:unit` — 281 passed (schema.test.ts fixed), 5 failing files are pre-existing DB/infra tests (ECONNREFUSED, timeout) requiring Podman infra up
 
@@ -848,13 +874,16 @@
 ## 2026-06-23 J2 Pilot Package Prep + E2E Fixes + playwright.config.ts
 
 ### J2 Pilot Package
+
 - `playwright.config.ts` — `reuseExistingServer: !isCI`, `fullyParallel: true`, `workers: isCI ? 2 : 4`, `retries: isCI ? 1 : 0`, reporters: github (CI) / list (local), `timeout: 180_000`.
 - E2E test fixes: `login/+page.svelte` mock mode now renders `<select id='demo-account'>` + Continue button; all 4 spec files updated to regex assertions and correct headings (`/register/i`, `/ocr menu extraction/i`, etc.).
 
 ### B3 Status filter (already logged in previous session entry)
+
 - Confirmed fully implemented in platform organizations + restaurants list pages with active/paused/archived filter chips and URL `?status=` param.
 
 ### Files changed
+
 - `playwright.config.ts` — reuseExistingServer, fullyParallel, workers, retries, reporters
 - `tests/e2e/frontend-smoke.spec.ts` — demo account selector, regex assertions, correct headings
 - `tests/e2e/auth-flow.spec.ts` — /register/i heading, /continue|sign in/i button
@@ -863,6 +892,7 @@
 - `docs/TODO.md` — Current Focus updated
 
 ### Verified
+
 - `pnpm check` — 0 errors, 10 warnings (all pre-existing)
 - `pnpm test:unit` — 5 failing files are pre-existing DB/infra tests; unit-only logic tests pass
 
@@ -871,21 +901,26 @@
 ## 2026-06-23 J1 Load Test + J2 QR Print + Staff Guide + J3 Deploy Checklist
 
 ### J1 Load test
+
 - `tests/load/k6-public-endpoints.js` — k6 script, 5 endpoints (bootstrap, chat, session-create, fallback, feedback), ramping-vus 1→10 VUs over 30s hold 90s, p95 thresholds (bootstrap <800ms, chat <3000ms), error rate <5%, 20% fallback sampling.
 - `tsconfig.json` — added `"exclude": ["tests/load"]` so svelte-check ignores k6 JS.
 
 ### J2 QR card print-ready design
+
 - `src/routes/(dashboard)/dashboard/tables/+page.svelte` — enhanced `@media print` styles: `@page A4` 10mm margins, 3-column print grid, credit-card print-card layout (QR right, text left), `print-table-code` 24pt bold, `print-restaurant` 6pt uppercase, `print-instruction` 6.5pt multilingual, `print-url` 5pt. Each table renders a hidden `print-card` div alongside the screen article.
 
 ### J2 Staff quick guide
+
 - `src/routes/(dashboard)/dashboard/guide/+page.server.ts` + `+page.svelte` — in-app 6-section guide: What is Lingua, QR Codes, Staff Inbox (4-step workflow), Menu Management, Common Guest Questions, What AI won\'t do. Printable with `@media print` styles.
 - `src/routes/(dashboard)/dashboard/+layout.svelte` — added Staff guide nav item with `HelpCircle` icon, changed `resolve()` calls to plain `href` strings.
 
 ### J3 Production deployment checklist
+
 - `docs/deployment/DEPLOY.md` — 10-step checklist: DNS wildcard, Supabase project setup, migrations, container build/push, env vars table, Podman/Docker run commands, nginx/Caddy reverse proxy configs, smoke test commands, Sentry/health monitoring, pre-pilot checklist, rollback procedure.
 - `.env.example` — added `SMTP_HOST/PORT/USER/PASS/FROM` and `PUBLIC_APP_DOMAIN` sections.
 
 ### Files changed
+
 - `tests/load/k6-public-endpoints.js` — new k6 load test script
 - `tsconfig.json` — exclude tests/load
 - `src/routes/(dashboard)/dashboard/tables/+page.svelte` — QR print styles + print-card HTML
@@ -897,6 +932,7 @@
 - `docs/TODO.md` — J1 load test, J2 QR/guide, J3 deploy checklist marked `[x]`
 
 ### Verified
+
 - `pnpm check` — 0 errors, 10 warnings (all pre-existing)
 - `pnpm infra:up` + `pnpm db:reset` — all 15 migrations applied, seed OK (Podman)
 
@@ -905,6 +941,7 @@
 ## 2026-06-23 J1 Security + Privacy Review + J2 Admin Guide + Pilot Feedback Form
 
 ### Security fixes (J1)
+
 - `db/migrations/0016_security_hardening.sql` — C1 `customer_sessions` UPDATE RLS policy, M1 `invites` narrow policy (has_organization_access)
 - `src/routes/(dashboard)/dashboard/onboarding/+page.server.ts` — C2 `locals.user` auth guard + M2 UUID validation on `restaurantId`/`organizationId`
 - `src/lib/server/services/rate-limiter.ts` — M3 `metrics` endpoint added (60/60s)
@@ -912,11 +949,13 @@
 - `src/hooks.client.ts` — Sentry Replay: `maskAllText: true`, `blockAllMedia: true`, `maskAllInputs: true`, `replaysSessionSampleRate: 0`
 
 ### Privacy (J1)
+
 - `db/migrations/0017_data_retention.sql` — `expires_at` on `customer_sessions`/`feedback`/`fallback_requests`, `purge_after` on `invites`, `purge_expired_guest_data()` function
 - `src/lib/i18n/translations/en.ts` — `bootstrap.privacy`, `privacy.*` keys (11 keys)
 - `src/routes/(public)/r/[restaurantSlug]/table/[tableCode]/+page.svelte` — privacy notice link + modal
 
 ### J2 Admin guide + pilot feedback
+
 - `src/routes/(platform)/platform/guide/+page.server.ts` + `+page.svelte` — 6-section platform admin guide, printable
 - `src/routes/(platform)/+layout.svelte` — Admin Guide nav link
 - `db/migrations/0018_pilot_feedback.sql` — `pilot_feedback` table with RLS
@@ -925,6 +964,7 @@
 - `docs/TODO.md` — J1 security/privacy, J2 admin guide/feedback marked `[x]`
 
 ### Verified
+
 - `pnpm check` — 0 errors, 15 warnings (all pre-existing)
 - `pnpm db:migrate` — migrations 0016, 0017, 0018 applied cleanly (Podman)
 
@@ -945,9 +985,11 @@ Three categories of failure:
 ### Changes
 
 **Auth hook (`src/hooks.server.ts`):**
+
 - Added `'/register/restaurant'`, `'/register/organization'`, `'/register/confirm'` to `PUBLIC_PREFIXES`. These sub-routes of `/register` were being intercepted by the auth guard (only exact `/register` was public), causing registration tests to redirect to `/login` before they could check anything.
 
 **`tests/e2e/auth-flow.spec.ts`:**
+
 - Moved mock mode detection before heading assertions in all 4 registration tests (restaurant + organization pathways). Previously, tests checked for `<h1>` text before checking if registration was disabled in mock mode → strict `getByRole('heading')` threw before reaching the mock check.
 - Added `test.skip()` with mock guard for "has link to sign in" tests.
 - Added `.first()` to forgot-password confirmation text assertion (Playwright strict-mode violation: `getByText(/check your email|sent|confirmation/i)` matched both `<h1>` and `<p>`).
@@ -955,16 +997,20 @@ Three categories of failure:
 - Replaced sidebar logout button click with `page.evaluate(() => fetch('/logout', { method: 'POST' }))` — the Sign out button in the dashboard sidebar was outside the viewport and `force: true` didn't help.
 
 **`tests/e2e/customer-flow.spec.ts`:**
+
 - Changed RTL test URL from `/r/pantai-padi/table/A01` to `/r/rempah-terrace/table/A01` ('pantai-padi' doesn't exist in mock restaurant data).
 - Updated heading assertion from 'Pantai Padi' to 'Rempah Terrace'.
 
 **`tests/e2e/staff-flow.spec.ts`:**
+
 - Added empty-state skip for member list test: mock mode returns `members: []`, so `page.locator('tbody tr')` has count 0. Now checks count and skips gracefully.
 
 **`tests/e2e/onboarding-flow.spec.ts`:**
+
 - `/register/confirm` was not in `PUBLIC_PREFIXES` → test redirected to `/login`. Fixed via auth hook update above.
 
 **Svelte warnings (0 errors, 0 warnings):**
+
 - Fixed 15+ warnings across 7 files:
   - `state_referenced_locally` in `feedback/+page.svelte` and `staff/inbox/+page.svelte` (used `$derived` or added `svelte-ignore`).
   - `css_unused_selector` in `guide/+page.svelte` (body styles scoped via `:global(body)`).
@@ -972,5 +1018,6 @@ Three categories of failure:
   - Multiple `a11y_aria_attribute` and `a11y_click_events_have_key_events` fixes in knowledge page and other components.
 
 ### Verified
+
 - `pnpm test:e2e` — 60/60 passed, 0 failed
 - `pnpm check` — 0 errors, 0 warnings (pre-existing warnings fully resolved)

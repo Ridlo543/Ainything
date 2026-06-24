@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { findInviteByToken, markInviteAccepted } from '$lib/server/repositories/staff-repository';
+import { findInviteByToken } from '$lib/server/repositories/staff-repository';
 import { findAppUserByExternalId } from '$lib/server/repositories/user-repository';
 import { withTransaction } from '$lib/server/db/postgres';
 import { createSupabaseServerClient } from '$lib/server/auth/supabase-client';
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	accept: async ({ request, url, cookies, locals }) => {
+	accept: async ({ request, url, cookies }) => {
 		const token = url.searchParams.get('token');
 		if (!token) {
 			return fail(400, { message: 'Missing invite token.' });

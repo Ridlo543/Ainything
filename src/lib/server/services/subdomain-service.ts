@@ -81,10 +81,10 @@ export async function provisionSubdomain(organizationId: string): Promise<string
 		);
 	}
 
-	await pool.query(
-		`UPDATE organizations SET workspace_host = $1 WHERE id = $2::uuid`,
-		[host, organizationId]
-	);
+	await pool.query(`UPDATE organizations SET workspace_host = $1 WHERE id = $2::uuid`, [
+		host,
+		organizationId
+	]);
 
 	return host;
 }

@@ -1,9 +1,11 @@
 # Lingua Deployment Guide
 
 ## Overview
+
 This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
 
 ## Prerequisites
+
 - Docker 24+ or Podman 5+ installed
 - Kubernetes 1.28+ (for k8s deployment)
 - Node.js 20+ (for development)
@@ -12,6 +14,7 @@ This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
 ## Local Development with Docker Compose
 
 ### Start Services
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -21,6 +24,7 @@ podman-compose up -d
 ```
 
 ### Stop Services
+
 ```bash
 docker-compose down
 # or
@@ -28,11 +32,13 @@ podman-compose down
 ```
 
 ### View Logs
+
 ```bash
 docker-compose logs -f lingua
 ```
 
 ### Access Services
+
 - App: http://localhost:5173
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
@@ -40,6 +46,7 @@ docker-compose logs -f lingua
 ## Production Build with Docker
 
 ### Build Image
+
 ```bash
 docker build -t lingua:latest .
 # or with Podman
@@ -47,6 +54,7 @@ podman build -t lingua:latest .
 ```
 
 ### Run Container
+
 ```bash
 docker run -d \
   -p 3000:3000 \
@@ -59,10 +67,12 @@ docker run -d \
 ## Kubernetes Deployment
 
 ### Prerequisites
+
 - kubectl configured
 - access to cluster
 
 ### Deploy
+
 ```bash
 # Apply namespace and resources
 kubectl apply -f k8s/manifests.yml
@@ -73,6 +83,7 @@ kubectl get svc -n lingua
 ```
 
 ### Scale
+
 ```bash
 # Scale manually
 kubectl scale deployment lingua -n lingua --replicas=5
@@ -84,6 +95,7 @@ kubectl get hpa -n lingua
 ## Podman-Specific Instructions
 
 ### Run with Podman
+
 ```bash
 # Build
 podman build -t lingua:latest .
@@ -96,6 +108,7 @@ podman run -d \
 ```
 
 ### Troubleshooting Podman
+
 ```bash
 # Disable SELinux if needed
 podman run --security-opt label=disable ...
@@ -110,16 +123,19 @@ ls -Z /path/to/volume
 ## Monitoring & Logging
 
 ### Health Check
+
 ```bash
 curl http://localhost:3000/api/health
 ```
 
 ### Metrics
+
 Metrics available at `/metrics` endpoint (when configured).
 
 ## CI/CD Integration
 
 ### GitHub Actions
+
 ```yaml
 - name: Build and Push Docker Image
   run: |
@@ -128,6 +144,7 @@ Metrics available at `/metrics` endpoint (when configured).
 ```
 
 ### GitLab CI
+
 ```yaml
 deploy:
   image: alpine/kubectl:latest
@@ -138,11 +155,13 @@ deploy:
 ## Backup & Recovery
 
 ### PostgreSQL Backup
+
 ```bash
 docker exec lingua-postgres pg_dump -U postgres lingua > backup.sql
 ```
 
 ### Restore
+
 ```bash
 docker exec -i lingua-postgres psql -U postgres lingua < backup.sql
 ```

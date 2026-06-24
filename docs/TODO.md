@@ -64,7 +64,7 @@ The first thing any user sees. Hotel/tourist restaurant owners must be able to d
   - [x] Step 1: Account (email, password, name).
   - [x] Step 2: Restaurant details (name, slug, segment, location, language, timezone).
   - [x] Step 3: Confirmation + email verification sent.
-	- [x] Auto-creates organization behind the scenes (1:1 mapping) — `provisionOrganizationAndRestaurant` creates org + restaurant + membership + `default_organization_id` in a single transaction.
+  - [x] Auto-creates organization behind the scenes (1:1 mapping) — `provisionOrganizationAndRestaurant` creates org + restaurant + membership + `default_organization_id` in a single transaction.
 - [x] `/register/organization` — organization-first flow:
   - [x] Step 1: Account + organization name/slug (`/register/organization/+page.svelte` + `+page.server.ts`).
   - [x] Step 2: First restaurant creation — uses existing `/register/restaurant/setup` wizard (same flow).
@@ -426,6 +426,7 @@ Subscription management and plan enforcement.
 Phases A, B, C, D, G2, B2, B3 complete. D1 subdomain service layer done. E2E specs + security hardening done. **All 60 E2E tests pass.**
 
 ### Completed in this session:
+
 1. **E2E full regression (60/60 pass)** — resolved all 64 original failures:
    - Auth hook: added `/register/restaurant`, `/register/organization`, `/register/confirm` to `PUBLIC_PREFIXES` (registration sub-routes were being blocked by auth redirect).
    - Registration tests: mock mode guard before heading assertions.
@@ -436,9 +437,10 @@ Phases A, B, C, D, G2, B2, B3 complete. D1 subdomain service layer done. E2E spe
    - Staff-flow: empty-state skip for empty member list in mock mode.
    - Onboarding-flow: `/register/confirm` made public via auth hook.
 2. **`pnpm check`**: 0 errors, 0 warnings (Svelte warnings fully resolved).
-3. **Svelte warnings eliminated**: fixed 15+ warnings across 7 files (state_referenced_locally, css_unused_selector, a11y_*, dialog/keyboard, label association).
+3. **Svelte warnings eliminated**: fixed 15+ warnings across 7 files (state*referenced_locally, css_unused_selector, a11y*\*, dialog/keyboard, label association).
 
 ### Remaining for pilot:
+
 - J1 load test public endpoints.
 - J3 production deployment — DNS wildcard, Supabase project, monitoring.
 - H2 billing integration (future).

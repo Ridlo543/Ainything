@@ -1,6 +1,7 @@
 # Lingua Testing Guide
 
 ## Overview
+
 Complete testing strategy for Lingua including unit, E2E, and load testing.
 
 ## Test Structure
@@ -21,12 +22,14 @@ tests/
 ## Running Tests
 
 ### Unit Tests
+
 ```bash
 pnpm test:unit           # All unit tests
 pnpm test:unit -- --coverage  # With coverage
 ```
 
 ### E2E Tests
+
 ```bash
 pnpm test:e2e            # All E2E tests
 pnpm test:e2e -- --ui    # With UI mode
@@ -35,11 +38,13 @@ pnpm test:e2e -- --ui    # With UI mode
 ### Load Tests
 
 #### Local (K6 installed)
+
 ```bash
 k6 run tests/load/lingua-load-test.js
 ```
 
 #### With Docker
+
 ```bash
 docker run --rm \
   -v $(pwd):/tests \
@@ -48,6 +53,7 @@ docker run --rm \
 ```
 
 #### With Podman
+
 ```bash
 podman run --rm \
   -v $(pwd):/tests:Z \
@@ -58,6 +64,7 @@ podman run --rm \
 ## Test Scenarios
 
 ### E2E Tests (60/60 passing)
+
 - Authentication flow
 - Customer flow (QR scan, menu, chat)
 - Staff management
@@ -66,6 +73,7 @@ podman run --rm \
 - Onboarding flow
 
 ### Load Tests
+
 - 100 concurrent users
 - Customer burst (50 VUs, 30s)
 - Staff load (ramping)
@@ -73,6 +81,7 @@ podman run --rm \
 - Spike test
 
 ### Unit Tests
+
 - Domain logic
 - Services
 - Repositories

@@ -21,21 +21,21 @@
 				</p>
 				<div class="mt-5 flex gap-2">
 					<a
-						href="/"
+						href={resolve('/')}
 						class="flex h-9 w-9 items-center justify-center rounded-lg bg-lingua-muted text-lingua-subtle transition-colors hover:bg-lingua-primary-soft hover:text-lingua-primary"
 						aria-label="Website"
 					>
 						<Globe size={16} />
 					</a>
 					<a
-						href="/"
+						href={resolve('/')}
 						class="flex h-9 w-9 items-center justify-center rounded-lg bg-lingua-muted text-lingua-subtle transition-colors hover:bg-lingua-primary-soft hover:text-lingua-primary"
 						aria-label="Chat"
 					>
 						<MessageCircle size={16} />
 					</a>
 					<a
-						href="/"
+						href={resolve('/')}
 						class="flex h-9 w-9 items-center justify-center rounded-lg bg-lingua-muted text-lingua-subtle transition-colors hover:bg-lingua-primary-soft hover:text-lingua-primary"
 						aria-label="Community"
 					>
@@ -83,20 +83,20 @@
 				<ul class="mt-4 space-y-2.5">
 					<li>
 						<a
-							href="/"
+							href={resolve('/')}
 							class="text-sm text-lingua-subtle transition-colors hover:text-lingua-primary"
 							>About</a
 						>
 					</li>
 					<li>
 						<a
-							href="/"
+							href={resolve('/')}
 							class="text-sm text-lingua-subtle transition-colors hover:text-lingua-primary">Blog</a
 						>
 					</li>
 					<li>
 						<a
-							href="/"
+							href={resolve('/')}
 							class="text-sm text-lingua-subtle transition-colors hover:text-lingua-primary"
 							>Careers</a
 						>
@@ -116,21 +116,21 @@
 				<ul class="mt-4 space-y-2.5">
 					<li>
 						<a
-							href="/"
+							href={resolve('/')}
 							class="text-sm text-lingua-subtle transition-colors hover:text-lingua-primary"
 							>Privacy Policy</a
 						>
 					</li>
 					<li>
 						<a
-							href="/"
+							href={resolve('/')}
 							class="text-sm text-lingua-subtle transition-colors hover:text-lingua-primary"
 							>Terms of Service</a
 						>
 					</li>
 					<li>
 						<a
-							href="/"
+							href={resolve('/')}
 							class="text-sm text-lingua-subtle transition-colors hover:text-lingua-primary"
 							>Cookie Policy</a
 						>

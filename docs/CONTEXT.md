@@ -85,17 +85,17 @@ anonymous (tourist) → No auth. QR-scoped to one table at one restaurant.
 src/routes/
   +page.svelte              Marketing landing page
   +layout.svelte            Root layout (language detection, theme)
-  
+
   /login                    Sign-in (Supabase Auth)
   /register                 Registration entry (hybrid pathway)
   /register/restaurant      Restaurant-first registration
   /register/organization    Organization-first registration
-  
+
   (platform)/               Platform admin (super admin only)
     /platform                Overview dashboard
     /platform/organizations   Manage all orgs
     /platform/restaurants     Manage all restaurants
-    
+
   (dashboard)/              Restaurant admin dashboard
     /dashboard               Overview (restaurant-scoped)
     /dashboard/menu           Menu editor
@@ -104,13 +104,13 @@ src/routes/
     /dashboard/analytics      Restaurant analytics
     /dashboard/staff          Staff management
     /dashboard/settings       Restaurant settings
-    
+
   (staff)/                  Staff inbox
     /staff/inbox              Fallback request management
-    
+
   (public)/                 Tourist QR experience (no auth)
     /r/[slug]/table/[code]   QR entry point
-    
+
   api/                      JSON endpoints
     /api/public/*             Tourist-facing APIs
     /api/admin/*              Admin APIs

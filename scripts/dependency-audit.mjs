@@ -28,7 +28,7 @@ console.log('\n[audit] Running pnpm audit...\n');
 try {
 	execSync('pnpm audit --audit-level moderate', { encoding: 'utf8', stdio: 'inherit' });
 	console.log(`\n${green}No moderate-or-higher vulnerabilities found.${reset}`);
-} catch (err) {
+} catch {
 	console.log(`\n${red}Vulnerabilities found at moderate level or above.${reset}`);
 	exitCode = 1;
 }

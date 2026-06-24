@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Building2, LogIn, Eye, EyeOff } from '@lucide/svelte';
+	import { resolve } from '$app/paths';
 	import type { PageData, ActionData } from './$types';
 	import AlertBanner from '$lib/ui/AlertBanner.svelte';
 
@@ -43,7 +44,8 @@
 							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
 						>
 							<option value="owner@bali-table.test">Owner — Bali Table Group</option>
-							<option value="staff@jakarta-hospitality.test">Staff — Jakarta Hospitality Lab</option>
+							<option value="staff@jakarta-hospitality.test">Staff — Jakarta Hospitality Lab</option
+							>
 						</select>
 					</label>
 
@@ -81,7 +83,10 @@
 					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
 						<div class="flex items-center justify-between">
 							Password
-							<a href="/auth/forgot-password" class="text-xs font-normal text-lingua-primary hover:underline">
+							<a
+								href={resolve('/auth/forgot-password')}
+								class="text-xs font-normal text-lingua-primary hover:underline"
+							>
 								Forgot?
 							</a>
 						</div>
@@ -123,7 +128,9 @@
 
 				<p class="mt-5 text-center text-sm text-lingua-subtle">
 					New to Lingua?
-					<a href="/register" class="font-semibold text-lingua-primary hover:underline">Create an account</a>
+					<a href={resolve('/register')} class="font-semibold text-lingua-primary hover:underline"
+						>Create an account</a
+					>
 				</p>
 			{/if}
 		</section>

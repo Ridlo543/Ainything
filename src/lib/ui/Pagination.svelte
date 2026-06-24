@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let {
 		offset,
@@ -18,13 +19,13 @@
 	const path = $derived(baseUrl ?? $page.url.pathname);
 
 	const prevUrl = $derived.by(() => {
-		const params = new URLSearchParams($page.url.searchParams);
+		const params = new SvelteURLSearchParams($page.url.searchParams);
 		params.set('offset', String(Math.max(0, offset - limit)));
 		return `${path}?${params.toString()}`;
 	});
 
 	const nextUrl = $derived.by(() => {
-		const params = new URLSearchParams($page.url.searchParams);
+		const params = new SvelteURLSearchParams($page.url.searchParams);
 		params.set('offset', String(offset + limit));
 		return `${path}?${params.toString()}`;
 	});

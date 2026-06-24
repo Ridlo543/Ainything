@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import DataTable from '$lib/ui/DataTable.svelte';
 	import Pagination from '$lib/ui/Pagination.svelte';
 	import EmptyState from '$lib/ui/EmptyState.svelte';
@@ -37,7 +38,9 @@
 	<div class="flex flex-wrap items-end justify-between gap-4">
 		<div>
 			<h1 class="text-2xl font-bold text-slate-900">Restaurants</h1>
-			<p class="mt-1 text-sm text-slate-500">Restaurant records created from approved onboarding data.</p>
+			<p class="mt-1 text-sm text-slate-500">
+				Restaurant records created from approved onboarding data.
+			</p>
 		</div>
 		<!-- Status filter -->
 		<div class="flex items-center gap-2">
@@ -47,28 +50,28 @@
 				value={data.status}
 				onchange={(e) => {
 					const val = (e.currentTarget as HTMLSelectElement).value;
-					const params = new URLSearchParams(window.location.search);
-					if (val === 'all') params.delete('status'); else params.set('status', val);
+					const params = new SvelteURLSearchParams(window.location.search);
+					if (val === 'all') params.delete('status');
+					else params.set('status', val);
 					params.delete('offset');
 					window.location.href = `/platform/restaurants?${params.toString()}`;
 				}}
 				class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:outline-none"
 			>
-				{#each STATUS_OPTIONS as opt}
+				{#each STATUS_OPTIONS as opt (opt.value)}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}
 			</select>
 		</div>
 	</div>
 
-	<DataTable
-		items={data.restaurants}
-		{columns}
-		wrapperClass="mt-6"
-	>
+	<DataTable items={data.restaurants} {columns} wrapperClass="mt-6">
 		{#snippet cell(item, columnKey)}
 			{#if columnKey === 'name'}
-				<a href="/platform/restaurants/{item.slug}" class="font-medium text-slate-900 hover:text-blue-600">{item.name}</a>
+				<a
+					href={'/platform/restaurants/' + item.slug}
+					class="font-medium text-slate-900 hover:text-blue-600">{item.name}</a
+				>
 			{:else if columnKey === 'status'}
 				<Badge label={item.status} tone={statusTone(item.status)} shape="pill" />
 			{:else}

@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
-import { query, getPool } from '$lib/server/db/postgres';
+import { query } from '$lib/server/db/postgres';
 import pg from 'pg';
 
 const runDbTests = process.env.RUN_DB_TESTS === 'true';
@@ -13,19 +13,13 @@ function adminQuery<T extends pg.QueryResultRow>(text: string, params: unknown[]
 		if (!directUrl) throw new Error('Neither DIRECT_URL nor DATABASE_URL is configured');
 		adminPool = new pg.Pool({ connectionString: directUrl, max: 2 });
 	}
-	return adminPool.query<T>(text, params as any[]);
+	return adminPool.query<T>(text, params as unknown[]);
 }
 
 describeDb('RLS public policies after migrations', () => {
 	let testOrgId: string;
 	let activeRestaurantId: string;
 	let inactiveRestaurantId: string;
-	let publishedMenuId: string;
-	let draftMenuId: string;
-	let activeTableId: string;
-	let inactiveTableId: string;
-	let publishedKnowledgeId: string;
-	let draftKnowledgeId: string;
 
 	beforeAll(async () => {
 		const orgResult = await adminQuery<{ id: string }>(
@@ -51,57 +45,53 @@ describeDb('RLS public policies after migrations', () => {
 		);
 		inactiveRestaurantId = inactiveRestResult.rows[0].id;
 
-		const activeTableResult = await adminQuery<{ id: string }>(
+		await adminQuery(
 			`INSERT INTO restaurant_tables (organization_id, restaurant_id, code, label, is_active)
 			 VALUES ($1::uuid, $2::uuid, 'RLS-T1', 'RLS Table 1', true)
 			 RETURNING id::text`,
 			[testOrgId, activeRestaurantId]
 		);
-		activeTableId = activeTableResult.rows[0].id;
 
-		const inactiveTableResult = await adminQuery<{ id: string }>(
+		await adminQuery(
 			`INSERT INTO restaurant_tables (organization_id, restaurant_id, code, label, is_active)
 			 VALUES ($1::uuid, $2::uuid, 'RLS-T2', 'RLS Table 2', false)
 			 RETURNING id::text`,
 			[testOrgId, activeRestaurantId]
 		);
-		inactiveTableId = inactiveTableResult.rows[0].id;
 
-		const publishedMenuResult = await adminQuery<{ id: string }>(
+		await adminQuery(
 			`INSERT INTO menus (organization_id, restaurant_id, version, status)
 			 VALUES ($1::uuid, $2::uuid, 9001, 'published')
 			 RETURNING id::text`,
 			[testOrgId, activeRestaurantId]
 		);
-		publishedMenuId = publishedMenuResult.rows[0].id;
 
-		const draftMenuResult = await adminQuery<{ id: string }>(
+		await adminQuery(
 			`INSERT INTO menus (organization_id, restaurant_id, version, status)
 			 VALUES ($1::uuid, $2::uuid, 9002, 'draft')
 			 RETURNING id::text`,
 			[testOrgId, activeRestaurantId]
 		);
-		draftMenuId = draftMenuResult.rows[0].id;
 
-	const publishedKnowResult = await adminQuery<{ id: string }>(
-		`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
+		await adminQuery(
+			`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
 		 VALUES ($1::uuid, $2::uuid, 'RLS Test Published', 'Published content', 'published')
 		 RETURNING id::text`,
-		[testOrgId, activeRestaurantId]
-	);
-	publishedKnowledgeId = publishedKnowResult.rows[0].id;
+			[testOrgId, activeRestaurantId]
+		);
 
-	const draftKnowResult = await adminQuery<{ id: string }>(
-		`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
+		await adminQuery(
+			`INSERT INTO knowledge_documents (organization_id, restaurant_id, title, content, visibility)
 		 VALUES ($1::uuid, $2::uuid, 'RLS Test Draft', 'Draft content', 'draft')
 		 RETURNING id::text`,
-		[testOrgId, activeRestaurantId]
-	);
-		draftKnowledgeId = draftKnowResult.rows[0].id;
+			[testOrgId, activeRestaurantId]
+		);
 	});
 
 	afterAll(async () => {
-		await adminQuery('DELETE FROM knowledge_documents WHERE organization_id = $1::uuid', [testOrgId]);
+		await adminQuery('DELETE FROM knowledge_documents WHERE organization_id = $1::uuid', [
+			testOrgId
+		]);
 		await adminQuery('DELETE FROM menus WHERE organization_id = $1::uuid', [testOrgId]);
 		await adminQuery('DELETE FROM restaurant_tables WHERE organization_id = $1::uuid', [testOrgId]);
 		await adminQuery('DELETE FROM restaurants WHERE organization_id = $1::uuid', [testOrgId]);

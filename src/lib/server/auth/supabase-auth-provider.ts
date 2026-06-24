@@ -8,6 +8,7 @@ import pg from 'pg';
 
 export class SupabaseAuthProvider implements AuthProvider {
 	async getSessionUser(cookies: Cookies, _request: Request): Promise<AuthUser | null> {
+		void _request;
 		const supabaseUrl = appEnv.supabaseUrl;
 		const supabaseAnonKey = appEnv.supabaseAnonKey;
 		if (!supabaseUrl || !supabaseAnonKey) {
@@ -18,7 +19,11 @@ export class SupabaseAuthProvider implements AuthProvider {
 		const { data, error } = await supabase.auth.getUser();
 		if (error || !data.user) return null;
 
-		return this.#resolveAuthUser(data.user.id, data.user.email!, data.user.user_metadata.name ?? '');
+		return this.#resolveAuthUser(
+			data.user.id,
+			data.user.email!,
+			data.user.user_metadata.name ?? ''
+		);
 	}
 
 	async login(email: string, password: string, cookies: Cookies): Promise<AuthUser> {
@@ -34,7 +39,11 @@ export class SupabaseAuthProvider implements AuthProvider {
 			throw new Error(error?.message ?? 'Invalid credentials.');
 		}
 
-		return this.#resolveAuthUser(data.user.id, data.user.email!, data.user.user_metadata.name ?? '');
+		return this.#resolveAuthUser(
+			data.user.id,
+			data.user.email!,
+			data.user.user_metadata.name ?? ''
+		);
 	}
 
 	async register(email: string, password: string, name: string): Promise<void> {

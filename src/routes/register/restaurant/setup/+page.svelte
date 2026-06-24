@@ -52,7 +52,7 @@
 					slugStatus = 'error';
 					return;
 				}
-				const body = await res.json() as { available: boolean };
+				const body = (await res.json()) as { available: boolean };
 				slugStatus = body.available ? 'available' : 'taken';
 			} catch {
 				slugStatus = 'error';
@@ -134,10 +134,16 @@
 
 			<!-- Step indicator -->
 			<div class="mt-5 flex items-center gap-2 text-xs text-lingua-subtle">
-				<span class="flex h-5 w-5 items-center justify-center rounded-full bg-lingua-primary/20 text-lingua-primary font-semibold">✓</span>
+				<span
+					class="flex h-5 w-5 items-center justify-center rounded-full bg-lingua-primary/20 text-lingua-primary font-semibold"
+					>✓</span
+				>
 				<span class="text-lingua-subtle/60">Account created</span>
 				<span class="mx-1 text-lingua-border">→</span>
-				<span class="flex h-5 w-5 items-center justify-center rounded-full bg-lingua-primary text-white font-semibold">2</span>
+				<span
+					class="flex h-5 w-5 items-center justify-center rounded-full bg-lingua-primary text-white font-semibold"
+					>2</span
+				>
 				<span class="font-semibold text-lingua-text">Restaurant details</span>
 			</div>
 
@@ -161,7 +167,9 @@
 				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
 					Restaurant URL
 					<div class="flex items-center gap-1">
-						<span class="rounded-l-lg border border-r-0 border-lingua-border bg-lingua-surface px-3 py-2 text-sm text-lingua-subtle whitespace-nowrap">
+						<span
+							class="rounded-l-lg border border-r-0 border-lingua-border bg-lingua-surface px-3 py-2 text-sm text-lingua-subtle whitespace-nowrap"
+						>
 							lingua.app/r/
 						</span>
 						<input
@@ -176,49 +184,50 @@
 							maxlength="60"
 							class="tap-target min-w-0 flex-1 rounded-r-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary dark:bg-lingua-surface dark:text-lingua-text"
 						/>
-					{#if slugManuallyEdited}
-						<button
-							type="button"
-							onclick={resetSlug}
-							title="Reset to auto-generated slug"
-							class="tap-target ml-1 rounded-lg border border-lingua-border p-2 text-lingua-subtle hover:text-lingua-text"
+						{#if slugManuallyEdited}
+							<button
+								type="button"
+								onclick={resetSlug}
+								title="Reset to auto-generated slug"
+								class="tap-target ml-1 rounded-lg border border-lingua-border p-2 text-lingua-subtle hover:text-lingua-text"
+							>
+								<RefreshCw size={14} />
+							</button>
+						{/if}
+					</div>
+					<!-- Real-time availability feedback -->
+					{#if slugStatus === 'checking'}
+						<span class="flex items-center gap-1 text-xs font-normal text-lingua-subtle">
+							<Loader size={12} class="animate-spin" /> Checking availability...
+						</span>
+					{:else if slugStatus === 'available'}
+						<span
+							class="flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400"
 						>
-							<RefreshCw size={14} />
-						</button>
+							<CheckCircle size={12} /> Available
+						</span>
+					{:else if slugStatus === 'taken'}
+						<span
+							class="flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400"
+						>
+							<XCircle size={12} /> Already taken — choose a different slug.
+						</span>
+					{:else if slugStatus === 'error'}
+						<span class="text-xs font-normal text-lingua-subtle">Could not check availability.</span
+						>
+					{:else}
+						<span class="text-xs font-normal text-lingua-subtle">
+							Lowercase letters, numbers, and hyphens only. This is permanent.
+						</span>
 					{/if}
-				</div>
-				<!-- Real-time availability feedback -->
-				{#if slugStatus === 'checking'}
-					<span class="flex items-center gap-1 text-xs font-normal text-lingua-subtle">
-						<Loader size={12} class="animate-spin" /> Checking availability...
-					</span>
-				{:else if slugStatus === 'available'}
-					<span class="flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400">
-						<CheckCircle size={12} /> Available
-					</span>
-				{:else if slugStatus === 'taken'}
-					<span class="flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400">
-						<XCircle size={12} /> Already taken — choose a different slug.
-					</span>
-				{:else if slugStatus === 'error'}
-					<span class="text-xs font-normal text-lingua-subtle">Could not check availability.</span>
-				{:else}
-					<span class="text-xs font-normal text-lingua-subtle">
-						Lowercase letters, numbers, and hyphens only. This is permanent.
-					</span>
-				{/if}
 				</label>
 
 				<!-- Segment -->
 				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
 					Restaurant type
-					<select
-						name="segment"
-						required
-						class={inputClass}
-					>
+					<select name="segment" required class={inputClass}>
 						<option value="" disabled selected={!fields?.segment}>Select type...</option>
-						{#each SEGMENTS as s}
+						{#each SEGMENTS as s (s.value)}
 							<option value={s.value} selected={fields?.segment === s.value}>{s.label}</option>
 						{/each}
 					</select>
@@ -235,17 +244,20 @@
 						maxlength="100"
 						class={inputClass}
 					/>
-					<span class="text-xs font-normal text-lingua-subtle">Optional — helps tourists find you.</span>
+					<span class="text-xs font-normal text-lingua-subtle"
+						>Optional — helps tourists find you.</span
+					>
 				</label>
 
 				<!-- Default language -->
 				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
 					Menu default language
 					<select name="defaultLanguageTag" required class={inputClass}>
-						{#each LANGUAGES as lang}
+						{#each LANGUAGES as lang (lang.value)}
 							<option
 								value={lang.value}
-								selected={fields?.defaultLanguageTag === lang.value || (!fields?.defaultLanguageTag && lang.value === 'id')}
+								selected={fields?.defaultLanguageTag === lang.value ||
+									(!fields?.defaultLanguageTag && lang.value === 'id')}
 							>
 								{lang.label}
 							</option>
@@ -260,10 +272,11 @@
 				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
 					Timezone
 					<select name="timezone" required class={inputClass}>
-						{#each TIMEZONES as tz}
+						{#each TIMEZONES as tz (tz.value)}
 							<option
 								value={tz.value}
-								selected={fields?.timezone === tz.value || (!fields?.timezone && tz.value === 'Asia/Jakarta')}
+								selected={fields?.timezone === tz.value ||
+									(!fields?.timezone && tz.value === 'Asia/Jakarta')}
 							>
 								{tz.label}
 							</option>

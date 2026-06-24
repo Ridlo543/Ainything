@@ -6,7 +6,11 @@ export const createFeedbackInputSchema = z.object({
 	sessionId: z.string().uuid().optional(),
 	helpful: z.boolean().optional(),
 	issueType: z.enum(FEEDBACK_ISSUE_TYPES).optional(),
-	comment: z.string().max(MAX_COMMENT_LENGTH).pipe(createSanitizePipe(MAX_COMMENT_LENGTH)).optional()
+	comment: z
+		.string()
+		.max(MAX_COMMENT_LENGTH)
+		.pipe(createSanitizePipe(MAX_COMMENT_LENGTH))
+		.optional()
 });
 
 export type CreateFeedbackInput = z.infer<typeof createFeedbackInputSchema>;

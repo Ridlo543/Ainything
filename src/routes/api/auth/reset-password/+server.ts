@@ -27,7 +27,6 @@ export const POST: RequestHandler = async ({ request }) => {
 	// which uses Supabase's built-in resetPasswordForEmail.
 	// This legacy endpoint is kept for backward compat but does nothing.
 	return json({
-		message:
-			'If an account with that email exists, a password reset link has been sent.'
+		message: 'If an account with that email exists, a password reset link has been sent.'
 	});
 };

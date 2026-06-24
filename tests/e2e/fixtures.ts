@@ -1,6 +1,6 @@
 /**
  * Playwright test fixtures for E2E tests with database isolation support.
- * 
+ *
  * Provides utilities for managing database state between tests to prevent
  * test isolation issues (RLS violations, state pollution, flaky failures).
  */
@@ -38,13 +38,13 @@ export const test = base.extend<LinguaFixtures>({
 	 * WARNING: This is SLOW (~10-15 seconds per test). Use only for tests
 	 * that absolutely need database isolation.
 	 */
-	cleanDatabase: async ({}, use) => {
+	cleanDatabase: async (_unused: object, use) => {
 		// Reset database before test
 		console.log('🔄 Resetting database for test isolation...');
 		try {
 			execSync('pnpm db:reset', {
 				stdio: 'inherit',
-				timeout: 30000,
+				timeout: 30000
 			});
 			console.log('✅ Database reset complete');
 		} catch (error) {
@@ -56,7 +56,7 @@ export const test = base.extend<LinguaFixtures>({
 		await use({});
 
 		// No cleanup needed (next reset will clear everything)
-	},
+	}
 });
 
 export { expect };
@@ -91,5 +91,5 @@ export const testUtils = {
 		}
 
 		throw new Error(`Condition not met within ${timeout}ms`);
-	},
+	}
 };

@@ -34,18 +34,20 @@
 		// Snapshot the current path so each flush carries the correct page path.
 		const currentPath = $page.url.pathname;
 
-		import('web-vitals').then(({ onLCP, onFID, onINP, onCLS, onTTFB }) => {
-			const report = (metric: { name: string; value: number }) => {
-				reportWebVitals(metric);
-			};
-			onLCP(report);
-			onFID(report);
-			onINP(report);
-			onCLS(report);
-			onTTFB(report);
-		}).catch(() => {
-			// web-vitals not available — skip silently
-		});
+		import('web-vitals')
+			.then(({ onLCP, onFID, onINP, onCLS, onTTFB }) => {
+				const report = (metric: { name: string; value: number }) => {
+					reportWebVitals(metric);
+				};
+				onLCP(report);
+				onFID(report);
+				onINP(report);
+				onCLS(report);
+				onTTFB(report);
+			})
+			.catch(() => {
+				// web-vitals not available — skip silently
+			});
 
 		// Flush buffer on page hide (tab close, navigation away).
 		function sendBuffer() {
@@ -57,14 +59,19 @@
 
 			// sendBeacon is best-effort on page unload; fallback to fetch
 			if (navigator.sendBeacon) {
-				navigator.sendBeacon('/api/internal/vitals', new Blob([body], { type: 'application/json' }));
+				navigator.sendBeacon(
+					'/api/internal/vitals',
+					new Blob([body], { type: 'application/json' })
+				);
 			} else {
 				fetch('/api/internal/vitals', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body,
-					keepalive: true,
-				}).catch(() => {/* fail-open */});
+					keepalive: true
+				}).catch(() => {
+					/* fail-open */
+				});
 			}
 		}
 
