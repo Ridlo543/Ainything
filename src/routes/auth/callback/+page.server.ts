@@ -22,6 +22,7 @@ async function assertAppUserExists(authUserId: string) {
 
 export const load: PageServerLoad = async ({ url, cookies, request, locals }) => {
 	const code = url.searchParams.get('code');
+	const type = url.searchParams.get('type');
 
 	if (code) {
 		const supabaseUrl = appEnv.supabaseUrl;
@@ -39,6 +40,11 @@ export const load: PageServerLoad = async ({ url, cookies, request, locals }) =>
 			error(500, 'Could not complete email verification.');
 		}
 
+		// Password recovery flow — redirect to update-password page
+		if (type === 'recovery') {
+			redirect(303, '/auth/update-password');
+		}
+
 		const { data: authData, error: authError } = await supabase.auth.getUser();
 
 		if (authError || !authData.user) {
@@ -53,6 +59,18 @@ export const load: PageServerLoad = async ({ url, cookies, request, locals }) =>
 
 	if (!user) {
 		redirect(303, '/login');
+	}
+
+	// New user with no restaurant yet — send to onboarding Step 2
+	if (user.memberships.length === 0) {
+		redirect(303, '/register/restaurant/setup');
+	}
+
+	// Post-verification: if this was an email confirmation (code present), send
+	// the user to the onboarding wizard so they can set up tables + menu.
+	// Returning logins fall through to resolveRoleRedirect as normal.
+	if (code && type !== 'recovery') {
+		redirect(303, '/dashboard/onboarding?step=1');
 	}
 
 	redirect(303, resolveRoleRedirect(user));

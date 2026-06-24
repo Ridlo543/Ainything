@@ -17,7 +17,7 @@ Sentry.init({
 initTelemetry();
 
 const PUBLIC_ROUTES = ['/', '/login', '/register'];
-const PUBLIC_PREFIXES = ['/auth/', '/api/public/', '/r/'];
+const PUBLIC_PREFIXES = ['/auth/', '/api/public/', '/r/', '/register/restaurant', '/register/organization', '/register/confirm'];
 
 const appHandle: Handle = async ({ event, resolve }) => {
 	event.locals.user = await authProvider.getSessionUser(event.cookies, event.request);

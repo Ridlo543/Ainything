@@ -1,7 +1,7 @@
 import type { AuthUser } from '$lib/domain/auth/types';
 import type { Cookies } from '@sveltejs/kit';
 import type { AuthProvider } from './types';
-import { getSessionUser, sessionCookieName, mapDemoUserToAuthUser } from './mock-session';
+import { getSessionUser, getDemoSessions, sessionCookieName, mapDemoUserToAuthUser } from './mock-session';
 import { demoUsers } from '$lib/mock/restaurants';
 
 const cookieOptions = {
@@ -23,8 +23,11 @@ export class MockAuthProvider implements AuthProvider {
 			throw new Error('Demo user not found. Try owner@bali-table.test or staff@jakarta-hospitality.test');
 		}
 
-		const session = `demo-${user.id}-session`;
-		cookies.set(sessionCookieName, session, cookieOptions);
+		const sessionRecord = getDemoSessions().find((s) => s.userId === user.id);
+		if (!sessionRecord) {
+			throw new Error(`No demo session configured for user ${user.id}`);
+		}
+		cookies.set(sessionCookieName, sessionRecord.id, cookieOptions);
 
 		return user;
 	}
