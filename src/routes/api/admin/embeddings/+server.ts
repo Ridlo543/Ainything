@@ -17,6 +17,7 @@ import type { RequestHandler } from './$types';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
 import { generateEmbeddingsForRestaurant } from '$lib/server/services/embedding-worker';
 import { appEnv } from '$lib/server/config/env';
+import { applyRateLimit } from '$lib/server/services/public-api-helpers';
 
 const bodySchema = z.object({
 	restaurantSlug: z.string().trim().min(1).max(120)
@@ -26,6 +27,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!locals.user) {
 		error(401, 'Authentication required.');
 	}
+
+	// Rate-limit: 10 per minute per user to prevent runaway embedding jobs
+	await applyRateLimit('embeddings', request);
 
 	let raw: unknown;
 

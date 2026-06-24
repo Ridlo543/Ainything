@@ -17,14 +17,18 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
 import { getOrganizationMetrics } from '$lib/server/repositories/metrics-repository';
+import { applyRateLimit } from '$lib/server/services/public-api-helpers';
 
 const MAX_WINDOW_DAYS = 90;
 const DEFAULT_WINDOW_DAYS = 7;
 
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET: RequestHandler = async ({ locals, url, request }) => {
 	if (!locals.user) {
 		error(401, 'Authentication required.');
 	}
+
+	// M3: rate limit authenticated metrics endpoint
+	await applyRateLimit('metrics', request);
 
 	const windowParam = url.searchParams.get('window');
 	const windowDays = Math.min(

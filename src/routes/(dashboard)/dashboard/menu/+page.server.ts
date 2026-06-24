@@ -9,21 +9,33 @@ import {
 	editMenuItem,
 	toggleAvailability,
 	publishDraftMenu,
+	validateMenuForPublish,
 	MenuPublishValidationError
 } from '$lib/server/services/menu-admin-service';
 
 /**
  * Server load for the dashboard menu page.
  *
- * Reuses the layout's `data.tenant` (resolved from auth membership) for the
- * restaurant list and active restaurant. No additional DB reads needed — the
- * layout already loads published categories + items. The admin menu editor may
- * later switch to loading draft+published items; for now, published items are
- * sufficient for the edit form to pre-populate.
+ * Reuses the layout's `data.tenant` for the restaurant list and active
+ * restaurant. Also runs the publish pre-flight gate so the UI can show a
+ * checklist before the admin commits to publishing.
  */
 export const load: PageServerLoad = async ({ parent }) => {
 	const { tenant } = await parent();
-	return { tenant };
+
+	// Run pre-flight validation against the active restaurant's menu items.
+	// Fail-open: if items are unavailable, skip the checklist.
+	let preflightValidation: import('$lib/domain/menu/policy').PublishValidation | null = null;
+	try {
+		const items = tenant.activeRestaurant.menuItems;
+		if (items.length > 0) {
+			preflightValidation = validateMenuForPublish(items);
+		}
+	} catch {
+		// Non-critical: silently skip the checklist
+	}
+
+	return { tenant, preflightValidation };
 };
 
 export const actions: Actions = {

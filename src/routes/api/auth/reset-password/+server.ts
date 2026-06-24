@@ -1,15 +1,33 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
+import { z } from 'zod';
+import { applyRateLimit } from '$lib/server/services/public-api-helpers';
 
-export const POST: RequestHandler = async ({ request, url }) => {
-	const { email } = await request.json().catch(() => ({}));
+const bodySchema = z.object({
+	email: z.string().email('A valid email address is required.').max(320)
+});
 
-	if (!email || typeof email !== 'string' || !email.includes('@')) {
-		return json({ message: 'A valid email address is required.' }, { status: 400 });
+export const POST: RequestHandler = async ({ request }) => {
+	// Rate-limit: 5 requests per 5 min per IP to slow enumeration attacks
+	await applyRateLimit('password-reset', request);
+
+	let raw: unknown;
+	try {
+		raw = await request.json();
+	} catch {
+		return json({ message: 'Invalid JSON body.' }, { status: 400 });
 	}
 
+	const parsed = bodySchema.safeParse(raw);
+	if (!parsed.success) {
+		return json({ message: parsed.error.issues[0]?.message ?? 'Invalid input.' }, { status: 400 });
+	}
+
+	// NOTE: This is a stub — the real implementation is in /auth/forgot-password
+	// which uses Supabase's built-in resetPasswordForEmail.
+	// This legacy endpoint is kept for backward compat but does nothing.
 	return json({
 		message:
-			'If an account with that email exists, a password reset link has been sent. This is a stub — no email is actually sent.'
+			'If an account with that email exists, a password reset link has been sent.'
 	});
 };

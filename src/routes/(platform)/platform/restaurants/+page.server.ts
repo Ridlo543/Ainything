@@ -10,7 +10,8 @@ export const load: PageServerLoad = async ({ url }) => {
 	const parseResult = listRestaurantsSchema.safeParse({
 		limit: 50,
 		offset: url.searchParams.get('offset') ?? 0,
-		organizationId: url.searchParams.get('org') ?? undefined
+		organizationId: url.searchParams.get('org') ?? undefined,
+		status: url.searchParams.get('status') ?? 'all'
 	});
 
 	if (!parseResult.success) {
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	try {
 		const restaurants = await listRestaurants(parseResult.data);
-		return { restaurants, offset: parseResult.data.offset };
+		return { restaurants, offset: parseResult.data.offset, status: parseResult.data.status };
 	} catch (err) {
 		if (err instanceof PlatformAdminInputError) {
 			throw error(400, err.message);
