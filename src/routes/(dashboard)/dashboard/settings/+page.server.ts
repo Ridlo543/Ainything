@@ -1,7 +1,10 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { appEnv } from '$lib/server/config/env';
-import { getRestaurantSettings, updateRestaurantSettings } from '$lib/server/repositories/staff-repository';
+import {
+	getRestaurantSettings,
+	updateRestaurantSettings
+} from '$lib/server/repositories/staff-repository';
 
 interface RestaurantSettings {
 	name: string;
@@ -83,14 +86,18 @@ export const actions: Actions = {
 			const tenantContext = await import('$lib/server/tenant/tenant-context').then((m) =>
 				m.resolveTenantContext(user)
 			);
-			await updateRestaurantSettings(tenantContext.activeRestaurant.id, tenantContext.organization.id, {
-				name,
-				location,
-				segment,
-				description,
-				timezone,
-				defaultLanguageTag
-			});
+			await updateRestaurantSettings(
+				tenantContext.activeRestaurant.id,
+				tenantContext.organization.id,
+				{
+					name,
+					location,
+					segment,
+					description,
+					timezone,
+					defaultLanguageTag
+				}
+			);
 			return { success: true };
 		} catch {
 			return fail(500, { error: 'Gagal menyimpan pengaturan' });

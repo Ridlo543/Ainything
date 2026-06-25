@@ -32,9 +32,21 @@
 	});
 
 	const cities = [
-		'Jakarta', 'Surabaya', 'Bandung', 'Medan', 'Semarang',
-		'Makassar', 'Yogyakarta', 'Palembang', 'Tangerang', 'Depok',
-		'Denpasar', 'Malang', 'Balikpapan', 'Manado', 'Pekanbaru'
+		'Jakarta',
+		'Surabaya',
+		'Bandung',
+		'Medan',
+		'Semarang',
+		'Makassar',
+		'Yogyakarta',
+		'Palembang',
+		'Tangerang',
+		'Depok',
+		'Denpasar',
+		'Malang',
+		'Balikpapan',
+		'Manado',
+		'Pekanbaru'
 	];
 </script>
 
@@ -69,8 +81,13 @@
 				Slug URL
 				<span class="ml-1 text-xs font-normal text-[#78716c]">(otomatis)</span>
 			</Label>
-			<div class="flex overflow-hidden rounded-lg border border-[#e7e5e4] bg-[#fafaf9] focus-within:ring-2 focus-within:ring-[#059669]">
-				<span class="border-r border-[#e7e5e4] bg-[#f5f5f4] px-3 py-2.5 text-sm text-[#78716c] whitespace-nowrap">lingua.app/</span>
+			<div
+				class="flex overflow-hidden rounded-lg border border-[#e7e5e4] bg-[#fafaf9] focus-within:ring-2 focus-within:ring-[#059669]"
+			>
+				<span
+					class="border-r border-[#e7e5e4] bg-[#f5f5f4] px-3 py-2.5 text-sm text-[#78716c] whitespace-nowrap"
+					>lingua.app/</span
+				>
 				<input
 					id="slug"
 					name="slug"

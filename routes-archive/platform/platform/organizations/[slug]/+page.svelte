@@ -3,7 +3,6 @@
 	import { enhance } from '$app/forms';
 	import Badge from '$lib/ui/primitives/Badge.svelte';
 
-
 	let { data, form } = $props();
 
 	const org = $derived(data.organization);

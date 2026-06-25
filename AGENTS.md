@@ -94,6 +94,7 @@ If implementation chooses different tools, update `docs/Technical_Specification.
 ## Architecture Rules
 
 Layer order (top to bottom, no reverse imports):
+
 ```
 UI Layer (.svelte)
   → Route Layer (+page.svelte, +layout.svelte, +page.server.ts)
@@ -120,6 +121,7 @@ shadcn-svelte components are **copy-owned code** in `src/lib/ui/`, not runtime d
 - bits-ui IS a runtime dependency (accessibility primitives used by shadcn components)
 
 Component categories in `src/lib/ui/`:
+
 - **shadcn-sourced**: Button, Input, Textarea, Badge, Card, Dialog, Alert, Skeleton, Sonner (toasts), Select, Tabs, DropdownMenu, Sheet, Table, Combobox, DatePicker, Command
 - **project-owned**: Sidebar, BottomNav, TopBar, and any domain-specific components
 

@@ -7,7 +7,11 @@
 	import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart, Send, AlertCircle } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 
-	let { data, form }: { data: PageData; form: { error?: string; success?: boolean; orderId?: string } | undefined } = $props();
+	let {
+		data,
+		form
+	}: { data: PageData; form: { error?: string; success?: boolean; orderId?: string } | undefined } =
+		$props();
 
 	const slug = $derived(data.slug);
 	const restaurant = $derived(data.restaurant);
@@ -49,9 +53,7 @@
 
 	{#if form?.success}
 		<div class="flex flex-col items-center gap-4 py-12 text-center">
-			<div
-				class="flex h-16 w-16 items-center justify-center rounded-full bg-lingua-success-soft"
-			>
+			<div class="flex h-16 w-16 items-center justify-center rounded-full bg-lingua-success-soft">
 				<Send size={28} class="text-lingua-success" />
 			</div>
 			<div>
@@ -88,9 +90,7 @@
 	{:else}
 		<div class="space-y-3">
 			{#each cart.entries as entry (entry.itemId)}
-				<div
-					class="flex gap-3 rounded-lg border border-lingua-border bg-lingua-surface p-3"
-				>
+				<div class="flex gap-3 rounded-lg border border-lingua-border bg-lingua-surface p-3">
 					<div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-lingua-muted">
 						<img
 							src={entry.image}
@@ -137,9 +137,7 @@
 								>
 									<Minus size={14} />
 								</button>
-								<span
-									class="min-w-5 text-center text-sm font-semibold text-lingua-text"
-								>
+								<span class="min-w-5 text-center text-sm font-semibold text-lingua-text">
 									{entry.qty}
 								</span>
 								<button
@@ -156,8 +154,7 @@
 						<input
 							type="text"
 							value={entry.note}
-							oninput={(e) =>
-								cart.setNote(entry.itemId, e.currentTarget.value)}
+							oninput={(e) => cart.setNote(entry.itemId, e.currentTarget.value)}
 							placeholder={t('cart.note.placeholder')}
 							class="w-full rounded-md border border-lingua-border bg-lingua-bg px-2.5 py-1.5 text-xs text-lingua-text placeholder:text-lingua-subtle focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary/20"
 						/>

@@ -13,9 +13,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	}
 
 	return {
-		tenant: await resolveTenantContext(
-			locals.user,
-			url.searchParams.get('restaurant') ?? undefined
-		)
+		tenant: await resolveTenantContext(locals.user, url.searchParams.get('restaurant') ?? undefined)
 	};
 };

@@ -26,9 +26,7 @@
 	Top bar for authenticated dashboards.
 	Shows hamburger (mobile), tenant name, notifications, and user avatar dropdown menu.
 -->
-<header
-	class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-card/95 backdrop-blur-sm px-4"
->
+<header class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-card/95 backdrop-blur-sm px-4">
 	<!-- Hamburger (mobile only) -->
 	{#if showMenuButton}
 		<button

@@ -14,7 +14,10 @@
 	<div class="app-container flex h-16 items-center">
 		<!-- Logo -->
 		<a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="Lingua beranda">
-			<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white">L</span>
+			<span
+				class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
+				>L</span
+			>
 			<span class="text-lg font-extrabold tracking-tight text-[#1a1a2e]">Lingua</span>
 		</a>
 
@@ -24,7 +27,8 @@
 				<a
 					href={link.href}
 					class="rounded-lg px-4 py-2 text-sm font-medium text-[#78716c] transition-colors hover:bg-[#f5f5f4] hover:text-[#1a1a2e]"
-				>{link.label}</a>
+					>{link.label}</a
+				>
 			{/each}
 		</nav>
 
@@ -33,7 +37,8 @@
 			<a
 				href="/login"
 				class="px-4 py-2 text-sm font-semibold text-[#78716c] transition-colors hover:text-[#1a1a2e]"
-			>Masuk</a>
+				>Masuk</a
+			>
 			<a
 				href="/register"
 				class="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-[#059669] px-5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#047857] hover:shadow-md"
@@ -57,28 +62,27 @@
 
 	<!-- Mobile menu -->
 	{#if mobileOpen}
-		<div
-			id="mobile-nav"
-			class="border-t border-[#e7e5e4] bg-white px-4 pb-4 pt-2 md:hidden"
-		>
+		<div id="mobile-nav" class="border-t border-[#e7e5e4] bg-white px-4 pb-4 pt-2 md:hidden">
 			<nav class="flex flex-col gap-1" aria-label="Navigasi mobile">
 				{#each nav as link}
 					<a
 						href={link.href}
 						class="rounded-lg px-4 py-3 text-sm font-medium text-[#1a1a2e] hover:bg-[#f5f5f4]"
-						onclick={() => (mobileOpen = false)}
-					>{link.label}</a>
+						onclick={() => (mobileOpen = false)}>{link.label}</a
+					>
 				{/each}
 			</nav>
 			<div class="mt-3 flex flex-col gap-2 border-t border-[#e7e5e4] pt-3">
 				<a
 					href="/login"
 					class="rounded-lg border border-[#e7e5e4] px-4 py-3 text-center text-sm font-semibold text-[#1a1a2e] hover:bg-[#f5f5f4]"
-				>Masuk</a>
+					>Masuk</a
+				>
 				<a
 					href="/register"
 					class="rounded-lg bg-[#059669] px-4 py-3 text-center text-sm font-bold text-white hover:bg-[#047857]"
-				>Mulai Gratis</a>
+					>Mulai Gratis</a
+				>
 			</div>
 		</div>
 	{/if}

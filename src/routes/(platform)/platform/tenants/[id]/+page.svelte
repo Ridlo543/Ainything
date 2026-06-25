@@ -23,7 +23,10 @@
 <div class="space-y-6">
 	<!-- Header -->
 	<div class="flex items-center gap-3">
-		<a href="/platform/tenants" class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+		<a
+			href="/platform/tenants"
+			class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+		>
 			<ArrowLeft size={14} />
 			Back
 		</a>
@@ -117,7 +120,9 @@
 						<div class="flex items-center justify-between rounded-lg border p-3">
 							<div>
 								<p class="text-sm font-medium">{restaurant.name}</p>
-								<p class="text-xs text-muted-foreground">{restaurant.slug} · {restaurant.segment}</p>
+								<p class="text-xs text-muted-foreground">
+									{restaurant.slug} · {restaurant.segment}
+								</p>
 							</div>
 							<div class="flex items-center gap-2">
 								<Badge.Badge variant="outline">{restaurant.tableCount} tables</Badge.Badge>
@@ -146,15 +151,21 @@
 		<Card.Content>
 			<div class="flex gap-3">
 				{#if org.status === 'active'}
-					<button class="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90">
+					<button
+						class="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+					>
 						Suspend
 					</button>
 				{:else if org.status === 'suspended'}
-					<button class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+					<button
+						class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+					>
 						Activate
 					</button>
 				{/if}
-				<button class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted">
+				<button
+					class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+				>
 					Delete
 				</button>
 			</div>

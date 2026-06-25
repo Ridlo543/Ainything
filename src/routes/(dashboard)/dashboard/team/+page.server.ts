@@ -1,6 +1,9 @@
 import type { PageServerLoad } from './$types';
 import { appEnv } from '$lib/server/config/env';
-import { listMembershipsWithUsers, listPendingInvitesWithInviter } from '$lib/server/repositories/staff-repository';
+import {
+	listMembershipsWithUsers,
+	listPendingInvitesWithInviter
+} from '$lib/server/repositories/staff-repository';
 
 type Role = 'owner' | 'manager' | 'staff';
 type MemberStatus = 'active' | 'invited';
@@ -24,16 +27,38 @@ interface Invite {
 
 function getMockMembers(): Member[] {
 	return [
-		{ id: '1', name: 'Made Restaurant Owner', email: 'owner@bali-table.test', role: 'owner', status: 'active', since: 'Juni 2025', avatar: '/mock-images/photo-1507003211169-0a1dd7228f2d.jpg' },
-		{ id: '2', name: 'Wayan Kasir', email: 'kasir@bali-table.test', role: 'staff', status: 'active', since: 'Agt 2025', avatar: '/mock-images/photo-1500648767791-00dcc994a43e.jpg' },
-		{ id: '3', name: 'Nyoman Manager', email: 'manager@bali-table.test', role: 'manager', status: 'active', since: 'Sep 2025', avatar: '/mock-images/photo-1494790108377-be9c29b29330.jpg' },
+		{
+			id: '1',
+			name: 'Made Restaurant Owner',
+			email: 'owner@bali-table.test',
+			role: 'owner',
+			status: 'active',
+			since: 'Juni 2025',
+			avatar: '/mock-images/photo-1507003211169-0a1dd7228f2d.jpg'
+		},
+		{
+			id: '2',
+			name: 'Wayan Kasir',
+			email: 'kasir@bali-table.test',
+			role: 'staff',
+			status: 'active',
+			since: 'Agt 2025',
+			avatar: '/mock-images/photo-1500648767791-00dcc994a43e.jpg'
+		},
+		{
+			id: '3',
+			name: 'Nyoman Manager',
+			email: 'manager@bali-table.test',
+			role: 'manager',
+			status: 'active',
+			since: 'Sep 2025',
+			avatar: '/mock-images/photo-1494790108377-be9c29b29330.jpg'
+		}
 	];
 }
 
 function getMockInvites(): Invite[] {
-	return [
-		{ id: 'i1', email: 'newstaff@email.com', role: 'staff', sentAt: '2 hari lalu' },
-	];
+	return [{ id: 'i1', email: 'newstaff@email.com', role: 'staff', sentAt: '2 hari lalu' }];
 }
 
 function timeAgo(date: Date): string {
@@ -47,7 +72,20 @@ function timeAgo(date: Date): string {
 }
 
 function formatMonth(date: Date): string {
-	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+	const months = [
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'Mei',
+		'Jun',
+		'Jul',
+		'Agt',
+		'Sep',
+		'Okt',
+		'Nov',
+		'Des'
+	];
 	return `${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 

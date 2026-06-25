@@ -1,6 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { Plus, Mail, MoreHorizontal, X, Check, Users, Crown, Shield, User, Clock } from '@lucide/svelte';
+	import {
+		Plus,
+		Mail,
+		MoreHorizontal,
+		X,
+		Check,
+		Users,
+		Crown,
+		Shield,
+		User,
+		Clock
+	} from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
@@ -9,9 +20,9 @@
 	type MemberStatus = 'active' | 'invited';
 
 	const roleCfg: Record<Role, { label: string; bg: string; text: string; icon: typeof Crown }> = {
-		owner:   { label: 'Owner',   bg: 'bg-[#fef3c7]', text: 'text-[#d97706]', icon: Crown },
+		owner: { label: 'Owner', bg: 'bg-[#fef3c7]', text: 'text-[#d97706]', icon: Crown },
 		manager: { label: 'Manager', bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]', icon: Shield },
-		staff:   { label: 'Staff',   bg: 'bg-[#f5f5f4]', text: 'text-[#78716c]', icon: User }
+		staff: { label: 'Staff', bg: 'bg-[#f5f5f4]', text: 'text-[#78716c]', icon: User }
 	};
 
 	const members = $derived(data.members);
@@ -28,7 +39,6 @@
 </svelte:head>
 
 <div class="space-y-6">
-
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-2xl font-extrabold text-[#1a1a2e]">Tim</h1>
@@ -55,14 +65,19 @@
 						src={member.avatar}
 						alt={member.name}
 						class="h-10 w-10 shrink-0 rounded-full object-cover"
-						width="40" height="40"
+						width="40"
+						height="40"
 					/>
 					<div class="min-w-0 flex-1">
 						<p class="text-sm font-bold text-[#1a1a2e]">{member.name}</p>
 						<p class="mt-0.5 text-xs text-[#78716c]">{member.email}</p>
 					</div>
 					<div class="flex shrink-0 items-center gap-2">
-						<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold {roleCfg[member.role].bg} {roleCfg[member.role].text}">
+						<span
+							class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold {roleCfg[
+								member.role
+							].bg} {roleCfg[member.role].text}"
+						>
 							{#if member.role === 'owner'}<Crown size={11} />
 							{:else if member.role === 'manager'}<Shield size={11} />
 							{:else}<User size={11} />{/if}
@@ -79,10 +94,20 @@
 									<MoreHorizontal size={16} />
 								</button>
 								{#if openMenuId === member.id}
-									<div class="absolute right-0 top-10 z-20 w-40 rounded-xl border border-[#f0eeec] bg-white py-1 shadow-lg">
-										<button type="button" class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#1a1a2e] hover:bg-[#f5f5f4]"><Shield size={14} /> Ubah Peran</button>
+									<div
+										class="absolute right-0 top-10 z-20 w-40 rounded-xl border border-[#f0eeec] bg-white py-1 shadow-lg"
+									>
+										<button
+											type="button"
+											class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#1a1a2e] hover:bg-[#f5f5f4]"
+											><Shield size={14} /> Ubah Peran</button
+										>
 										<div class="my-1 h-px bg-[#f5f5f4]"></div>
-										<button type="button" class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#dc2626] hover:bg-[#fef2f2]"><X size={14} /> Hapus dari Tim</button>
+										<button
+											type="button"
+											class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#dc2626] hover:bg-[#fef2f2]"
+											><X size={14} /> Hapus dari Tim</button
+										>
 									</div>
 								{/if}
 							</div>
@@ -101,7 +126,9 @@
 			<div class="divide-y divide-[#f5f5f4]">
 				{#each invites as invite (invite.id)}
 					<div class="flex items-center gap-4 px-5 py-4">
-						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4]">
+						<div
+							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4]"
+						>
 							<Mail size={18} class="text-[#a8a29e]" />
 						</div>
 						<div class="min-w-0 flex-1">
@@ -111,8 +138,15 @@
 							</div>
 						</div>
 						<div class="flex shrink-0 items-center gap-2">
-							<span class="rounded-full bg-[#fef3c7] px-2.5 py-1 text-xs font-semibold text-[#d97706]">{roleCfg[invite.role].label}</span>
-							<button type="button" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#fef2f2] hover:text-[#dc2626] transition-colors" aria-label="Batalkan undangan">
+							<span
+								class="rounded-full bg-[#fef3c7] px-2.5 py-1 text-xs font-semibold text-[#d97706]"
+								>{roleCfg[invite.role].label}</span
+							>
+							<button
+								type="button"
+								class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#fef2f2] hover:text-[#dc2626] transition-colors"
+								aria-label="Batalkan undangan"
+							>
 								<X size={14} />
 							</button>
 						</div>
@@ -126,20 +160,31 @@
 	{#if showModal}
 		<div
 			class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
-			role="dialog" aria-modal="true" tabindex="-1"
-			onclick={(e) => { if (e.target === e.currentTarget) showModal = false; }}
+			role="dialog"
+			aria-modal="true"
+			tabindex="-1"
+			onclick={(e) => {
+				if (e.target === e.currentTarget) showModal = false;
+			}}
 			onkeydown={(e) => e.key === 'Escape' && (showModal = false)}
 		>
 			<div class="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-2xl">
 				<div class="mb-5 flex items-center justify-between">
 					<h2 class="text-lg font-extrabold text-[#1a1a2e]">Undang Staff Baru</h2>
-					<button type="button" onclick={() => (showModal = false)} class="flex h-9 w-9 items-center justify-center rounded-xl text-[#78716c] hover:bg-[#f5f5f4]" aria-label="Tutup">
+					<button
+						type="button"
+						onclick={() => (showModal = false)}
+						class="flex h-9 w-9 items-center justify-center rounded-xl text-[#78716c] hover:bg-[#f5f5f4]"
+						aria-label="Tutup"
+					>
 						<X size={18} />
 					</button>
 				</div>
 				<div class="space-y-4">
 					<div>
-						<label for="invite-email" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">Email <span class="text-[#dc2626]">*</span></label>
+						<label for="invite-email" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+							>Email <span class="text-[#dc2626]">*</span></label
+						>
 						<div class="relative">
 							<Mail size={15} class="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" />
 							<input
@@ -155,20 +200,27 @@
 					<div>
 						<p class="mb-2 text-sm font-semibold text-[#1a1a2e]">Peran</p>
 						<div class="grid grid-cols-2 gap-2">
-							{#each (['staff', 'manager'] as Role[]) as role}
+							{#each ['staff', 'manager'] as Role[] as role}
 								<button
 									type="button"
 									onclick={() => (inviteRole = role)}
 									class="flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all
-										{inviteRole === role ? 'border-[#059669] bg-[#f0fdf4]' : 'border-[#f0eeec] bg-white hover:border-[#059669]/40'}"
+										{inviteRole === role
+										? 'border-[#059669] bg-[#f0fdf4]'
+										: 'border-[#f0eeec] bg-white hover:border-[#059669]/40'}"
 									aria-pressed={inviteRole === role}
 								>
-								<div class="flex h-8 w-8 items-center justify-center rounded-lg {roleCfg[role].bg} {roleCfg[role].text}">
-									{#if role === 'manager'}<Shield size={16} />{:else}<User size={16} />{/if}
-								</div>
+									<div
+										class="flex h-8 w-8 items-center justify-center rounded-lg {roleCfg[role]
+											.bg} {roleCfg[role].text}"
+									>
+										{#if role === 'manager'}<Shield size={16} />{:else}<User size={16} />{/if}
+									</div>
 									<div>
 										<p class="text-sm font-bold text-[#1a1a2e]">{roleCfg[role].label}</p>
-										<p class="text-[11px] text-[#78716c]">{role === 'staff' ? 'Proses pesanan' : 'Kelola katalog'}</p>
+										<p class="text-[11px] text-[#78716c]">
+											{role === 'staff' ? 'Proses pesanan' : 'Kelola katalog'}
+										</p>
 									</div>
 								</button>
 							{/each}
@@ -176,8 +228,17 @@
 					</div>
 				</div>
 				<div class="mt-6 flex gap-3">
-					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors">Batal</button>
-					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
+					<button
+						type="button"
+						onclick={() => (showModal = false)}
+						class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
+						>Batal</button
+					>
+					<button
+						type="button"
+						onclick={() => (showModal = false)}
+						class="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors"
+					>
 						<Mail size={15} /> Kirim Undangan
 					</button>
 				</div>
@@ -189,5 +250,4 @@
 	{#if openMenuId}
 		<div class="fixed inset-0 z-10" role="presentation" onclick={() => (openMenuId = null)}></div>
 	{/if}
-
 </div>

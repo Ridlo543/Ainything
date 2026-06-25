@@ -80,11 +80,17 @@
 	</div>
 
 	{#if form?.success}
-		<div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">Settings saved successfully.</div>
+		<div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+			Settings saved successfully.
+		</div>
 	{/if}
 
 	{#if form?.error}
-		<div class="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">{form.error}</div>
+		<div
+			class="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+		>
+			{form.error}
+		</div>
 	{/if}
 
 	<form method="POST" use:enhance class="surface rounded-lg p-5">

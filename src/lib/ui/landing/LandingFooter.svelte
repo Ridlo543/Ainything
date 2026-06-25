@@ -45,12 +45,10 @@
 <!-- CTA Banner -->
 <section class="border-t border-[#e7e5e4] bg-[#059669] py-16 sm:py-20">
 	<div class="app-container text-center">
-		<h2 class="text-3xl font-extrabold text-white sm:text-4xl">
-			Siap digitalisasi bisnis kamu?
-		</h2>
+		<h2 class="text-3xl font-extrabold text-white sm:text-4xl">Siap digitalisasi bisnis kamu?</h2>
 		<p class="mx-auto mt-4 max-w-lg text-base text-white/80">
-			Daftar gratis sekarang dan terima pesanan digital pertama kamu hari ini.
-			Tidak perlu kartu kredit.
+			Daftar gratis sekarang dan terima pesanan digital pertama kamu hari ini. Tidak perlu kartu
+			kredit.
 		</p>
 		<div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
 			<a
@@ -76,11 +74,15 @@
 			<!-- Brand -->
 			<div class="lg:col-span-1">
 				<a href="/" class="flex items-center gap-2.5" aria-label="Lingua beranda">
-					<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white">L</span>
+					<span
+						class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
+						>L</span
+					>
 					<span class="text-lg font-extrabold tracking-tight text-white">Lingua</span>
 				</a>
 				<p class="mt-4 text-sm leading-relaxed text-white/50">
-					Platform digital untuk bisnis dari semua skala. Katalog, QR, pesanan — semua dari satu tempat.
+					Platform digital untuk bisnis dari semua skala. Katalog, QR, pesanan — semua dari satu
+					tempat.
 				</p>
 			</div>
 
@@ -91,10 +93,9 @@
 					<ul class="space-y-2.5">
 						{#each col.items as item}
 							<li>
-								<a
-									href={item.href}
-									class="text-sm text-white/50 transition-colors hover:text-white"
-								>{item.label}</a>
+								<a href={item.href} class="text-sm text-white/50 transition-colors hover:text-white"
+									>{item.label}</a
+								>
 							</li>
 						{/each}
 					</ul>
@@ -102,7 +103,9 @@
 			{/each}
 		</div>
 
-		<div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+		<div
+			class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row"
+		>
 			<p class="text-xs text-white/30">&copy; {year} Lingua. Hak cipta dilindungi undang-undang.</p>
 			<p class="text-xs text-white/30">Dibuat dengan ❤ untuk bisnis Indonesia</p>
 		</div>

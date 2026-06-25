@@ -48,9 +48,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 		const todayOrders = orders.filter((o) => new Date(o.createdAt) >= today);
 		const todayRevenue = todayOrders.reduce((sum, o) => sum + o.total, 0);
-		const activeOrders = orders.filter(
-			(o) => o.status === 'new' || o.status === 'processing'
-		);
+		const activeOrders = orders.filter((o) => o.status === 'new' || o.status === 'processing');
 
 		const stats = [
 			{
@@ -199,20 +197,80 @@ function getMockStats() {
 
 function getMockRecentOrders() {
 	return [
-		{ id: '#1024', table: 'Meja T03', items: 'Ayam Betutu x1, Es Kelapa x2', total: 'Rp 182.000', status: 'pending', time: '2 mnt lalu' },
-		{ id: '#1023', table: 'Meja T07', items: 'Ikan Bakar Jimbaran x2', total: 'Rp 290.000', status: 'processing', time: '8 mnt lalu' },
-		{ id: '#1022', table: 'Takeaway', items: 'Sate Ayam x3, Es Cendol x2', total: 'Rp 312.000', status: 'done', time: '15 mnt lalu' },
-		{ id: '#1021', table: 'Meja B12', items: 'Betutu Chicken x2, Drink x3', total: 'Rp 322.000', status: 'done', time: '22 mnt lalu' },
-		{ id: '#1020', table: 'Meja T01', items: 'Lamb Satay x2', total: 'Rp 196.000', status: 'cancelled', time: '30 mnt lalu' }
+		{
+			id: '#1024',
+			table: 'Meja T03',
+			items: 'Ayam Betutu x1, Es Kelapa x2',
+			total: 'Rp 182.000',
+			status: 'pending',
+			time: '2 mnt lalu'
+		},
+		{
+			id: '#1023',
+			table: 'Meja T07',
+			items: 'Ikan Bakar Jimbaran x2',
+			total: 'Rp 290.000',
+			status: 'processing',
+			time: '8 mnt lalu'
+		},
+		{
+			id: '#1022',
+			table: 'Takeaway',
+			items: 'Sate Ayam x3, Es Cendol x2',
+			total: 'Rp 312.000',
+			status: 'done',
+			time: '15 mnt lalu'
+		},
+		{
+			id: '#1021',
+			table: 'Meja B12',
+			items: 'Betutu Chicken x2, Drink x3',
+			total: 'Rp 322.000',
+			status: 'done',
+			time: '22 mnt lalu'
+		},
+		{
+			id: '#1020',
+			table: 'Meja T01',
+			items: 'Lamb Satay x2',
+			total: 'Rp 196.000',
+			status: 'cancelled',
+			time: '30 mnt lalu'
+		}
 	];
 }
 
 function getMockTopProducts() {
 	return [
-		{ name: 'Ayam Betutu', orders: 48, pct: 100, img: '/mock-images/photo-1604908176997-125f25cc6f3d.jpg' },
-		{ name: 'Ikan Bakar Jimbaran', orders: 36, pct: 75, img: '/mock-images/photo-1544943910-4c1dc44aab44.jpg' },
-		{ name: 'Sate Ayam', orders: 29, pct: 60, img: '/mock-images/photo-1529543544282-ea669407fca3.jpg' },
-		{ name: 'Es Kelapa Muda', orders: 22, pct: 46, img: '/mock-images/photo-1541518763669-27fef04b14ea.jpg' },
-		{ name: 'Coconut Cendol', orders: 17, pct: 35, img: '/mock-images/photo-1534706270553-2ac0dfa30283.jpg' }
+		{
+			name: 'Ayam Betutu',
+			orders: 48,
+			pct: 100,
+			img: '/mock-images/photo-1604908176997-125f25cc6f3d.jpg'
+		},
+		{
+			name: 'Ikan Bakar Jimbaran',
+			orders: 36,
+			pct: 75,
+			img: '/mock-images/photo-1544943910-4c1dc44aab44.jpg'
+		},
+		{
+			name: 'Sate Ayam',
+			orders: 29,
+			pct: 60,
+			img: '/mock-images/photo-1529543544282-ea669407fca3.jpg'
+		},
+		{
+			name: 'Es Kelapa Muda',
+			orders: 22,
+			pct: 46,
+			img: '/mock-images/photo-1541518763669-27fef04b14ea.jpg'
+		},
+		{
+			name: 'Coconut Cendol',
+			orders: 17,
+			pct: 35,
+			img: '/mock-images/photo-1534706270553-2ac0dfa30283.jpg'
+		}
 	];
 }

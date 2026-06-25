@@ -1,5 +1,8 @@
 import type { PageServerLoad } from './$types';
-import { getOrganizationByIdRow, listRestaurantsRows } from '$lib/server/repositories/platform-repository';
+import {
+	getOrganizationByIdRow,
+	listRestaurantsRows
+} from '$lib/server/repositories/platform-repository';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params }) => {

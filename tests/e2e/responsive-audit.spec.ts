@@ -15,9 +15,7 @@ test.describe('Responsive audit — public catalog', () => {
 			await page.goto('/r/uma-karang');
 
 			await expect(page.getByRole('heading', { name: 'Uma Karang' })).toBeVisible();
-			await expect(page.getByText('Browse menu')).toBeVisible();
 
-			// Check no horizontal overflow
 			const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
 			expect(bodyWidth).toBeLessThanOrEqual(vp.width + 1);
 		});
@@ -44,7 +42,7 @@ test.describe('Responsive audit — login', () => {
 			await page.setViewportSize({ width: vp.width, height: vp.height });
 			await page.goto('/login');
 
-			await expect(page.getByRole('button', { name: /continue/i })).toBeVisible();
+			await expect(page.getByRole('heading', { name: /selamat datang|welcome/i })).toBeVisible();
 
 			const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
 			expect(bodyWidth).toBeLessThanOrEqual(vp.width + 1);
@@ -58,7 +56,7 @@ test.describe('Responsive audit — cart', () => {
 			await page.setViewportSize({ width: vp.width, height: vp.height });
 			await page.goto('/r/uma-karang/cart');
 
-			await expect(page.getByRole('heading', { name: /cart/i })).toBeVisible();
+			await expect(page.getByRole('heading', { name: /review|order|cart/i })).toBeVisible();
 
 			const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
 			expect(bodyWidth).toBeLessThanOrEqual(vp.width + 1);

@@ -24,7 +24,9 @@
 		return orders;
 	});
 
-	const activeCount = $derived(orders.filter((o: Order) => o.status === 'new' || o.status === 'processing').length);
+	const activeCount = $derived(
+		orders.filter((o: Order) => o.status === 'new' || o.status === 'processing').length
+	);
 
 	function formatTime(iso: string): string {
 		const d = new Date(iso);
@@ -32,17 +34,30 @@
 	}
 
 	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+		return new Intl.NumberFormat('id-ID', {
+			style: 'currency',
+			currency: 'IDR',
+			minimumFractionDigits: 0
+		}).format(amount);
 	}
 
-	function statusVariant(status: OrderStatus): { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string } {
+	function statusVariant(status: OrderStatus): {
+		variant: 'default' | 'secondary' | 'destructive' | 'outline';
+		label: string;
+	} {
 		switch (status) {
-			case 'new': return { variant: 'default', label: 'Baru' };
-			case 'processing': return { variant: 'secondary', label: 'Diproses' };
-			case 'ready': return { variant: 'outline', label: 'Siap' };
-			case 'completed': return { variant: 'outline', label: 'Selesai' };
-			case 'cancelled': return { variant: 'destructive', label: 'Dibatalkan' };
-			default: return { variant: 'secondary', label: status };
+			case 'new':
+				return { variant: 'default', label: 'Baru' };
+			case 'processing':
+				return { variant: 'secondary', label: 'Diproses' };
+			case 'ready':
+				return { variant: 'outline', label: 'Siap' };
+			case 'completed':
+				return { variant: 'outline', label: 'Selesai' };
+			case 'cancelled':
+				return { variant: 'destructive', label: 'Dibatalkan' };
+			default:
+				return { variant: 'secondary', label: status };
 		}
 	}
 

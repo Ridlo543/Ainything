@@ -98,7 +98,9 @@
 						<div class="flex items-center justify-between">
 							<div>
 								<p class="text-sm font-medium">{org.name}</p>
-								<p class="text-xs text-muted-foreground">{org.restaurantCount} restaurants · {org.userCount} users</p>
+								<p class="text-xs text-muted-foreground">
+									{org.restaurantCount} restaurants · {org.userCount} users
+								</p>
 							</div>
 							<div class="flex items-center gap-2">
 								<Badge.Badge variant={org.status === 'active' ? 'default' : 'secondary'}>
@@ -115,21 +117,30 @@
 
 	<!-- Quick Links -->
 	<div class="grid gap-4 sm:grid-cols-3">
-		<a href="/platform/tenants" class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted">
+		<a
+			href="/platform/tenants"
+			class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted"
+		>
 			<div>
 				<p class="text-sm font-medium">Tenants</p>
 				<p class="text-xs text-muted-foreground">Manage organizations</p>
 			</div>
 			<ArrowRight size={16} class="text-muted-foreground" />
 		</a>
-		<a href="/platform/organizations" class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted">
+		<a
+			href="/platform/organizations"
+			class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted"
+		>
 			<div>
 				<p class="text-sm font-medium">Organizations</p>
 				<p class="text-xs text-muted-foreground">View all organizations</p>
 			</div>
 			<ArrowRight size={16} class="text-muted-foreground" />
 		</a>
-		<a href="/platform/analytics" class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted">
+		<a
+			href="/platform/analytics"
+			class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted"
+		>
 			<div>
 				<p class="text-sm font-medium">Analytics</p>
 				<p class="text-xs text-muted-foreground">Platform metrics</p>

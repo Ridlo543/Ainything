@@ -1,6 +1,14 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { TrendingUp, TrendingDown, ShoppingCart, Eye, Star, BarChart3, Calendar } from '@lucide/svelte';
+	import {
+		TrendingUp,
+		TrendingDown,
+		ShoppingCart,
+		Eye,
+		Star,
+		BarChart3,
+		Calendar
+	} from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
@@ -27,14 +35,14 @@
 	const dailyOrders = $derived(data.dailyOrders);
 	const topProducts = $derived(data.topProducts);
 
-	const maxOrders = $derived(Math.max(...dailyOrders.map(d => d.orders), 1));
+	const maxOrders = $derived(Math.max(...dailyOrders.map((d) => d.orders), 1));
 
 	function formatRev(n: number) {
 		if (n >= 1000000) return 'Rp ' + (n / 1000000).toFixed(1) + ' jt';
 		return 'Rp ' + (n / 1000).toFixed(0) + 'rb';
 	}
 
-	const maxTopOrders = $derived(Math.max(...topProducts.map(p => p.orders), 1));
+	const maxTopOrders = $derived(Math.max(...topProducts.map((p) => p.orders), 1));
 </script>
 
 <svelte:head>
@@ -42,7 +50,6 @@
 </svelte:head>
 
 <div class="space-y-6">
-
 	<!-- Header + range selector -->
 	<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 		<div>
@@ -65,14 +72,16 @@
 
 	<!-- Summary stats -->
 	<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-			{#each summaryStats as s}
+		{#each summaryStats as s}
 			<div class="rounded-2xl bg-white p-5 shadow-sm">
 				<div class="flex items-start justify-between">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl {s.bg} {s.color}">
 						{#if s.icon && iconMap[s.icon]}{@const Icon = iconMap[s.icon]}<Icon size={20} />{/if}
 					</div>
-					<span class="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold
-						{s.up ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fef2f2] text-[#dc2626]'}">
+					<span
+						class="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold
+						{s.up ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fef2f2] text-[#dc2626]'}"
+					>
 						{#if s.up}<TrendingUp size={10} />{:else}<TrendingDown size={10} />{/if}
 						{s.trend}
 					</span>
@@ -109,11 +118,21 @@
 			{#each topProducts as p, i}
 				<div class="flex items-center gap-4 px-6 py-4">
 					<span class="w-5 shrink-0 text-center text-sm font-bold text-[#a8a29e]">{i + 1}</span>
-					<img src={p.img} alt={p.name} class="h-10 w-10 shrink-0 rounded-xl object-cover" width="40" height="40" loading="lazy" />
+					<img
+						src={p.img}
+						alt={p.name}
+						class="h-10 w-10 shrink-0 rounded-xl object-cover"
+						width="40"
+						height="40"
+						loading="lazy"
+					/>
 					<div class="min-w-0 flex-1">
 						<p class="text-sm font-bold text-[#1a1a2e]">{p.name}</p>
 						<div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f5f5f4]">
-							<div class="h-full rounded-full bg-[#059669] transition-all" style="width: {(p.orders / maxTopOrders) * 100}%"></div>
+							<div
+								class="h-full rounded-full bg-[#059669] transition-all"
+								style="width: {(p.orders / maxTopOrders) * 100}%"
+							></div>
 						</div>
 					</div>
 					<div class="shrink-0 text-right">
@@ -124,5 +143,4 @@
 			{/each}
 		</div>
 	</div>
-
 </div>

@@ -37,9 +37,18 @@
 	);
 
 	function validate() {
-		if (!name.trim()) { error = 'Nama lengkap wajib diisi.'; return false; }
-		if (!email.trim() || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { error = 'Email tidak valid.'; return false; }
-		if (password.length < 8) { error = 'Password minimal 8 karakter.'; return false; }
+		if (!name.trim()) {
+			error = 'Nama lengkap wajib diisi.';
+			return false;
+		}
+		if (!email.trim() || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+			error = 'Email tidak valid.';
+			return false;
+		}
+		if (password.length < 8) {
+			error = 'Password minimal 8 karakter.';
+			return false;
+		}
 		error = '';
 		return true;
 	}
@@ -117,15 +126,21 @@
 				<div class="mt-2 space-y-1">
 					<div class="flex gap-1">
 						{#each [1, 2, 3] as level}
-							<div class="h-1 flex-1 rounded-full transition-all {strength.level >= level ? strength.color : 'bg-[#e7e5e4]'}"></div>
+							<div
+								class="h-1 flex-1 rounded-full transition-all {strength.level >= level
+									? strength.color
+									: 'bg-[#e7e5e4]'}"
+							></div>
 						{/each}
 					</div>
 					<p class="text-xs text-[#78716c]">
 						Kekuatan:
-						<span class="font-medium
+						<span
+							class="font-medium
 							{strength.level === 1 ? 'text-red-500' : ''}
 							{strength.level === 2 ? 'text-[#f59e0b]' : ''}
-							{strength.level === 3 ? 'text-[#059669]' : ''}">{strength.label}</span>
+							{strength.level === 3 ? 'text-[#059669]' : ''}">{strength.label}</span
+						>
 					</p>
 				</div>
 			{/if}

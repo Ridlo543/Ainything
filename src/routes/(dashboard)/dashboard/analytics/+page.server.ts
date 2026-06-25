@@ -15,10 +15,42 @@ function getMockAnalytics(windowDays: number) {
 	return {
 		windowDays,
 		summaryStats: [
-			{ label: 'Total Pesanan', value: '168', trend: '+18%', up: true, color: 'text-[#059669]', bg: 'bg-[#d1fae5]', icon: 'ShoppingCart' },
-			{ label: 'Pendapatan', value: 'Rp 18,4 jt', trend: '+12%', up: true, color: 'text-[#d97706]', bg: 'bg-[#fef3c7]', icon: 'TrendingUp' },
-			{ label: 'Kunjungan Katalog', value: '1.302', trend: '+31%', up: true, color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]', icon: 'Eye' },
-			{ label: 'Rata-rata Pesanan', value: 'Rp 109rb', trend: '-3%', up: false, color: 'text-[#db2777]', bg: 'bg-[#fce7f3]', icon: 'BarChart3' }
+			{
+				label: 'Total Pesanan',
+				value: '168',
+				trend: '+18%',
+				up: true,
+				color: 'text-[#059669]',
+				bg: 'bg-[#d1fae5]',
+				icon: 'ShoppingCart'
+			},
+			{
+				label: 'Pendapatan',
+				value: 'Rp 18,4 jt',
+				trend: '+12%',
+				up: true,
+				color: 'text-[#d97706]',
+				bg: 'bg-[#fef3c7]',
+				icon: 'TrendingUp'
+			},
+			{
+				label: 'Kunjungan Katalog',
+				value: '1.302',
+				trend: '+31%',
+				up: true,
+				color: 'text-[#2563eb]',
+				bg: 'bg-[#eff6ff]',
+				icon: 'Eye'
+			},
+			{
+				label: 'Rata-rata Pesanan',
+				value: 'Rp 109rb',
+				trend: '-3%',
+				up: false,
+				color: 'text-[#db2777]',
+				bg: 'bg-[#fce7f3]',
+				icon: 'BarChart3'
+			}
 		],
 		dailyOrders: [
 			{ day: 'Sen', orders: 18, rev: 1980000 },
@@ -30,11 +62,36 @@ function getMockAnalytics(windowDays: number) {
 			{ day: 'Min', orders: 24, rev: 2640000 }
 		],
 		topProducts: [
-			{ name: 'Ayam Betutu', orders: 48, rev: 4704000, img: '/mock-images/photo-1604908176997-125f25cc6f3d.jpg' },
-			{ name: 'Ikan Bakar Jimbaran', orders: 36, rev: 5220000, img: '/mock-images/photo-1544943910-4c1dc44aab44.jpg' },
-			{ name: 'Sate Ayam', orders: 29, rev: 2204000, img: '/mock-images/photo-1529543544282-ea669407fca3.jpg' },
-			{ name: 'Es Kelapa Muda', orders: 22, rev: 924000, img: '/mock-images/photo-1541518763669-27fef04b14ea.jpg' },
-			{ name: 'Coconut Cendol', orders: 17, rev: 714000, img: '/mock-images/photo-1534706270553-2ac0dfa30283.jpg' }
+			{
+				name: 'Ayam Betutu',
+				orders: 48,
+				rev: 4704000,
+				img: '/mock-images/photo-1604908176997-125f25cc6f3d.jpg'
+			},
+			{
+				name: 'Ikan Bakar Jimbaran',
+				orders: 36,
+				rev: 5220000,
+				img: '/mock-images/photo-1544943910-4c1dc44aab44.jpg'
+			},
+			{
+				name: 'Sate Ayam',
+				orders: 29,
+				rev: 2204000,
+				img: '/mock-images/photo-1529543544282-ea669407fca3.jpg'
+			},
+			{
+				name: 'Es Kelapa Muda',
+				orders: 22,
+				rev: 924000,
+				img: '/mock-images/photo-1541518763669-27fef04b14ea.jpg'
+			},
+			{
+				name: 'Coconut Cendol',
+				orders: 17,
+				rev: 714000,
+				img: '/mock-images/photo-1534706270553-2ac0dfa30283.jpg'
+			}
 		]
 	};
 }
@@ -116,10 +173,39 @@ export const load: PageServerLoad = async ({ parent }) => {
 		const avgTrend = trend(avgOrder, prevAvg);
 
 		const summaryStats = [
-			{ label: 'Total Pesanan', value: windowOrders.length.toString(), ...totalTrend, color: 'text-[#059669]', bg: 'bg-[#d1fae5]', icon: 'ShoppingCart' },
-			{ label: 'Pendapatan', value: formatCompact(totalRevenue), ...revTrend, color: 'text-[#d97706]', bg: 'bg-[#fef3c7]', icon: 'TrendingUp' },
-			{ label: 'Kunjungan Katalog', value: '—', trend: '', up: true, color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]', icon: 'Eye' },
-			{ label: 'Rata-rata Pesanan', value: formatCompact(avgOrder), ...avgTrend, color: 'text-[#db2777]', bg: 'bg-[#fce7f3]', icon: 'BarChart3' }
+			{
+				label: 'Total Pesanan',
+				value: windowOrders.length.toString(),
+				...totalTrend,
+				color: 'text-[#059669]',
+				bg: 'bg-[#d1fae5]',
+				icon: 'ShoppingCart'
+			},
+			{
+				label: 'Pendapatan',
+				value: formatCompact(totalRevenue),
+				...revTrend,
+				color: 'text-[#d97706]',
+				bg: 'bg-[#fef3c7]',
+				icon: 'TrendingUp'
+			},
+			{
+				label: 'Kunjungan Katalog',
+				value: '—',
+				trend: '',
+				up: true,
+				color: 'text-[#2563eb]',
+				bg: 'bg-[#eff6ff]',
+				icon: 'Eye'
+			},
+			{
+				label: 'Rata-rata Pesanan',
+				value: formatCompact(avgOrder),
+				...avgTrend,
+				color: 'text-[#db2777]',
+				bg: 'bg-[#fce7f3]',
+				icon: 'BarChart3'
+			}
 		];
 
 		return { windowDays, summaryStats, dailyOrders, topProducts };

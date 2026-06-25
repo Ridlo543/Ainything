@@ -202,12 +202,12 @@ Lingua sets HTTP cache headers automatically via `src/lib/server/cache/cache-pol
 
 ### Cache Strategies
 
-| Strategy            | Applied to                           | s-maxage | stale-while-revalidate |
-| ------------------- | ------------------------------------ | -------- | ---------------------- |
-| `PUBLIC_CATALOG`    | `/api/public/bootstrap`, catalog API | 60 s     | 300 s                  |
-| `PUBLIC_PAGE`       | `/r/[slug]` public catalog pages     | 30 s     | 120 s                  |
-| `PUBLIC_API_DYNAMIC`| Other `/api/public/*` endpoints      | 10 s     | 60 s                   |
-| `PRIVATE_NO_STORE`  | All authenticated/private routes     | —        | — (no-store)           |
+| Strategy             | Applied to                           | s-maxage | stale-while-revalidate |
+| -------------------- | ------------------------------------ | -------- | ---------------------- |
+| `PUBLIC_CATALOG`     | `/api/public/bootstrap`, catalog API | 60 s     | 300 s                  |
+| `PUBLIC_PAGE`        | `/r/[slug]` public catalog pages     | 30 s     | 120 s                  |
+| `PUBLIC_API_DYNAMIC` | Other `/api/public/*` endpoints      | 10 s     | 60 s                   |
+| `PRIVATE_NO_STORE`   | All authenticated/private routes     | —        | — (no-store)           |
 
 ### Cloudflare Configuration
 
@@ -219,6 +219,7 @@ If using Cloudflare as CDN (recommended):
    - `lingua.example.com/_app/immutable/*` → Cache Level: Cache Everything, Edge Cache TTL: 1 year (immutable build assets)
 
 2. **Cache Purge:** After publishing a menu change, purge by URL pattern:
+
    ```bash
    # Purge a specific restaurant's cached data
    curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" \

@@ -38,13 +38,13 @@
 	const greeting = hour < 12 ? 'Selamat pagi' : hour < 17 ? 'Selamat siang' : 'Selamat malam';
 
 	const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-		pending:    { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
-		new:        { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
-		processing: { label: 'Proses',  bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]' },
-		done:       { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
-		completed:  { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
-		ready:      { label: 'Siap',    bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
-		cancelled:  { label: 'Batal',   bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]' }
+		pending: { label: 'Baru', bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
+		new: { label: 'Baru', bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
+		processing: { label: 'Proses', bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]' },
+		done: { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		completed: { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		ready: { label: 'Siap', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		cancelled: { label: 'Batal', bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]' }
 	};
 </script>
 
@@ -53,7 +53,6 @@
 </svelte:head>
 
 <div class="space-y-6">
-
 	<!-- ── Header ── -->
 	<div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 		<div>
@@ -95,8 +94,10 @@
 							<IconComponent size={20} />
 						{/if}
 					</div>
-					<span class="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold
-						{s.up ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fef2f2] text-[#dc2626]'}">
+					<span
+						class="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold
+						{s.up ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fef2f2] text-[#dc2626]'}"
+					>
 						{#if s.up}<TrendingUp size={10} />{:else}<TrendingDown size={10} />{/if}
 						{s.trend}
 					</span>
@@ -110,12 +111,14 @@
 
 	<!-- ── Main grid: recent orders + top products ── -->
 	<div class="grid gap-5 lg:grid-cols-3">
-
 		<!-- Recent orders (2/3 width) -->
 		<div class="lg:col-span-2 rounded-2xl bg-white shadow-sm">
 			<div class="flex items-center justify-between border-b border-[#f5f5f4] px-5 py-4">
 				<h2 class="text-sm font-bold text-[#1a1a2e]">Pesanan Terbaru</h2>
-				<a href="/dashboard/orders" class="flex items-center gap-1 text-xs font-semibold text-[#059669] hover:underline">
+				<a
+					href="/dashboard/orders"
+					class="flex items-center gap-1 text-xs font-semibold text-[#059669] hover:underline"
+				>
 					Lihat semua <ArrowRight size={12} />
 				</a>
 			</div>
@@ -126,7 +129,11 @@
 						class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#fafaf9] transition-colors"
 					>
 						<!-- Status dot -->
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {statusConfig[order.status].bg}">
+						<div
+							class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {statusConfig[
+								order.status
+							].bg}"
+						>
 							<ShoppingCart size={14} class={statusConfig[order.status].text} />
 						</div>
 						<div class="min-w-0 flex-1">
@@ -139,11 +146,16 @@
 						<div class="shrink-0 text-right">
 							<p class="text-sm font-semibold text-[#1a1a2e]">{order.total}</p>
 							<div class="mt-0.5 flex items-center justify-end gap-1">
-								<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold {statusConfig[order.status].bg} {statusConfig[order.status].text}">
+								<span
+									class="rounded-full px-2 py-0.5 text-[10px] font-semibold {statusConfig[
+										order.status
+									].bg} {statusConfig[order.status].text}"
+								>
 									{statusConfig[order.status].label}
 								</span>
 								<span class="flex items-center gap-0.5 text-[10px] text-[#a8a29e]">
-									<Clock size={9} /> {order.time}
+									<Clock size={9} />
+									{order.time}
 								</span>
 							</div>
 						</div>
@@ -154,12 +166,14 @@
 
 		<!-- Right column -->
 		<div class="space-y-5">
-
 			<!-- Top products -->
 			<div class="rounded-2xl bg-white shadow-sm">
 				<div class="flex items-center justify-between border-b border-[#f5f5f4] px-5 py-4">
 					<h2 class="text-sm font-bold text-[#1a1a2e]">Produk Terlaris</h2>
-					<a href="/dashboard/analytics" class="flex items-center gap-1 text-xs font-semibold text-[#059669] hover:underline">
+					<a
+						href="/dashboard/analytics"
+						class="flex items-center gap-1 text-xs font-semibold text-[#059669] hover:underline"
+					>
 						Lihat <ArrowRight size={12} />
 					</a>
 				</div>
@@ -171,7 +185,8 @@
 								src={p.img}
 								alt={p.name}
 								class="h-9 w-9 shrink-0 rounded-xl object-cover"
-								width="36" height="36"
+								width="36"
+								height="36"
 								loading="lazy"
 							/>
 							<div class="min-w-0 flex-1">
@@ -192,16 +207,14 @@
 					<h2 class="text-sm font-bold text-[#1a1a2e]">Aksi Cepat</h2>
 				</div>
 				<div class="space-y-1.5 p-3">
-					{#each [
-						{ href: '/dashboard/catalog?new=1', icon: Plus, label: 'Tambah Produk Baru', color: 'text-[#059669]', bg: 'bg-[#d1fae5]' },
-						{ href: '/dashboard/settings/qr', icon: QrCode, label: 'Download QR Code', color: 'text-[#d97706]', bg: 'bg-[#fef3c7]' },
-						{ href: '/dashboard/analytics', icon: BarChart3, label: 'Lihat Laporan', color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]' }
-					] as action}
+					{#each [{ href: '/dashboard/catalog?new=1', icon: Plus, label: 'Tambah Produk Baru', color: 'text-[#059669]', bg: 'bg-[#d1fae5]' }, { href: '/dashboard/settings/qr', icon: QrCode, label: 'Download QR Code', color: 'text-[#d97706]', bg: 'bg-[#fef3c7]' }, { href: '/dashboard/analytics', icon: BarChart3, label: 'Lihat Laporan', color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]' }] as action}
 						<a
 							href={action.href}
 							class="flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-[#f5f5f4]"
 						>
-							<div class="flex h-8 w-8 items-center justify-center rounded-lg {action.bg} {action.color}">
+							<div
+								class="flex h-8 w-8 items-center justify-center rounded-lg {action.bg} {action.color}"
+							>
 								<action.icon size={16} />
 							</div>
 							{action.label}
@@ -210,8 +223,6 @@
 					{/each}
 				</div>
 			</div>
-
 		</div>
 	</div>
-
 </div>

@@ -41,18 +41,17 @@ export const actions: Actions = {
 
 		const { email, password, redirectTo } = parseResult.data;
 
-	try {
-		await authProvider.login(email, password, cookies);
-	} catch (err) {
-		const message = err instanceof Error ? err.message : 'Login failed.';
-		return fail(401, { message, email });
-	}
+		try {
+			await authProvider.login(email, password, cookies);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Login failed.';
+			return fail(401, { message, email });
+		}
 
-	const user = await authProvider.getSessionUser(cookies, request);
-	const target = user ? resolveRoleRedirect(user) : '/dashboard';
-	const safeRedirect = redirectTo.startsWith('/') && redirectTo !== '/dashboard'
-		? redirectTo
-		: target;
-	redirect(303, safeRedirect);
+		const user = await authProvider.getSessionUser(cookies, request);
+		const target = user ? resolveRoleRedirect(user) : '/dashboard';
+		const safeRedirect =
+			redirectTo.startsWith('/') && redirectTo !== '/dashboard' ? redirectTo : target;
+		redirect(303, safeRedirect);
 	}
 };

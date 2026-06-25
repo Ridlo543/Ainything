@@ -146,18 +146,19 @@ src/routes/
 ```
 
 Legacy routes archived to `routes-archive/` (outside SvelteKit routing).
-    /dashboard/settings       Settings
+/dashboard/settings Settings
 
-  (staff)/                  OLD — Keep working until migrated
-    /staff/inbox              Fallback request management
+(staff)/ OLD — Keep working until migrated
+/staff/inbox Fallback request management
 
-  (public)/                 OLD PUBLIC — Keep working
-    /r/[slug]/table/[code]   QR entry point (legacy)
+(public)/ OLD PUBLIC — Keep working
+/r/[slug]/table/[code] QR entry point (legacy)
 
-  api/                      JSON endpoints
-    /api/public/*             Buyer-facing APIs
-    /api/admin/*              Admin APIs
-    /api/platform/*           Platform admin APIs
+api/ JSON endpoints
+/api/public/_ Buyer-facing APIs
+/api/admin/_ Admin APIs
+/api/platform/\* Platform admin APIs
+
 ```
 
 ## Redesign Implementation Status
@@ -226,3 +227,4 @@ UI stack: shadcn-svelte (copy-owned in `src/lib/ui/{component}/`) + bits-ui (hea
 - Mixing platform admin and owner admin concerns in the same layout.
 - Hard-coding `localhost` for database connections (use `127.0.0.1` on Windows/WSL2).
 - Assuming all tenants are restaurants — dietary/allergen flags are restaurant-only, not universal.
+```

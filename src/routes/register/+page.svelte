@@ -41,19 +41,27 @@
 </svelte:head>
 
 <div class="flex min-h-screen bg-[#fafaf9]">
-
 	<!-- Left decorative panel (lg+) -->
 	<div
 		class="relative hidden overflow-hidden lg:flex lg:w-[46%] lg:flex-col"
 		style="background: linear-gradient(145deg, #065f46 0%, #059669 55%, #10b981 100%);"
 	>
-		<div class="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/5" aria-hidden="true"></div>
-		<div class="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-white/5" aria-hidden="true"></div>
+		<div
+			class="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/5"
+			aria-hidden="true"
+		></div>
+		<div
+			class="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-white/5"
+			aria-hidden="true"
+		></div>
 
 		<!-- Logo -->
 		<div class="relative z-10 p-10">
 			<a href="/" class="flex items-center gap-2.5" aria-label="Lingua beranda">
-				<span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-xl font-black text-white">L</span>
+				<span
+					class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-xl font-black text-white"
+					>L</span
+				>
 				<span class="text-xl font-extrabold text-white">Lingua</span>
 			</a>
 		</div>
@@ -73,7 +81,8 @@
 					src="/mock-images/photo-1600891964599-f61ba0e24092.jpg"
 					alt="Contoh katalog digital Lingua"
 					class="h-44 w-full object-cover"
-					width="560" height="176"
+					width="560"
+					height="176"
 				/>
 				<div class="bg-white/10 px-4 py-3 backdrop-blur-sm">
 					<p class="text-xs font-semibold text-white">Warung Sari — Bali</p>
@@ -89,7 +98,8 @@
 							src={t.avatar}
 							alt={t.name}
 							class="h-9 w-9 shrink-0 rounded-full object-cover"
-							width="36" height="36"
+							width="36"
+							height="36"
 						/>
 						<div>
 							<p class="text-xs font-bold text-white">{t.name}</p>
@@ -102,17 +112,21 @@
 
 		<!-- Footer -->
 		<div class="relative z-10 px-10 pb-8">
-			<p class="text-xs text-white/30">&copy; {new Date().getFullYear()} Lingua. Hak cipta dilindungi.</p>
+			<p class="text-xs text-white/30">
+				&copy; {new Date().getFullYear()} Lingua. Hak cipta dilindungi.
+			</p>
 		</div>
 	</div>
 
 	<!-- Right form panel -->
 	<div class="flex flex-1 items-start justify-center overflow-y-auto p-6 pt-8 lg:p-12">
 		<div class="w-full max-w-md">
-
 			<!-- Mobile logo -->
 			<div class="mb-8 flex items-center gap-2.5 lg:hidden">
-				<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white">L</span>
+				<span
+					class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
+					>L</span
+				>
 				<span class="text-lg font-extrabold text-[#1a1a2e]">Lingua</span>
 			</div>
 
@@ -122,8 +136,12 @@
 			</div>
 
 			{#if step === 1}
-				<RegisterStep1 onSelect={(type) => { tenantType = type; step = 2; }} />
-
+				<RegisterStep1
+					onSelect={(type) => {
+						tenantType = type;
+						step = 2;
+					}}
+				/>
 			{:else if step === 2}
 				<RegisterStep2
 					bind:name
@@ -132,7 +150,6 @@
 					onBack={() => (step = 1)}
 					onNext={() => (step = 3)}
 				/>
-
 			{:else if step === 3}
 				<form
 					method="POST"
@@ -157,7 +174,11 @@
 			<!-- Sign in link -->
 			<p class="mt-8 text-center text-sm text-[#78716c]">
 				Sudah punya akun?
-				<a href="/login" class="font-semibold text-[#059669] underline-offset-4 transition-colors hover:underline">Masuk</a>
+				<a
+					href="/login"
+					class="font-semibold text-[#059669] underline-offset-4 transition-colors hover:underline"
+					>Masuk</a
+				>
 			</p>
 		</div>
 	</div>

@@ -105,11 +105,24 @@
 							<div class="h-3 w-3 rounded-full {planColors[item.plan] ?? 'bg-gray-500'}"></div>
 							<div>
 								<p class="text-sm font-medium">{planLabels[item.plan] ?? item.plan}</p>
-								<p class="text-xs text-muted-foreground">{item.count} tenant{item.count !== 1 ? 's' : ''}</p>
+								<p class="text-xs text-muted-foreground">
+									{item.count} tenant{item.count !== 1 ? 's' : ''}
+								</p>
 							</div>
 						</div>
 						<div class="text-right">
-							<p class="text-sm font-semibold">{formatCurrency((stats.byPlan.find((p) => p.plan === item.plan)?.count ?? 0) * (item.plan === 'pilot' ? 0 : item.plan === 'starter' ? 99000 : item.plan === 'pro' ? 299000 : 999000))}</p>
+							<p class="text-sm font-semibold">
+								{formatCurrency(
+									(stats.byPlan.find((p) => p.plan === item.plan)?.count ?? 0) *
+										(item.plan === 'pilot'
+											? 0
+											: item.plan === 'starter'
+												? 99000
+												: item.plan === 'pro'
+													? 299000
+													: 999000)
+								)}
+							</p>
 							<p class="text-xs text-muted-foreground">MRR</p>
 						</div>
 					</div>
@@ -142,16 +155,31 @@
 							<tr class="border-b">
 								<td class="px-4 py-3">
 									<div class="flex items-center gap-2">
-										<div class="h-2 w-2 rounded-full {planColors[item.plan] ?? 'bg-gray-500'}"></div>
+										<div
+											class="h-2 w-2 rounded-full {planColors[item.plan] ?? 'bg-gray-500'}"
+										></div>
 										<span class="text-sm font-medium">{planLabels[item.plan] ?? item.plan}</span>
 									</div>
 								</td>
 								<td class="px-4 py-3 text-sm">{item.count}</td>
 								<td class="px-4 py-3 text-sm">
-									{item.plan === 'pilot' ? 'Free' : formatCurrency(item.plan === 'starter' ? 99000 : item.plan === 'pro' ? 299000 : 999000)}
+									{item.plan === 'pilot'
+										? 'Free'
+										: formatCurrency(
+												item.plan === 'starter' ? 99000 : item.plan === 'pro' ? 299000 : 999000
+											)}
 								</td>
 								<td class="px-4 py-3 text-sm font-medium">
-									{formatCurrency(item.count * (item.plan === 'pilot' ? 0 : item.plan === 'starter' ? 99000 : item.plan === 'pro' ? 299000 : 999000))}
+									{formatCurrency(
+										item.count *
+											(item.plan === 'pilot'
+												? 0
+												: item.plan === 'starter'
+													? 99000
+													: item.plan === 'pro'
+														? 299000
+														: 999000)
+									)}
 								</td>
 							</tr>
 						{/each}

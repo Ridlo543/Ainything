@@ -72,7 +72,8 @@
 		<div class="flex gap-2">
 			{#each statusOptions as status (status)}
 				<button
-					class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors {filters.status === status
+					class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors {filters.status ===
+					status
 						? 'bg-primary text-primary-foreground'
 						: 'bg-muted text-muted-foreground hover:bg-muted/80'}"
 					onclick={() => handleStatusChange(status)}
@@ -91,7 +92,9 @@
 					<Package size={48} class="text-muted-foreground" />
 					<p class="mt-4 font-semibold">No tenants found</p>
 					<p class="mt-1 text-sm text-muted-foreground">
-						{searchQuery ? 'Try a different search term.' : 'Tenant businesses will appear here once activated.'}
+						{searchQuery
+							? 'Try a different search term.'
+							: 'Tenant businesses will appear here once activated.'}
 					</p>
 				</div>
 			{:else}
@@ -100,11 +103,24 @@
 						<thead>
 							<tr class="border-b bg-muted/50">
 								<th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-								<th class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground sm:table-cell">Plan</th>
-								<th class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground md:table-cell">Restaurants</th>
-								<th class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground md:table-cell">Users</th>
-								<th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
-								<th class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground lg:table-cell">Created</th>
+								<th
+									class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground sm:table-cell"
+									>Plan</th
+								>
+								<th
+									class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground md:table-cell"
+									>Restaurants</th
+								>
+								<th
+									class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground md:table-cell"
+									>Users</th
+								>
+								<th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th
+								>
+								<th
+									class="hidden px-4 py-3 text-left text-sm font-medium text-muted-foreground lg:table-cell"
+									>Created</th
+								>
 							</tr>
 						</thead>
 						<tbody>

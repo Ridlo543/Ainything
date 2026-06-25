@@ -75,8 +75,16 @@
 			</div>
 		</div>
 	{:else}
-		<div class="mb-8 rounded-xl p-4 text-center" class:bg-red-50={isCancelled} class:bg-emerald-50={isCompleted}>
-			<p class="text-lg font-semibold" class:text-red-700={isCancelled} class:text-emerald-700={isCompleted}>
+		<div
+			class="mb-8 rounded-xl p-4 text-center"
+			class:bg-red-50={isCancelled}
+			class:bg-emerald-50={isCompleted}
+		>
+			<p
+				class="text-lg font-semibold"
+				class:text-red-700={isCancelled}
+				class:text-emerald-700={isCompleted}
+			>
 				{isCancelled ? t('order.status.cancelled') : t('order.status.completed')}
 			</p>
 		</div>
@@ -108,7 +116,9 @@
 									<p class="mt-0.5 text-xs text-gray-400">{item.notes}</p>
 								{/if}
 							</div>
-							<span class="font-medium text-gray-600">{formatPrice(item.price * item.quantity)}</span>
+							<span class="font-medium text-gray-600"
+								>{formatPrice(item.price * item.quantity)}</span
+							>
 						</li>
 					{/each}
 				</ul>

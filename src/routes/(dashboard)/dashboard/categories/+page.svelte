@@ -23,7 +23,7 @@
 		showModal = true;
 	}
 
-	function openEdit(c: typeof categories[0]) {
+	function openEdit(c: (typeof categories)[0]) {
 		editingId = c.id;
 		formName = c.name;
 		formDescription = c.description;
@@ -37,7 +37,6 @@
 </svelte:head>
 
 <div class="space-y-5">
-
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-2xl font-extrabold text-[#1a1a2e]">Kategori</h1>
@@ -53,7 +52,9 @@
 	</div>
 
 	{#if categories.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#f0eeec] bg-white py-16 text-center">
+		<div
+			class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#f0eeec] bg-white py-16 text-center"
+		>
 			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f5f5f4]">
 				<Tag size={24} class="text-[#a8a29e]" />
 			</div>
@@ -70,7 +71,9 @@
 	{:else}
 		<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 			{#each categories as cat (cat.id)}
-				<div class="group flex items-center gap-4 rounded-2xl bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+				<div
+					class="group flex items-center gap-4 rounded-2xl bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+				>
 					<div
 						class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white"
 						style="background-color: {cat.color}"
@@ -110,25 +113,53 @@
 	{#if showModal}
 		<div
 			class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
-			role="dialog" aria-modal="true" tabindex="-1"
-			onclick={(e) => { if (e.target === e.currentTarget) showModal = false; }}
+			role="dialog"
+			aria-modal="true"
+			tabindex="-1"
+			onclick={(e) => {
+				if (e.target === e.currentTarget) showModal = false;
+			}}
 			onkeydown={(e) => e.key === 'Escape' && (showModal = false)}
 		>
 			<div class="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-2xl">
 				<div class="mb-5 flex items-center justify-between">
-					<h2 class="text-lg font-extrabold text-[#1a1a2e]">{editingId ? 'Edit Kategori' : 'Tambah Kategori'}</h2>
-					<button type="button" onclick={() => (showModal = false)} class="flex h-9 w-9 items-center justify-center rounded-xl text-[#78716c] hover:bg-[#f5f5f4]" aria-label="Tutup">
+					<h2 class="text-lg font-extrabold text-[#1a1a2e]">
+						{editingId ? 'Edit Kategori' : 'Tambah Kategori'}
+					</h2>
+					<button
+						type="button"
+						onclick={() => (showModal = false)}
+						class="flex h-9 w-9 items-center justify-center rounded-xl text-[#78716c] hover:bg-[#f5f5f4]"
+						aria-label="Tutup"
+					>
 						<X size={18} />
 					</button>
 				</div>
 				<div class="space-y-4">
 					<div>
-						<label for="cat-name" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">Nama Kategori <span class="text-[#dc2626]">*</span></label>
-						<input id="cat-name" type="text" bind:value={formName} placeholder="Contoh: Makanan Utama" class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" required />
+						<label for="cat-name" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+							>Nama Kategori <span class="text-[#dc2626]">*</span></label
+						>
+						<input
+							id="cat-name"
+							type="text"
+							bind:value={formName}
+							placeholder="Contoh: Makanan Utama"
+							class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+							required
+						/>
 					</div>
 					<div>
-						<label for="cat-desc" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">Deskripsi</label>
-						<input id="cat-desc" type="text" bind:value={formDescription} placeholder="Deskripsi singkat (opsional)" class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" />
+						<label for="cat-desc" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+							>Deskripsi</label
+						>
+						<input
+							id="cat-desc"
+							type="text"
+							bind:value={formDescription}
+							placeholder="Deskripsi singkat (opsional)"
+							class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+						/>
 					</div>
 					<div>
 						<p class="mb-2 text-sm font-semibold text-[#1a1a2e]">Warna</p>
@@ -137,7 +168,10 @@
 								<button
 									type="button"
 									onclick={() => (formColor = color)}
-									class="h-8 w-8 rounded-full transition-transform hover:scale-110 {formColor === color ? 'ring-2 ring-offset-2 scale-110' : ''}"
+									class="h-8 w-8 rounded-full transition-transform hover:scale-110 {formColor ===
+									color
+										? 'ring-2 ring-offset-2 scale-110'
+										: ''}"
 									style="background-color: {color}; ring-color: {color}"
 									aria-label="Pilih warna {color}"
 								></button>
@@ -146,13 +180,22 @@
 					</div>
 				</div>
 				<div class="mt-6 flex gap-3">
-					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors">Batal</button>
-					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
-						<Check size={16} /> {editingId ? 'Simpan' : 'Tambah'}
+					<button
+						type="button"
+						onclick={() => (showModal = false)}
+						class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
+						>Batal</button
+					>
+					<button
+						type="button"
+						onclick={() => (showModal = false)}
+						class="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors"
+					>
+						<Check size={16} />
+						{editingId ? 'Simpan' : 'Tambah'}
 					</button>
 				</div>
 			</div>
 		</div>
 	{/if}
-
 </div>

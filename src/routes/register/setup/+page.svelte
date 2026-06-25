@@ -3,8 +3,15 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import {
-		Package, QrCode, Users, Check, ArrowRight, SkipForward,
-		Plus, Mail, Sparkles
+		Package,
+		QrCode,
+		Users,
+		Check,
+		ArrowRight,
+		SkipForward,
+		Plus,
+		Mail,
+		Sparkles
 	} from '@lucide/svelte';
 	import QrCodeDisplay from '$lib/ui/primitives/QrCodeDisplay.svelte';
 
@@ -51,12 +58,14 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col bg-[#fafaf9]">
-
 	<!-- Header -->
 	<header class="border-b border-[#f0eeec] bg-white px-4 py-4">
 		<div class="mx-auto flex max-w-lg items-center justify-between">
 			<div class="flex items-center gap-2">
-				<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white">L</span>
+				<span
+					class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
+					>L</span
+				>
 				<span class="text-lg font-extrabold text-[#1a1a2e]">Lingua</span>
 			</div>
 			<form method="POST" action="?/skip" use:enhance>
@@ -74,7 +83,6 @@
 	<!-- Main content -->
 	<main class="flex flex-1 flex-col items-center px-4 py-8">
 		<div class="w-full max-w-lg">
-
 			<!-- Step indicator -->
 			<div class="mb-8 flex items-center justify-center gap-3">
 				{#each steps as s, i}
@@ -82,10 +90,10 @@
 						<div
 							class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors
 								{step === s.num
-									? 'bg-[#059669] text-white'
-									: step > s.num
-										? 'bg-[#d1fae5] text-[#059669]'
-										: 'bg-[#f5f5f4] text-[#a8a29e]'}"
+								? 'bg-[#059669] text-white'
+								: step > s.num
+									? 'bg-[#d1fae5] text-[#059669]'
+									: 'bg-[#f5f5f4] text-[#a8a29e]'}"
 						>
 							{#if step > s.num}
 								<Check size={16} />
@@ -93,7 +101,9 @@
 								<s.icon size={16} />
 							{/if}
 						</div>
-						<span class="text-xs font-semibold {step === s.num ? 'text-[#1a1a2e]' : 'text-[#a8a29e]'}">
+						<span
+							class="text-xs font-semibold {step === s.num ? 'text-[#1a1a2e]' : 'text-[#a8a29e]'}"
+						>
 							{s.label}
 						</span>
 					</div>
@@ -107,13 +117,13 @@
 			{#if step === 1}
 				<div class="rounded-2xl bg-white p-6 shadow-sm">
 					<div class="mb-6 text-center">
-						<div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f0fdf4]">
+						<div
+							class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f0fdf4]"
+						>
 							<Package size={24} class="text-[#059669]" />
 						</div>
 						<h1 class="text-xl font-extrabold text-[#1a1a2e]">Tambah Produk Pertama</h1>
-						<p class="mt-1 text-sm text-[#78716c]">
-							Mulai dengan satu produk andalan kamu
-						</p>
+						<p class="mt-1 text-sm text-[#78716c]">Mulai dengan satu produk andalan kamu</p>
 					</div>
 
 					{#if productAdded}
@@ -134,7 +144,10 @@
 						<form method="POST" action="?/addProduct" use:enhance>
 							<div class="space-y-4">
 								<div>
-									<label for="product-name" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">
+									<label
+										for="product-name"
+										class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+									>
 										Nama Produk <span class="text-[#dc2626]">*</span>
 									</label>
 									<input
@@ -149,11 +162,16 @@
 
 								<div class="grid grid-cols-2 gap-3">
 									<div>
-										<label for="product-price" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">
+										<label
+											for="product-price"
+											class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+										>
 											Harga <span class="text-[#dc2626]">*</span>
 										</label>
 										<div class="relative">
-											<span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#78716c]">Rp</span>
+											<span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#78716c]"
+												>Rp</span
+											>
 											<input
 												id="product-price"
 												name="price"
@@ -166,7 +184,10 @@
 										</div>
 									</div>
 									<div>
-										<label for="product-category" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">
+										<label
+											for="product-category"
+											class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+										>
 											Kategori <span class="text-[#dc2626]">*</span>
 										</label>
 										<input
@@ -181,7 +202,10 @@
 								</div>
 
 								<div>
-									<label for="product-desc" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">
+									<label
+										for="product-desc"
+										class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+									>
 										Deskripsi <span class="text-xs font-normal text-[#a8a29e]">(opsional)</span>
 									</label>
 									<textarea
@@ -217,20 +241,22 @@
 					{/if}
 				</div>
 
-			<!-- Step 2: QR Code -->
+				<!-- Step 2: QR Code -->
 			{:else if step === 2}
 				<div class="rounded-2xl bg-white p-6 shadow-sm">
 					<div class="mb-6 text-center">
-						<div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f0fdf4]">
+						<div
+							class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f0fdf4]"
+						>
 							<QrCode size={24} class="text-[#059669]" />
 						</div>
 						<h1 class="text-xl font-extrabold text-[#1a1a2e]">QR Code Katalog</h1>
-						<p class="mt-1 text-sm text-[#78716c]">
-							Cetak dan pasang di meja atau pintu masuk
-						</p>
+						<p class="mt-1 text-sm text-[#78716c]">Cetak dan pasang di meja atau pintu masuk</p>
 					</div>
 
-					<div class="flex flex-col items-center rounded-xl border border-[#f0eeec] bg-[#fafaf9] p-6">
+					<div
+						class="flex flex-col items-center rounded-xl border border-[#f0eeec] bg-[#fafaf9] p-6"
+					>
 						<QrCodeDisplay url={publicUrl} label="Katalog {restaurant.name}" size={192} />
 						<p class="mt-4 text-sm font-semibold text-[#1a1a2e]">{restaurant.name}</p>
 						<p class="mt-0.5 text-xs text-[#78716c]">{publicUrl}</p>
@@ -254,11 +280,13 @@
 					</div>
 				</div>
 
-			<!-- Step 3: Invite Staff -->
+				<!-- Step 3: Invite Staff -->
 			{:else if step === 3}
 				<div class="rounded-2xl bg-white p-6 shadow-sm">
 					<div class="mb-6 text-center">
-						<div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f0fdf4]">
+						<div
+							class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f0fdf4]"
+						>
 							<Users size={24} class="text-[#059669]" />
 						</div>
 						<h1 class="text-xl font-extrabold text-[#1a1a2e]">Undang Tim</h1>
@@ -285,11 +313,17 @@
 						<form method="POST" action="?/inviteStaff" use:enhance>
 							<div class="space-y-4">
 								<div>
-									<label for="staff-email" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">
+									<label
+										for="staff-email"
+										class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]"
+									>
 										Email <span class="text-[#dc2626]">*</span>
 									</label>
 									<div class="relative">
-										<Mail size={16} class="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]" />
+										<Mail
+											size={16}
+											class="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]"
+										/>
 										<input
 											id="staff-email"
 											name="email"

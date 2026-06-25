@@ -6,7 +6,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!user) return { orders: [] };
 
 	const statusFilter = url.searchParams.get('status');
-	const statuses = statusFilter ? statusFilter.split(',').filter(Boolean) as import('$lib/domain/order/types').OrderStatus[] : undefined;
+	const statuses = statusFilter
+		? (statusFilter.split(',').filter(Boolean) as import('$lib/domain/order/types').OrderStatus[])
+		: undefined;
 
 	const orders = await listStaffOrders(user, { statuses });
 

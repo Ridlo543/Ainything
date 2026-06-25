@@ -68,10 +68,7 @@ export async function listOrdersForRestaurant(params: {
 }): Promise<Order[]> {
 	const { organizationId, restaurantId, statuses, limit = 50 } = params;
 
-	const conditions = [
-		'o.organization_id = $1',
-		'o.restaurant_id = $2'
-	];
+	const conditions = ['o.organization_id = $1', 'o.restaurant_id = $2'];
 	const values: (string | string[] | number)[] = [organizationId, restaurantId];
 	let paramIdx = 3;
 
@@ -199,15 +196,13 @@ export async function insertOrder(
 	};
 }
 
-export async function updateOrderStatus(
-	params: {
-		userId: string;
-		organizationId: string;
-		restaurantId: string;
-		orderId: string;
-		newStatus: OrderStatus;
-	}
-): Promise<Order | null> {
+export async function updateOrderStatus(params: {
+	userId: string;
+	organizationId: string;
+	restaurantId: string;
+	orderId: string;
+	newStatus: OrderStatus;
+}): Promise<Order | null> {
 	return withUserContext(params.userId, async (client) => {
 		const completedAt =
 			params.newStatus === 'completed' || params.newStatus === 'cancelled'

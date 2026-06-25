@@ -32,7 +32,9 @@
 
 <div>
 	<h1 class="text-2xl font-extrabold text-[#1a1a2e]">Jenis bisnis kamu</h1>
-	<p class="mt-1.5 text-sm text-[#78716c]">Pilih kategori yang paling sesuai — bisa diubah nanti.</p>
+	<p class="mt-1.5 text-sm text-[#78716c]">
+		Pilih kategori yang paling sesuai — bisa diubah nanti.
+	</p>
 
 	<div class="mt-6 flex flex-col gap-3">
 		{#each types as type}
@@ -49,7 +51,8 @@
 					src={type.img}
 					alt={type.label}
 					class="h-14 w-14 shrink-0 rounded-xl object-cover"
-					width="56" height="56"
+					width="56"
+					height="56"
 				/>
 				<div class="flex-1 text-left">
 					<p class="font-bold text-[#1a1a2e]">{type.label}</p>

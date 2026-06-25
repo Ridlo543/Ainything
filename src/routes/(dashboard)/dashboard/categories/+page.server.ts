@@ -15,10 +15,28 @@ const colors = ['#059669', '#2563eb', '#d97706', '#db2777', '#7c3aed', '#dc2626'
 
 function getMockCategories(): Category[] {
 	return [
-		{ id: '1', name: 'Signatures', description: 'Menu andalan restoran', productCount: 3, color: '#059669' },
+		{
+			id: '1',
+			name: 'Signatures',
+			description: 'Menu andalan restoran',
+			productCount: 3,
+			color: '#059669'
+		},
 		{ id: '2', name: 'Drinks', description: 'Minuman segar', productCount: 2, color: '#2563eb' },
-		{ id: '3', name: 'Satay', description: 'Berbagai sate pilihan', productCount: 2, color: '#d97706' },
-		{ id: '4', name: 'Seafood', description: 'Ikan dan hasil laut segar', productCount: 1, color: '#db2777' },
+		{
+			id: '3',
+			name: 'Satay',
+			description: 'Berbagai sate pilihan',
+			productCount: 2,
+			color: '#d97706'
+		},
+		{
+			id: '4',
+			name: 'Seafood',
+			description: 'Ikan dan hasil laut segar',
+			productCount: 1,
+			color: '#db2777'
+		}
 	];
 }
 

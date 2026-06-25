@@ -22,10 +22,7 @@ export class StaffOrderError extends Error {
 
 export async function listStaffOrders(
 	user: AuthUser,
-	{
-		statuses,
-		restaurantSlug
-	}: { statuses?: OrderStatus[]; restaurantSlug?: string } = {}
+	{ statuses, restaurantSlug }: { statuses?: OrderStatus[]; restaurantSlug?: string } = {}
 ): Promise<Order[]> {
 	const tenant = await resolveTenantContext(user, restaurantSlug);
 	const { activeRestaurant } = tenant;
@@ -74,7 +71,10 @@ export async function transitionStaffOrder(
 	});
 
 	if (!parsed.success) {
-		throw new StaffOrderError(parsed.error.issues[0]?.message ?? 'Invalid input.', 'INVALID_TRANSITION');
+		throw new StaffOrderError(
+			parsed.error.issues[0]?.message ?? 'Invalid input.',
+			'INVALID_TRANSITION'
+		);
 	}
 
 	let currentOrder: OrderWithItems | null = null;

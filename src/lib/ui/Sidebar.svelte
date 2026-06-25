@@ -177,7 +177,8 @@
 		<div class="px-4 py-3">
 			<div class="flex items-center gap-2 mb-1.5">
 				<Building2 size={14} class="text-muted-foreground" />
-				<span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Outlet</span>
+				<span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Outlet</span
+				>
 			</div>
 			<select
 				class="tap-target w-full rounded-lg border border-input bg-muted px-3 text-sm font-medium focus:border-ring focus:outline-none"
@@ -201,8 +202,8 @@
 					<button
 						class="tap-target w-full flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors
 							{isGroupActive(item)
-								? 'bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)]'
-								: 'text-foreground hover:bg-accent'}"
+							? 'bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)]'
+							: 'text-foreground hover:bg-accent'}"
 						onclick={() => toggleGroup(item.href)}
 						aria-expanded={expandedGroups.has(item.href)}
 					>
@@ -221,8 +222,8 @@
 									href={child.href}
 									class="tap-target flex items-center gap-2 rounded-lg px-3 text-sm transition-colors
 										{isActive(child.href)
-											? 'font-semibold text-[var(--color-lingua-primary-strong)] bg-[var(--color-lingua-primary-soft)]'
-											: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
+										? 'font-semibold text-[var(--color-lingua-primary-strong)] bg-[var(--color-lingua-primary-soft)]'
+										: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
 									aria-current={isActive(child.href) ? 'page' : undefined}
 								>
 									<Tag size={13} class="shrink-0 opacity-50" />
@@ -238,8 +239,8 @@
 					href={item.href}
 					class="tap-target flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors
 						{isActive(item.href)
-							? 'bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)]'
-							: 'text-foreground hover:bg-accent'}"
+						? 'bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)]'
+						: 'text-foreground hover:bg-accent'}"
 					aria-current={isActive(item.href) ? 'page' : undefined}
 				>
 					<item.icon size={18} class="shrink-0" />

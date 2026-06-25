@@ -35,9 +35,7 @@
 				<a
 					href={item.href}
 					class="tap-target flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors
-						{isActive(item.href)
-							? 'bg-primary text-primary-foreground'
-							: 'text-foreground hover:bg-accent'}"
+						{isActive(item.href) ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-accent'}"
 					aria-current={isActive(item.href) ? 'page' : undefined}
 				>
 					<item.icon size={18} class="shrink-0" />
@@ -50,12 +48,16 @@
 
 		<div class="shrink-0 px-3 py-3">
 			<div class="flex items-center gap-3 px-2 py-2 mb-1">
-				<div class="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold">
+				<div
+					class="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold"
+				>
 					{user.name.charAt(0).toUpperCase()}
 				</div>
 				<div class="min-w-0">
 					<p class="truncate text-sm font-semibold">{user.name}</p>
-					<p class="truncate text-xs text-muted-foreground">{user.platformRole.replace('_', ' ')}</p>
+					<p class="truncate text-xs text-muted-foreground">
+						{user.platformRole.replace('_', ' ')}
+					</p>
 				</div>
 			</div>
 			<form method="POST" action="/logout">

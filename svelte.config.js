@@ -18,8 +18,8 @@ const config = {
 		// Path aliases — SvelteKit auto-generates tsconfig paths from these.
 		// $lib is handled automatically via kit.files.lib (default: src/lib).
 		alias: {
-			'$utils': 'src/lib/utils',
-			'$components': 'src/lib/ui'
+			$utils: 'src/lib/utils',
+			$components: 'src/lib/ui'
 		}
 	}
 };

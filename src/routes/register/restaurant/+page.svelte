@@ -36,77 +36,77 @@
 				</div>
 			</div>
 
-				<form method="POST" action="?/register" class="mt-6 grid gap-4">
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
-						Your name
-						<input
-							type="text"
-							name="name"
-							required
-							autocomplete="name"
-							placeholder="Made Surya"
-							value={formFields?.name ?? ''}
-							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-						/>
-					</label>
+			<form method="POST" action="?/register" class="mt-6 grid gap-4">
+				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+					Your name
+					<input
+						type="text"
+						name="name"
+						required
+						autocomplete="name"
+						placeholder="Made Surya"
+						value={formFields?.name ?? ''}
+						class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
+					/>
+				</label>
 
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
-						Email
-						<input
-							type="email"
-							name="email"
-							required
-							autocomplete="email"
-							placeholder="you@restaurant.com"
-							value={formFields?.email ?? ''}
-							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-						/>
-					</label>
+				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+					Email
+					<input
+						type="email"
+						name="email"
+						required
+						autocomplete="email"
+						placeholder="you@restaurant.com"
+						value={formFields?.email ?? ''}
+						class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
+					/>
+				</label>
 
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
-						Password
-						<input
-							type="password"
-							name="password"
-							required
-							autocomplete="new-password"
-							minlength="8"
-							placeholder="At least 8 characters"
-							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-						/>
-					</label>
+				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+					Password
+					<input
+						type="password"
+						name="password"
+						required
+						autocomplete="new-password"
+						minlength="8"
+						placeholder="At least 8 characters"
+						class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
+					/>
+				</label>
 
-					<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
-						Restaurant name
-						<input
-							type="text"
-							name="restaurantName"
-							required
-							placeholder="Uma Karang"
-							value={formFields?.restaurantName ?? ''}
-							class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
-						/>
-						<span class="text-xs font-normal text-lingua-subtle">
-							You can add more restaurants later.
-						</span>
-					</label>
+				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+					Restaurant name
+					<input
+						type="text"
+						name="restaurantName"
+						required
+						placeholder="Uma Karang"
+						value={formFields?.restaurantName ?? ''}
+						class="tap-target rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary"
+					/>
+					<span class="text-xs font-normal text-lingua-subtle">
+						You can add more restaurants later.
+					</span>
+				</label>
 
-					{#if form?.message}
-						<p
-							class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800"
-							role="alert"
-						>
-							{form.message}
-						</p>
-					{/if}
-
-					<button
-						class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
-						type="submit"
+				{#if form?.message}
+					<p
+						class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800"
+						role="alert"
 					>
-						<UserPlus size={17} /> Create account
-					</button>
-				</form>
+						{form.message}
+					</p>
+				{/if}
+
+				<button
+					class="tap-target inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
+					type="submit"
+				>
+					<UserPlus size={17} /> Create account
+				</button>
+			</form>
 		</section>
 	</div>
 </main>

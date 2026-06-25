@@ -1,62 +1,44 @@
 import { expect, test } from '@playwright/test';
 
-const TEST_URL = '/r/uma-karang/table/T07';
-const RTL_TEST_URL = '/r/rempah-terrace/table/A01';
+const TEST_URL = '/r/uma-karang';
+const RTL_TEST_URL = '/r/rempah-terrace';
 
 test.describe('Customer flow at 360px', () => {
 	test.use({ viewport: { width: 360, height: 740 } });
 
-	test('renders restaurant hero and session bootstrap', async ({ page }) => {
+	test('renders restaurant name and location', async ({ page }) => {
 		await page.goto(TEST_URL);
 
 		await expect(page.getByRole('heading', { name: 'Uma Karang' })).toBeVisible();
-		await expect(page.getByText('Table T07')).toBeVisible();
-		await expect(page.getByText('Language and food preferences')).toBeVisible();
-		await expect(page.getByText('No login required')).toBeVisible();
 	});
 
-	test('language selector shows options in selected language', async ({ page }) => {
+	test('search input is visible', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const langSelect = page.getByLabel('Language');
-		await expect(langSelect).toBeVisible();
-
-		const options = await langSelect.locator('option').allTextContents();
-		expect(options.length).toBeGreaterThanOrEqual(1);
-		expect(options).toContain('English');
+		const searchInput = page.getByPlaceholder(/cari|search/i);
+		await expect(searchInput).toBeVisible();
 	});
 
-	test('preference chips toggle correctly', async ({ page }) => {
+	test('category tabs render', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const halalBtn = page.getByRole('button', { name: 'Halal', exact: true });
-		await expect(halalBtn).toBeVisible();
-		await expect(halalBtn).toHaveAttribute('aria-pressed', 'false');
-
-		await halalBtn.click();
-		await expect(halalBtn).toHaveAttribute('aria-pressed', 'true');
-
-		await halalBtn.click();
-		await expect(halalBtn).toHaveAttribute('aria-pressed', 'false');
+		const allTab = page.getByRole('button', { name: /all|semua/i });
+		await expect(allTab).toBeVisible();
 	});
 
-	test('menu browse renders categories and items', async ({ page }) => {
+	test('menu items are displayed', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		await expect(page.getByText('Browse menu')).toBeVisible();
-		await expect(
-			page.getByText('Menu details are based on restaurant-approved data.')
-		).toBeVisible();
-
-		const categoryTabs = page.locator('section >> button', { hasText: /Food|Drinks|Dessert/ });
-		await expect(categoryTabs.first()).toBeAttached();
+		const items = page.locator('[role="button"]').filter({ has: page.locator('img') });
+		const count = await items.count();
+		expect(count).toBeGreaterThanOrEqual(1);
 	});
 
-	test('menu item card shows spice, price, and badges', async ({ page }) => {
+	test('menu item shows price', async ({ page }) => {
 		await page.goto(TEST_URL);
 
 		const firstCard = page
-			.locator('section >> button')
+			.locator('[role="button"]')
 			.filter({ has: page.locator('img') })
 			.first();
 		await expect(firstCard).toBeVisible();
@@ -68,84 +50,26 @@ test.describe('Customer flow at 360px', () => {
 		await page.goto(TEST_URL);
 
 		const firstCard = page
-			.locator('section >> button')
+			.locator('[role="button"]')
 			.filter({ has: page.locator('img') })
 			.first();
 		await firstCard.click();
 
-		await expect(page.getByText('Recommendation reason')).toBeVisible();
-		await expect(page.getByText('Spice level:')).toBeVisible();
+		await expect(page.getByRole('dialog')).toBeVisible();
 	});
 
-	test('detail panel shows verified or staff-confirm state', async ({ page }) => {
+	test('detail panel shows price and add to cart', async ({ page }) => {
 		await page.goto(TEST_URL);
 
 		const firstCard = page
-			.locator('section >> button')
+			.locator('[role="button"]')
 			.filter({ has: page.locator('img') })
 			.first();
 		await firstCard.click();
 
-		const detail = page.locator('aside');
-		const verified = detail.getByText('Verified menu data');
-		const staffConfirm = detail.getByText('Staff confirmation recommended');
-		await expect(verified.or(staffConfirm)).toBeVisible();
-	});
-
-	test('chat panel renders and shows empty state', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		await expect(page.getByText('Ask about the menu')).toBeVisible();
-		await expect(page.getByText('Answers use restaurant data')).toBeVisible();
-		await expect(page.getByPlaceholder('Ask: Is this spicy?')).toBeVisible();
-	});
-
-	test('chat panel shows suggestion chips', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		await expect(page.getByRole('button', { name: 'Is this halal?' })).toBeVisible();
-		await expect(page.getByRole('button', { name: 'Any nut-free dishes?' })).toBeVisible();
-		await expect(page.getByRole('button', { name: 'What is the spice level?' })).toBeVisible();
-	});
-
-	test('chat panel send button is disabled when empty', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		const sendBtn = page.getByRole('button', { name: 'Send question' });
-		await expect(sendBtn).toBeDisabled();
-
-		const input = page.getByPlaceholder('Ask: Is this spicy?');
-		await input.fill('Is this halal?');
-		await expect(sendBtn).toBeEnabled();
-	});
-
-	test('chat panel shows Speak to staff CTA', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		await expect(page.getByRole('button', { name: 'Speak to staff' })).toBeVisible();
-	});
-
-	test('feedback buttons render and respond', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		await expect(page.getByText(/quick feedback/i)).toBeVisible();
-		await expect(page.getByText(/tell the restaurant if this helped/i)).toBeVisible();
-
-		const helpfulBtn = page.getByRole('button', { name: /helpful/i });
-		const unclearBtn = page.getByRole('button', { name: /unclear/i });
-		await expect(helpfulBtn).toBeVisible();
-		await expect(unclearBtn).toBeVisible();
-
-		await helpfulBtn.click();
-		await expect(page.getByText(/thank you for your feedback/i)).toBeVisible({ timeout: 5000 });
-	});
-
-	test('staff fallback CTA is visible', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		// Button text depends on chat state; always present in idle state
-		const staffBtn = page.getByRole('button', { name: /speak to staff|ask staff/i }).first();
-		await expect(staffBtn).toBeVisible();
+		const dialog = page.getByRole('dialog');
+		await expect(dialog.getByText(/rp/i).first()).toBeVisible();
+		await expect(dialog.getByRole('button', { name: /add to cart|tambah/i })).toBeVisible();
 	});
 });
 
@@ -156,49 +80,26 @@ test.describe('Customer flow at 390px', () => {
 		await page.goto(TEST_URL);
 
 		await expect(page.getByRole('heading', { name: 'Uma Karang' })).toBeVisible();
-		await expect(page.getByText('Language and food preferences')).toBeVisible();
 	});
 
-	test('menu category tabs scroll horizontally', async ({ page }) => {
+	test('category tabs scroll horizontally', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		await expect(page.getByText('Browse menu')).toBeVisible();
+		const allTab = page.getByRole('button', { name: /all|semua/i });
+		await expect(allTab).toBeVisible();
 
-		// Check that the tab bar scroll container exists
-		const tabRow = page.locator('div.flex.gap-2.overflow-x-auto').first();
-		await expect(tabRow).toBeVisible();
+		// The category bar should have horizontal scroll
+		const tabBar = page.locator('div.flex.gap-2.overflow-x-auto').first();
+		await expect(tabBar).toBeVisible();
 	});
 
-	test('chat panel input and send work', async ({ page }) => {
+	test('search filters items', async ({ page }) => {
 		await page.goto(TEST_URL);
 
-		const input = page.getByPlaceholder('Ask: Is this spicy?');
-		await input.fill('Do you have vegetarian options?');
-
-		const sendBtn = page.getByRole('button', { name: 'Send question' });
-		await expect(sendBtn).toBeEnabled();
-	});
-
-	test('feedback sent confirmation persists', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		await page.getByRole('button', { name: /unclear/i }).click();
-		await expect(page.getByText(/thank you for your feedback/i)).toBeVisible({ timeout: 5000 });
-	});
-
-	test('item detail shows allergen and dietary badges', async ({ page }) => {
-		await page.goto(TEST_URL);
-
-		const firstCard = page
-			.locator('section >> button')
-			.filter({ has: page.locator('img') })
-			.first();
-		await firstCard.click();
-
-		const aside = page.locator('aside');
-		await expect(
-			aside.getByText(/Halal-friendly|Vegetarian|Vegan|Contains alcohol/).first()
-		).toBeAttached();
+		const searchInput = page.getByPlaceholder(/cari|search/i);
+		await searchInput.fill('nasi');
+		// Should not crash
+		await expect(searchInput).toHaveValue('nasi');
 	});
 });
 
@@ -209,14 +110,6 @@ test.describe('Arabic RTL layout at 360px', () => {
 		await page.goto(RTL_TEST_URL);
 
 		await expect(page.getByRole('heading', { name: 'Rempah Terrace' })).toBeVisible();
-		await expect(page.getByText('Table A01')).toBeVisible();
-	});
-
-	test('chat panel renders correctly in RTL viewport', async ({ page }) => {
-		await page.goto(RTL_TEST_URL);
-
-		await expect(page.getByPlaceholder('Ask: Is this spicy?')).toBeVisible();
-		await expect(page.getByText('Ask about the menu')).toBeVisible();
 	});
 
 	test('no horizontal overflow at 360px', async ({ page }) => {

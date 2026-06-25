@@ -1,19 +1,30 @@
 <script lang="ts">
 	import * as Card from '$lib/ui/card';
 	import * as Badge from '$lib/ui/badge';
-	import { Activity, AlertTriangle, Clock, TrendingUp, Zap, Server, Database, Bell } from '@lucide/svelte';
+	import {
+		Activity,
+		AlertTriangle,
+		Clock,
+		TrendingUp,
+		Zap,
+		Server,
+		Database,
+		Bell
+	} from '@lucide/svelte';
 
 	const { data } = $props();
 	const analytics = $derived(data.analytics);
 
 	const latencyP95 = $derived(analytics.latencyP95 ? Number(analytics.latencyP95) : null);
-	const latencyStatus = $derived(latencyP95
-		? latencyP95 < 500
-			? 'good'
-			: latencyP95 < 1000
-				? 'warning'
-				: 'critical'
-		: 'unknown');
+	const latencyStatus = $derived(
+		latencyP95
+			? latencyP95 < 500
+				? 'good'
+				: latencyP95 < 1000
+					? 'warning'
+					: 'critical'
+			: 'unknown'
+	);
 </script>
 
 <svelte:head>
@@ -162,9 +173,7 @@
 			<div class="flex flex-col items-center py-8">
 				<Bell size={32} class="text-muted-foreground" />
 				<p class="mt-2 text-sm text-muted-foreground">No active alerts</p>
-				<p class="mt-1 text-xs text-muted-foreground">
-					Threshold monitoring coming soon.
-				</p>
+				<p class="mt-1 text-xs text-muted-foreground">Threshold monitoring coming soon.</p>
 			</div>
 		</Card.Content>
 	</Card.Root>

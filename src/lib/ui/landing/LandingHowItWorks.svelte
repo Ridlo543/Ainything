@@ -43,18 +43,25 @@
 
 		<div class="mt-16 space-y-16">
 			{#each steps as step, i}
-				<div class="grid items-center gap-8 md:grid-cols-2 md:gap-14 {i % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''}">
+				<div
+					class="grid items-center gap-8 md:grid-cols-2 md:gap-14 {i % 2 === 1
+						? 'md:[&>*:first-child]:order-2'
+						: ''}"
+				>
 					<!-- Image -->
 					<div class="relative overflow-hidden rounded-2xl shadow-lg">
 						<img
 							src={step.img}
 							alt={step.imgAlt}
 							class="h-56 w-full object-cover sm:h-72"
-							width="480" height="300"
+							width="480"
+							height="300"
 							loading="lazy"
 						/>
 						<!-- Step number overlay -->
-						<div class="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#059669] text-sm font-black text-white shadow-md">
+						<div
+							class="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#059669] text-sm font-black text-white shadow-md"
+						>
 							{step.num}
 						</div>
 					</div>

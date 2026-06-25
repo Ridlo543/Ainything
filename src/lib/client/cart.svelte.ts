@@ -58,9 +58,7 @@ export function createCartStore(slug: string) {
 		add(item: MenuItem, qty = 1) {
 			const existing = entries.find((e) => e.itemId === item.id);
 			if (existing) {
-				entries = entries.map((e) =>
-					e.itemId === item.id ? { ...e, qty: e.qty + qty } : e
-				);
+				entries = entries.map((e) => (e.itemId === item.id ? { ...e, qty: e.qty + qty } : e));
 			} else {
 				entries = [
 					...entries,

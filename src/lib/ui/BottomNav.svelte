@@ -30,17 +30,13 @@
 		<a
 			href={item.href}
 			class="flex flex-1 flex-col items-center justify-center gap-1 py-2 min-h-[56px] text-xs font-medium transition-colors
-				{isActive(item.href)
-					? 'text-primary'
-					: 'text-muted-foreground hover:text-foreground'}"
+				{isActive(item.href) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}"
 			aria-current={isActive(item.href) ? 'page' : undefined}
 		>
 			<div class="relative">
 				<item.icon size={22} />
 				{#if isActive(item.href)}
-					<span
-						class="absolute -top-1 -right-1 size-2 rounded-full bg-primary"
-						aria-hidden="true"
+					<span class="absolute -top-1 -right-1 size-2 rounded-full bg-primary" aria-hidden="true"
 					></span>
 				{/if}
 			</div>

@@ -644,10 +644,10 @@ shadcn-svelte components are **copy-owned code** in `src/lib/ui/` — not runtim
 
 ### Component categories in `src/lib/ui/`
 
-| Category | Components | Source |
-| -------- | ---------- | ------ |
-| shadcn-sourced | Button, Input, Textarea, Badge, Card, Dialog, Alert, Skeleton, Sonner, Select, Tabs, DropdownMenu, Sheet, Table, Combobox, Command, DatePicker | Copied from shadcn-svelte registry |
-| project-owned | Sidebar, BottomNav, TopBar, and domain-specific components | Built in-project, may use bits-ui primitives |
+| Category       | Components                                                                                                                                     | Source                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| shadcn-sourced | Button, Input, Textarea, Badge, Card, Dialog, Alert, Skeleton, Sonner, Select, Tabs, DropdownMenu, Sheet, Table, Combobox, Command, DatePicker | Copied from shadcn-svelte registry           |
+| project-owned  | Sidebar, BottomNav, TopBar, and domain-specific components                                                                                     | Built in-project, may use bits-ui primitives |
 
 ### Why copy-owned, not installed
 
@@ -663,16 +663,16 @@ shadcn-svelte uses standard CSS variable names (`--primary`, `--background`, `--
 ```css
 /* shadcn CSS variable bridge */
 :root {
-  --background: var(--color-lingua-bg);
-  --foreground: var(--color-lingua-text);
-  --primary: var(--color-lingua-primary);
-  --primary-foreground: #ffffff;
-  --secondary: var(--color-lingua-secondary);
-  --muted: var(--color-lingua-muted);
-  --muted-foreground: var(--color-lingua-subtle);
-  --border: var(--color-lingua-border);
-  --ring: var(--color-lingua-primary);
-  --radius: var(--radius-md);
+	--background: var(--color-lingua-bg);
+	--foreground: var(--color-lingua-text);
+	--primary: var(--color-lingua-primary);
+	--primary-foreground: #ffffff;
+	--secondary: var(--color-lingua-secondary);
+	--muted: var(--color-lingua-muted);
+	--muted-foreground: var(--color-lingua-subtle);
+	--border: var(--color-lingua-border);
+	--ring: var(--color-lingua-primary);
+	--radius: var(--radius-md);
 }
 ```
 
@@ -680,11 +680,12 @@ shadcn-svelte uses standard CSS variable names (`--primary`, `--background`, `--
 
 The same codebase must work at all scales:
 
-| Scale | Tenants | Strategy |
-| ----- | ------- | -------- |
-| Small | 1–10 | Single VPS or Supabase free tier. Redis optional. |
-| Medium | 10–100 | RLS + Redis caching + rate limiting. BullMQ for embeddings/OCR. |
-| Large | 100–1000+ | Connection pooling (PgBouncer), read replicas, CDN for published catalogs, queue for all async work. Adapter pattern enables provider swapping. |
+| Scale  | Tenants   | Strategy                                                                                                                                        |
+| ------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Small  | 1–10      | Single VPS or Supabase free tier. Redis optional.                                                                                               |
+| Medium | 10–100    | RLS + Redis caching + rate limiting. BullMQ for embeddings/OCR.                                                                                 |
+| Large  | 100–1000+ | Connection pooling (PgBouncer), read replicas, CDN for published catalogs, queue for all async work. Adapter pattern enables provider swapping. |
 
 **Public buyer routes own the performance budget.** Admin/AI/analytics code must be lazy-loaded and must never bloat the public catalog bundle.
+
 - Service worker caching.

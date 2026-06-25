@@ -75,11 +75,11 @@ Isi `SUPABASE_SERVICE_ROLE_KEY` dari Supabase dashboard → Settings → API →
 
 Buat akun lewat `/register` atau seed langsung ke Supabase Auth:
 
-| Role            | Email                     | Password      | Keterangan                        |
-| --------------- | ------------------------- | ------------- | --------------------------------- |
-| Owner           | owner@test.lingua.app     | Test1234!     | Owner Warung Sari, 1 outlet       |
-| Staff           | staff@test.lingua.app     | Test1234!     | Staff Warung Sari                 |
-| Platform Admin  | admin@test.lingua.app     | Test1234!     | Super admin, akses semua tenant   |
+| Role           | Email                 | Password  | Keterangan                      |
+| -------------- | --------------------- | --------- | ------------------------------- |
+| Owner          | owner@test.lingua.app | Test1234! | Owner Warung Sari, 1 outlet     |
+| Staff          | staff@test.lingua.app | Test1234! | Staff Warung Sari               |
+| Platform Admin | admin@test.lingua.app | Test1234! | Super admin, akses semua tenant |
 
 Seed credentials ke Supabase:
 

@@ -56,24 +56,47 @@
 	<!-- Table -->
 	<div class="mt-6 overflow-x-auto rounded-lg border border-slate-200">
 		{#if data.restaurants.length === 0}
-			<p class="px-4 py-8 text-center text-sm text-muted-foreground">No restaurants found for this page.</p>
+			<p class="px-4 py-8 text-center text-sm text-muted-foreground">
+				No restaurants found for this page.
+			</p>
 		{:else}
 			<table class="min-w-full divide-y divide-slate-200 bg-white text-sm">
 				<thead class="bg-slate-50">
 					<tr>
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Name</th>
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Slug</th>
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Segment</th>
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Organization</th>
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Status</th>
-						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Tables</th>
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500"
+							>Name</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500"
+							>Slug</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500"
+							>Segment</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500"
+							>Organization</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500"
+							>Status</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500"
+							>Tables</th
+						>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-slate-100">
 					{#each data.restaurants as item (item.id)}
 						<tr class="hover:bg-slate-50">
 							<td class="px-4 py-3">
-								<a href={'/platform/restaurants/' + item.slug} class="font-medium text-slate-900 hover:text-blue-600">{item.name}</a>
+								<a
+									href={'/platform/restaurants/' + item.slug}
+									class="font-medium text-slate-900 hover:text-blue-600">{item.name}</a
+								>
 							</td>
 							<td class="px-4 py-3 text-slate-600">{item.slug}</td>
 							<td class="px-4 py-3 text-slate-600">{item.segment}</td>
