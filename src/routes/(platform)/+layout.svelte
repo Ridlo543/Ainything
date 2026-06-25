@@ -24,8 +24,8 @@
 </script>
 
 <div class="flex min-h-screen bg-muted">
-	<aside class="flex w-[280px] shrink-0 flex-col border-r border-border bg-card" aria-label="Platform admin">
-		<div class="border-b border-border px-6 py-4">
+	<aside class="flex w-[280px] shrink-0 flex-col bg-card shadow-sm" aria-label="Platform admin">
+		<div class="px-6 py-4">
 			<p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Admin</p>
 			<p class="text-lg font-bold">Platform Console</p>
 		</div>

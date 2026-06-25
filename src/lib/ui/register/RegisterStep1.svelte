@@ -11,21 +11,21 @@
 			label: 'Restoran & Cafe',
 			description: 'Menu digital, pemesanan meja, dan manajemen dapur dalam satu platform.',
 			icon: UtensilsCrossed,
-			img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=80&h=80&fit=crop&auto=format&q=80'
+			img: '/mock-images/photo-1555396273-367ea4eb4db5.jpg'
 		},
 		{
 			value: 'retail' as const,
 			label: 'Toko / Retail',
 			description: 'Katalog produk digital untuk toko fisik atau online dengan QR code.',
 			icon: ShoppingBag,
-			img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=80&h=80&fit=crop&auto=format&q=80'
+			img: '/mock-images/photo-1441986300917-64674bd600d8.jpg'
 		},
 		{
 			value: 'service' as const,
 			label: 'Jasa / Layanan',
 			description: 'Tampilkan layanan kamu dan terima booking dari pelanggan dengan mudah.',
 			icon: Briefcase,
-			img: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=80&h=80&fit=crop&auto=format&q=80'
+			img: '/mock-images/photo-1521737604893-d14cc237f11d.jpg'
 		}
 	];
 </script>

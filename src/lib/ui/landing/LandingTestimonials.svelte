@@ -7,21 +7,21 @@
 			name: 'Budi Santoso',
 			role: 'Owner, Warung Nusantara',
 			loc: 'Bali',
-			avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&auto=format&q=80'
+			avatar: '/mock-images/photo-1507003211169-0a1dd7228f2d.jpg'
 		},
 		{
 			quote: 'Setup dalam 20 menit, QR sudah dicetak dan ditempel. Tim langsung paham cara pakainya. Ini yang paling mudah yang pernah saya coba untuk digitalisasi toko saya.',
 			name: 'Sari Dewi',
 			role: 'Pemilik, Butik Sari Mode',
 			loc: 'Jakarta',
-			avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&auto=format&q=80'
+			avatar: '/mock-images/photo-1494790108377-be9c29b29330.jpg'
 		},
 		{
 			quote: 'Punya 3 cabang dimsum, sekarang semua dikelola dari satu HP. Laporan harian otomatis, tidak perlu hitung manual lagi. Sangat membantu operasional kami.',
 			name: 'Kevin Halim',
 			role: 'Owner, Golden Lotus Dimsum',
 			loc: 'Surabaya',
-			avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&fit=crop&auto=format&q=80'
+			avatar: '/mock-images/photo-1500648767791-00dcc994a43e.jpg'
 		}
 	];
 </script>

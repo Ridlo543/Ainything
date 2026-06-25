@@ -140,14 +140,14 @@
 {/if}
 
 <aside
-	class="flex flex-col bg-card border-r border-border
+	class="flex flex-col bg-card
 		min-h-screen w-[250px] shrink-0 overflow-y-auto
 		{open ? 'fixed inset-y-0 left-0 z-50 shadow-xl' : 'hidden'}
 		lg:sticky lg:top-0 lg:flex lg:h-screen"
 	aria-label="Dashboard navigation"
 >
 	<!-- Logo / workspace header -->
-	<div class="flex items-center justify-between px-4 py-4 border-b border-border">
+	<div class="flex items-center justify-between px-4 py-4">
 		<div class="flex items-center gap-2 min-w-0">
 			<div
 				class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm"
@@ -174,7 +174,7 @@
 
 	<!-- Outlet switcher (if multiple outlets) -->
 	{#if outlets.length > 1}
-		<div class="px-4 py-3 border-b border-border">
+		<div class="px-4 py-3">
 			<div class="flex items-center gap-2 mb-1.5">
 				<Building2 size={14} class="text-muted-foreground" />
 				<span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Outlet</span>

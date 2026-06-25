@@ -99,7 +99,7 @@
 					<!-- Banner image -->
 					<div class="relative bg-[#059669] px-4 pb-4 pt-1">
 						<img
-							src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=320&h=100&fit=crop&auto=format&q=80"
+							src="/mock-images/photo-1555396273-367ea4eb4db5.jpg"
 							alt="Warung Sari"
 							class="h-20 w-full rounded-xl object-cover opacity-80"
 							width="320" height="80"

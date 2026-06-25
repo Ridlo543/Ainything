@@ -23,7 +23,7 @@
 	Visible only below lg breakpoint.
 -->
 <nav
-	class="fixed bottom-0 inset-x-0 z-30 flex bg-card border-t border-border safe-area-pb lg:hidden"
+	class="fixed bottom-0 inset-x-0 z-30 flex bg-card safe-area-pb lg:hidden"
 	aria-label="Bottom navigation"
 >
 	{#each items as item (item.href)}
