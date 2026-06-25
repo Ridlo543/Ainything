@@ -196,7 +196,58 @@ server {
 
 ---
 
-## Step 8 — Smoke Test
+## Step 8 — CDN & Caching
+
+Lingua sets HTTP cache headers automatically via `src/lib/server/cache/cache-policy.ts` and the `cacheHandle` in `hooks.server.ts`. The CDN (Cloudflare, Fastly, etc.) respects these headers to cache public responses at the edge.
+
+### Cache Strategies
+
+| Strategy            | Applied to                           | s-maxage | stale-while-revalidate |
+| ------------------- | ------------------------------------ | -------- | ---------------------- |
+| `PUBLIC_CATALOG`    | `/api/public/bootstrap`, catalog API | 60 s     | 300 s                  |
+| `PUBLIC_PAGE`       | `/r/[slug]` public catalog pages     | 30 s     | 120 s                  |
+| `PUBLIC_API_DYNAMIC`| Other `/api/public/*` endpoints      | 10 s     | 60 s                   |
+| `PRIVATE_NO_STORE`  | All authenticated/private routes     | —        | — (no-store)           |
+
+### Cloudflare Configuration
+
+If using Cloudflare as CDN (recommended):
+
+1. **Page Rules** (or Cache Rules for Cloudflare Pro+):
+   - `lingua.example.com/r/*` → Cache Level: Cache Everything, Edge Cache TTL: 30 s
+   - `lingua.example.com/api/public/*` → Cache Level: Cache Everything, Edge Cache TTL: 60 s
+   - `lingua.example.com/_app/immutable/*` → Cache Level: Cache Everything, Edge Cache TTL: 1 year (immutable build assets)
+
+2. **Cache Purge:** After publishing a menu change, purge by URL pattern:
+   ```bash
+   # Purge a specific restaurant's cached data
+   curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" \
+     -H "Authorization: Bearer {CF_API_TOKEN}" \
+     -H "Content-Type: application/json" \
+     --data '{"prefixes":["https://lingua.example.com/r/{slug}","https://lingua.example.com/api/public/bootstrap?restaurant={slug}"]}'
+   ```
+
+3. **Always Online:** Enable in Cloudflare dashboard so cached pages remain available during origin downtime.
+
+### Verifying Cache Headers
+
+```bash
+# Check Cache-Control on a public catalog page
+curl -I https://lingua.example.com/r/uma-karang
+# Expected: Cache-Control: public, s-maxage=30, stale-while-revalidate=120
+
+# Check Cache-Control on the bootstrap API
+curl -I 'https://lingua.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
+# Expected: Cache-Control: public, s-maxage=60, stale-while-revalidate=300
+
+# Check that private routes have no-store
+curl -I https://lingua.example.com/dashboard
+# Expected: Cache-Control: private, no-store, no-cache, must-revalidate
+```
+
+---
+
+## Step 9 — Smoke Test
 
 ```bash
 # Health check
@@ -212,7 +263,7 @@ curl -I https://lingua.example.com/platform      # should → /login
 
 ---
 
-## Step 9 — Monitoring
+## Step 10 — Monitoring
 
 - **Sentry:** Set `SENTRY_DSN` and `PUBLIC_SENTRY_DSN` in `.env.production.local`.
   Both client and server errors will be captured automatically.
@@ -223,7 +274,7 @@ curl -I https://lingua.example.com/platform      # should → /login
 
 ---
 
-## Step 10 — Pre-Pilot Checklist
+## Step 11 — Pre-Pilot Checklist
 
 Before handing to the first pilot restaurant:
 

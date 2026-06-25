@@ -1103,3 +1103,234 @@ Three categories of failure:
 
 ### Verified
 - `pnpm check` — 0 errors, 0 warnings
+
+## 2026-06-25 — Setup Wizard (Post-Registration Onboarding)
+
+### Implemented
+- `/register/setup` — 3-step setup wizard after restaurant registration:
+  - Step 1: Add first product (name, price, category, description) — calls `addMenuItem` service which creates/finds draft menu + category
+  - Step 2: QR code generation with live preview (restaurant slug → URL), download PNG, print button
+  - Step 3: Invite staff (email + Manager/Staff role) — calls existing `inviteStaff` service
+  - All steps skippable with "Lewati" per-step and "Lewati semua" in header
+  - Success transitions between steps, error feedback per step
+
+### Changed
+- `menu-admin-service.ts`: added `addMenuItem()` — finds/creates draft menu, ensures category, inserts item via existing repo functions
+- `register/restaurant/setup/+page.server.ts`: redirect changed from `/dashboard` → `/register/setup`
+- `REDESIGN_TODO.md`: Setup wizard marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings
+
+## 2026-06-25 — Staff Order Queue & Order Detail (Priority 3)
+
+### Implemented
+- **Order domain**: `src/lib/domain/order/` — `types.ts` (Order, OrderItem, OrderWithItems, OrderStatus), `schema.ts` (transitionOrderStatusSchema), `policy.ts` (state machine: new→processing→ready→completed, cancellable from new/processing)
+- **DB migration 0019**: `orders` table (tenant-scoped, FK to customer_sessions/restaurant_tables) + `order_items` table (FK to orders/menu_items), RLS policies for SELECT/INSERT/UPDATE scoped by organization_id + restaurant_id
+- **Order repository**: `src/lib/server/repositories/order-repository.ts` — `listOrdersForRestaurant`, `findOrderById`, `insertOrder`, `updateOrderStatus`
+- **Staff order service**: `src/lib/server/services/staff-order-service.ts` — `listStaffOrders`, `getStaffOrder`, `transitionStaffOrder` with tenant isolation, policy enforcement, and Zod validation
+- **`/staff/inbox`**: Rewrote with real order queue — tabs (Aktif/Selesai/Semua), order cards with status badges, item count, total, time, table code, customer name, empty state
+- **`/staff/orders/[id]`**: Order detail page — items list with quantity/notes, total, status transition buttons (Mulai Proses/Tolak/Tandai Siap/Selesai), back navigation, error feedback
+
+### Changed
+- `REDESIGN_TODO.md`: Priority 3.1 (Order Queue) and 3.2 (Order Detail) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings
+
+## 2026-06-25 — Staff Settings Page (Priority 3.3)
+
+### Implemented
+- **`/staff/settings`**: Staff profile & settings page — read-only name/email/role fields, notifications toggle (new order alerts switch), logout button. Uses design tokens and mobile-first layout.
+
+### Changed
+- `REDESIGN_TODO.md`: Priority 3.3 (Staff Settings) marked ✅ DONE — Priority 3 fully complete
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings
+
+## 2026-06-25 — Public Catalog View (Priority 4.1)
+
+### Implemented
+- **`resolvePublicCatalog()`** in `src/lib/server/tenant/public-context.ts` — loads restaurant + published menu by slug without requiring table code
+- **`loadPublishedRestaurantBySlug()`** in `src/lib/server/repositories/public-menu-repository.ts` — SQL query scoped by slug + active status, no table join
+- **`+layout.server.ts`**: Loads restaurant by slug, validates host, passes optional `?table=` query param, 404 on unknown slug
+- **`+layout.svelte`**: Sticky top bar with restaurant initial badge, name, location, `--lingua-*` design tokens, mobile-first max-width container
+- **`+page.svelte`**: Full catalog view — search bar with clear button, horizontal-scroll category tabs, 2-col mobile / 3-col desktop product grid with image/name/price/quick-add, product detail Dialog (large image, description, dietary badges, quantity selector, add to cart), floating cart button with item count + total, empty state
+- **i18n keys**: `catalog.search.placeholder`, `catalog.category.all`, `catalog.empty.title`, `catalog.empty.hint`, `catalog.addToCart` in en/id/ar translations
+
+### Changed
+- `REDESIGN_TODO.md`: Priority 4.1 (Catalog View) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings
+
+## 2026-06-25 — CDN Integration (Phase 6 Infrastructure)
+
+### Implemented
+- **`src/lib/server/cache/cache-policy.ts`**: Centralized cache strategy definitions — `PUBLIC_CATALOG` (s-maxage=60, stale-while-revalidate=300), `PUBLIC_PAGE` (s-maxage=30, stale-while-revalidate=120), `PUBLIC_API_DYNAMIC` (s-maxage=10, stale-while-revalidate=60), `PRIVATE_NO_STORE` (private, no-store), `PRIVATE_SHORT` (private, max-age=30). `applyCacheHeaders()` utility, `resolveRouteStrategy()` maps URL paths to strategies.
+- **`src/hooks.server.ts`**: Added `cacheHandle` to handle sequence — applies route-based cache headers to responses only when no `Cache-Control` is already set (non-overriding). Runs after auth handle so only valid requests are cached.
+- **`src/routes/(public)/r/[slug]/+layout.server.ts`**: Added `setHeaders(cachePolicy.PUBLIC_PAGE)` — public catalog pages now send CDN-cacheable responses.
+- **`src/routes/api/public/bootstrap/+server.ts`**: Replaced hardcoded `Cache-Control` string with `cachePolicy.PUBLIC_CATALOG` from the centralized module.
+- **`docs/deployment/DEPLOY.md`**: Added Step 8 — CDN & Caching section with cache strategy table, Cloudflare page rules config, cache purge API example, Always Online recommendation, and curl verification commands.
+
+### Changed
+- `docs/REFACTOR_PLAN.md`: Phase 6 CDN integration marked `[x]`
+
+### Verified
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm lint` — changed files clean (160 pre-existing Prettier warnings in unrelated files)
+
+## 2026-06-25 — Cart Page (Priority 4.2)
+
+### Implemented
+- **`src/lib/client/cart.svelte.ts`**: Shared reactive cart store with localStorage persistence (`lingua-cart-{slug}` key). Svelte 5 `$state` runes for reactive entries, count, and total. Methods: `add`, `remove`, `updateQty`, `setNote`, `clear`, `setCustomerName`. Persists across catalog ↔ cart page navigation.
+- **`src/routes/(public)/r/[slug]/cart/+page.svelte`**: Cart UI — item list with image/name/price/subtotal, per-item quantity controls ([- qty +]), remove button, per-item notes input, customer name field, total summary, order button with loading state, empty state with catalog link, success state with order ID.
+- **`src/routes/(public)/r/[slug]/cart/+page.server.ts`**: Cart server action — Zod validation (items array min 1, max 50, customerName max 100), resolves restaurant via `resolvePublicCatalog`, creates order via `insertOrder` inside `withTransaction`, returns success + orderId.
+- **Catalog page wired**: `src/routes/(public)/r/[slug]/+page.svelte` now uses shared `createCartStore` from `cart.svelte.ts` instead of local state. Add-to-cart actions update the shared store.
+- **i18n**: 16 new keys added to `en.ts`, `id.ts`, `ar.ts`: `cart.title`, `cart.heading`, `cart.empty.title`, `cart.empty.description`, `cart.empty.browse`, `cart.note.placeholder`, `cart.customerName`, `cart.summary.items`, `cart.summary.total`, `cart.order`, `cart.ordering`, `cart.success.title`, `cart.success.description`, `cart.success.orderId`, `cart.success.back`, `cart.success.orderAgain`.
+
+### Fixed (during verification)
+- Unused `redirect` import and `locals` destructuring in `+page.server.ts` (ESLint `@typescript-eslint/no-unused-vars`)
+- Unused `Badge` import in catalog `+page.svelte`
+- Missing `each` key on `categories` iteration in catalog `+page.svelte`
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 4.2 (Cart) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 2 benign warnings (`state_referenced_locally` — slug captured once at page creation, correct behavior)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Order Tracking Page (Priority 4.3)
+
+### Implemented
+- **`src/routes/(public)/r/[slug]/order/[id]/+page.server.ts`**: Server load — resolves restaurant via `resolvePublicCatalog`, fetches order via `findOrderById` with tenant scoping, returns 404 if not found.
+- **`src/routes/(public)/r/[slug]/order/[id]/+page.svelte`**: Order tracking UI — order ID header, status timeline (visual ✅ Received → 🔄 Processing → 🟢 Ready with step indicators and connecting lines), collapsible items summary, total with customer name, "Back to menu" button. Handles cancelled/completed states with distinct styling.
+- **Cart success updated**: `cart/+page.svelte` success state now shows "Track order" button linking to `/r/{slug}/order/{orderId}` in addition to "Back to menu".
+- **i18n**: 13 new keys added to `en.ts`, `id.ts`, `ar.ts`: `order.title`, `order.heading`, `order.id`, `order.items`, `order.total`, `order.customerName`, `order.status.new`, `order.status.processing`, `order.status.ready`, `order.status.completed`, `order.status.cancelled`, `order.backToCatalog`, `cart.success.trackOrder`.
+
+### Fixed (during verification)
+- Unused `MessageCircle` import in order tracking page (ESLint `@typescript-eslint/no-unused-vars`)
+- Missing `each` key on `statusSteps` iteration in order tracking page (ESLint `svelte/require-each-key`)
+- `t()` calls with interpolation args replaced with `tWithVars()` (svelte-check type error)
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 4.3 (Order Tracking) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 3 benign warnings (`state_referenced_locally` — captured once at page creation, correct behavior)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Staff Order Detail Status Timeline (Priority 3.2)
+
+### Implemented
+- **`src/lib/ui/OrderStatusTimeline.svelte`**: Reusable status timeline component — shows 4 steps (Diterima → Diproses → Siap → Selesai) with circle icons and connecting lines. Current step highlighted, cancelled state shows separate banner. Uses design tokens (`--primary`, `--muted`).
+- **Staff order detail updated**: `src/routes/(staff)/staff/orders/[id]/+page.svelte` now renders `OrderStatusTimeline` in a Card below the error area, before order info.
+
+### Fixed (during verification)
+- Removed invalid `class:ring-primary/20` syntax from component (Svelte doesn't support `/` in class directives)
+- Removed unused `current` variable after ring effect was removed (ESLint `@typescript-eslint/no-unused-vars`)
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 3.2 (Order Detail) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 3 benign warnings (pre-existing `state_referenced_locally`)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Platform Admin Overview (Priority 5.1)
+
+### Implemented
+- **`src/routes/(platform)/platform/+page.server.ts`**: Server load function — fetches platform stats via `getPlatformStatsRow()`, analytics via `getPlatformAnalyticsRow(30)`, and recent organizations via `listOrganizationsRows()`.
+- **`src/routes/(platform)/platform/+page.svelte`**: Updated overview page — real stats cards (organizations, restaurants, users with weekly growth), AI metrics (events, fallbacks, feedback), recent organizations list with status badges, quick links to tenants/organizations/analytics.
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 5.1 (Platform Overview) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 4 benign warnings (`state_referenced_locally` — captured once at page creation, correct behavior)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Platform Admin Tenants (Priority 5.2)
+
+### Implemented
+- **`src/lib/server/repositories/platform-repository.ts`**: Added `getOrganizationByIdRow(id)` function — fetches organization detail by UUID (mirrors `getOrganizationBySlugRow`).
+- **`src/routes/(platform)/platform/tenants/+page.server.ts`**: Server load function — fetches organizations via `listOrganizationsRows()` with status filter and pagination.
+- **`src/routes/(platform)/platform/tenants/+page.svelte`**: Tenant table — search by name/slug, status filter buttons (all/active/suspended/trial), paginated table with name, plan, restaurants, users, status, created date. Click row → tenant detail.
+- **`src/routes/(platform)/platform/tenants/[id]/+page.server.ts`**: Tenant detail server load — fetches org by ID + restaurants list.
+- **`src/routes/(platform)/platform/tenants/[id]/+page.svelte`**: Tenant detail page — stats cards (plan, restaurants, users), organization info (workspace host, created date), restaurants list with status badges, action buttons (Suspend/Activate/Delete).
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 5.2 (Tenants) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 6 benign warnings (`state_referenced_locally`)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Platform Admin API Keys (Priority 5.3) ⚠️ PLACEHOLDER
+
+### Implemented
+- **`src/routes/(platform)/platform/api/+page.svelte`**: Placeholder page — explains feature requires database migration, documents planned features (generate named keys, view usage, revoke with confirmation, usage logs).
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 5.3 (API Keys) marked ⚠️ PLACEHOLDER with note about database migration requirement
+
+### Verified
+- `pnpm check` — 0 errors
+- `pnpm lint` (ESLint on changed file) — 0 errors, 0 warnings
+
+### Notes
+- Full implementation requires: database migration for `api_keys` table, repository functions for CRUD, usage logging infrastructure.
+
+## 2026-06-25 — Platform Admin Monitoring (Priority 5.4)
+
+### Implemented
+- **`src/routes/(platform)/platform/monitoring/+page.server.ts`**: Server load function — fetches platform analytics via `getPlatformAnalyticsRow(30)`.
+- **`src/routes/(platform)/platform/monitoring/+page.svelte`**: Monitoring dashboard — status overview cards (AI latency P95, events, fallbacks, feedback), performance section (response time, uptime, error rate), AI costs section (total events, fallback rate), alerts section (placeholder), infrastructure status (database, Redis, AI provider).
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 5.4 (Monitoring) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 7 benign warnings (`state_referenced_locally`)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Platform Admin Billing (Priority 5.5)
+
+### Implemented
+- **`src/routes/(platform)/platform/billing/+page.server.ts`**: Server load function — fetches organization counts by plan, calculates MRR based on plan prices (pilot: free, starter: 99K, pro: 299K, enterprise: 999K IDR).
+- **`src/routes/(platform)/platform/billing/+page.svelte`**: Billing dashboard — stats cards (total tenants, MRR, active plans, avg revenue per tenant), usage overview with plan breakdown and MRR per plan, subscription table, invoices section (placeholder for payment provider integration).
+
+### Changed
+- `docs/REDESIGN_TODO.md`: Priority 5.5 (Billing) marked ✅ DONE
+
+### Verified
+- `pnpm check` — 0 errors, 8 benign warnings (`state_referenced_locally`)
+- `pnpm lint` (ESLint on changed files) — 0 errors, 0 warnings
+
+## 2026-06-25 — Mock Images: Download & Wire to Local Paths
+
+### Implemented
+- **Downloaded 18 Unsplash food/avatar images** to `static/mock-images/` (58.6 MB total). 1 image (Coconut Cendol) was 404; used Young Coconut as stand-in.
+- **Replaced all 39 external Unsplash URLs** with local `/mock-images/` paths across 10 files:
+  - `src/routes/(dashboard)/dashboard/+page.server.ts` — 6 replacements
+  - `src/routes/(dashboard)/dashboard/catalog/+page.server.ts` — 9 replacements
+  - `src/routes/(dashboard)/dashboard/analytics/+page.svelte` — 5 replacements
+  - `src/routes/(dashboard)/dashboard/team/+page.svelte` — 3 replacements
+  - `src/lib/ui/landing/LandingTestimonials.svelte` — 3 replacements
+  - `src/lib/ui/landing/LandingHowItWorks.svelte` — 4 replacements
+  - `src/lib/ui/landing/LandingHero.svelte` — 1 replacement
+  - `src/lib/ui/register/RegisterStep1.svelte` — 3 replacements
+  - `src/routes/register/+page.svelte` — 4 replacements
+  - `src/routes/login/+page.svelte` — 1 replacement
+- **Updated seed SQL** (`db/seeds/0001_demo_multi_tenant_data.sql`): 7 menu item `image_url` values changed from `/assets/covers/*.svg` to `/mock-images/*.jpg` (food-specific photos).
+- **Updated mock data** (`src/lib/mock/restaurants.ts`): 6 menu items (Uma Karang + Taman Sate) changed from `/assets/covers/*.svg` to `/mock-images/*.jpg`.
+
+### Changed
+- Zero Unsplash external URLs remain in `src/`
+- Dashboard, landing, register, login, seed data all use local images
+
+### Verified
+- `pnpm check` — 0 errors, 8 benign warnings (`state_referenced_locally`)
+- `grep unsplash src/` — no results

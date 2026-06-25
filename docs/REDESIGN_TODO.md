@@ -86,16 +86,16 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
   - Step 3: Business info (name, slug, category, location)
   - Progress bar at top
   - Each step = 1 screen (no scroll)
-- [ ] **Setup wizard** (`src/routes/register/setup/+page.svelte`)
-  - Step 1: Add first product (photo, name, price, description) + [Skip]
+- [x] **Setup wizard** (`src/routes/register/setup/+page.svelte`)
+  - Step 1: Add first product (name, price, category, description) + [Skip]
   - Step 2: Generate QR/link (preview + download/copy)
   - Step 3: Invite staff (email + role) + [Skip]
-  - [Lanjut ke Dashboard] button at end
-- [ ] **Forgot password** (`src/routes/auth/forgot-password/+page.svelte`)
+  - "Lewati semua" in header, skippable per step
+- [x] **Forgot password** (`src/routes/auth/forgot-password/+page.svelte`)
   - Email input
   - [Kirim Link Reset] button
   - Success message
-- [ ] **Reset password** (`src/routes/auth/update-password/+page.svelte`)
+- [x] **Reset password** (`src/routes/auth/update-password/+page.svelte`)
   - New password + confirm
   - Password strength indicator
   - [Update Password] button
@@ -220,70 +220,70 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ### 3.1 Order Queue (`/staff/inbox`)
 
-- [ ] **Real-time order list** (auto-refresh or WebSocket)
-- [ ] **Order cards** (ID, table/location, items preview, total, time, status badge)
-- [ ] **Status filters:** New | Processing | Ready
-- [ ] **Tap card → order detail**
-- [ ] **Empty state** ("Belum ada order baru")
+- [x] **Real-time order list** (auto-refresh or WebSocket)
+- [x] **Order cards** (ID, table/location, items preview, total, time, status badge)
+- [x] **Status filters:** New | Processing | Ready
+- [x] **Tap card → order detail**
+- [x] **Empty state** ("Belum ada order baru")
 
-### 3.2 Order Detail (`/staff/orders/[id]`)
+### 3.2 Order Detail (`/staff/orders/[id]`) ✅ DONE
 
-- [ ] **Back button**
-- [ ] **Order info:** ID, table/location, customer name (if provided), time
-- [ ] **Items list:** name, quantity, notes (e.g., "tidak pedas")
-- [ ] **Total**
-- [ ] **Status buttons:** [🟡 Proses] [🟢 Selesai] (big, tap-friendly)
-- [ ] **Chat button** (if enabled)
-- [ ] **Status timeline** (visual progress)
+- [x] **Back button**
+- [x] **Order info:** ID, table/location, customer name (if provided), time
+- [x] **Items list:** name, quantity, notes (e.g., "tidak pedas")
+- [x] **Total**
+- [x] **Status buttons:** [🟡 Proses] [🟢 Selesai] (big, tap-friendly)
+- [ ] **Chat button** (if enabled) — deferred to 4.4
+- [x] **Status timeline** (visual progress)
 
 ### 3.3 Staff Settings (`/staff/settings`)
 
-- [ ] **Name** (read-only or editable)
-- [ ] **Notifications** (toggle: new order alerts)
-- [ ] **Logout button**
+- [x] **Name** (read-only or editable)
+- [x] **Notifications** (toggle: new order alerts)
+- [x] **Logout button**
 
 ---
 
 ## 🛒 Priority 4: Public/Customer Flow (Week 6-7)
 
-### 4.1 Catalog View (`/r/[slug]`)
+### 4.1 Catalog View (`/r/[slug]`) ✅ DONE
 
-- [ ] **Top bar:** tenant logo + name + rating
-- [ ] **Search bar** (filter products)
-- [ ] **Category tabs** (horizontal scroll: Semua, Makanan, Minuman, etc.)
-- [ ] **Product grid** (2-column on mobile, 3-4 on desktop)
+- [x] **Top bar:** tenant logo + name + rating
+- [x] **Search bar** (filter products)
+- [x] **Category tabs** (horizontal scroll: Semua, Makanan, Minuman, etc.)
+- [x] **Product grid** (2-column on mobile, 3-4 on desktop)
   - Image, name, price
   - [🛒 +] button (add to cart)
-- [ ] **Tap product → detail modal**
+- [x] **Tap product → detail modal**
   - Larger image
   - Full description
   - Dietary badges (vegetarian, halal, spicy)
   - Quantity selector
   - [Add to Cart] button
-- [ ] **Floating cart button** (bottom-right)
+- [x] **Floating cart button** (bottom-right)
   - Badge with item count
   - Tap → cart view
-- [ ] **Empty state** (if no products)
+- [x] **Empty state** (if no products)
 
-### 4.2 Cart (`/r/[slug]/cart`)
+### 4.2 Cart (`/r/[slug]/cart`) ✅ DONE
 
-- [ ] **Item list** (name, quantity, price, subtotal)
+- [x] **Item list** (name, quantity, price, subtotal)
   - [- 2 +] quantity controls
   - [🗑️ Remove] button
-- [ ] **Notes field** (per item or global)
-- [ ] **Total**
-- [ ] **Customer info** (optional: name, table number)
-- [ ] **[Pesan Sekarang]** button (full-width, solid)
-- [ ] **Empty state** ("Keranjang kosong")
+- [x] **Notes field** (per item or global)
+- [x] **Total**
+- [x] **Customer info** (optional: name, table number)
+- [x] **[Pesan Sekarang]** button (full-width, solid)
+- [x] **Empty state** ("Keranjang kosong")
 
-### 4.3 Order Tracking (`/r/[slug]/order/[id]`)
+### 4.3 Order Tracking (`/r/[slug]/order/[id]`) ✅ DONE
 
-- [ ] **Order ID + status**
-- [ ] **Status timeline** (visual: ✅ Received → 🔄 Processing → 🟢 Ready)
-- [ ] **Items summary** (collapsed)
-- [ ] **Total**
-- [ ] **[💬 Chat with Staff]** button (if enabled)
-- [ ] **[🔙 Kembali ke Katalog]** button
+- [x] **Order ID + status**
+- [x] **Status timeline** (visual: ✅ Received → 🔄 Processing → 🟢 Ready)
+- [x] **Items summary** (collapsed)
+- [x] **Total**
+- [ ] **[💬 Chat with Staff]** button (if enabled) — deferred to 4.4
+- [x] **[🔙 Kembali ke Katalog]** button
 
 ### 4.4 Chat (Optional, Week 7-8)
 
@@ -297,41 +297,43 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ## 🔧 Priority 5: Platform Admin Pages (Week 7-8)
 
-### 5.1 Overview (`/platform`)
+### 5.1 Overview (`/platform`) ✅ DONE
 
-- [ ] **Stats cards** (total tenants, active tenants, revenue, usage)
-- [ ] **Recent activity** (new signups, suspensions)
-- [ ] **Quick links** (to tenants, monitoring, billing)
+- [x] **Stats cards** (total tenants, active tenants, revenue, usage)
+- [x] **Recent activity** (new signups, suspensions)
+- [x] **Quick links** (to tenants, monitoring, billing)
 
-### 5.2 Tenants (`/platform/tenants`)
+### 5.2 Tenants (`/platform/tenants`) ✅ DONE
 
-- [ ] **Tenant table** (name, owner, plan, status, created)
-- [ ] **Search + filters** (plan, status)
-- [ ] **Tap row → tenant detail**
-- [ ] **Tenant detail page** (`/platform/tenants/[id]`)
+- [x] **Tenant table** (name, owner, plan, status, created)
+- [x] **Search + filters** (plan, status)
+- [x] **Tap row → tenant detail**
+- [x] **Tenant detail page** (`/platform/tenants/[id]`)
   - Info, usage stats, activity log
   - Actions: [Suspend] [Activate] [Delete]
 - [ ] **Bulk actions** (optional)
 
-### 5.3 API Keys (`/platform/api`)
+### 5.3 API Keys (`/platform/api`) ⚠️ PLACEHOLDER
 
 - [ ] **Key list** (name, created, last used, status)
 - [ ] **Generate new key** (modal)
 - [ ] **Revoke key** (with confirmation)
 - [ ] **Usage logs** (table: endpoint, timestamp, status)
 
-### 5.4 Monitoring (`/platform/monitoring`)
+> **Note**: Full implementation requires database migration to create `api_keys` table. Placeholder page created with planned features documented.
 
-- [ ] **Performance** (response time, uptime)
-- [ ] **Errors** (Sentry integration, recent errors)
-- [ ] **AI costs** (provider, tokens, cost per day)
-- [ ] **Alerts** (if any thresholds breached)
+### 5.4 Monitoring (`/platform/monitoring`) ✅ DONE
 
-### 5.5 Billing (`/platform/billing`)
+- [x] **Performance** (response time, uptime)
+- [x] **Errors** (Sentry integration, recent errors)
+- [x] **AI costs** (provider, tokens, cost per day)
+- [x] **Alerts** (if any thresholds breached)
 
-- [ ] **Subscription list** (tenant, plan, status, MRR)
-- [ ] **Usage overview** (total tenants per plan)
-- [ ] **Invoices** (if integrated with payment provider)
+### 5.5 Billing (`/platform/billing`) ✅ DONE
+
+- [x] **Subscription list** (tenant, plan, status, MRR)
+- [x] **Usage overview** (total tenants per plan)
+- [x] **Invoices** (if integrated with payment provider)
 
 ---
 

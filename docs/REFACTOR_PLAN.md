@@ -93,7 +93,7 @@
 - [x] Queue system (BullMQ + Redis for embedding/OCR background jobs)
 - [x] Observability (Sentry for SvelteKit SSR/CSR and Node backend)
 - [x] CI/CD pipeline (GitHub Actions for lint, typecheck, and unit tests)
-- [ ] Subdomain resolver
-- [ ] CDN integration
+- [x] Subdomain resolver
+- [x] CDN integration
 - [ ] i18n runtime
 - [ ] DB partitioning strategy
