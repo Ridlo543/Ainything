@@ -72,7 +72,7 @@
 					<span class="ml-3 rounded bg-white/10 px-3 py-0.5 text-[11px] text-white/50">lingua.app/dashboard</span>
 				</div>
 				<img
-					src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=360&fit=crop&auto=format&q=80"
+					src="/mock-images/photo-1551288049-bebda4e38f71.jpg"
 					alt="Dashboard Lingua"
 					class="h-48 w-full object-cover object-top opacity-90"
 					width="640" height="192"

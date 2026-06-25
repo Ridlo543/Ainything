@@ -19,17 +19,17 @@
 
 	const proofItems = [
 		{
-			avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&q=80',
+			avatar: '/mock-images/photo-1507003211169-0a1dd7228f2d.jpg',
 			name: 'Budi S.',
 			text: 'Omzet naik 30% dalam sebulan!'
 		},
 		{
-			avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&q=80',
+			avatar: '/mock-images/photo-1494790108377-be9c29b29330.jpg',
 			name: 'Sari D.',
 			text: 'Setup 20 menit, langsung jalan.'
 		},
 		{
-			avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&q=80',
+			avatar: '/mock-images/photo-1500648767791-00dcc994a43e.jpg',
 			name: 'Kevin H.',
 			text: '3 cabang, 1 dashboard. Mudah!'
 		}
@@ -70,7 +70,7 @@
 			<!-- Product image -->
 			<div class="mt-8 overflow-hidden rounded-2xl border border-white/20 shadow-2xl">
 				<img
-					src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=560&h=280&fit=crop&auto=format&q=80"
+					src="/mock-images/photo-1600891964599-f61ba0e24092.jpg"
 					alt="Contoh katalog digital Lingua"
 					class="h-44 w-full object-cover"
 					width="560" height="176"

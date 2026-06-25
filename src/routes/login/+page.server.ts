@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { authProvider } from '$lib/server/auth/auth-factory';
+import { resolveRoleRedirect } from '$lib/server/auth/role-routing';
 
 export const load: PageServerLoad = ({ locals, url }) => {
 	if (locals.user) {
@@ -40,14 +41,18 @@ export const actions: Actions = {
 
 		const { email, password, redirectTo } = parseResult.data;
 
-		try {
-			await authProvider.login(email, password, cookies);
-		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Login failed.';
-			return fail(401, { message, email });
-		}
+	try {
+		await authProvider.login(email, password, cookies);
+	} catch (err) {
+		const message = err instanceof Error ? err.message : 'Login failed.';
+		return fail(401, { message, email });
+	}
 
-		const safeRedirect = redirectTo.startsWith('/') ? redirectTo : '/dashboard';
-		redirect(303, safeRedirect);
+	const user = await authProvider.getSessionUser(cookies, request);
+	const target = user ? resolveRoleRedirect(user) : '/dashboard';
+	const safeRedirect = redirectTo.startsWith('/') && redirectTo !== '/dashboard'
+		? redirectTo
+		: target;
+	redirect(303, safeRedirect);
 	}
 };

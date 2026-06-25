@@ -126,7 +126,7 @@ export const actions: Actions = {
 			return fail(500, { message, ...raw });
 		}
 
-		redirect(303, '/dashboard');
+		redirect(303, '/register/setup');
 	},
 
 	suggestSlug: async ({ request }) => {

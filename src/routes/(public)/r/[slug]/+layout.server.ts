@@ -1,21 +1,26 @@
-import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
+import { resolvePublicCatalog } from '$lib/server/tenant/public-context';
+import { error } from '@sveltejs/kit';
+import { cachePolicy } from '$lib/server/cache/cache-policy';
 
-export const load: LayoutServerLoad = async ({ params }) => {
-	const tenantSlug = params.slug;
+export const load: LayoutServerLoad = async ({ params, url, request, setHeaders }) => {
+	const restaurant = await resolvePublicCatalog(params.slug);
 
-	if (!tenantSlug) {
-		error(404, 'Tenant not found');
+	if (!restaurant) {
+		error(404, 'Restaurant not found');
 	}
 
-	// TODO: Load tenant by slug from database/API.
-	// For now, return mock data for layout development.
+	const tableCode = url.searchParams.get('table') ?? undefined;
+	const expectedHost = restaurant.publicHost || `${restaurant.slug}.lingua.app`;
+	const host = request.headers.get('host') ?? '';
+	const hostValidated = host.startsWith(expectedHost) || host.startsWith('localhost');
+
+	setHeaders(cachePolicy.PUBLIC_PAGE);
+
 	return {
-		tenant: {
-			slug: tenantSlug,
-			name: tenantSlug,
-			heroImage: '',
-			description: ''
-		}
+		restaurant,
+		slug: params.slug,
+		tableCode,
+		hostValidated
 	};
 };
