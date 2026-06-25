@@ -20,6 +20,12 @@ BEGIN
 		);
 
 		ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+
+		CREATE OR REPLACE FUNCTION auth.uid()
+		RETURNS uuid
+		LANGUAGE sql
+		STABLE
+		AS $$ SELECT NULL::uuid; $$;
 	END IF;
 END
 $$;
