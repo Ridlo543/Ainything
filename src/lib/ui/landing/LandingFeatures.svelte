@@ -91,7 +91,7 @@
 		</div>
 
 		<div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-			{#each features as f}
+			{#each features as f (f.title)}
 				<div
 					class="group rounded-2xl border border-[#e7e5e4] bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
 				>

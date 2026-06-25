@@ -42,11 +42,11 @@
 		</div>
 
 		<div class="mt-14 grid gap-6 md:grid-cols-3">
-			{#each testimonials as t}
+			{#each testimonials as t (t.name)}
 				<div class="flex flex-col rounded-2xl border border-[#e7e5e4] bg-[#fafaf9] p-7 shadow-sm">
 					<!-- Stars -->
 					<div class="flex gap-0.5">
-						{#each { length: 5 } as _}
+						{#each { length: 5 } as _, i (i)}
 							<Star size={16} class="fill-[#f59e0b] text-[#f59e0b]" />
 						{/each}
 					</div>
@@ -84,7 +84,7 @@
 				Digunakan oleh bisnis dari
 			</p>
 			<div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-				{#each ['Jakarta', 'Bali', 'Surabaya', 'Bandung', 'Yogyakarta', 'Medan', 'Makassar'] as city}
+				{#each ['Jakarta', 'Bali', 'Surabaya', 'Bandung', 'Yogyakarta', 'Medan', 'Makassar'] as city (city)}
 					<span class="text-sm font-bold text-[#1a1a2e]/40">{city}</span>
 				{/each}
 			</div>

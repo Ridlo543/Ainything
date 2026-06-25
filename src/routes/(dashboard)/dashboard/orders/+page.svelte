@@ -1,21 +1,19 @@
 <script lang="ts">
-	import type { PageData, ActionData } from './$types';
+	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import {
 		ShoppingCart,
 		Clock,
 		Search,
-		ChevronRight,
 		Check,
 		X,
 		RotateCcw,
 		MapPin,
-		FileText,
-		Filter
+		FileText
 	} from '@lucide/svelte';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
 
 	const allOrders = $derived(data.orders);
@@ -74,7 +72,7 @@
 			<!-- Tabs + search -->
 			<div class="rounded-2xl bg-white p-4 shadow-sm space-y-3">
 				<div class="flex gap-1">
-					{#each [['active', 'Aktif', activeCnt], ['done', 'Selesai', null], ['all', 'Semua', allOrders.length]] as const as [tab, label, count]}
+					{#each [['active', 'Aktif', activeCnt], ['done', 'Selesai', null], ['all', 'Semua', allOrders.length]] as const as [tab, label, count] (tab)}
 						<button
 							type="button"
 							onclick={() => (activeTab = tab)}
@@ -210,7 +208,7 @@
 							Item Pesanan
 						</p>
 						<div class="space-y-2">
-							{#each selectedOrder.items as item}
+							{#each selectedOrder.items as item (item.name)}
 								<div class="flex items-start gap-2 rounded-xl bg-[#fafaf9] p-3">
 									<span
 										class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#d1fae5] text-xs font-bold text-[#059669]"

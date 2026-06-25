@@ -42,7 +42,7 @@
 		</div>
 
 		<div class="mt-16 space-y-16">
-			{#each steps as step, i}
+			{#each steps as step, i (step.num)}
 				<div
 					class="grid items-center gap-8 md:grid-cols-2 md:gap-14 {i % 2 === 1
 						? 'md:[&>*:first-child]:order-2'

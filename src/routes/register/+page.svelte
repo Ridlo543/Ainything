@@ -1,11 +1,8 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import RegisterStepIndicator from '$lib/ui/register/RegisterStepIndicator.svelte';
 	import RegisterStep1 from '$lib/ui/register/RegisterStep1.svelte';
 	import RegisterStep2 from '$lib/ui/register/RegisterStep2.svelte';
 	import RegisterStep3 from '$lib/ui/register/RegisterStep3.svelte';
-
-	let { data: _data }: { data: PageData } = $props();
 
 	let step = $state(1);
 	let tenantType = $state<'restaurant' | 'retail' | 'service' | ''>('');
@@ -92,7 +89,7 @@
 
 			<!-- Social proof -->
 			<div class="mt-6 flex flex-col gap-3">
-				{#each proofItems as t}
+				{#each proofItems as t (t.name)}
 					<div class="flex items-center gap-3 rounded-xl bg-white/10 p-3">
 						<img
 							src={t.avatar}

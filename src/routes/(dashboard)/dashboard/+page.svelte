@@ -85,7 +85,7 @@
 
 	<!-- ── Stats grid ── -->
 	<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-		{#each stats as s}
+		{#each stats as s (s.label)}
 			<div class="rounded-2xl bg-white p-5 shadow-sm">
 				<div class="flex items-start justify-between">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl {s.bg} {s.color}">
@@ -123,7 +123,7 @@
 				</a>
 			</div>
 			<div class="divide-y divide-[#f5f5f4]">
-				{#each recentOrders as order}
+				{#each recentOrders as order (order.id)}
 					<a
 						href="/dashboard/orders/{order.id.replace('#', '')}"
 						class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#fafaf9] transition-colors"
@@ -178,7 +178,7 @@
 					</a>
 				</div>
 				<div class="space-y-3 p-4">
-					{#each topProducts as p, i}
+					{#each topProducts as p, i (p.name)}
 						<div class="flex items-center gap-3">
 							<span class="w-4 shrink-0 text-center text-xs font-bold text-[#a8a29e]">{i + 1}</span>
 							<img
@@ -207,7 +207,7 @@
 					<h2 class="text-sm font-bold text-[#1a1a2e]">Aksi Cepat</h2>
 				</div>
 				<div class="space-y-1.5 p-3">
-					{#each [{ href: '/dashboard/catalog?new=1', icon: Plus, label: 'Tambah Produk Baru', color: 'text-[#059669]', bg: 'bg-[#d1fae5]' }, { href: '/dashboard/settings/qr', icon: QrCode, label: 'Download QR Code', color: 'text-[#d97706]', bg: 'bg-[#fef3c7]' }, { href: '/dashboard/analytics', icon: BarChart3, label: 'Lihat Laporan', color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]' }] as action}
+					{#each [{ href: '/dashboard/catalog?new=1', icon: Plus, label: 'Tambah Produk Baru', color: 'text-[#059669]', bg: 'bg-[#d1fae5]' }, { href: '/dashboard/settings/qr', icon: QrCode, label: 'Download QR Code', color: 'text-[#d97706]', bg: 'bg-[#fef3c7]' }, { href: '/dashboard/analytics', icon: BarChart3, label: 'Lihat Laporan', color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]' }] as action (action.label)}
 						<a
 							href={action.href}
 							class="flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-[#f5f5f4]"

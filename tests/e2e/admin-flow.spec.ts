@@ -20,7 +20,7 @@ test.describe('Login page', () => {
 
 		await expect(page.getByRole('heading', { name: /selamat datang|welcome/i })).toBeVisible();
 		await expect(page.getByLabel('Email')).toBeVisible();
-		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.locator('#password')).toBeVisible();
 	});
 
 	test('login button is visible', async ({ page }) => {

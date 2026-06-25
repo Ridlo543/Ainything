@@ -7,7 +7,7 @@
 </script>
 
 <div class="flex items-center gap-2">
-	{#each stepLabels as label, i}
+	{#each stepLabels as label, i (label)}
 		<div class="flex items-center gap-2">
 			<div
 				class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { Plus, Edit2, Trash2, X, Check, Tag, ChevronRight } from '@lucide/svelte';
+	import { Plus, Edit2, Trash2, X, Check, Tag } from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
@@ -164,7 +164,7 @@
 					<div>
 						<p class="mb-2 text-sm font-semibold text-[#1a1a2e]">Warna</p>
 						<div class="flex gap-2">
-							{#each colorOptions as color}
+							{#each colorOptions as color (color)}
 								<button
 									type="button"
 									onclick={() => (formColor = color)}

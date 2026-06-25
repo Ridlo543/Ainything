@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/ui/card';
-	import * as Badge from '$lib/ui/badge';
-	import { Building2, Package } from '@lucide/svelte';
+	import { Building2 } from '@lucide/svelte';
 </script>
 
 <div class="space-y-6">

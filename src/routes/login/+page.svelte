@@ -102,7 +102,7 @@
 			</div>
 
 			<ul class="mt-8 grid grid-cols-2 gap-3">
-				{#each highlights as h}
+				{#each highlights as h (h.title)}
 					<li class="flex items-start gap-3 rounded-xl bg-white/10 p-3">
 						<div
 							class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20"

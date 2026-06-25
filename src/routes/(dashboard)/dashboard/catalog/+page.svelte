@@ -1,10 +1,8 @@
 <script lang="ts">
-	import type { PageData, ActionData } from './$types';
-	import { enhance } from '$app/forms';
+	import type { PageData } from './$types';
 	import {
 		Plus,
 		Search,
-		Filter,
 		MoreHorizontal,
 		Edit2,
 		Eye,
@@ -13,12 +11,11 @@
 		Copy,
 		X,
 		Check,
-		Upload,
 		Tag,
 		ImageIcon
 	} from '@lucide/svelte';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
 
 	const products = $derived(data.products);
@@ -122,7 +119,7 @@
 		<!-- Category tabs + status filter -->
 		<div class="flex flex-wrap items-center gap-2">
 			<div class="flex gap-1 overflow-x-auto">
-				{#each categories as cat}
+				{#each categories as cat (cat)}
 					<button
 						type="button"
 						onclick={() => (selectedCategory = cat)}
@@ -367,7 +364,7 @@
 								bind:value={formCategory}
 								class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-3 text-sm text-[#1a1a2e] focus:border-[#059669] focus:outline-none"
 							>
-								{#each categories.slice(1) as cat}
+								{#each categories.slice(1) as cat (cat)}
 									<option value={cat}>{cat}</option>
 								{/each}
 							</select>

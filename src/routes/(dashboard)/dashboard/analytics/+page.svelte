@@ -57,7 +57,7 @@
 			<p class="mt-0.5 text-sm text-[#78716c]">Performa bisnis kamu</p>
 		</div>
 		<div class="flex items-center gap-1 rounded-xl border border-[#f0eeec] bg-white p-1 shadow-sm">
-			{#each ranges as r}
+			{#each ranges as r (r.value)}
 				<button
 					type="button"
 					onclick={() => (range = r.value)}
@@ -72,7 +72,7 @@
 
 	<!-- Summary stats -->
 	<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-		{#each summaryStats as s}
+		{#each summaryStats as s (s.label)}
 			<div class="rounded-2xl bg-white p-5 shadow-sm">
 				<div class="flex items-start justify-between">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl {s.bg} {s.color}">
@@ -96,7 +96,7 @@
 	<div class="rounded-2xl bg-white p-6 shadow-sm">
 		<h2 class="mb-5 text-sm font-bold text-[#1a1a2e]">Pesanan per Hari</h2>
 		<div class="flex items-end gap-2 h-40">
-			{#each dailyOrders as d}
+			{#each dailyOrders as d (d.day)}
 				<div class="flex flex-1 flex-col items-center gap-1.5">
 					<span class="text-[10px] font-semibold text-[#78716c]">{d.orders}</span>
 					<div
@@ -115,7 +115,7 @@
 			<h2 class="text-sm font-bold text-[#1a1a2e]">Produk Terlaris</h2>
 		</div>
 		<div class="divide-y divide-[#f5f5f4]">
-			{#each topProducts as p, i}
+			{#each topProducts as p, i (p.name)}
 				<div class="flex items-center gap-4 px-6 py-4">
 					<span class="w-5 shrink-0 text-center text-sm font-bold text-[#a8a29e]">{i + 1}</span>
 					<img

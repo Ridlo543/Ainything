@@ -68,7 +68,7 @@
 		</div>
 
 		<div class="mt-14 grid gap-6 md:grid-cols-3">
-			{#each plans as plan}
+			{#each plans as plan (plan.name)}
 				<div
 					class="relative flex flex-col rounded-2xl border bg-white p-8 shadow-sm transition-all hover:shadow-md
 						{plan.highlight ? 'border-[#059669] ring-2 ring-[#059669]/20' : 'border-[#e7e5e4]'}"
@@ -93,7 +93,7 @@
 					</div>
 
 					<ul class="mt-6 flex-1 space-y-3">
-						{#each plan.features as feat}
+						{#each plan.features as feat (feat)}
 							<li class="flex items-start gap-2.5 text-sm text-[#78716c]">
 								<Check size={16} class="mt-0.5 shrink-0 text-[#059669]" />
 								{feat}

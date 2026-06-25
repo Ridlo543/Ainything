@@ -1,7 +1,5 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
-	import { t } from '$lib/i18n';
-
 	let { data, children }: { data: LayoutData; children: import('svelte').Snippet } = $props();
 
 	const restaurant = $derived(data.restaurant);

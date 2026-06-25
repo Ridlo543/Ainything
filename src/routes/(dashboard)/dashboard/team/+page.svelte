@@ -1,23 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import {
-		Plus,
-		Mail,
-		MoreHorizontal,
-		X,
-		Check,
-		Users,
-		Crown,
-		Shield,
-		User,
-		Clock
-	} from '@lucide/svelte';
+	import { Plus, Mail, MoreHorizontal, X, Crown, Shield, User, Clock } from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
 
 	type Role = 'owner' | 'manager' | 'staff';
-	type MemberStatus = 'active' | 'invited';
 
 	const roleCfg: Record<Role, { label: string; bg: string; text: string; icon: typeof Crown }> = {
 		owner: { label: 'Owner', bg: 'bg-[#fef3c7]', text: 'text-[#d97706]', icon: Crown },
@@ -200,7 +188,7 @@
 					<div>
 						<p class="mb-2 text-sm font-semibold text-[#1a1a2e]">Peran</p>
 						<div class="grid grid-cols-2 gap-2">
-							{#each ['staff', 'manager'] as Role[] as role}
+							{#each ['staff', 'manager'] as Role[] as role (role)}
 								<button
 									type="button"
 									onclick={() => (inviteRole = role)}

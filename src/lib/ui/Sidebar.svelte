@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { SvelteSet } from 'svelte/reactivity';
 	import * as Separator from '$lib/ui/separator';
 	import {
 		Home,
@@ -92,13 +93,14 @@
 	];
 
 	// Track which groups are expanded — auto-expand the active group
-	let expandedGroups = $state<Set<string>>(new Set());
+	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
+	let expandedGroups = $state(new SvelteSet<string>());
 
 	$effect(() => {
 		for (const item of nav) {
 			if (item.children && isGroupActive(item)) {
 				expandedGroups.add(item.href);
-				expandedGroups = new Set(expandedGroups);
+				expandedGroups = new SvelteSet(expandedGroups);
 			}
 		}
 	});
@@ -119,7 +121,7 @@
 		} else {
 			expandedGroups.add(href);
 		}
-		expandedGroups = new Set(expandedGroups);
+		expandedGroups = new SvelteSet(expandedGroups);
 	}
 </script>
 

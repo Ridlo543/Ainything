@@ -256,7 +256,7 @@
 			</div>
 			<div class="mt-4 rounded-xl bg-[#fafaf9] p-4">
 				<div class="grid grid-cols-3 gap-4 text-center">
-					{#each [['5', 'Outlet'], ['50', 'Produk'], ['Tak terbatas', 'Pesanan']] as [val, lbl]}
+					{#each [['5', 'Outlet'], ['50', 'Produk'], ['Tak terbatas', 'Pesanan']] as [val, lbl] (lbl)}
 						<div>
 							<p class="text-lg font-extrabold text-[#1a1a2e]">{val}</p>
 							<p class="text-xs text-[#78716c]">{lbl}</p>

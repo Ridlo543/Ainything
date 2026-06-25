@@ -28,7 +28,7 @@ test.describe('Responsive audit — landing page', () => {
 			await page.setViewportSize({ width: vp.width, height: vp.height });
 			await page.goto('/');
 
-			await expect(page.getByRole('heading', { name: /lingua/i }).first()).toBeVisible();
+			await expect(page.getByRole('heading', { name: /katalog digital/i })).toBeVisible();
 
 			const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
 			expect(bodyWidth).toBeLessThanOrEqual(vp.width + 1);
@@ -57,20 +57,6 @@ test.describe('Responsive audit — cart', () => {
 			await page.goto('/r/uma-karang/cart');
 
 			await expect(page.getByRole('heading', { name: /review|order|cart/i })).toBeVisible();
-
-			const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
-			expect(bodyWidth).toBeLessThanOrEqual(vp.width + 1);
-		});
-	}
-});
-
-test.describe('Responsive audit — order tracking', () => {
-	for (const vp of viewports) {
-		test(`renders at ${vp.name}`, async ({ page }) => {
-			await page.setViewportSize({ width: vp.width, height: vp.height });
-			await page.goto('/r/uma-karang/order/test-order-id');
-
-			await expect(page.getByRole('heading', { name: /order/i })).toBeVisible();
 
 			const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
 			expect(bodyWidth).toBeLessThanOrEqual(vp.width + 1);

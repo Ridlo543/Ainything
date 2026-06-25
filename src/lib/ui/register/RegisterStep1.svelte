@@ -37,7 +37,7 @@
 	</p>
 
 	<div class="mt-6 flex flex-col gap-3">
-		{#each types as type}
+		{#each types as type (type.value)}
 			<button
 				type="button"
 				onclick={() => onSelect(type.value)}

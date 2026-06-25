@@ -70,7 +70,7 @@
 
 				<!-- Stats row -->
 				<div class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-					{#each stats as s}
+					{#each stats as s (s.label)}
 						<div
 							class="rounded-xl border border-[#e7e5e4] bg-white px-3 py-3 text-center shadow-sm"
 						>
@@ -130,7 +130,7 @@
 					<div class="p-3">
 						<p class="mb-2 text-[11px] font-bold text-[#1a1a2e]">Menu Populer</p>
 						<div class="grid grid-cols-2 gap-2">
-							{#each products as p}
+							{#each products as p (p.name)}
 								<div class="rounded-xl border border-[#e7e5e4] bg-[#fafaf9] p-2">
 									<p class="text-[10px] font-semibold leading-tight text-[#1a1a2e]">{p.name}</p>
 									<p class="mt-0.5 text-[10px] text-[#78716c]">{p.price}</p>

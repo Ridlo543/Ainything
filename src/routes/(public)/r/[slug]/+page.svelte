@@ -21,7 +21,6 @@
 	let detailOpen = $state(false);
 	let detailQty = $state(1);
 
-	const slug = $derived(data.slug);
 	const cart = $derived(createCartStore(data.slug));
 	const cartCount = $derived(cart.count);
 	const cartTotal = $derived(cart.total);

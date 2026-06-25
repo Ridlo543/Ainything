@@ -125,7 +125,7 @@
 			{#if password}
 				<div class="mt-2 space-y-1">
 					<div class="flex gap-1">
-						{#each [1, 2, 3] as level}
+						{#each [1, 2, 3] as level (level)}
 							<div
 								class="h-1 flex-1 rounded-full transition-all {strength.level >= level
 									? strength.color

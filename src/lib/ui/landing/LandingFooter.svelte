@@ -87,11 +87,11 @@
 			</div>
 
 			<!-- Nav links -->
-			{#each links as col}
+			{#each links as col (col.title)}
 				<div>
 					<h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-white/40">{col.title}</h4>
 					<ul class="space-y-2.5">
-						{#each col.items as item}
+						{#each col.items as item (item.label)}
 							<li>
 								<a href={item.href} class="text-sm text-white/50 transition-colors hover:text-white"
 									>{item.label}</a

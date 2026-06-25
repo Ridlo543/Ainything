@@ -23,8 +23,6 @@
 	let step = $state(1);
 	let productAdded = $state(false);
 	let staffInvited = $state(false);
-	let submitting = $state(false);
-
 	function nextStep() {
 		if (step < 3) {
 			step++;
@@ -85,7 +83,7 @@
 		<div class="w-full max-w-lg">
 			<!-- Step indicator -->
 			<div class="mb-8 flex items-center justify-center gap-3">
-				{#each steps as s, i}
+				{#each steps as s, i (s.num)}
 					<div class="flex items-center gap-2">
 						<div
 							class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors

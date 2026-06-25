@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Store, ArrowLeft, UserPlus } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
-	import type { PageData, ActionData } from './$types';
+	import type { ActionData } from './$types';
 
-	let { data, form }: { data: PageData; form?: ActionData } = $props();
+	let { form }: { form?: ActionData } = $props();
 
 	const formFields = $derived(
 		form as { name?: string; email?: string; restaurantName?: string } | undefined

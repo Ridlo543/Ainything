@@ -110,7 +110,7 @@
 				class="w-full min-h-11 rounded-lg border border-[#e7e5e4] bg-white px-3 py-2.5 text-sm text-[#1a1a2e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669]"
 			>
 				<option value="" disabled selected>Pilih kota...</option>
-				{#each cities as c}
+				{#each cities as c (c)}
 					<option value={c}>{c}</option>
 				{/each}
 			</select>

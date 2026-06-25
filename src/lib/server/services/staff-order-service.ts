@@ -41,8 +41,7 @@ export async function getStaffOrder(
 	const tenant = await resolveTenantContext(user, restaurantSlug);
 	const { activeRestaurant } = tenant;
 
-	let order: OrderWithItems | null = null;
-	order = await withUserContext(user.id, async (client) => {
+	const order: OrderWithItems | null = await withUserContext(user.id, async (client) => {
 		return findOrderById(client, {
 			organizationId: activeRestaurant.organizationId,
 			restaurantId: activeRestaurant.id,
@@ -77,8 +76,7 @@ export async function transitionStaffOrder(
 		);
 	}
 
-	let currentOrder: OrderWithItems | null = null;
-	currentOrder = await withUserContext(user.id, async (client) => {
+	const currentOrder: OrderWithItems | null = await withUserContext(user.id, async (client) => {
 		return findOrderById(client, {
 			organizationId: activeRestaurant.organizationId,
 			restaurantId: activeRestaurant.id,

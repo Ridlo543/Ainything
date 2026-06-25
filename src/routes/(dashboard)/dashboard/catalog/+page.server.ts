@@ -6,7 +6,7 @@ import {
 	loadMenuItemsForRestaurant,
 	setMenuItemAvailability
 } from '$lib/server/repositories/admin-menu-repository';
-import { formatPrice } from '$lib/domain/menu/policy';
+
 import type { MenuItem } from '$lib/domain/menu/types';
 
 function toProduct(item: MenuItem) {

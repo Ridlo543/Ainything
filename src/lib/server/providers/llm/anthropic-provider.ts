@@ -86,7 +86,6 @@ export class AnthropicProvider implements LlmProvider {
 	 * Returns null so the caller can fall back to structured-only retrieval
 	 * or use an alternative embedding provider if configured.
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async embed(_texts: string[], _model?: string): Promise<number[][] | null> {
 		console.warn(
 			'[anthropic] Embeddings are not supported by Anthropic. Use a provider that supports embeddings (e.g. OpenAI) or disable EMBEDDING_ENABLED.'
