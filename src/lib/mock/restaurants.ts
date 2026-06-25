@@ -71,6 +71,13 @@ export const demoUsers: AuthUser[] = [
 				role: 'staff'
 			}
 		]
+	},
+	{
+		id: 'user-super-admin',
+		email: 'admin@lingua.app',
+		name: 'Lingua Platform Admin',
+		platformRole: 'super_admin',
+		memberships: []
 	}
 ];
 
@@ -162,7 +169,7 @@ export const restaurants: Restaurant[] = [
 				'Ayam Betutu',
 				'Turmeric, lemongrass, galangal, and banana leaf roasted chicken with steamed rice.',
 				98000,
-				'/assets/covers/uma-karang.svg',
+				'/mock-images/photo-1604908176997-125f25cc6f3d.jpg',
 				4,
 				['halal', 'spicy'],
 				[],
@@ -176,7 +183,7 @@ export const restaurants: Restaurant[] = [
 				'Ikan Bakar Jimbaran',
 				'Charcoal grilled fish with sweet soy glaze, lime, sambal matah, and warm rice.',
 				145000,
-				'/assets/covers/uma-karang.svg',
+				'/mock-images/photo-1544943910-4c1dc44aab44.jpg',
 				2,
 				['halal', 'seafood'],
 				['seafood'],
@@ -189,7 +196,7 @@ export const restaurants: Restaurant[] = [
 				'Es Kelapa Jeruk Nipis',
 				'Chilled young coconut water with lime and coconut flesh.',
 				42000,
-				'/assets/covers/uma-karang.svg',
+				'/mock-images/photo-1541518763669-27fef04b14ea.jpg',
 				0,
 				['halal', 'vegan', 'gluten-free'],
 				[],
@@ -482,7 +489,7 @@ export const restaurants: Restaurant[] = [
 				'Sate Ayam',
 				'Ten skewers of chicken satay with peanut sauce, lontong, and pickled cucumber.',
 				76000,
-				'/assets/covers/taman-sate.svg',
+				'/mock-images/photo-1529543544282-ea669407fca3.jpg',
 				1,
 				['halal'],
 				['nuts', 'soy'],
@@ -497,7 +504,7 @@ export const restaurants: Restaurant[] = [
 				'Sate Kambing',
 				'Charcoal lamb skewers with sweet soy, tomato, shallot, and lime.',
 				98000,
-				'/assets/covers/taman-sate.svg',
+				'/mock-images/photo-1555939594-58d7cb561ad1.jpg',
 				2,
 				['halal'],
 				['soy'],
@@ -510,7 +517,7 @@ export const restaurants: Restaurant[] = [
 				'Es Cendol',
 				'Coconut milk dessert drink with palm sugar and green rice flour jelly.',
 				42000,
-				'/assets/covers/taman-sate.svg',
+				'/mock-images/photo-1534706270553-2ac0dfa30283.jpg',
 				0,
 				['vegetarian'],
 				['dairy'],

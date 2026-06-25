@@ -274,19 +274,19 @@ INSERT INTO menu_items (
 	image_url, spice_level, is_available, is_signature, confidence, sort_order
 ) VALUES
 	('70000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000001','50000000-0000-0000-0000-000000000001','60000000-0000-0000-0000-000000000001',
-	 'Slow Roasted Betutu Chicken','Ayam Betutu','Turmeric, lemongrass, galangal, and banana leaf roasted chicken with steamed rice.',98000,'IDR','/assets/covers/uma-karang.svg',4,true,true,'verified',1),
+	 'Slow Roasted Betutu Chicken','Ayam Betutu','Turmeric, lemongrass, galangal, and banana leaf roasted chicken with steamed rice.',98000,'IDR','/mock-images/photo-1604908176997-125f25cc6f3d.jpg',4,true,true,'verified',1),
 	('70000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000001','50000000-0000-0000-0000-000000000001','60000000-0000-0000-0000-000000000001',
-	 'Jimbaran Grilled Fish','Ikan Bakar Jimbaran','Charcoal grilled fish with sweet soy glaze, lime, sambal matah, and warm rice.',145000,'IDR','/assets/covers/uma-karang.svg',2,true,false,'verified',2),
+	 'Jimbaran Grilled Fish','Ikan Bakar Jimbaran','Charcoal grilled fish with sweet soy glaze, lime, sambal matah, and warm rice.',145000,'IDR','/mock-images/photo-1544943910-4c1dc44aab44.jpg',2,true,false,'verified',2),
 	('70000000-0000-0000-0000-000000000003','10000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000001','50000000-0000-0000-0000-000000000001','60000000-0000-0000-0000-000000000002',
-	 'Young Coconut with Lime','Es Kelapa Jeruk Nipis','Chilled young coconut water with lime and coconut flesh.',42000,'IDR','/assets/covers/uma-karang.svg',0,true,false,'verified',3),
+	 'Young Coconut with Lime','Es Kelapa Jeruk Nipis','Chilled young coconut water with lime and coconut flesh.',42000,'IDR','/mock-images/photo-1541518763669-27fef04b14ea.jpg',0,true,false,'verified',3),
 	('70000000-0000-0000-0000-000000000004','10000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000002','50000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000003',
-	 'Chicken Satay Set','Sate Ayam','Ten skewers of chicken satay with peanut sauce, lontong, and pickled cucumber.',76000,'IDR','/assets/covers/taman-sate.svg',1,true,true,'staff-confirm',1),
+	 'Chicken Satay Set','Sate Ayam','Ten skewers of chicken satay with peanut sauce, lontong, and pickled cucumber.',76000,'IDR','/mock-images/photo-1529543544282-ea669407fca3.jpg',1,true,true,'staff-confirm',1),
 	('70000000-0000-0000-0000-000000000005','10000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000002','50000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000003',
-	 'Lamb Satay with Sweet Soy','Sate Kambing','Charcoal lamb skewers with sweet soy, tomato, shallot, and lime.',98000,'IDR','/assets/covers/taman-sate.svg',2,true,false,'verified',2),
+	 'Lamb Satay with Sweet Soy','Sate Kambing','Charcoal lamb skewers with sweet soy, tomato, shallot, and lime.',98000,'IDR','/mock-images/photo-1555939594-58d7cb561ad1.jpg',2,true,false,'verified',2),
 	('70000000-0000-0000-0000-000000000006','10000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000002','50000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000004',
-	 'Coconut Cendol','Es Cendol','Coconut milk dessert drink with palm sugar and green rice flour jelly.',42000,'IDR','/assets/covers/taman-sate.svg',0,true,false,'verified',3),
+	 'Coconut Cendol','Es Cendol','Coconut milk dessert drink with palm sugar and green rice flour jelly.',42000,'IDR','/mock-images/photo-1534706270553-2ac0dfa30283.jpg',0,true,false,'verified',3),
 	('70000000-0000-0000-0000-000000000007','10000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000005','50000000-0000-0000-0000-000000000005','60000000-0000-0000-0000-000000000005',
-	 'Grilled Sea Bass with Tahini','سمك مشوي بالطحينة','Fresh sea bass grilled with Mediterranean herbs, served with tahini sauce and lemon.',165000,'IDR','/assets/covers/pantai-padi.svg',1,true,true,'verified',1)
+	 'Grilled Sea Bass with Tahini','سمك مشوي بالطحينة','Fresh sea bass grilled with Mediterranean herbs, served with tahini sauce and lemon.',165000,'IDR','/mock-images/photo-1519708227418-c8fd9a32b7a2.jpg',1,true,true,'verified',1)
 ON CONFLICT (id) DO UPDATE SET
 	name          = EXCLUDED.name,
 	local_name    = EXCLUDED.local_name,
