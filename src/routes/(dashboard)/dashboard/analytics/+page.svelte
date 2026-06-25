@@ -5,6 +5,15 @@
 	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
 
+	const iconMap: Record<string, typeof ShoppingCart> = {
+		ShoppingCart,
+		TrendingUp,
+		Eye,
+		BarChart3,
+		Star,
+		Calendar
+	};
+
 	type Range = '7d' | '30d' | '90d';
 	let range = $state<Range>('7d');
 
@@ -14,40 +23,18 @@
 		{ value: '90d', label: '90 Hari' }
 	];
 
-	const summaryStats = [
-		{ label: 'Total Pesanan', value: '168', trend: '+18%', up: true, icon: ShoppingCart, color: 'text-[#059669]', bg: 'bg-[#d1fae5]' },
-		{ label: 'Pendapatan', value: 'Rp 18,4 jt', trend: '+12%', up: true, icon: TrendingUp, color: 'text-[#d97706]', bg: 'bg-[#fef3c7]' },
-		{ label: 'Kunjungan Katalog', value: '1.302', trend: '+31%', up: true, icon: Eye, color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]' },
-		{ label: 'Rata-rata Pesanan', value: 'Rp 109rb', trend: '-3%', up: false, icon: BarChart3, color: 'text-[#db2777]', bg: 'bg-[#fce7f3]' }
-	];
+	const summaryStats = $derived(data.summaryStats);
+	const dailyOrders = $derived(data.dailyOrders);
+	const topProducts = $derived(data.topProducts);
 
-	// Bar chart data (daily orders, 7 days)
-	const dailyOrders = [
-		{ day: 'Sen', orders: 18, rev: 1980000 },
-		{ day: 'Sel', orders: 22, rev: 2420000 },
-		{ day: 'Rab', orders: 19, rev: 2090000 },
-		{ day: 'Kam', orders: 31, rev: 3410000 },
-		{ day: 'Jum', orders: 28, rev: 3080000 },
-		{ day: 'Sab', orders: 35, rev: 3850000 },
-		{ day: 'Min', orders: 24, rev: 2640000 }
-	];
-
-	const maxOrders = $derived(Math.max(...dailyOrders.map(d => d.orders)));
-
-	const topProducts = [
-		{ name: 'Ayam Betutu', orders: 48, rev: 4704000, img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=40&h=40&fit=crop&auto=format&q=80' },
-		{ name: 'Ikan Bakar Jimbaran', orders: 36, rev: 5220000, img: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=40&h=40&fit=crop&auto=format&q=80' },
-		{ name: 'Sate Ayam', orders: 29, rev: 2204000, img: 'https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=40&h=40&fit=crop&auto=format&q=80' },
-		{ name: 'Es Kelapa Muda', orders: 22, rev: 924000, img: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=40&h=40&fit=crop&auto=format&q=80' },
-		{ name: 'Coconut Cendol', orders: 17, rev: 714000, img: 'https://images.unsplash.com/photo-1534706270553-2ac0dfa30283?w=40&h=40&fit=crop&auto=format&q=80' }
-	];
-
-	const maxTopOrders = $derived(Math.max(...topProducts.map(p => p.orders)));
+	const maxOrders = $derived(Math.max(...dailyOrders.map(d => d.orders), 1));
 
 	function formatRev(n: number) {
 		if (n >= 1000000) return 'Rp ' + (n / 1000000).toFixed(1) + ' jt';
 		return 'Rp ' + (n / 1000).toFixed(0) + 'rb';
 	}
+
+	const maxTopOrders = $derived(Math.max(...topProducts.map(p => p.orders), 1));
 </script>
 
 <svelte:head>
@@ -62,7 +49,7 @@
 			<h1 class="text-2xl font-extrabold text-[#1a1a2e]">Analitik</h1>
 			<p class="mt-0.5 text-sm text-[#78716c]">Performa bisnis kamu</p>
 		</div>
-		<div class="flex items-center gap-1 rounded-xl border border-[#e7e5e4] bg-white p-1 shadow-sm">
+		<div class="flex items-center gap-1 rounded-xl border border-[#f0eeec] bg-white p-1 shadow-sm">
 			{#each ranges as r}
 				<button
 					type="button"
@@ -78,11 +65,11 @@
 
 	<!-- Summary stats -->
 	<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-		{#each summaryStats as s}
-			<div class="rounded-2xl border border-[#e7e5e4] bg-white p-5 shadow-sm">
+			{#each summaryStats as s}
+			<div class="rounded-2xl bg-white p-5 shadow-sm">
 				<div class="flex items-start justify-between">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl {s.bg} {s.color}">
-						<s.icon size={20} />
+						{#if s.icon && iconMap[s.icon]}{@const Icon = iconMap[s.icon]}<Icon size={20} />{/if}
 					</div>
 					<span class="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold
 						{s.up ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fef2f2] text-[#dc2626]'}">
@@ -97,7 +84,7 @@
 	</div>
 
 	<!-- Orders bar chart -->
-	<div class="rounded-2xl border border-[#e7e5e4] bg-white p-6 shadow-sm">
+	<div class="rounded-2xl bg-white p-6 shadow-sm">
 		<h2 class="mb-5 text-sm font-bold text-[#1a1a2e]">Pesanan per Hari</h2>
 		<div class="flex items-end gap-2 h-40">
 			{#each dailyOrders as d}
@@ -114,7 +101,7 @@
 	</div>
 
 	<!-- Top products -->
-	<div class="rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+	<div class="rounded-2xl bg-white shadow-sm">
 		<div class="border-b border-[#f5f5f4] px-6 py-4">
 			<h2 class="text-sm font-bold text-[#1a1a2e]">Produk Terlaris</h2>
 		</div>
