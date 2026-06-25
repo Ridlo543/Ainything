@@ -25,7 +25,7 @@ BEGIN
 		RETURNS uuid
 		LANGUAGE sql
 		STABLE
-		AS $$ SELECT NULL::uuid; $$;
+		AS $auth_uid_fn$ SELECT NULL::uuid; $auth_uid_fn$;
 	END IF;
 END
 $$;
