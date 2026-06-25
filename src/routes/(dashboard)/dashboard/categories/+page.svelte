@@ -5,12 +5,7 @@
 	let { data }: { data: PageData } = $props();
 	const org = $derived(data.tenant.organization);
 
-	const categories = $state([
-		{ id: '1', name: 'Signatures', description: 'Menu andalan restoran', productCount: 3, color: '#059669' },
-		{ id: '2', name: 'Drinks', description: 'Minuman segar', productCount: 2, color: '#2563eb' },
-		{ id: '3', name: 'Satay', description: 'Berbagai sate pilihan', productCount: 2, color: '#d97706' },
-		{ id: '4', name: 'Seafood', description: 'Ikan dan hasil laut segar', productCount: 1, color: '#db2777' },
-	]);
+	const categories = $derived(data.categories);
 
 	const colorOptions = ['#059669', '#2563eb', '#d97706', '#db2777', '#7c3aed', '#dc2626'];
 
@@ -58,7 +53,7 @@
 	</div>
 
 	{#if categories.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#e7e5e4] bg-white py-16 text-center">
+		<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#f0eeec] bg-white py-16 text-center">
 			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f5f5f4]">
 				<Tag size={24} class="text-[#a8a29e]" />
 			</div>
@@ -75,7 +70,7 @@
 	{:else}
 		<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 			{#each categories as cat (cat.id)}
-				<div class="group flex items-center gap-4 rounded-2xl border border-[#e7e5e4] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+				<div class="group flex items-center gap-4 rounded-2xl bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
 					<div
 						class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white"
 						style="background-color: {cat.color}"
@@ -129,11 +124,11 @@
 				<div class="space-y-4">
 					<div>
 						<label for="cat-name" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">Nama Kategori <span class="text-[#dc2626]">*</span></label>
-						<input id="cat-name" type="text" bind:value={formName} placeholder="Contoh: Makanan Utama" class="h-11 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" required />
+						<input id="cat-name" type="text" bind:value={formName} placeholder="Contoh: Makanan Utama" class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" required />
 					</div>
 					<div>
 						<label for="cat-desc" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">Deskripsi</label>
-						<input id="cat-desc" type="text" bind:value={formDescription} placeholder="Deskripsi singkat (opsional)" class="h-11 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" />
+						<input id="cat-desc" type="text" bind:value={formDescription} placeholder="Deskripsi singkat (opsional)" class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" />
 					</div>
 					<div>
 						<p class="mb-2 text-sm font-semibold text-[#1a1a2e]">Warna</p>
@@ -151,7 +146,7 @@
 					</div>
 				</div>
 				<div class="mt-6 flex gap-3">
-					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors">Batal</button>
+					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors">Batal</button>
 					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
 						<Check size={16} /> {editingId ? 'Simpan' : 'Tambah'}
 					</button>
