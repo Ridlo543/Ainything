@@ -14,15 +14,8 @@
 		staff:   { label: 'Staff',   bg: 'bg-[#f5f5f4]', text: 'text-[#78716c]', icon: User }
 	};
 
-	const members = $state([
-		{ id: '1', name: 'Made Restaurant Owner', email: 'owner@bali-table.test', role: 'owner' as Role, status: 'active' as MemberStatus, since: 'Juni 2025', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&q=80' },
-		{ id: '2', name: 'Wayan Kasir', email: 'kasir@bali-table.test', role: 'staff' as Role, status: 'active' as MemberStatus, since: 'Agt 2025', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&fit=crop&q=80' },
-		{ id: '3', name: 'Nyoman Manager', email: 'manager@bali-table.test', role: 'manager' as Role, status: 'active' as MemberStatus, since: 'Sep 2025', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop&q=80' },
-	]);
-
-	const invites = $state([
-		{ id: 'i1', email: 'newstaff@email.com', role: 'staff' as Role, sentAt: '2 hari lalu' },
-	]);
+	const members = $derived(data.members);
+	const invites = $derived(data.invites);
 
 	let showModal = $state(false);
 	let openMenuId = $state<string | null>(null);
@@ -51,7 +44,7 @@
 	</div>
 
 	<!-- Members list -->
-	<div class="rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+	<div class="rounded-2xl bg-white shadow-sm">
 		<div class="border-b border-[#f5f5f4] px-5 py-4">
 			<h2 class="text-sm font-bold text-[#1a1a2e]">Anggota Aktif</h2>
 		</div>
@@ -86,7 +79,7 @@
 									<MoreHorizontal size={16} />
 								</button>
 								{#if openMenuId === member.id}
-									<div class="absolute right-0 top-10 z-20 w-40 rounded-xl border border-[#e7e5e4] bg-white py-1 shadow-lg">
+									<div class="absolute right-0 top-10 z-20 w-40 rounded-xl border border-[#f0eeec] bg-white py-1 shadow-lg">
 										<button type="button" class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#1a1a2e] hover:bg-[#f5f5f4]"><Shield size={14} /> Ubah Peran</button>
 										<div class="my-1 h-px bg-[#f5f5f4]"></div>
 										<button type="button" class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#dc2626] hover:bg-[#fef2f2]"><X size={14} /> Hapus dari Tim</button>
@@ -101,7 +94,7 @@
 	</div>
 	<!-- Pending invites -->
 	{#if invites.length > 0}
-		<div class="rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+		<div class="rounded-2xl bg-white shadow-sm">
 			<div class="border-b border-[#f5f5f4] px-5 py-4">
 				<h2 class="text-sm font-bold text-[#1a1a2e]">Undangan Tertunda</h2>
 			</div>
@@ -154,7 +147,7 @@
 								type="email"
 								bind:value={inviteEmail}
 								placeholder="nama@email.com"
-								class="h-11 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] pl-9 pr-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+								class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] pl-9 pr-4 text-sm focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
 								required
 							/>
 						</div>
@@ -167,7 +160,7 @@
 									type="button"
 									onclick={() => (inviteRole = role)}
 									class="flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all
-										{inviteRole === role ? 'border-[#059669] bg-[#f0fdf4]' : 'border-[#e7e5e4] bg-white hover:border-[#059669]/40'}"
+										{inviteRole === role ? 'border-[#059669] bg-[#f0fdf4]' : 'border-[#f0eeec] bg-white hover:border-[#059669]/40'}"
 									aria-pressed={inviteRole === role}
 								>
 								<div class="flex h-8 w-8 items-center justify-center rounded-lg {roleCfg[role].bg} {roleCfg[role].text}">
@@ -183,7 +176,7 @@
 					</div>
 				</div>
 				<div class="mt-6 flex gap-3">
-					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors">Batal</button>
+					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors">Batal</button>
 					<button type="button" onclick={() => (showModal = false)} class="flex-1 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
 						<Mail size={15} /> Kirim Undangan
 					</button>
