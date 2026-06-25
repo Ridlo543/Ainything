@@ -21,72 +21,29 @@
 	const restaurant = $derived(data.tenant.activeRestaurant);
 	const userName = $derived(data.tenant.user.name?.split(' ')[0] ?? 'Owner');
 
+	const stats = $derived(data.stats);
+	const recentOrders = $derived(data.recentOrders);
+	const topProducts = $derived(data.topProducts);
+
+	const iconMap: Record<string, typeof ShoppingCart> = {
+		ShoppingCart,
+		TrendingUp,
+		Eye,
+		Star,
+		Package,
+		Clock
+	};
+
 	const hour = new Date().getHours();
 	const greeting = hour < 12 ? 'Selamat pagi' : hour < 17 ? 'Selamat siang' : 'Selamat malam';
 
-	const stats = [
-		{
-			label: 'Pesanan Hari Ini',
-			value: '24',
-			trend: '+12%',
-			up: true,
-			icon: ShoppingCart,
-			color: 'text-[#059669]',
-			bg: 'bg-[#d1fae5]',
-			note: 'dari kemarin'
-		},
-		{
-			label: 'Pendapatan Hari Ini',
-			value: 'Rp 2,4 jt',
-			trend: '+8%',
-			up: true,
-			icon: TrendingUp,
-			color: 'text-[#d97706]',
-			bg: 'bg-[#fef3c7]',
-			note: 'dari kemarin'
-		},
-		{
-			label: 'Kunjungan Katalog',
-			value: '186',
-			trend: '+23%',
-			up: true,
-			icon: Eye,
-			color: 'text-[#2563eb]',
-			bg: 'bg-[#eff6ff]',
-			note: 'hari ini'
-		},
-		{
-			label: 'Rating',
-			value: '4.9',
-			trend: '+0.1',
-			up: true,
-			icon: Star,
-			color: 'text-[#db2777]',
-			bg: 'bg-[#fce7f3]',
-			note: 'bulan ini'
-		}
-	];
-
-	const recentOrders = [
-		{ id: '#1024', table: 'Meja T03', items: 'Ayam Betutu x1, Es Kelapa x2', total: 'Rp 182.000', status: 'pending', time: '2 mnt lalu' },
-		{ id: '#1023', table: 'Meja T07', items: 'Ikan Bakar Jimbaran x2', total: 'Rp 290.000', status: 'processing', time: '8 mnt lalu' },
-		{ id: '#1022', table: 'Takeaway', items: 'Sate Ayam x3, Es Cendol x2', total: 'Rp 312.000', status: 'done', time: '15 mnt lalu' },
-		{ id: '#1021', table: 'Meja B12', items: 'Betutu Chicken x2, Drink x3', total: 'Rp 322.000', status: 'done', time: '22 mnt lalu' },
-		{ id: '#1020', table: 'Meja T01', items: 'Lamb Satay x2', total: 'Rp 196.000', status: 'cancelled', time: '30 mnt lalu' }
-	];
-
-	const topProducts = [
-		{ name: 'Ayam Betutu', orders: 48, pct: 100, img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=48&h=48&fit=crop&auto=format&q=80' },
-		{ name: 'Ikan Bakar Jimbaran', orders: 36, pct: 75, img: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=48&h=48&fit=crop&auto=format&q=80' },
-		{ name: 'Sate Ayam', orders: 29, pct: 60, img: 'https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=48&h=48&fit=crop&auto=format&q=80' },
-		{ name: 'Es Kelapa Muda', orders: 22, pct: 46, img: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=48&h=48&fit=crop&auto=format&q=80' },
-		{ name: 'Coconut Cendol', orders: 17, pct: 35, img: 'https://images.unsplash.com/photo-1534706270553-2ac0dfa30283?w=48&h=48&fit=crop&auto=format&q=80' }
-	];
-
 	const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
 		pending:    { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
+		new:        { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
 		processing: { label: 'Proses',  bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]' },
 		done:       { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		completed:  { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		ready:      { label: 'Siap',    bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
 		cancelled:  { label: 'Batal',   bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]' }
 	};
 </script>
@@ -120,7 +77,7 @@
 				href="/r/{restaurant.slug}"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#e7e5e4] bg-white px-4 text-sm font-semibold text-[#1a1a2e] hover:bg-[#f5f5f4] transition-colors"
+				class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#f0eeec] bg-white px-4 text-sm font-semibold text-[#1a1a2e] hover:bg-[#f5f5f4] transition-colors"
 			>
 				<Eye size={16} /> Lihat Katalog
 			</a>
@@ -130,10 +87,13 @@
 	<!-- ── Stats grid ── -->
 	<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
 		{#each stats as s}
-			<div class="rounded-2xl border border-[#e7e5e4] bg-white p-5 shadow-sm">
+			<div class="rounded-2xl bg-white p-5 shadow-sm">
 				<div class="flex items-start justify-between">
 					<div class="flex h-10 w-10 items-center justify-center rounded-xl {s.bg} {s.color}">
-						<s.icon size={20} />
+						{#if iconMap[s.icon]}
+							{@const IconComponent = iconMap[s.icon]}
+							<IconComponent size={20} />
+						{/if}
 					</div>
 					<span class="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold
 						{s.up ? 'bg-[#d1fae5] text-[#059669]' : 'bg-[#fef2f2] text-[#dc2626]'}">
@@ -152,7 +112,7 @@
 	<div class="grid gap-5 lg:grid-cols-3">
 
 		<!-- Recent orders (2/3 width) -->
-		<div class="lg:col-span-2 rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+		<div class="lg:col-span-2 rounded-2xl bg-white shadow-sm">
 			<div class="flex items-center justify-between border-b border-[#f5f5f4] px-5 py-4">
 				<h2 class="text-sm font-bold text-[#1a1a2e]">Pesanan Terbaru</h2>
 				<a href="/dashboard/orders" class="flex items-center gap-1 text-xs font-semibold text-[#059669] hover:underline">
@@ -196,7 +156,7 @@
 		<div class="space-y-5">
 
 			<!-- Top products -->
-			<div class="rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+			<div class="rounded-2xl bg-white shadow-sm">
 				<div class="flex items-center justify-between border-b border-[#f5f5f4] px-5 py-4">
 					<h2 class="text-sm font-bold text-[#1a1a2e]">Produk Terlaris</h2>
 					<a href="/dashboard/analytics" class="flex items-center gap-1 text-xs font-semibold text-[#059669] hover:underline">
@@ -227,7 +187,7 @@
 			</div>
 
 			<!-- Quick actions card -->
-			<div class="rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+			<div class="rounded-2xl bg-white shadow-sm">
 				<div class="border-b border-[#f5f5f4] px-5 py-4">
 					<h2 class="text-sm font-bold text-[#1a1a2e]">Aksi Cepat</h2>
 				</div>

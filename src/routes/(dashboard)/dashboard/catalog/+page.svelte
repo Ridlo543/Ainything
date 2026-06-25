@@ -1,33 +1,23 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
+	import { enhance } from '$app/forms';
 	import {
 		Plus, Search, Filter, MoreHorizontal, Edit2, Eye,
 		EyeOff, Trash2, Copy, X, Check, Upload, Tag, ImageIcon
 	} from '@lucide/svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const org = $derived(data.tenant.organization);
 
-	// — Mock products (will be replaced by real data)
-	const mockProducts = [
-		{ id: '1', name: 'Slow Roasted Betutu Chicken', category: 'Signatures', price: 98000, status: 'active', img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=300&h=200&fit=crop&auto=format&q=80', orders: 48 },
-		{ id: '2', name: 'Jimbaran Grilled Fish', category: 'Signatures', price: 145000, status: 'active', img: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=300&h=200&fit=crop&auto=format&q=80', orders: 36 },
-		{ id: '3', name: 'Young Coconut with Lime', category: 'Drinks', price: 42000, status: 'active', img: 'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=300&h=200&fit=crop&auto=format&q=80', orders: 22 },
-		{ id: '4', name: 'Chicken Satay Set', category: 'Satay', price: 76000, status: 'active', img: 'https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=300&h=200&fit=crop&auto=format&q=80', orders: 29 },
-		{ id: '5', name: 'Lamb Satay with Sweet Soy', category: 'Satay', price: 98000, status: 'hidden', img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=200&fit=crop&auto=format&q=80', orders: 14 },
-		{ id: '6', name: 'Coconut Cendol', category: 'Drinks', price: 42000, status: 'active', img: 'https://images.unsplash.com/photo-1534706270553-2ac0dfa30283?w=300&h=200&fit=crop&auto=format&q=80', orders: 17 },
-		{ id: '7', name: 'Grilled Sea Bass Tahini', category: 'Seafood', price: 165000, status: 'active', img: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&h=200&fit=crop&auto=format&q=80', orders: 11 },
-		{ id: '8', name: 'Nasi Goreng Spesial', category: 'Signatures', price: 65000, status: 'hidden', img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300&h=200&fit=crop&auto=format&q=80', orders: 8 }
-	];
-
-	const categories = ['Semua', 'Signatures', 'Drinks', 'Satay', 'Seafood'];
+	const products = $derived(data.products);
+	const categories = $derived(data.categories);
 
 	// — State
 	let search = $state('');
 	let selectedCategory = $state('Semua');
 	let statusFilter = $state('all');
 	let showModal = $state(false);
-	let editingProduct = $state<typeof mockProducts[0] | null>(null);
+	let editingProduct = $state<typeof products[0] | null>(null);
 	let openMenuId = $state<string | null>(null);
 
 	// — Form state
@@ -39,7 +29,7 @@
 	let formImgPreview = $state('');
 
 	const filtered = $derived(
-		mockProducts
+		products
 			.filter(p => selectedCategory === 'Semua' || p.category === selectedCategory)
 			.filter(p => statusFilter === 'all' || p.status === statusFilter)
 			.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
@@ -52,7 +42,7 @@
 	function openAdd() {
 		editingProduct = null;
 		formName = '';
-		formCategory = categories[1];
+		formCategory = categories[1] || '';
 		formPrice = '';
 		formDescription = '';
 		formStatus = 'active';
@@ -60,12 +50,12 @@
 		showModal = true;
 	}
 
-	function openEdit(p: typeof mockProducts[0]) {
+	function openEdit(p: typeof products[0]) {
 		editingProduct = p;
 		formName = p.name;
 		formCategory = p.category;
 		formPrice = String(p.price);
-		formDescription = '';
+		formDescription = p.description || '';
 		formStatus = p.status;
 		formImgPreview = p.img;
 		showModal = true;
@@ -107,7 +97,7 @@
 	</div>
 
 	<!-- ── Filters ── -->
-	<div class="rounded-2xl border border-[#e7e5e4] bg-white p-4 shadow-sm space-y-3">
+	<div class="rounded-2xl bg-white p-4 shadow-sm space-y-3">
 		<!-- Search -->
 		<div class="relative">
 			<Search size={16} class="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" />
@@ -115,7 +105,7 @@
 				type="text"
 				placeholder="Cari produk..."
 				bind:value={search}
-				class="h-10 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] pl-9 pr-4 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+				class="h-10 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] pl-9 pr-4 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
 			/>
 		</div>
 		<!-- Category tabs + status filter -->
@@ -128,13 +118,13 @@
 						class="min-h-[34px] shrink-0 rounded-lg px-3 text-xs font-semibold transition-colors
 							{selectedCategory === cat
 								? 'bg-[#059669] text-white'
-								: 'border border-[#e7e5e4] bg-white text-[#78716c] hover:bg-[#f5f5f4]'}"
+								: 'border border-[#f0eeec] bg-white text-[#78716c] hover:bg-[#f5f5f4]'}"
 					>{cat}</button>
 				{/each}
 			</div>
 			<select
 				bind:value={statusFilter}
-				class="ml-auto min-h-[34px] rounded-lg border border-[#e7e5e4] bg-white px-3 text-xs font-semibold text-[#78716c] focus:border-[#059669] focus:outline-none"
+				class="ml-auto min-h-[34px] rounded-lg border border-[#f0eeec] bg-white px-3 text-xs font-semibold text-[#78716c] focus:border-[#059669] focus:outline-none"
 				aria-label="Filter status"
 			>
 				<option value="all">Semua Status</option>
@@ -146,7 +136,7 @@
 
 	<!-- ── Product grid ── -->
 	{#if filtered.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#e7e5e4] bg-white py-16 text-center">
+		<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#f0eeec] bg-white py-16 text-center">
 			<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f5f5f4]">
 				<Tag size={24} class="text-[#a8a29e]" />
 			</div>
@@ -163,7 +153,7 @@
 	{:else}
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 			{#each filtered as product (product.id)}
-				<div class="group relative flex flex-col rounded-2xl border border-[#e7e5e4] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md {product.status === 'hidden' ? 'opacity-70' : ''}">
+				<div class="group relative flex flex-col rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md {product.status === 'hidden' ? 'opacity-70' : ''}">
 					<!-- Image -->
 					<div class="relative overflow-hidden rounded-t-2xl">
 						<img
@@ -189,7 +179,7 @@
 								<MoreHorizontal size={15} />
 							</button>
 							{#if openMenuId === product.id}
-								<div class="absolute right-0 top-10 z-20 w-40 rounded-xl border border-[#e7e5e4] bg-white py-1 shadow-lg">
+								<div class="absolute right-0 top-10 z-20 w-40 rounded-xl border border-[#f0eeec] bg-white py-1 shadow-lg">
 									<button type="button" onclick={() => openEdit(product)}
 										class="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#1a1a2e] hover:bg-[#f5f5f4]">
 										<Edit2 size={14} /> Edit
@@ -226,7 +216,7 @@
 						<button
 							type="button"
 							onclick={() => openEdit(product)}
-							class="mt-3 flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-xl border border-[#e7e5e4] text-xs font-semibold text-[#78716c] transition-colors hover:border-[#059669] hover:text-[#059669]"
+							class="mt-3 flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-xl border border-[#f0eeec] text-xs font-semibold text-[#78716c] transition-colors hover:border-[#059669] hover:text-[#059669]"
 						>
 							<Edit2 size={13} /> Edit Produk
 						</button>
@@ -268,7 +258,7 @@
 					<label for="photo-upload" class="mb-1.5 block text-sm font-semibold text-[#1a1a2e]">Foto Produk</label>
 					<label
 						for="photo-upload"
-						class="flex h-36 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[#e7e5e4] bg-[#fafaf9] transition-colors hover:border-[#059669] hover:bg-[#f0fdf4]"
+						class="flex h-36 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[#f0eeec] bg-[#fafaf9] transition-colors hover:border-[#059669] hover:bg-[#f0fdf4]"
 					>
 						{#if formImgPreview}
 							<img src={formImgPreview} alt="Preview" class="h-full w-full object-cover" />
@@ -292,7 +282,7 @@
 							type="text"
 							bind:value={formName}
 							placeholder="Contoh: Nasi Goreng Spesial"
-							class="h-11 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] px-4 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+							class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
 							required
 						/>
 					</div>
@@ -308,7 +298,7 @@
 									bind:value={formPrice}
 									placeholder="25000"
 									min="0"
-									class="h-11 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] pl-10 pr-4 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+									class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] pl-10 pr-4 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
 									required
 								/>
 							</div>
@@ -318,7 +308,7 @@
 							<select
 								id="form-cat"
 								bind:value={formCategory}
-								class="h-11 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] px-3 text-sm text-[#1a1a2e] focus:border-[#059669] focus:outline-none"
+								class="h-11 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-3 text-sm text-[#1a1a2e] focus:border-[#059669] focus:outline-none"
 							>
 								{#each categories.slice(1) as cat}
 									<option value={cat}>{cat}</option>
@@ -334,12 +324,12 @@
 							bind:value={formDescription}
 							rows={3}
 							placeholder="Deskripsi singkat produk (opsional)"
-							class="w-full resize-none rounded-xl border border-[#e7e5e4] bg-[#fafaf9] px-4 py-3 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
+							class="w-full resize-none rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 py-3 text-sm text-[#1a1a2e] placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20"
 						></textarea>
 					</div>
 
 					<!-- Status toggle -->
-					<div class="flex items-center justify-between rounded-xl border border-[#e7e5e4] bg-[#fafaf9] px-4 py-3">
+					<div class="flex items-center justify-between rounded-xl border border-[#f0eeec] bg-[#fafaf9] px-4 py-3">
 						<div>
 							<p class="text-sm font-semibold text-[#1a1a2e]">Tampilkan di katalog</p>
 							<p class="text-xs text-[#78716c]">Pelanggan bisa melihat dan memesan produk ini</p>
@@ -362,7 +352,7 @@
 					<button
 						type="button"
 						onclick={closeModal}
-						class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
+						class="flex-1 min-h-[44px] rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
 					>Batal</button>
 					<button
 						type="button"

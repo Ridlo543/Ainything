@@ -1,49 +1,48 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import {
 		ShoppingCart, Clock, Search, ChevronRight,
 		Check, X, RotateCcw, MapPin, FileText, Filter
 	} from '@lucide/svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const org = $derived(data.tenant.organization);
 
-	type OrderStatus = 'pending' | 'processing' | 'done' | 'cancelled';
-
-	const allOrders = [
-		{ id: '1024', table: 'Meja T03', location: 'Main Dining', items: [{ name: 'Ayam Betutu', qty: 1, note: 'tidak pedas' }, { name: 'Es Kelapa Muda', qty: 2, note: '' }], total: 182000, status: 'pending' as OrderStatus, time: '2 mnt lalu', ts: new Date(Date.now() - 2 * 60000) },
-		{ id: '1023', table: 'Meja T07', location: 'Main Dining', items: [{ name: 'Ikan Bakar Jimbaran', qty: 2, note: 'sambal terpisah' }], total: 290000, status: 'processing' as OrderStatus, time: '8 mnt lalu', ts: new Date(Date.now() - 8 * 60000) },
-		{ id: '1022', table: 'Takeaway', location: '', items: [{ name: 'Sate Ayam', qty: 3, note: '' }, { name: 'Es Cendol', qty: 2, note: '' }], total: 312000, status: 'done' as OrderStatus, time: '15 mnt lalu', ts: new Date(Date.now() - 15 * 60000) },
-		{ id: '1021', table: 'Meja B12', location: 'Main Dining', items: [{ name: 'Betutu Chicken', qty: 2, note: '' }, { name: 'Es Teh Manis', qty: 3, note: '' }], total: 322000, status: 'done' as OrderStatus, time: '22 mnt lalu', ts: new Date(Date.now() - 22 * 60000) },
-		{ id: '1020', table: 'Meja T01', location: 'Main Dining', items: [{ name: 'Lamb Satay', qty: 2, note: 'no peanut' }], total: 196000, status: 'cancelled' as OrderStatus, time: '30 mnt lalu', ts: new Date(Date.now() - 30 * 60000) },
-		{ id: '1019', table: 'Meja T05', location: 'Main Dining', items: [{ name: 'Grilled Sea Bass', qty: 1, note: '' }, { name: 'Coconut Cendol', qty: 1, note: '' }], total: 207000, status: 'done' as OrderStatus, time: '45 mnt lalu', ts: new Date(Date.now() - 45 * 60000) },
-	];
-
-	const statusCfg: Record<OrderStatus, { label: string; bg: string; text: string; icon: typeof Check }> = {
-		pending:    { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]', icon: Clock },
-		processing: { label: 'Proses',  bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]', icon: RotateCcw },
-		done:       { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]', icon: Check },
-		cancelled:  { label: 'Batal',   bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]', icon: X }
-	};
+	const allOrders = $derived(data.orders);
+	let selectedOrder = $derived(data.selectedOrder);
 
 	type Tab = 'active' | 'done' | 'all';
 	let activeTab = $state<Tab>('active');
 	let search = $state('');
-	let selectedOrder = $state<typeof allOrders[0] | null>(null);
 
 	const filtered = $derived(
 		allOrders
 			.filter(o => {
-				if (activeTab === 'active') return o.status === 'pending' || o.status === 'processing';
-				if (activeTab === 'done') return o.status === 'done' || o.status === 'cancelled';
+				if (activeTab === 'active') return o.rawStatus === 'new' || o.rawStatus === 'processing';
+				if (activeTab === 'done') return o.rawStatus === 'completed' || o.rawStatus === 'cancelled';
 				return true;
 			})
 			.filter(o => o.id.includes(search) || o.table.toLowerCase().includes(search.toLowerCase()))
 	);
 
-	const activeCnt = $derived(allOrders.filter(o => o.status === 'pending' || o.status === 'processing').length);
+	const activeCnt = $derived(allOrders.filter(o => o.rawStatus === 'new' || o.rawStatus === 'processing').length);
 
 	function formatPrice(n: number) { return 'Rp ' + n.toLocaleString('id-ID'); }
+
+	function selectOrder(order: typeof allOrders[0]) {
+		goto(`?order=${order.id}`, { keepFocus: true, noScroll: true });
+	}
+
+	const statusCfg: Record<string, { label: string; bg: string; text: string }> = {
+		pending:    { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
+		new:        { label: 'Baru',    bg: 'bg-[#fef3c7]', text: 'text-[#d97706]' },
+		processing: { label: 'Proses',  bg: 'bg-[#eff6ff]', text: 'text-[#2563eb]' },
+		done:       { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		completed:  { label: 'Selesai', bg: 'bg-[#d1fae5]', text: 'text-[#059669]' },
+		cancelled:  { label: 'Batal',   bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]' }
+	};
 </script>
 
 <svelte:head>
@@ -63,7 +62,7 @@
 		<!-- Left: list -->
 		<div class="space-y-4">
 			<!-- Tabs + search -->
-			<div class="rounded-2xl border border-[#e7e5e4] bg-white p-4 shadow-sm space-y-3">
+			<div class="rounded-2xl bg-white p-4 shadow-sm space-y-3">
 				<div class="flex gap-1">
 					{#each ([['active', 'Aktif', activeCnt], ['done', 'Selesai', null], ['all', 'Semua', allOrders.length]] as const) as [tab, label, count]}
 						<button
@@ -82,13 +81,13 @@
 				</div>
 				<div class="relative">
 					<Search size={15} class="absolute left-3 top-1/2 -translate-y-1/2 text-[#78716c]" />
-					<input type="text" bind:value={search} placeholder="Cari ID atau meja..." class="h-10 w-full rounded-xl border border-[#e7e5e4] bg-[#fafaf9] pl-9 pr-4 text-sm placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" />
+					<input type="text" bind:value={search} placeholder="Cari ID atau meja..." class="h-10 w-full rounded-xl border border-[#f0eeec] bg-[#fafaf9] pl-9 pr-4 text-sm placeholder-[#a8a29e] focus:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20" />
 				</div>
 			</div>
 
 			<!-- Order list -->
 			{#if filtered.length === 0}
-				<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#e7e5e4] bg-white py-14 text-center">
+				<div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#f0eeec] bg-white py-14 text-center">
 					<ShoppingCart size={28} class="text-[#a8a29e]" />
 					<p class="mt-3 text-sm font-semibold text-[#1a1a2e]">Tidak ada pesanan</p>
 					<p class="mt-1 text-xs text-[#78716c]">Pesanan baru akan muncul di sini secara real-time</p>
@@ -96,11 +95,11 @@
 			{:else}
 				<div class="space-y-2">
 					{#each filtered as order (order.id)}
-						<button
+							<button
 							type="button"
-							onclick={() => (selectedOrder = order)}
+							onclick={() => selectOrder(order)}
 							class="w-full rounded-2xl border bg-white p-4 text-left shadow-sm transition-all hover:shadow-md
-								{selectedOrder?.id === order.id ? 'border-[#059669] ring-2 ring-[#059669]/20' : 'border-[#e7e5e4]'}"
+								{selectedOrder?.id === order.id ? 'border-[#059669] ring-2 ring-[#059669]/20' : 'border-[#f0eeec]'}"
 						>
 							<div class="flex items-start gap-3">
 							<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {statusCfg[order.status].bg}">
@@ -130,11 +129,11 @@
 			{/if}
 		</div>
 		<!-- Right: order detail panel -->
-		<div class="rounded-2xl border border-[#e7e5e4] bg-white shadow-sm">
+		<div class="rounded-2xl bg-white shadow-sm">
 			{#if selectedOrder}
 				<div class="flex items-center justify-between border-b border-[#f5f5f4] px-5 py-4">
 					<h2 class="text-sm font-bold text-[#1a1a2e]">Detail Pesanan #{selectedOrder.id}</h2>
-					<button type="button" onclick={() => (selectedOrder = null)} class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#f5f5f4] transition-colors" aria-label="Tutup detail">
+					<button type="button" onclick={() => goto('?', { keepFocus: true, noScroll: true })} class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#f5f5f4] transition-colors" aria-label="Tutup detail">
 						<X size={16} />
 					</button>
 				</div>
@@ -177,7 +176,7 @@
 					</div>
 
 					<!-- Total -->
-					<div class="rounded-xl border border-[#e7e5e4] px-4 py-3">
+					<div class="rounded-xl border border-[#f0eeec] px-4 py-3">
 						<div class="flex items-center justify-between">
 							<span class="text-sm font-bold text-[#1a1a2e]">Total</span>
 							<span class="text-lg font-extrabold text-[#059669]">{formatPrice(selectedOrder.total)}</span>
@@ -187,17 +186,29 @@
 					<!-- Actions -->
 					{#if selectedOrder.status === 'pending'}
 						<div class="space-y-2">
-							<button type="button" class="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
-								<Check size={16} /> Terima & Proses
-							</button>
-							<button type="button" class="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#dc2626] hover:bg-[#fef2f2] transition-colors">
-								<X size={16} /> Tolak Pesanan
-							</button>
+							<form method="POST" action="?/updateStatus" use:enhance>
+								<input type="hidden" name="orderId" value={selectedOrder.fullId} />
+								<input type="hidden" name="status" value="processing" />
+								<button type="submit" class="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
+									<Check size={16} /> Terima & Proses
+								</button>
+							</form>
+							<form method="POST" action="?/updateStatus" use:enhance>
+								<input type="hidden" name="orderId" value={selectedOrder.fullId} />
+								<input type="hidden" name="status" value="cancelled" />
+								<button type="submit" class="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[#f0eeec] text-sm font-semibold text-[#dc2626] hover:bg-[#fef2f2] transition-colors">
+									<X size={16} /> Tolak Pesanan
+								</button>
+							</form>
 						</div>
 					{:else if selectedOrder.status === 'processing'}
-						<button type="button" class="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
-							<Check size={16} /> Tandai Selesai
-						</button>
+						<form method="POST" action="?/updateStatus" use:enhance>
+							<input type="hidden" name="orderId" value={selectedOrder.fullId} />
+							<input type="hidden" name="status" value="completed" />
+							<button type="submit" class="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#059669] text-sm font-bold text-white hover:bg-[#047857] transition-colors">
+								<Check size={16} /> Tandai Selesai
+							</button>
+						</form>
 					{:else if selectedOrder.status === 'done'}
 						<div class="flex items-center justify-center gap-2 rounded-xl bg-[#d1fae5] py-3 text-sm font-semibold text-[#059669]">
 							<Check size={16} /> Pesanan selesai
