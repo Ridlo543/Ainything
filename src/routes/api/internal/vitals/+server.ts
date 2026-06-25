@@ -83,9 +83,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		await insertWebVitals(entries);
-	} catch (err) {
-		console.error('[vitals] Failed to insert web vitals:', err);
-		// Fail-open: don't surface DB errors to the browser
+	} catch {
+		// Fail-open silently: web_vitals table may not exist in dev/staging
 	}
 
 	return new Response(null, { status: 204 });

@@ -20,6 +20,9 @@ import {
 	loadMenusForRestaurant,
 	loadMenuItemsForMenu,
 	countMenuItems,
+	createDraftMenu,
+	ensureCategory,
+	insertMenuItem,
 	updateMenuItem as repoUpdateMenuItem,
 	setMenuItemAvailability as repoSetAvailability,
 	updateMenuItemFlags as repoUpdateFlags,
@@ -243,4 +246,74 @@ export async function publishDraftMenu(
  */
 export function validateMenuForPublish(items: MenuItem[]): PublishValidation {
 	return canPublishMenu(items);
+}
+
+// ---------------------------------------------------------------------------
+// Add single item (setup wizard / manual add)
+// ---------------------------------------------------------------------------
+
+/**
+ * Adds a single menu item during onboarding or manual product creation.
+ * Automatically finds or creates a draft menu.
+ */
+export async function addMenuItem(
+	user: AuthUser,
+	{
+		restaurantSlug,
+		name,
+		price,
+		category,
+		description
+	}: {
+		restaurantSlug: string;
+		name: string;
+		price: number;
+		category: string;
+		description?: string;
+	}
+): Promise<MenuItem> {
+	const tenant = await resolveTenantContext(user, restaurantSlug);
+	const { activeRestaurant } = tenant;
+
+	return withUserContext(user.id, async (client) => {
+		const existingMenus = await loadMenusForRestaurant(client, {
+			organizationId: activeRestaurant.organizationId,
+			restaurantId: activeRestaurant.id
+		});
+		const existingDraft = existingMenus.find((m) => m.status === 'draft');
+
+		let draftMenuId: string;
+		if (existingDraft) {
+			draftMenuId = existingDraft.id;
+		} else {
+			const latestVersion = existingMenus.reduce((max, m) => Math.max(max, m.version), 0);
+			draftMenuId = await createDraftMenu(client, {
+				organizationId: activeRestaurant.organizationId,
+				restaurantId: activeRestaurant.id,
+				version: latestVersion + 1,
+				sourceType: 'manual'
+			});
+		}
+
+		const categoryId = await ensureCategory(client, {
+			organizationId: activeRestaurant.organizationId,
+			restaurantId: activeRestaurant.id,
+			menuId: draftMenuId,
+			name: category
+		});
+
+		return insertMenuItem(client, {
+			organizationId: activeRestaurant.organizationId,
+			restaurantId: activeRestaurant.id,
+			menuId: draftMenuId,
+			categoryId,
+			name,
+			description: description ?? '',
+			price,
+			spiceLevel: 0,
+			isSignature: false,
+			dietaryFlags: [],
+			allergens: []
+		});
+	});
 }

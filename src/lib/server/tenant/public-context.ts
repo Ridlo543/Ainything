@@ -1,7 +1,27 @@
 import { getRestaurant } from '$lib/mock/restaurants';
-import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
+import type { PublicMenuBootstrap, Restaurant } from '$lib/domain/menu/types';
 import { appEnv } from '$lib/server/config/env';
-import { resolvePublicMenuBootstrap } from '$lib/server/repositories/public-menu-repository';
+import {
+	resolvePublicMenuBootstrap,
+	loadPublishedRestaurantBySlug
+} from '$lib/server/repositories/public-menu-repository';
+
+export async function resolvePublicCatalog(restaurantSlug: string): Promise<Restaurant | null> {
+	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
+		return getRestaurant(restaurantSlug);
+	}
+
+	try {
+		return await loadPublishedRestaurantBySlug(restaurantSlug);
+	} catch (error) {
+		if (appEnv.nodeEnv === 'production') {
+			throw error;
+		}
+
+		console.warn('Falling back to mock catalog because database resolution failed.', error);
+		return getRestaurant(restaurantSlug);
+	}
+}
 
 /**
  * Resolves the public QR bootstrap (active restaurant + active table + published menu).

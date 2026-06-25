@@ -7,6 +7,7 @@ import { resolveRoleRedirect } from '$lib/server/auth/role-routing';
 import { detectLanguage } from '$lib/i18n/detection';
 import type { LanguageTag } from '$lib/domain/menu/types';
 import { initTelemetry } from '$lib/telemetry';
+import { resolveRouteStrategy, applyCacheHeaders } from '$lib/server/cache/cache-policy';
 
 Sentry.init({
 	dsn: process.env.SENTRY_DSN,
@@ -47,6 +48,19 @@ const appHandle: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle = sequence(sentryHandle(), appHandle);
+const cacheHandle: Handle = async ({ event, resolve }) => {
+	const response = await resolve(event);
+
+	if (!response.headers.has('Cache-Control')) {
+		const pathname = event.url.pathname;
+		const strategy = resolveRouteStrategy(pathname);
+
+		applyCacheHeaders(response.headers, strategy);
+	}
+
+	return response;
+};
+
+export const handle = sequence(sentryHandle(), appHandle, cacheHandle);
 
 export const handleError = Sentry.handleErrorWithSentry();

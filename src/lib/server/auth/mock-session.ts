@@ -19,6 +19,11 @@ const demoSessions: SessionRecord[] = [
 		id: 'demo-staff-jakarta-session',
 		userId: 'user-staff-jakarta',
 		label: 'Staff demo - Jakarta Hospitality Lab'
+	},
+	{
+		id: 'demo-super-admin-session',
+		userId: 'user-super-admin',
+		label: 'Platform admin demo - Lingua'
 	}
 ];
 

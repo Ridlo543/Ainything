@@ -137,6 +137,35 @@ export async function listRestaurantsRows(opts: {
 	return rows;
 }
 
+export async function getOrganizationByIdRow(
+	id: string
+): Promise<PlatformOrganizationDetailRow | null> {
+	const pool = getPool();
+
+	const { rows } = await pool.query<PlatformOrganizationDetailRow>(
+		`
+		SELECT
+			o.id::text,
+			o.name,
+			o.slug,
+			o.plan,
+			o.status,
+			COALESCE(o.workspace_host, '') AS "workspaceHost",
+			COUNT(DISTINCT r.id) AS "restaurantCount",
+			COUNT(DISTINCT m.user_id) AS "userCount",
+			o.created_at AS "createdAt"
+		FROM organizations o
+		LEFT JOIN restaurants r ON r.organization_id = o.id
+		LEFT JOIN memberships m ON m.organization_id = o.id
+		WHERE o.id = $1::uuid
+		GROUP BY o.id, o.name, o.slug, o.plan, o.status, o.workspace_host, o.created_at
+		`,
+		[id]
+	);
+
+	return rows[0] ?? null;
+}
+
 export async function getOrganizationBySlugRow(
 	slug: string
 ): Promise<PlatformOrganizationDetailRow | null> {

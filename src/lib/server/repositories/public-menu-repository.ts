@@ -1,4 +1,4 @@
-import type { PublicMenuBootstrap, RestaurantTable } from '$lib/domain/menu/types';
+import type { PublicMenuBootstrap, Restaurant, RestaurantTable } from '$lib/domain/menu/types';
 import {
 	query,
 	withTransaction,
@@ -127,6 +127,59 @@ export async function resolvePublicMenuBootstrap(
 			qrPath: ''
 		}
 	};
+}
+
+export async function loadPublishedRestaurantBySlug(
+	restaurantSlug: string
+): Promise<Restaurant | null> {
+	const base = await query<RestaurantRow>(
+		`
+			SELECT
+				r.id::text,
+				r.organization_id::text,
+				r.name,
+				r.slug,
+				COALESCE(r.public_host, '') AS public_host,
+				r.location,
+				r.segment,
+				r.language_tags,
+				r.hero_image_url,
+				r.menu_scan_url,
+				r.table_count,
+				r.menu_source_type,
+				r.description,
+				r.knowledge_highlights,
+				COALESCE(r.analytics, '{}'::jsonb) AS analytics
+			FROM restaurants r
+			WHERE r.slug = $1
+				AND r.status = 'active'
+			LIMIT 1
+		`,
+		[restaurantSlug]
+	);
+
+	const row = base.rows[0];
+
+	if (!row) {
+		return null;
+	}
+
+	const [categoriesByRestaurant, itemsByRestaurant] = await Promise.all([
+		loadPublishedCategories({ query }, [row.id]),
+		loadPublishedMenuItems({ query }, [row.id])
+	]);
+
+	const restaurant = mapRestaurantRow(
+		row,
+		categoriesByRestaurant.get(row.id) ?? [],
+		itemsByRestaurant.get(row.id) ?? []
+	);
+
+	if (restaurant.menuItems.length === 0) {
+		return null;
+	}
+
+	return restaurant;
 }
 
 export async function findActiveTableByRestaurantSlug(

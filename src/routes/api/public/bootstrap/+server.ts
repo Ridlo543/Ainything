@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { z } from 'zod';
 import { resolvePublicMenu } from '$lib/server/tenant/public-context';
 import { applyRateLimit } from '$lib/server/services/public-api-helpers';
+import { cachePolicy } from '$lib/server/cache/cache-policy';
 
 const bootstrapParamsSchema = z.object({
 	restaurant: z.string().min(1, 'Restaurant slug is required.').max(120),
@@ -18,9 +19,7 @@ const bootstrapParamsSchema = z.object({
  * Rate limit: 20 / 60 s per IP (bootstrap tier — higher than session-create because
  * CDN cache absorbs most real traffic; the limit guards against scraping).
  *
- * Cache strategy:
- * - s-maxage=60: shared/CDN cache holds for 60 s.
- * - stale-while-revalidate=300: CDN serves stale while revalidating for 5 min.
+ * Cache strategy: PUBLIC_CATALOG — s-maxage=60, stale-while-revalidate=300.
  */
 export const GET: RequestHandler = async ({ url, request }) => {
 	await applyRateLimit('bootstrap', request);
@@ -42,10 +41,5 @@ export const GET: RequestHandler = async ({ url, request }) => {
 		error(404, 'No published menu found for this restaurant and table.');
 	}
 
-	return json(bootstrap, {
-		headers: {
-			'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
-			Vary: 'Accept-Language'
-		}
-	});
+	return json(bootstrap, { headers: cachePolicy.PUBLIC_CATALOG });
 };

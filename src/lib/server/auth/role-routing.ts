@@ -3,7 +3,7 @@ import type { AuthUser } from '$lib/domain/auth/types';
 const ROLE_REDIRECTS: Record<AuthUser['platformRole'], string> = {
 	super_admin: '/platform',
 	restaurant_admin: '/dashboard',
-	staff: '/staff',
+	staff: '/staff/inbox',
 	org_owner: '/dashboard'
 };
 
