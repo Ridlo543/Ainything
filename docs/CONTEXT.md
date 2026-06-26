@@ -1,14 +1,14 @@
-# Lingua Agent Context
+# ainything Agent Context
 
 This file gives future agents fast context without replacing the PRD or technical specification.
 
 ## One-Sentence Product Definition
 
-Lingua is a multi-tenant UMKM SaaS platform that gives every business owner (restaurant, retail, jasa) their own digital product catalog, QR/link access, cart/order management, and buyer interaction — with admin dashboards, staff workflow, and AI support — all from one deployment.
+ainything is a multi-tenant UMKM SaaS platform that gives every business owner (restaurant, retail, jasa) their own digital product catalog, QR/link access, cart/order management, and buyer interaction — with admin dashboards, staff workflow, and AI support — all from one deployment.
 
 ## Current Product Decision
 
-Lingua is a full B2B SaaS product for UMKM, not MVP. One deployment serves many organizations and many outlets. Each outlet gets its own QR experience, product catalog, cart/order system, admin dashboard, and staff management. A platform admin dashboard manages all tenants from a single pane.
+ainything is a full B2B SaaS product for UMKM, not MVP. One deployment serves many organizations and many outlets. Each outlet gets its own QR experience, product catalog, cart/order system, admin dashboard, and staff management. A platform admin dashboard manages all tenants from a single pane.
 
 The product is NOT a POS, payment system, hotel management tool, travel super-app, or marketplace aggregator. It is a digital presence + order management platform for UMKM, with tap-first UX designed so buyers never need to type.
 
@@ -16,7 +16,13 @@ Restaurants are the first vertical (AI-driven allergen/dietary support), but the
 
 ## Current Technical Decision
 
-SvelteKit + Svelte 5 + TypeScript. Supabase (PostgreSQL + Auth + RLS + Storage + Realtime) as backend platform — with adapter patterns for all providers so migration to self-hosted PostgreSQL is possible without rewriting business logic.
+SvelteKit + Svelte 5 + TypeScript. **Self-hosted PostgreSQL + Redis on VPS** (Hetzner CX23 Singapore, target: ~Rp120.000/mo). No Supabase — all services are self-managed.
+
+- **Auth:** Auth.js (NextAuth v5) — replaces Supabase Auth. `external_auth_id` set from Auth.js session in `hooks.server.ts`.
+- **Storage:** Cloudflare R2 — replaces Supabase Storage (10GB free tier).
+- **Database:** PostgreSQL 16 (pgvector) managed via `compose.yml` locally, VPS in production.
+- **Cache/Queue:** Redis 7 + BullMQ for background jobs.
+- **RLS:** Enforced via `ainything_app` role (no bypass). Migrations run as `ainything` superuser via `DIRECT_URL`.
 
 The architecture must scale from 1 tenant to 1000+ with proper tenant isolation at the application layer (explicit WHERE scoping) and database layer (RLS policies). Domain logic, services, repositories, and providers stay outside Svelte components.
 
@@ -51,7 +57,7 @@ Full specification: `docs/DESIGN_SYSTEM.md` v2.0
 
 - Owns or manages one or more outlets (restaurants, shops, service businesses)
 - Wants a digital catalog that looks clean and professional
-- Registers on Lingua, sets up products, generates QR codes
+- Registers on ainything, sets up products, generates QR codes
 - Gets outlet-specific admin dashboard with catalog, orders, analytics
 - Can invite staff to help operate the business
 - Wants less manual ordering chaos and more business visibility
@@ -66,7 +72,7 @@ Full specification: `docs/DESIGN_SYSTEM.md` v2.0
 
 ### Platform Admin (Super Admin / Developer)
 
-- Operates the Lingua platform itself
+- Operates the ainything platform itself
 - Sees all organizations, all outlets, system-wide analytics
 - Can suspend/activate organizations, change plans, provision resources
 - Access via `/platform` (separate route group, different navigation)
@@ -213,9 +219,9 @@ UI stack: shadcn-svelte (copy-owned in `src/lib/ui/{component}/`) + bits-ui (hea
 
 ## Architecture Principles for Scale
 
-- **Small scale (1-10 tenants):** Works on a single VPS or Supabase free tier.
-- **Medium scale (10-100 tenants):** RLS + Redis for caching + rate limiting. Background jobs for embeddings/OCR.
-- **Large scale (100-1000+ tenants):** Connection pooling, read replicas, CDN for published catalogs, queue for async. Adapter pattern enables provider swapping.
+ - **Small scale (1-10 tenants):** Works on a single VPS (Hetzner CX23 or equivalent).
+ - **Medium scale (10-100 tenants):** RLS + Redis for caching + rate limiting. Background jobs for embeddings/OCR.
+ - **Large scale (100-1000+ tenants):** Connection pooling (PgBouncer), read replicas, CDN for published catalogs, queue for async. Adapter pattern enables provider swapping.
 
 ## Common Pitfalls to Avoid
 

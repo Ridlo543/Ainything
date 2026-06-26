@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-**Product Name:** Lingua
+**Product Name:** ainything
 **Tagline:** Multi-tenant UMKM digital presence and order management platform
 **Version:** 2.0
 **Date:** 24 Juni 2026
@@ -20,7 +20,7 @@ Keputusan produk setelah kritik:
 - MVP fokus pada platform menu dan guest support multi-restoran
 - Turis tidak perlu login atau install app — scan QR meja langsung pakai
 - Restoran jadi pembayar dan admin data
-- Satu deployment Lingua melayani banyak organisasi/restoran
+- Satu deployment ainything melayani banyak organisasi/restoran
 
 ### Evolution to v2.0
 
@@ -39,7 +39,7 @@ Keputusan v2.0:
 
 ## 1. Executive Summary
 
-Lingua adalah platform PWA + SaaS multi-tenant yang memberikan setiap tenant (UMKM) kemampuan memiliki:
+ainything adalah platform PWA + SaaS multi-tenant yang memberikan setiap tenant (UMKM) kemampuan memiliki:
 
 - **Katalog produk digital** yang bisa diakses via QR code atau link
 - **Sistem pemesanan** — pembeli pilih produk, kirim order ke dashboard
@@ -51,7 +51,7 @@ Produk ini dirancang agar UMKM bisa go digital tanpa perlu website sendiri, tanp
 
 Klarifikasi model produk:
 
-- Lingua adalah satu platform untuk banyak tenant, bukan satu app per tenant.
+- ainything adalah satu platform untuk banyak tenant, bukan satu app per tenant.
 - Tenant utama adalah `Organization` atau pemilik billing. Satu organization bisa memiliki satu atau banyak outlet/restaurant.
 - `Outlet` adalah venue customer-facing yang punya katalog, QR, staff, dan dashboard sendiri.
 - QR selalu mengarah ke konteks outlet tertentu, misalnya `/r/uma-karang/table/T07` atau `/r/warung-pak-hadi/meja/05`.
@@ -94,7 +94,7 @@ Klarifikasi model produk:
 
 ## 3. Product Positioning
 
-**Lingua is a multi-tenant UMKM platform that gives every business owner their own digital catalog, QR/link access, order management, and buyer interaction — all from one deployment.**
+**ainything is a multi-tenant UMKM platform that gives every business owner their own digital catalog, QR/link access, order management, and buyer interaction — all from one deployment.**
 
 Pembeda utama:
 
@@ -153,7 +153,7 @@ Pembeda utama:
 
 ### Owner
 
-- Saat saya mendaftar di Lingua, saya ingin setup produk saya dengan cepat dan mudah
+- Saat saya mendaftar di ainything, saya ingin setup produk saya dengan cepat dan mudah
 - Saat saya punya banyak produk, saya ingin mengorganisirnya di katalog yang rapi
 - Saat pembeli mengirim pesanan, saya ingin menerima dan memprosesnya dengan efisien
 - Saat saya ingin tahu performa bisnis, saya ingin melihat data penjualan dan produk terlaris
@@ -184,7 +184,7 @@ Pembeda utama:
 
 ### Flow 2: Owner Registration & Setup
 
-1. Owner buka landing page Lingua
+1. Owner buka landing page ainything
 2. Owner tap [Mulai Gratis] → halaman registrasi
 3. Step 1: Pilih tipe usaha (Restoran/Cafe, Toko/Retail, Jasa/Service) — tap cards
 4. Step 2: Isi informasi akun (nama, email, password)
@@ -354,7 +354,7 @@ Pembeda utama:
 
 ### Design Philosophy
 
-Lingua harus terasa **modern, warm, friendly, dan approachable** — bukan corporate SaaS.
+ainything harus terasa **modern, warm, friendly, dan approachable** — bukan corporate SaaS.
 
 | Principle            | Implementation                                                         |
 | -------------------- | ---------------------------------------------------------------------- |

@@ -1,8 +1,8 @@
-# Lingua Testing Guide
+# Ainything Testing Guide
 
 ## Overview
 
-Complete testing strategy for Lingua including unit, E2E, and load testing.
+Complete testing strategy for Ainything including unit, E2E, and load testing.
 
 ## Test Structure
 
@@ -13,7 +13,7 @@ tests/
 │   ├── customer-flow.spec.ts
 │   └── ...
 ├── load/                   # K6 load tests
-│   ├── lingua-load-test.js
+│   ├── Ainything-load-test.js
 │   └── Dockerfile
 └── unit/                   # Vitest unit tests
     └── ...
@@ -40,7 +40,7 @@ pnpm test:e2e -- --ui    # With UI mode
 #### Local (K6 installed)
 
 ```bash
-k6 run tests/load/lingua-load-test.js
+k6 run tests/load/Ainything-load-test.js
 ```
 
 #### With Docker
@@ -49,7 +49,7 @@ k6 run tests/load/lingua-load-test.js
 docker run --rm \
   -v $(pwd):/tests \
   grafana/k6:latest \
-  run /tests/tests/load/lingua-load-test.js
+  run /tests/tests/load/Ainything-load-test.js
 ```
 
 #### With Podman
@@ -57,8 +57,8 @@ docker run --rm \
 ```bash
 podman run --rm \
   -v $(pwd):/tests:Z \
-  lingua-load-test \
-  run /tests/lingua-load-test.js
+  Ainything-load-test \
+  run /tests/Ainything-load-test.js
 ```
 
 ## Test Scenarios

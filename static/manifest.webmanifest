@@ -1,6 +1,6 @@
 {
-	"name": "Lingua",
-	"short_name": "Lingua",
+	"name": "Ainything",
+	"short_name": "Ainything",
 	"description": "QR-based multilingual menu assistant for tourist-heavy restaurants.",
 	"start_url": "/",
 	"display": "standalone",
@@ -8,7 +8,7 @@
 	"theme_color": "#0f766e",
 	"icons": [
 		{
-			"src": "/icons/lingua-icon.svg",
+			"src": "/icons/ainything-icon.svg",
 			"sizes": "any",
 			"type": "image/svg+xml",
 			"purpose": "any maskable"

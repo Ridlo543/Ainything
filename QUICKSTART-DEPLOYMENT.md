@@ -1,8 +1,8 @@
-# Lingua Deployment - Quick Start Guide
+# Ainything Deployment - Quick Start Guide
 
 ## Overview
 
-This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
+This guide covers deployment for Ainything using Docker/Podman and Kubernetes.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ docker-compose up -d
 
 ```bash
 # Build image
-docker build -t lingua:latest .
+docker build -t Ainything:latest .
 ```
 
 ### 3. Deploy to Kubernetes

@@ -63,7 +63,7 @@ Lihat `docs/DESIGN_SYSTEM.md` untuk dark mode tokens dan usage guidelines lengka
 
 ### 1.5 Component Patterns
 
-- Cards: border-lingua-border, shadow-sm, hover:shadow-md + translate-y-[-1px]
+- Cards: border-ainything-border, shadow-sm, hover:shadow-md + translate-y-[-1px]
 - Buttons: solid (primary), outline (secondary), ghost (tertiary), icon-only (actions)
 - Forms: floating labels, inline validation, tap-friendly hit targets (44px min)
 - Empty states: illustration + CTA
@@ -180,7 +180,7 @@ Step 1: Tambah produk pertama (atau skip)
 
 Step 2: Generate QR/Link
   "Katalog Anda sudah siap!"
-  [QR Code preview]  [Link: lingua.app/r/your-slug]
+  [QR Code preview]  [Link: ainything.app/r/your-slug]
   [Download QR]  [Copy Link]  [Lanjut ke Dashboard]
 
 Step 3: Invite staff (optional)
@@ -193,7 +193,7 @@ Step 3: Invite staff (optional)
 ### 3.4 Login (`/login`)
 
 ```
-[Lingua Logo]
+[ainything Logo]
 
 [Email]
 [Password]

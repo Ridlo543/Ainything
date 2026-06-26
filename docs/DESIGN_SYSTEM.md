@@ -1,4 +1,4 @@
-# Lingua Design System
+# ainything Design System
 
 **Version:** 2.0  
 **Updated:** Juni 2026
@@ -7,7 +7,7 @@
 
 ### Brand Personality
 
-Lingua is a **multi-tenant SaaS platform** untuk UMKM — bukan hanya restoran. Platform ini harus terasa:
+ainything is a **multi-tenant SaaS platform** untuk UMKM — bukan hanya restoran. Platform ini harus terasa:
 
 - **Friendly** — approachable, tidak mengintimidasi pemilik usaha kecil
 - **Fresh** — modern, growth-oriented, tech-forward tapi tidak corporate

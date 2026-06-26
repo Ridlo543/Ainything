@@ -1,14 +1,14 @@
-# Lingua Architecture and Engineering Rules
+# ainything Architecture and Engineering Rules
 
 **Status:** Active — production-grade multi-tenant UMKM SaaS platform.
 
 ## 1. Architecture Goal
 
-Lingua is a production platform serving UMKM at any scale — from a single warung to a multi-outlet enterprise chain. The codebase must be structured for the full product: customer PWA, owner dashboard, staff workflow, AI/RAG, onboarding, analytics, and future integrations.
+ainything is a production platform serving UMKM at any scale — from a single warung to a multi-outlet enterprise chain. The codebase must be structured for the full product: customer PWA, owner dashboard, staff workflow, AI/RAG, onboarding, analytics, and future integrations.
 
 The key decision is to use SvelteKit for the web layer while keeping business logic outside components and route files. This is not an MVP — every architectural decision must account for 1000+ tenants on day one.
 
-Product shape: one Lingua deployment serves many organizations and many outlets. An outlet receives scoped QR routes, product catalog, cart/order management, dashboard data, and staff workflow. It does not receive a separate codebase or app build. Tenant isolation is non-negotiable — one tenant must never see another's data.
+Product shape: one ainything deployment serves many organizations and many outlets. An outlet receives scoped QR routes, product catalog, cart/order management, dashboard data, and staff workflow. It does not receive a separate codebase or app build. Tenant isolation is non-negotiable — one tenant must never see another's data.
 
 Current local backend baseline: PostgreSQL and Redis run through a vendor-neutral `compose.yml` driven by `scripts/infra.mjs` (Podman preferred, Docker fallback, rootless by default). Managed services remain optional later, but local architecture must not depend on a vendor dashboard to boot the app.
 
@@ -33,7 +33,7 @@ Repository Layer
   Database queries and persistence
 
 Provider Layer
-  Supabase, LLM, OCR, WhatsApp, storage, telemetry
+  PostgreSQL (self-hosted), Redis, LLM, OCR, WhatsApp, storage (Cloudflare R2), telemetry
 ```
 
 Dependency direction:
@@ -43,11 +43,11 @@ UI -> Routes -> Services -> Domain
                  Services -> Repositories -> Providers
 ```
 
-Reverse imports are not allowed. Domain must not import SvelteKit, Supabase, or provider SDKs.
+Reverse imports are not allowed. Domain must not import SvelteKit or provider SDKs.
 
 ## 3. User Roles and Access Control
 
-Lingua has four authenticated roles plus anonymous guests:
+ainything has four authenticated roles plus anonymous guests:
 
 ```
 super_admin         Platform owner. Full system access. Routes: /platform/*.
@@ -62,9 +62,9 @@ anonymous           No auth. QR-scoped to one table at one restaurant.
 ```
 Request → hooks.server.ts
   → authProvider.getSessionUser(cookies, request)
-    → Supabase Auth SSR → Supabase user → app_users table → role + memberships
+    → Auth.js session → app_users table → role + memberships
   → event.locals.user = { id, email, name, role, memberships }
-  → event.locals.session = supabase session (for token refresh)
+  → event.locals.session = Auth.js session
 ```
 
 ### Authorization Rules
@@ -273,7 +273,7 @@ Rules:
 - Tenant context should be a typed server object, not a loose `{ slug: string }` object passed around UI components.
 - Tests must include "same table code in two restaurants" and "same user sees only assigned restaurants" cases.
 - Platform admin (`super_admin` role) bypasses tenant scoping for read queries. Write operations on behalf of a tenant should still scope to the target restaurant/organization.
-- During frontend/backend bridging, a mock session cookie may be used only as a local development stand-in. Production auth must replace it with Supabase Auth sessions and RLS-enforced memberships.
+- During frontend/backend bridging, a mock session cookie may be used only as a local development stand-in. Production auth must replace it with Auth.js sessions and RLS-enforced memberships.
 - Mock tenant fallback is allowed for local UI work when the database is unavailable. It must not hide database authorization errors in production.
 
 ## 6.2 Tenant Query Isolation and Testing
@@ -330,12 +330,12 @@ export async function loadMenusForRestaurant(
 - RLS policies enforce tenant scope using `app.has_restaurant_access(restaurant_id)`.
 - This function verifies the authenticated user (via `app.user_external_id`) has membership access to the restaurant.
 - RLS provides defense-in-depth: even if application code omits organization_id, the database prevents cross-tenant access.
-- See `db/migrations/0001_core_multi_tenant_schema.sql` for `has_restaurant_access()` implementation.
+- See `db/migrations/0001_core_multi_tenant_schema.sql` for `has_restaurant_access()` implementation (to be generalized to `has_outlet_access()` per `docs/ARCHITECTURE_REFACTOR_PLAN.md`).
 - See `db/migrations/0006_admin_menu_write_policies.sql` for write policy examples.
 
 ### Defense-in-Depth Pattern
 
-Lingua uses a two-layer tenant isolation model:
+ainything uses a two-layer tenant isolation model:
 
 1. **Application Layer (Primary):** Queries explicitly scope by organization_id + restaurant_id.
 2. **Database Layer (Defense):** RLS policies enforce access via membership relationships.
@@ -603,7 +603,7 @@ pnpm check            # TypeScript check
 
 **Playwright E2E tests:**
 
-- `playwright.config.ts` uses `lingua_app` role (NOT superuser) to validate actual security boundaries.
+- `playwright.config.ts` uses `ainything_app` role (NOT superuser) to validate actual security boundaries.
 - E2E tests verify RLS policies work correctly in realistic browser→API→DB flows.
 - Using superuser would bypass RLS and create false confidence (testing without security).
 - Environment overrides prevent inheriting `.env` Supabase remote config.
@@ -638,7 +638,7 @@ shadcn-svelte components are **copy-owned code** in `src/lib/ui/` — not runtim
 
 - Components are copied from the shadcn-svelte registry (next branch, Tailwind v4) into `src/lib/ui/`
 - Once copied, they are owned and maintained by this project
-- Design tokens (`--lingua-*` CSS variables) override shadcn's default CSS variables
+- Design tokens (`--ainything-*` CSS variables) override shadcn's default CSS variables
 - bits-ui IS a runtime dependency — it provides accessible headless primitives (keyboard nav, ARIA, focus trap) used internally by shadcn components
 - sveltekit-superforms is a runtime dependency — used for complex admin forms with Zod validation
 
@@ -653,25 +653,25 @@ shadcn-svelte components are **copy-owned code** in `src/lib/ui/` — not runtim
 
 - Full control over accessibility, tokens, and behavior
 - No version lock-in — if shadcn-svelte updates, our copies are unaffected
-- Design system tokens (`--lingua-*`) can be applied without fighting the library
+- Design system tokens (`--ainything-*`) can be applied without fighting the library
 - Components can be modified to match UMKM-specific UX patterns
 
 ### CSS variable mapping
 
-shadcn-svelte uses standard CSS variable names (`--primary`, `--background`, `--card`, etc.). These are mapped to `--lingua-*` tokens in `src/routes/layout.css`:
+shadcn-svelte uses standard CSS variable names (`--primary`, `--background`, `--card`, etc.). These are mapped to `--ainything-*` tokens in `src/routes/layout.css`:
 
 ```css
 /* shadcn CSS variable bridge */
 :root {
-	--background: var(--color-lingua-bg);
-	--foreground: var(--color-lingua-text);
-	--primary: var(--color-lingua-primary);
+	--background: var(--color-ainything-bg);
+	--foreground: var(--color-ainything-text);
+	--primary: var(--color-ainything-primary);
 	--primary-foreground: #ffffff;
-	--secondary: var(--color-lingua-secondary);
-	--muted: var(--color-lingua-muted);
-	--muted-foreground: var(--color-lingua-subtle);
-	--border: var(--color-lingua-border);
-	--ring: var(--color-lingua-primary);
+	--secondary: var(--color-ainything-secondary);
+	--muted: var(--color-ainything-muted);
+	--muted-foreground: var(--color-ainything-subtle);
+	--border: var(--color-ainything-border);
+	--ring: var(--color-ainything-primary);
 	--radius: var(--radius-md);
 }
 ```
@@ -682,7 +682,7 @@ The same codebase must work at all scales:
 
 | Scale  | Tenants   | Strategy                                                                                                                                        |
 | ------ | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Small  | 1–10      | Single VPS or Supabase free tier. Redis optional.                                                                                               |
+| Small  | 1–10      | Single VPS (Hetzner CX23 or equivalent). Redis optional.                                                                                        |
 | Medium | 10–100    | RLS + Redis caching + rate limiting. BullMQ for embeddings/OCR.                                                                                 |
 | Large  | 100–1000+ | Connection pooling (PgBouncer), read replicas, CDN for published catalogs, queue for all async work. Adapter pattern enables provider swapping. |
 

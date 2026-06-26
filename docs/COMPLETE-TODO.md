@@ -2,8 +2,8 @@
 
 ## 2026-06-15
 
-- Created the documentation baseline for LinguaServe.
-- Reworked `docs/PRD_Lingua.md` with critique, sharper MVP scope, success metrics, risks, and roadmap.
+- Created the documentation baseline for ainythingServe.
+- Reworked `docs/PRD_ainything.md` with critique, sharper MVP scope, success metrics, risks, and roadmap.
 - Created `docs/Technical_Specification.md` with stack, architecture, performance, data model, APIs, AI/RAG, security, and testing guidance.
 - Created `docs/TODO.md` with phased implementation from validation and design through frontend, backend, AI, QA, and pilot.
 - Created `README.md` and `AGENTS.md` for project and agent context.
@@ -156,7 +156,7 @@
 - Applied `db:reset` after fix: all 5 migrations run clean on fresh schema.
 - Switched `docker-compose.yml` postgres image from `postgres:16-alpine` to `pgvector/pgvector:pg16` so the `vector` extension from migration 0005 is available. Removed and recreated containers with fresh data volumes.
 - Fixed `tenant-repository.db.test.ts`:
-  - "enforces restaurant access in direct app-role queries": updated to expect all 4 active restaurants (the `restaurants_public_active_select` policy exposes all active restaurants to `lingua_app`, not just org-scoped ones).
+  - "enforces restaurant access in direct app-role queries": updated to expect all 4 active restaurants (the `restaurants_public_active_select` policy exposes all active restaurants to `ainything_app`, not just org-scoped ones).
   - "rejects a guest fallback insert with a session from a different restaurant": wrapped session INSERT in `withUserContext('user-owner-bali')` so the `RETURNING` clause passes the `customer_sessions_tenant_select` policy (which calls `app.has_restaurant_access()` requiring `app.user_external_id`).
 - Added `stripReasoningTags()` to `src/lib/server/providers/llm/prompt.ts`: strips `<think>`, `<reasoning>`, `[thinking]`, `[think]` blocks from raw LLM output before safety-JSON extraction. Prevents internal chain-of-thought from reaching the guest and eliminates false-positive forbidden-content checks in AI eval fixtures.
 - Added 10 unit tests for `stripReasoningTags` and tag-stripping in `extractSafetyJson` (`prompt.test.ts`).
@@ -166,7 +166,7 @@
 
 **Migrations 0006, 0007, 0008:**
 
-- Created `db/migrations/0006_admin_menu_write_policies.sql`: tenant-scoped INSERT/UPDATE/DELETE RLS policies on `menu_categories`, `menu_items`, `menu_item_translations`, `menu_item_dietary_flags`, `menu_item_allergens` for the `lingua_app` role using `app.has_restaurant_access`. Root cause: RLS was ENABLED on all menu tables from migration 0001, but no write policies existed — every admin mutation was silently denied at the DB layer.
+- Created `db/migrations/0006_admin_menu_write_policies.sql`: tenant-scoped INSERT/UPDATE/DELETE RLS policies on `menu_categories`, `menu_items`, `menu_item_translations`, `menu_item_dietary_flags`, `menu_item_allergens` for the `ainything_app` role using `app.has_restaurant_access`. Root cause: RLS was ENABLED on all menu tables from migration 0001, but no write policies existed — every admin mutation was silently denied at the DB layer.
 - Created `db/migrations/0007_menu_item_audit_columns.sql`: `updated_at TIMESTAMPTZ` column + `set_updated_at()` trigger backfill for `menu_items` and `menu_categories` (idempotent `ADD COLUMN IF NOT EXISTS`, `DROP TRIGGER IF EXISTS`).
 - Created `db/migrations/0008_fallback_requests_update_policy.sql`: staff UPDATE policy for `fallback_requests` scoped via `app.has_restaurant_access` + `updated_at` audit column + trigger. Without this migration, the staff inbox service could not transition request status (new→in_progress→resolved).
 
@@ -245,7 +245,7 @@
 **Item 6 — Host/path resolver:**
 
 - Created `src/lib/server/tenant/host-resolver.ts` with two functions:
-  - `resolveRestaurantFromRequest` — extracts the slug from either the path (priority) or the `Host` header (subdomain of `linguaserve.app`). Handles port stripping, IPv6 hosts, and rejects nested subdomains.
+  - `resolveRestaurantFromRequest` — extracts the slug from either the path (priority) or the `Host` header (subdomain of `ainythingserve.app`). Handles port stripping, IPv6 hosts, and rejects nested subdomains.
   - `hostMatchesRestaurant` — validates the request host matches a stored `public_host` value. Case-insensitive, port-tolerant. Used by routes to prevent Host-header spoofing attacks.
 - Integrated the host check into the existing path-based route `r/[restaurantSlug]/table/[tableCode]/+page.server.ts`: when a request arrives on a non-localhost host, the host must match the resolved restaurant's `public_host` column. Localhost is exempt (dev/test only).
 - Created `host-resolver.test.ts` with 16 unit tests covering subdomain extraction, port stripping, IPv6, case-insensitivity, nested subdomain rejection, and cross-tenant impersonation guard.
@@ -256,7 +256,7 @@
 
 **Container runtime migration: Docker → Podman-first:**
 
-- Renamed `docker-compose.yml` → `compose.yml` (vendor-neutral, Compose Spec v2). Both `docker compose` and `podman compose` read it; `name: lingua` pins the project namespace so volumes/networks are stable across runtimes.
+- Renamed `docker-compose.yml` → `compose.yml` (vendor-neutral, Compose Spec v2). Both `docker compose` and `podman compose` read it; `name: ainything` pins the project namespace so volumes/networks are stable across runtimes.
 - Added OCI labels on each service; removed `restart: unless-stopped` so lifecycle is fully managed by the compose CLI on rootless Podman.
 - Added `Containerfile` as a multi-stage template for the app image (Node 22 LTS, pnpm via Corepack, non-root `node` user, tini PID 1, healthcheck, OCI labels). Documented the requirement to switch from `@sveltejs/adapter-auto` to `@sveltejs/adapter-node` before building it.
 - Added `.containerignore` mirroring `.gitignore` to keep the build context small and free of secrets.
@@ -282,7 +282,7 @@
 
 - `podman machine start` brings the default WSL2 VM to `Currently running`.
 - `pnpm run infra:doctor` reports `podman 5.8.2`, `rootful` (default for `podman-machine-default`), and the active compose provider.
-- `pnpm run infra:up` pulls `pgvector/pgvector:pg16` and `redis:7-alpine`, starts `lingua-postgres` and `lingua-redis` (both `healthy`).
+- `pnpm run infra:up` pulls `pgvector/pgvector:pg16` and `redis:7-alpine`, starts `ainything-postgres` and `ainything-redis` (both `healthy`).
 - `pnpm db:migrate` applies all 8 migrations; `pnpm db:seed` loads the demo multi-tenant data.
 
 ## 2026-06-17 Admin Embedding Re-index Button
@@ -311,12 +311,12 @@
 
 ## 2026-06-18 Pilot-Blocking Bundle (P0-A, P0-C, P0-B)
 
-**P0-A — Brand rename (LinguaServe → Lingua):**
+**P0-A — Brand rename (ainythingServe → ainything):**
 
 - Audited every user-facing string + internal reference for the old brand name; renamed in 13 source files, 7 documentation files, the PWA manifest, the Containerfile, the `compose.yml` OCI labels, the demo `seed` SQL, and the `package.json` description.
-- The two `LinguaServe` mentions in `docs/COMPLETE-TODO.md` lines 5 and 248 are kept as historical changelog entries (intentional, do not rename).
-- Domain `linguaserve.app` → `lingua.app` across host-resolver, mock data, embeddings test, public route doc, and the `pilot@lingua.app` contact address.
-- PWA manifest now reads `name: "Lingua"`, `short_name: "Lingua"`.
+- The two `ainythingServe` mentions in `docs/COMPLETE-TODO.md` lines 5 and 248 are kept as historical changelog entries (intentional, do not rename).
+- Domain `ainythingserve.app` → `ainything.app` across host-resolver, mock data, embeddings test, public route doc, and the `pilot@ainything.app` contact address.
+- PWA manifest now reads `name: "ainything"`, `short_name: "ainything"`.
 
 **P0-C — Knowledge (Restaurant Facts) CRUD:**
 
@@ -343,13 +343,13 @@
 
 ## 2026-06-20 RLS Rejection Verification (P0)
 
-**Phase 6a RLS verification — draft/inactive data invisible to `lingua_app`:**
+**Phase 6a RLS verification — draft/inactive data invisible to `ainything_app`:**
 
 - Added 3 new RLS rejection tests to `src/lib/server/repositories/public-menu-repository.db.test.ts`:
-  1. `lingua_app role cannot read draft menu items via raw SQL` — inserts draft menu+items as owner (DIRECT_URL), queries via lingua_app role, asserts 0 rows returned
-  2. `lingua_app role cannot resolve an inactive restaurant` — inserts inactive restaurant+table as owner, calls `resolvePublicMenuBootstrap`, asserts null
-  3. `lingua_app role cannot resolve an inactive table` — marks an existing table inactive as owner, calls `resolvePublicMenuBootstrap`, asserts null
-- Each test connects as migration owner via `createOwnerClient()` (DIRECT_URL) to insert test data, then reads as lingua_app (DATABASE_URL) to verify RLS blocks the data. Cleanup runs in `finally` blocks; `afterAll` provides best-effort cleanup for crashed tests.
+  1. `ainything_app role cannot read draft menu items via raw SQL` — inserts draft menu+items as owner (DIRECT_URL), queries via ainything_app role, asserts 0 rows returned
+  2. `ainything_app role cannot resolve an inactive restaurant` — inserts inactive restaurant+table as owner, calls `resolvePublicMenuBootstrap`, asserts null
+  3. `ainything_app role cannot resolve an inactive table` — marks an existing table inactive as owner, calls `resolvePublicMenuBootstrap`, asserts null
+- Each test connects as migration owner via `createOwnerClient()` (DIRECT_URL) to insert test data, then reads as ainything_app (DATABASE_URL) to verify RLS blocks the data. Cleanup runs in `finally` blocks; `afterAll` provides best-effort cleanup for crashed tests.
 - Total: 10 tests (7 existing + 3 new). Tests are opt-in via `RUN_DB_TESTS=true`.
 - Marked TODO.md Phase 6a last checkbox `[x]` complete.
 
@@ -414,7 +414,7 @@
 - Switched vite.config.ts from adapter-auto to adapter-node.
 - Created Dockerfile: multi-stage (builder + runner), node:22-alpine, pnpm via corepack, non-root USER node, CMD node build.
 - Created .containerignore.
-- ISSUES IDENTIFIED: Dockerfile has no HEALTHCHECK instruction. ORIGIN env hardcoded to https://lingua.example.com (should be runtime override).
+- ISSUES IDENTIFIED: Dockerfile has no HEALTHCHECK instruction. ORIGIN env hardcoded to https://ainything.example.com (should be runtime override).
 
 **P3.12 — Bundle size check script:**
 
@@ -446,7 +446,7 @@
 
 **Round 1 — Audit fixes (P0):**
 
-- `Dockerfile`: replaced hardcoded `ENV ORIGIN=https://lingua.example.com` with `ENV ORIGIN` for runtime override.
+- `Dockerfile`: replaced hardcoded `ENV ORIGIN=https://ainything.example.com` with `ENV ORIGIN` for runtime override.
 - Removed unused `@sveltejs/adapter-auto` from devDependencies (project uses `adapter-node`).
 - `pnpm format` applied across all 32 unformatted files.
 
@@ -622,7 +622,7 @@
 **Playwright E2E configuration:**
 
 - `playwright.config.ts`: explicit local env overrides, `webServer.timeout: 120_000`, `test.timeout: 60_000`, `reuseExistingServer: false`, `stdout`/`stderr` piped.
-- **2026-06-22 CORRECTION**: Initial implementation incorrectly used superuser role (`lingua`), bypassing RLS policies. Post-deployment investigation (commit [next]) revealed this was unnecessary—`lingua_app` works correctly for all E2E database operations. Configuration corrected to use `lingua_app` for RLS validation. Test results: 14/21 customer-flow tests pass with RLS enabled; 7 failures are UI/DOM issues (missing `pantai-padi` seed for RTL tests, stale locators), NOT RLS-related. E2E now validates actual security boundaries.
+- **2026-06-22 CORRECTION**: Initial implementation incorrectly used superuser role (`ainything`), bypassing RLS policies. Post-deployment investigation (commit [next]) revealed this was unnecessary—`ainything_app` works correctly for all E2E database operations. Configuration corrected to use `ainything_app` for RLS validation. Test results: 14/21 customer-flow tests pass with RLS enabled; 7 failures are UI/DOM issues (missing `pantai-padi` seed for RTL tests, stale locators), NOT RLS-related. E2E now validates actual security boundaries.
 
 **Documentation updates:**
 
@@ -645,8 +645,8 @@
 - Rewrote `src/routes/+page.svelte` (55 lines → full marketing landing page):
   - Integrated existing `Navbar.svelte` (i18n-aware fixed navbar with ThemeToggle, scroll blur, mobile hamburger) and `Footer.svelte` (4-column grid: brand, product, company, legal).
   - All sections use `t()` from `$lib/i18n` for all user-facing strings.
-  - Sections: Hero (tagline badge, headline, description, dual CTAs, trust bar), Value Proposition (3 columns: multilingual, AI 24/7, staff inbox), How It Works (4 steps with icons), Features (6-feature grid), Social Proof (city names), Testimonials (3 cards with star ratings), Pricing (3 tiers with "Popular" highlight), Final CTA.
-  - Dark mode support via `lingua-*` design tokens.
+  - Sections: Hero (tagline badge, headline, description, dual CTAs, trust bar), Value Proposition (3 columns: multiainythingl, AI 24/7, staff inbox), How It Works (4 steps with icons), Features (6-feature grid), Social Proof (city names), Testimonials (3 cards with star ratings), Pricing (3 tiers with "Popular" highlight), Final CTA.
+  - Dark mode support via `ainything-*` design tokens.
   - Uses `lucide-svelte` icons throughout.
 - Updated `docs/TODO.md`: marked testimonials, footer, and i18n as done.
 
@@ -729,7 +729,7 @@
 
 **Web Vitals wiring to backend (G3):**
 
-- Created `db/migrations/0013_web_vitals.sql`: `web_vitals` table (id, restaurant_id nullable FK, name CHECK IN LCP/FID/INP/CLS/TTFB, value numeric, rating CHECK, path, reported_at). Indexes on restaurant_id, reported_at DESC, name+rating. `GRANT INSERT, SELECT` to `lingua_app`.
+- Created `db/migrations/0013_web_vitals.sql`: `web_vitals` table (id, restaurant_id nullable FK, name CHECK IN LCP/FID/INP/CLS/TTFB, value numeric, rating CHECK, path, reported_at). Indexes on restaurant_id, reported_at DESC, name+rating. `GRANT INSERT, SELECT` to `ainything_app`.
 - Applied migration: `pnpm db:migrate` → `applied 0013_web_vitals`.
 - Created `src/lib/server/repositories/web-vitals-repository.ts`: `insertWebVitals(entries[])` — batch multi-row INSERT.
 - Created `src/routes/api/internal/vitals/+server.ts`: `POST` handler — validates batch (max 50, field guards), calls `insertWebVitals`, returns 204. Fail-open (DB errors logged, not surfaced). `OPTIONS` handler for CORS preflight.
@@ -907,11 +907,11 @@
 
 ### J2 QR card print-ready design
 
-- `src/routes/(dashboard)/dashboard/tables/+page.svelte` — enhanced `@media print` styles: `@page A4` 10mm margins, 3-column print grid, credit-card print-card layout (QR right, text left), `print-table-code` 24pt bold, `print-restaurant` 6pt uppercase, `print-instruction` 6.5pt multilingual, `print-url` 5pt. Each table renders a hidden `print-card` div alongside the screen article.
+- `src/routes/(dashboard)/dashboard/tables/+page.svelte` — enhanced `@media print` styles: `@page A4` 10mm margins, 3-column print grid, credit-card print-card layout (QR right, text left), `print-table-code` 24pt bold, `print-restaurant` 6pt uppercase, `print-instruction` 6.5pt multiainythingl, `print-url` 5pt. Each table renders a hidden `print-card` div alongside the screen article.
 
 ### J2 Staff quick guide
 
-- `src/routes/(dashboard)/dashboard/guide/+page.server.ts` + `+page.svelte` — in-app 6-section guide: What is Lingua, QR Codes, Staff Inbox (4-step workflow), Menu Management, Common Guest Questions, What AI won\'t do. Printable with `@media print` styles.
+- `src/routes/(dashboard)/dashboard/guide/+page.server.ts` + `+page.svelte` — in-app 6-section guide: What is ainything, QR Codes, Staff Inbox (4-step workflow), Menu Management, Common Guest Questions, What AI won\'t do. Printable with `@media print` styles.
 - `src/routes/(dashboard)/dashboard/+layout.svelte` — added Staff guide nav item with `HelpCircle` icon, changed `resolve()` calls to plain `href` strings.
 
 ### J3 Production deployment checklist
@@ -1036,7 +1036,7 @@ Three categories of failure:
 
 - **components.json**: shadcn-svelte CLI config (new-york style, stone base, `$lib/ui` output)
 - **cn() utility** at `src/lib/utils/index.ts`: `twMerge(clsx(...))` + bits-ui type re-exports
-- **CSS variable bridge** in `src/routes/layout.css`: shadcn vars (`--primary`, `--background`, `--foreground`, `--muted`, `--border`, `--ring`, `--sidebar-*`) mapped to `var(--color-lingua-*)` tokens — all shadcn components auto-use Fresh Growth palette
+- **CSS variable bridge** in `src/routes/layout.css`: shadcn vars (`--primary`, `--background`, `--foreground`, `--muted`, `--border`, `--ring`, `--sidebar-*`) mapped to `var(--color-ainything-*)` tokens — all shadcn components auto-use Fresh Growth palette
 - **16 shadcn components** copied from registry into `src/lib/ui/{component}/`: button, badge, card, input, label, textarea, separator, skeleton, alert, dialog, select, tabs, dropdown-menu, sheet, table, sonner
 - **shadcn-svelte skill** installed via `pnpm dlx skills add huntabyte/shadcn-svelte` into `.agents/skills/shadcn-svelte/`
 - Old custom Priority 0 components removed (Button, Card, Input, Textarea, Badge, Modal, Toasts, Skeleton, AlertBanner, EmptyState, Navbar, Footer, DataTable, Pagination)
@@ -1102,7 +1102,7 @@ Three categories of failure:
 - `/dashboard/orders` — Active/Selesai/Semua tabs with counts, order cards with status badges, search, right-panel order detail (items with notes, total, accept/reject/complete actions), empty state
 - `/dashboard/categories` — category grid cards with color dot, add/edit modal (name, description, color picker), empty state
 - `/dashboard/team` — members list with avatar photos + role badges (Owner/Manager/Staff), pending invites section, invite modal (email + role selector cards)
-- `/dashboard/settings` — general info form (name, slug with lingua.app/ prefix, description, location), QR & link section (QR preview, copy link, open catalog), billing plan card with usage stats
+- `/dashboard/settings` — general info form (name, slug with ainything.app/ prefix, description, location), QR & link section (QR preview, copy link, open catalog), billing plan card with usage stats
 - `/dashboard/analytics` — 7/30/90 day range selector, 4 summary stat cards with trends, CSS-only bar chart (orders per day), top products with progress bars + food images
 
 ### Fixed
@@ -1178,7 +1178,7 @@ Three categories of failure:
 - **`resolvePublicCatalog()`** in `src/lib/server/tenant/public-context.ts` — loads restaurant + published menu by slug without requiring table code
 - **`loadPublishedRestaurantBySlug()`** in `src/lib/server/repositories/public-menu-repository.ts` — SQL query scoped by slug + active status, no table join
 - **`+layout.server.ts`**: Loads restaurant by slug, validates host, passes optional `?table=` query param, 404 on unknown slug
-- **`+layout.svelte`**: Sticky top bar with restaurant initial badge, name, location, `--lingua-*` design tokens, mobile-first max-width container
+- **`+layout.svelte`**: Sticky top bar with restaurant initial badge, name, location, `--ainything-*` design tokens, mobile-first max-width container
 - **`+page.svelte`**: Full catalog view — search bar with clear button, horizontal-scroll category tabs, 2-col mobile / 3-col desktop product grid with image/name/price/quick-add, product detail Dialog (large image, description, dietary badges, quantity selector, add to cart), floating cart button with item count + total, empty state
 - **i18n keys**: `catalog.search.placeholder`, `catalog.category.all`, `catalog.empty.title`, `catalog.empty.hint`, `catalog.addToCart` in en/id/ar translations
 
@@ -1213,7 +1213,7 @@ Three categories of failure:
 
 ### Implemented
 
-- **`src/lib/client/cart.svelte.ts`**: Shared reactive cart store with localStorage persistence (`lingua-cart-{slug}` key). Svelte 5 `$state` runes for reactive entries, count, and total. Methods: `add`, `remove`, `updateQty`, `setNote`, `clear`, `setCustomerName`. Persists across catalog ↔ cart page navigation.
+- **`src/lib/client/cart.svelte.ts`**: Shared reactive cart store with localStorage persistence (`ainything-cart-{slug}` key). Svelte 5 `$state` runes for reactive entries, count, and total. Methods: `add`, `remove`, `updateQty`, `setNote`, `clear`, `setCustomerName`. Persists across catalog ↔ cart page navigation.
 - **`src/routes/(public)/r/[slug]/cart/+page.svelte`**: Cart UI — item list with image/name/price/subtotal, per-item quantity controls ([- qty +]), remove button, per-item notes input, customer name field, total summary, order button with loading state, empty state with catalog link, success state with order ID.
 - **`src/routes/(public)/r/[slug]/cart/+page.server.ts`**: Cart server action — Zod validation (items array min 1, max 50, customerName max 100), resolves restaurant via `resolvePublicCatalog`, creates order via `insertOrder` inside `withTransaction`, returns success + orderId.
 - **Catalog page wired**: `src/routes/(public)/r/[slug]/+page.svelte` now uses shared `createCartStore` from `cart.svelte.ts` instead of local state. Add-to-cart actions update the shared store.
@@ -1393,3 +1393,91 @@ Three categories of failure:
 
 - `pnpm check` — 0 errors, 8 benign warnings (`state_referenced_locally`)
 - `grep unsplash src/` — no results
+
+## 2026-06-26 Audit — Checkout/Payment/WA Bug Fixes
+
+Full application audit of the checkout, payment proof, WA notification, and order management flows. Two real bugs found and fixed.
+
+### Bug 1 — `goto` URL anchor corruption in dashboard orders (FIXED)
+
+**File:** `src/routes/(dashboard)/dashboard/orders/+page.svelte`
+
+`selectOrder()` was calling `goto('?order=#0042')`. The `#` character in a URL is treated as a fragment anchor by browsers — it is never sent to the server as part of the query string. This meant `url.searchParams.get('order')` in the load function always received `null`, so selecting an order never opened its detail panel.
+
+**Fix:** Changed `goto` to use `order.fullId` (the UUID) instead of `order.id` (the `#0042` formatted string). The load function's `find()` already matched on both `o.id` and `o.fullId`, so no server-side change was needed.
+
+### Bug 2 — Dashboard orders detail panel missing buyerWhatsapp + paymentProofUrl (FIXED)
+
+**File:** `src/routes/(dashboard)/dashboard/orders/+page.svelte`
+
+`mapOrderForUI` in `+page.server.ts` already exposed `buyerWhatsapp`, `paymentProofUrl`, `paymentConfirmedAt`, `paymentRejectedAt`, and `paymentNotes` on every order object. The detail panel in the svelte file did not render any of these fields, so staff had no way to see the buyer's WA number or view/confirm/reject the payment proof from the orders screen.
+
+**Fix:** Added a "Pembayaran" section to the detail panel that:
+- Shows buyer WA number as a `wa.me/` link (tap to open WhatsApp directly)
+- Shows payment proof image (thumbnail + link to full image)
+- Shows payment status: confirmed (green), rejected (red), or pending with Konfirmasi/Tolak buttons
+- Confirm/Tolak buttons only shown when `data.paymentConfirmationEnabled` is true and proof is not yet actioned
+- Added `Phone` and `Image` icons to lucide imports
+
+### Previously confirmed correct (no changes needed)
+
+- `order/[id]/+page.svelte` — 10s polling via `invalidateAll` in `onMount`, stops on terminal state
+- `order/[id]/+page.svelte` — payment proof upload form, offline/online split, confirmed/rejected/pending states
+- `cart/+page.svelte` — `createCartStore` called at init (not in `$derived`), WA field shown for `requireWhatsapp || checkoutMode==='online'`
+- `dashboard/orders/+page.server.ts` — WA notifications wired after `confirmPayment` and `rejectPayment`
+- `cart/+page.server.ts` — WA notification wired after `insertOrder`
+- Seeder — all 5 outlets have checkout settings covering all 3 scenarios (online+WA+confirm, online+WA+no-confirm, offline)
+- QRIS image — upload in `settings/payment`, rendered in `order/[id]/+page.svelte`
+
+### Verified
+
+- `pnpm check` — 0 errors, 5 intentional warnings
+- `pnpm test:unit` — 354/354 passed, 21 skipped (live integration only)
+
+## 2026-06-26 Sprint — Staff Orders, Cart Success, Payment Methods UX
+
+### 1. `cart/+page.svelte` — order number `#XXXX` on success screen
+
+**File:** `src/routes/(public)/r/[slug]/cart/+page.svelte`
+
+The success state after order placement showed only a tracking link. The server already returned `orderNumber` in the action response (`cart/+page.server.ts:164`) but the svelte file never rendered it. Also, the local `form` type annotation was missing `orderNumber?: number`, causing a real `pnpm check` error.
+
+**Fix:**
+- Added `orderNumber?: number` to the `form` prop type annotation (line 14)
+- Added `#XXXX` display in the success block using `String(form.orderNumber).padStart(4, '0')`
+
+### 2. `staff/orders/[id]` — confirm/reject payment + wa.me link
+
+**Files:**
+- `src/routes/(staff)/staff/orders/[id]/+page.server.ts`
+- `src/routes/(staff)/staff/orders/[id]/+page.svelte`
+
+Staff could view order status and items but had no way to action payments or contact the buyer from the staff order detail page. They had to navigate to `/dashboard/orders` for payment confirmation.
+
+**Fix — server:**
+- Added imports: `resolveTenantContext`, `getPool`, `notifyBuyerPaymentConfirmed`, `notifyBuyerPaymentRejected`
+- Added `confirmPayment` action: scopes to tenant, blocks `staff` role, UPDATEs `payment_confirmed_at`, fires WA notification, redirects back
+- Added `rejectPayment` action: same pattern, UPDATEs `payment_rejected_at` + `payment_notes`, fires WA notification
+
+**Fix — svelte:**
+- Added `Phone`, `Check`, `X` to lucide imports
+- Added "Pembayaran" `Card` between notes and action buttons that shows:
+  - Buyer WA as `wa.me/` tap link (green button, 44px touch target)
+  - Payment proof image (thumbnail, links to full image)
+  - Confirmed (emerald) / Rejected (red) status badges
+  - Konfirmasi + Tolak forms (only when proof is present and not yet actioned)
+
+### 3. `order/[id]/+page.svelte` — payment methods shown in online mode without confirmation
+
+**File:** `src/routes/(public)/r/[slug]/order/[id]/+page.svelte`
+
+The blue info banner for online mode without `paymentConfirmationEnabled` only showed when `paymentMethods.length === 0`. When methods existed, buyers saw the methods list but no instructions — confusing for bank transfer where they need to know what to do after transferring.
+
+**Fix:** Removed the `paymentMethods.length === 0` guard from the banner condition. The banner now shows for all online-no-confirmation orders with context-aware text:
+- When methods exist: "Silakan transfer ke salah satu rekening di atas, lalu tunjukkan buktinya ke staf."
+- When no methods: "Silakan lakukan pembayaran sesuai instruksi staf."
+
+### Verified
+
+- `pnpm check` — 0 errors, 5 intentional warnings (same pre-existing patterns)
+- `pnpm test:unit` — 354/354 passed, 21 skipped (live integration only)

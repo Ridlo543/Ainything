@@ -1,6 +1,6 @@
-# Lingua TODO
+# ainything TODO
 
-This plan covers the full Lingua product: a multi-tenant UMKM SaaS platform for restaurants, retail, and service businesses. One deployment serves many organizations, many outlets, many staff, and many anonymous buyer sessions.
+This plan covers the full ainything product: a multi-tenant UMKM SaaS platform for restaurants, retail, and service businesses. One deployment serves many organizations, many outlets, many staff, and many anonymous buyer sessions.
 
 **Active Redesign Implementation:** See `docs/REDESIGN_PLAN.md` and `docs/REDESIGN_TODO.md` for the v2.0 production redesign (multi-tenant, tap-first, cart/order flow, role-based dashboards, new design system with emerald/amber/rose palette). This file tracks the original MVP implementation.
 
@@ -11,7 +11,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 - Work top to bottom inside the active phase. Do not skip ahead unless a task is explicitly marked parallel-safe.
 - Every backend/AI task must end green on `pnpm check`, relevant `pnpm test`, and (where touched) `pnpm lint` before it is marked `[x]`.
 - Any task touching RLS policies, public APIs, allergen/halal logic, auth/session, provider adapters, or the public route bundle requires the review discipline in `docs/ARCHITECTURE.md` section 13.
-- When a task changes product scope, stack, data model, or module boundaries, update the matching doc (`PRD_Lingua.md`, `Technical_Specification.md`, `ARCHITECTURE.md`, `CONTEXT.md`) in the same change and log it in `docs/COMPLETE-TODO.md`.
+- When a task changes product scope, stack, data model, or module boundaries, update the matching doc (`PRD_ainything.md`, `Technical_Specification.md`, `ARCHITECTURE.md`, `CONTEXT.md`) in the same change and log it in `docs/COMPLETE-TODO.md`.
 
 ## Cross-Cutting Engineering Guardrails (apply to every phase)
 
@@ -28,7 +28,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 
 ## Phase A — Platform Foundation (Auth, Registration, Landing Page)
 
-The first thing any user sees. Hotel/tourist restaurant owners must be able to discover Lingua, understand the value proposition, register, and start onboarding without manual intervention from the platform owner.
+The first thing any user sees. Hotel/tourist restaurant owners must be able to discover ainything, understand the value proposition, register, and start onboarding without manual intervention from the platform owner.
 
 ### A1. Real Authentication (Supabase Auth)
 
@@ -187,13 +187,13 @@ Restaurants can sign up and go live without manual intervention from the platfor
 ### D1. Subdomain Auto-Generation
 
 - [x] `src/lib/server/services/subdomain-service.ts`:
-  - [x] `generateWorkspaceHost(slug: string): string` → `{slug}.lingua.app` (configurable via `PUBLIC_APP_DOMAIN`)
+  - [x] `generateWorkspaceHost(slug: string): string` → `{slug}.ainything.online` (configurable via `PUBLIC_APP_DOMAIN`)
   - [x] `isWorkspaceHostAvailable(host: string): Promise<boolean>`
   - [x] `provisionSubdomain(organizationId: string): Promise<string>` — idempotent
   - [x] `tryProvisionSubdomain(organizationId)` — non-blocking wrapper, called after registration
 - [x] `workspace_host` auto-provisioned on org creation (registration setup action).
-- [ ] DNS: for MVP, wildcard DNS `*.lingua.app` → app server. SvelteKit host-resolver reads `Host` header.
-- [ ] Future: automated DNS provisioning via DNS provider API (Cloudflare, Route53).
+- [ ] DNS: for MVP, wildcard DNS `*.ainything.online` → app server. SvelteKit host-resolver reads `Host` header. ⏳ **BLOCKED: butuh domain ainything.online + hosting**
+- [ ] Future: automated DNS provisioning via DNS provider API (Cloudflare, Route53). ⏳ **BLOCKED: butuh domain + hosting**
 
 ### D2. Restaurant Onboarding Wizard
 
@@ -220,9 +220,9 @@ The tourist-facing QR menu experience. No login, no install.
 ### E1. QR Entry
 
 - [x] Path-based routing: `/r/[restaurantSlug]/table/[tableCode]`.
-- [x] Subdomain routing layout stubbed: `{slug}.lingua.app/table/{code}` (host-resolver exists).
+- [x] Subdomain routing layout stubbed: `{slug}.ainything.online/table/{code}` (host-resolver exists).
 - [x] Host-header spoofing prevention.
-- [ ] Route setup for subdomain-only production mode (redirect path-based to subdomain).
+- [ ] Route setup for subdomain-only production mode (redirect path-based to subdomain). ⏳ **BLOCKED: butuh domain ainything.online + hosting**
 
 ### E2. Customer PWA
 
@@ -403,10 +403,10 @@ Subscription management and plan enforcement.
 ### J3. Launch
 
 - [x] Production deployment checklist — `docs/deployment/DEPLOY.md` (10-step checklist, DNS, Supabase, env vars, Podman/Docker, nginx/Caddy, smoke tests, monitoring).
-- [ ] Production Supabase project provisioning.
-- [ ] Production DNS + subdomain wildcard setup.
-- [ ] Monitoring: Sentry, Supabase logs, custom health alerts.
-- [ ] Pilot: 3-5 alpha restaurants → 10 beta restaurants.
+- [ ] Production Supabase project provisioning. ⏳ **BLOCKED: butuh domain + hosting**
+- [ ] Production DNS + subdomain wildcard setup. ⏳ **BLOCKED: butuh domain ainything.online + hosting**
+- [ ] Monitoring: Sentry, Supabase logs, custom health alerts. ⏳ **BLOCKED: butuh hosting**
+- [ ] Pilot: 3-5 alpha restaurants → 10 beta restaurants. ⏳ **BLOCKED: butuh hosting**
 
 ---
 
@@ -423,26 +423,61 @@ Subscription management and plan enforcement.
 
 ---
 
-## Current Focus (2026-06-24)
+## Current Focus (2026-06-26)
 
-Phases A, B, C, D, G2, B2, B3 complete. D1 subdomain service layer done. E2E specs + security hardening done. **All 60 E2E tests pass.**
+Phases A, B, C, D, G2, B2, B3 complete. D1 subdomain service layer done. E2E specs + security hardening done. Brand rename Ainything → ainything complete. Checkout/payment/WA flow complete. **`pnpm check` passes 0 errors, 5 intentional warnings.**
 
-### Completed in this session:
+### Completed (2026-06-26):
 
-1. **E2E full regression (60/60 pass)** — resolved all 64 original failures:
-   - Auth hook: added `/register/restaurant`, `/register/organization`, `/register/confirm` to `PUBLIC_PREFIXES` (registration sub-routes were being blocked by auth redirect).
-   - Registration tests: mock mode guard before heading assertions.
-   - Forgot-password: `.first()` fix for strict-mode violation.
-   - Update-password: URL regex accepts `/forgot-password` redirect.
-   - Logout: replaced sidebar button click with programmatic form POST (button outside viewport).
-   - RTL test URL: changed from `pantai-padi` (not in mock data) to `rempah-terrace`.
-   - Staff-flow: empty-state skip for empty member list in mock mode.
-   - Onboarding-flow: `/register/confirm` made public via auth hook.
-2. **`pnpm check`**: 0 errors, 0 warnings (Svelte warnings fully resolved).
-3. **Svelte warnings eliminated**: fixed 15+ warnings across 7 files (state*referenced_locally, css_unused_selector, a11y*\*, dialog/keyboard, label association).
+1. **Brand rename Ainything → ainything** — all source files, config, docs, migrations, seeds updated.
+2. **Database migrations 0001–0020** — all apply cleanly via `pnpm db:reset` with local PostgreSQL.
+3. **RLS policies** — `ainything_app` role with correct v2 policies in migration 0020.
+4. **Local infra** — Podman containers running (ainything-postgres + ainything-redis).
+5. **Checkout/payment/WA flow** (migrations 0014–0015):
+   - `orders` table extended: `buyer_whatsapp`, `payment_proof_url`, `payment_confirmed_at/by`, `payment_rejected_at/by`, `payment_notes`.
+   - `buyer_sessions` table extended: `whatsapp` column.
+   - `outlets.settings` JSONB: `checkout_mode`, `require_buyer_whatsapp`, `payment_confirmation_enabled`.
+   - Payment methods: `payment_methods` table + CRUD dashboard at `/dashboard/settings/payment`.
+   - Cart (`/r/[slug]/cart`): WA field shown for `requireWhatsapp=true` OR `checkoutMode='online'`; auto-fill from localStorage; server validates requirement.
+   - Order tracking (`/r/[slug]/order/[id]`): payment proof upload (JPEG/PNG/WebP, max 5MB); offline/online split; polling every 10s via `invalidateAll`; confirmed/rejected/pending status display.
+   - Dashboard orders (`/dashboard/orders`): `confirmPayment` + `rejectPayment` actions; exposes `buyerWhatsapp` + `paymentProofUrl` to staff.
+   - Settings (`/dashboard/settings`): checkout mode toggle (offline/online), require WA switch, payment confirmation switch; `?/checkout` action saves to `outlets.settings`.
+   - WAHA provider: `waha-provider.ts` + factory updated; `WAHA_BASE_URL`, `WAHA_SESSION`, `WAHA_API_KEY` env vars.
+6. **Bug fixes (2026-06-26 audit)**:
+   - `cart/+page.svelte`: `createCartStore` was inside `$derived` (recreated on every data change) — fixed to plain call at init.
+   - `+page.svelte` (catalog): quick-add button now flashes green Check icon for 600ms as visual confirmation — prevents "did it add?" confusion for orang awam.
+   - `cart/+page.svelte`: WA field now also shown in `checkoutMode='online'` even if `requireWhatsapp=false` (buyer needs WA for notifications).
+7. **`pnpm check`** — 0 errors, 5 intentional warnings (editable form state initialized from server data once — correct Svelte 5 pattern; `createCartStore(data.slug)` called once at init by design).
 
-### Remaining for pilot:
+### Blocked (need domain + hosting):
 
-- J1 load test public endpoints.
-- J3 production deployment — DNS wildcard, Supabase project, monitoring.
-- H2 billing integration (future).
+- DNS wildcard `*.ainything.online` → production server.
+- Subdomain-only production mode routing.
+- Production deployment (Hetzner CX23 Singapore).
+- Monitoring setup (Sentry, health alerts).
+- Pilot restaurants onboarding.
+- Midtrans auto-confirm integration (needs Midtrans account).
+
+### Completed (2026-06-26):
+
+All Priority 1-3 items from the previous sprint are done. See `docs/COMPLETE-TODO.md` for full details.
+
+- [x] WA notification after `insertOrder` — `notifyBuyerOrderPlaced` in `cart/+page.server.ts`
+- [x] WA notification after staff confirms/rejects — `notifyBuyerPaymentConfirmed/Rejected` in `dashboard/orders/+page.server.ts`
+- [x] Human-friendly order number `#XXXX` — migration `0016_order_number.sql`, `order_number SERIAL`, displayed everywhere
+- [x] Seeder checkout settings — all 5 outlets seeded with full scenario coverage
+- [x] QRIS image upload in `settings/payment` + display in `order/[id]/+page.svelte`
+- [x] Staff inbox 15s polling — already present via `invalidate('app:inbox')`
+- [x] E2E `checkout-flow.spec.ts` — offline, online+WA, online+no-WA, staff confirmation scenarios
+- [x] Bug: `goto('?order=#0042')` — `#` corrupts URL as fragment anchor; fixed to use `order.fullId`
+- [x] Bug: Dashboard orders detail panel missing buyer WA + payment proof — added "Pembayaran" section with wa.me link, proof image, confirm/reject buttons
+
+### Completed (2026-06-26 — Sprint 2):
+
+- [x] `/staff/orders/[id]` — `confirmPayment` + `rejectPayment` actions + wa.me tap link + proof image + confirm/reject buttons
+- [x] `cart/+page.svelte` success screen — shows `#XXXX` order number from `form?.orderNumber`
+- [x] `order/[id]/+page.svelte` — online mode without confirmation now shows context-aware instructions alongside payment methods
+
+### Next steps — prioritized (can do now, no hosting needed):
+
+1. E2E: run `checkout-flow.spec.ts` against a live dev DB to validate the full buyer flow end-to-end.

@@ -1,4 +1,4 @@
-# Lingua Logo Design Prompts
+# ainything Logo Design Prompts
 
 ## 🌟 RECOMMENDATION FOR GEMINI AI
 
@@ -43,7 +43,7 @@
 - ✅ Simple concept (QR + chat bubble) - Gemini excels at clear, specific concepts
 - ✅ Easy to control composition with explicit element count
 - ✅ Works perfectly for app icon/favicon use cases
-- ✅ Most aligned with Lingua's product identity
+- ✅ Most aligned with ainything's product identity
 - ✅ Highest success rate for non-AI-styled output
 
 **Best for:** App icon, favicon, PWA icon, social media profile
@@ -55,7 +55,7 @@
 **Prompt:**
 
 ```
-Design a professional, minimalist app icon logo for a restaurant technology SaaS called "Lingua".
+Design a professional, minimalist app icon logo for a restaurant technology SaaS called "ainything".
 
 The logo should combine:
 1. A subtle QR code pattern (only the 3 corner finder squares, not a full QR)
@@ -129,7 +129,7 @@ IMPORTANT FOR GENERATION:
 ### Example Full Prompt for Gemini:
 
 ```
-Design a professional, minimalist app icon logo for a restaurant technology SaaS called "Lingua".
+Design a professional, minimalist app icon logo for a restaurant technology SaaS called "ainything".
 
 The logo should combine:
 1. A subtle QR code pattern (only the 3 corner finder squares, not a full QR)
@@ -177,7 +177,7 @@ Output as a clean vector-style design with sharp edges and professional finish.
 **Prompt:**
 
 ```
-Create a professional lettermark logo for "Lingua" - a B2B SaaS platform for restaurant multilingual QR menus.
+Create a professional lettermark logo for "ainything" - a B2B SaaS platform for restaurant multilingual QR menus.
 
 Design concept:
 - Stylized letter "L" monogram
@@ -215,7 +215,7 @@ Provide the logo on transparent background, suitable for web and print use.
 **Prompt:**
 
 ```
-Design a complete logo system (icon + wordmark) for "Lingua" - an AI-powered multilingual QR menu platform for tourist-heavy restaurants.
+Design a complete logo system (icon + wordmark) for "ainything" - an AI-powered multilingual QR menu platform for tourist-heavy restaurants.
 
 Icon specifications:
 - Circular app icon (512x512px base)
@@ -232,7 +232,7 @@ IMPORTANT - Keep it SIMPLE:
 
 Wordmark specifications:
 - Clean, modern sans-serif typography
-- "Lingua" as the brand name
+- "ainything" as the brand name
 - Professional font similar to Inter, SF Pro, or system fonts
 - Dark gray or navy color for text
 - Icon positioned to the left of wordmark
@@ -258,7 +258,7 @@ All on transparent backgrounds, vector-style quality.
 **Prompt:**
 
 ```
-Create an intelligent negative space logo for "Lingua" - restaurant QR menu AI assistant.
+Create an intelligent negative space logo for "ainything" - restaurant QR menu AI assistant.
 
 Concept:
 - Use negative space technique to hide a QR code pattern within a chat bubble shape
@@ -366,7 +366,7 @@ Output as clean vector artwork with precise curves and angles.
 **Text:** `#111827` (primary text)
 **Text Muted:** `#64748B` (secondary text)
 
-These colors are from the official Lingua design system.
+These colors are from the official ainything design system.
 
 ---
 

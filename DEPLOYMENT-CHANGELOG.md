@@ -1,4 +1,4 @@
-# Lingua Deployment Changelog
+# Ainything Deployment Changelog
 
 ## 2026-06-24 - J1 Load Testing & J3 Production Deployment
 

@@ -1,6 +1,6 @@
-# Lingua Deployment Overview
+# ainything Deployment Overview
 
-This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
+This guide covers deployment for ainything using Docker/Podman and Kubernetes.
 
 ## Prerequisites
 
@@ -71,7 +71,7 @@ make load-test         # Run load tests with K6
 │   ├── grafana-dashboard.json
 │   └── prometheus-rules.yml
 └── tests/load/                 # Load testing
-    ├── lingua-load-test.js
+    ├── ainything-load-test.js
     ├── Dockerfile
     └── README.md
 ```

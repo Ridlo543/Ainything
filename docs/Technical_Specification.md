@@ -1,15 +1,15 @@
-# Lingua Technical Specification
+# ainything Technical Specification
 
-**Version:** 2.2  
-**Date:** 24 Juni 2026  
-**Status:** Active implementation  
+**Version:** 2.3  
+**Date:** 25 Juni 2026  
+**Status:** Active implementation — self-hosted PostgreSQL + Redis, no Supabase  
 **Primary Goal:** Build a production-grade, multi-tenant UMKM SaaS platform — not a prototype. Serve businesses at any scale (small warung to large multi-outlet enterprise) with a fast cross-device SvelteKit PWA, accessible UI components, and backend/AI layers that scale without coupling business logic to the framework.
 
 ## 1. Technical Decision
 
-Lingua will use **SvelteKit + Svelte 5 + TypeScript** as the primary web framework.
+ainything will use **SvelteKit + Svelte 5 + TypeScript** as the primary web framework.
 
-This replaces the earlier Next.js recommendation. The reason is product fit: Lingua depends heavily on mobile QR performance, low-JS customer flows, polished interactions, and PWA behavior. SvelteKit gives SSR, file-based routing, server-only load functions, form actions, API endpoints, adapters, prerendering, and service worker support while keeping the runtime lean.
+This replaces the earlier Next.js recommendation. The reason is product fit: ainything depends heavily on mobile QR performance, low-JS customer flows, polished interactions, and PWA behavior. SvelteKit gives SSR, file-based routing, server-only load functions, form actions, API endpoints, adapters, prerendering, and service worker support while keeping the runtime lean.
 
 This is not a "small app only" choice. The architecture must keep SvelteKit as the web delivery layer and keep domain, data, AI, provider, and policy logic in framework-independent modules.
 
@@ -22,7 +22,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **AI as assistant, not source of truth.** AI can explain, translate, and recommend based on verified data. It must fallback when confidence is low.
 - **Fast perceived performance.** Cached menu interactions should feel instant. Slow AI/OCR tasks need progress, streaming, and retry states.
 - **Multi-tenant by default.** Every backend table and API must be designed for multiple tenants (organizations + outlets) from day one. Scale from 1 to 1000+ tenants, same codebase.
-- **One deployment, many tenants.** Lingua is a shared SaaS platform. An outlet gets scoped data, QR links, and dashboards — not a separate app build. Tenant isolation is mandatory at both app and DB layers.
+- **One deployment, many tenants.** ainything is a shared SaaS platform. An outlet gets scoped data, QR links, and dashboards — not a separate app build. Tenant isolation is mandatory at both app and DB layers.
 - **Provider adapters.** LLM, OCR, STT/TTS, WhatsApp, email, and storage providers must be swappable via adapter interfaces.
 - **Copy-owned UI components.** shadcn-svelte components are copied into `src/lib/ui/` and owned by the project — not imported as a runtime dependency. This gives full control over accessibility, design tokens, and behavior without vendor lock-in.
 - **Explicit dependency policy.** Every new runtime dependency must have a clear justification and be documented in this spec.
@@ -34,7 +34,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 - **Framework:** SvelteKit.
 - **Component Model:** Svelte 5 with runes mode.
 - **Language:** TypeScript strict mode.
-- **Styling:** Tailwind CSS v4 with `@theme` directive. Design tokens as `--lingua-*` CSS variables in `src/routes/layout.css`.
+- **Styling:** Tailwind CSS v4 with `@theme` directive. Design tokens as `--ainything-*` CSS variables in `src/routes/layout.css`.
 - **Component Library:** shadcn-svelte (next branch, Tailwind v4 compatible) — copy-owned components in `src/lib/ui/`. Not a runtime dependency; components are copied and owned by the project.
 - **UI Primitives:** bits-ui — headless, accessible primitives (keyboard nav, ARIA, focus trap). Used internally by shadcn-svelte components. This IS a runtime dependency.
 - **Icons:** lucide-svelte.
@@ -48,10 +48,10 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 
 - **Database:** PostgreSQL. Local development runs in Podman (rootless) first, Docker fallback.
 - **Cache / Queue Base:** Redis. Local development runs in Podman (rootless) first, Docker fallback.
-- **Auth:** Local mock session during frontend-first development, then Supabase Auth or equivalent production auth.
-- **Authorization:** Tenant-aware server checks now; PostgreSQL Row Level Security is committed in local migrations and remains mandatory for the managed/Supabase path.
-- **Storage:** Local/dev can defer file storage; production path can use Supabase Storage or S3-compatible storage.
-- **Realtime:** Can start with app polling or local Redis-backed pub/sub patterns; Supabase Realtime remains an optional managed path later.
+- **Auth:** Auth.js (NextAuth v5) — replaces Supabase Auth. Mock session for local dev (`AUTH_PROVIDER=mock`), Auth.js for production. `external_auth_id` set from Auth.js session in `hooks.server.ts`.
+- **Authorization:** Tenant-aware server checks at app layer (explicit `organization_id` + `outlet_id` scoping). PostgreSQL Row Level Security as defense-in-depth. App role `ainything_app` has RLS enforced; superuser `ainything` used only for migrations via `DIRECT_URL`.
+- **Storage:** Cloudflare R2 (S3-compatible, 10GB free). No Supabase Storage.
+- **Realtime:** Redis-backed pub/sub via BullMQ for async jobs. App polling for dashboards. Supabase Realtime is not used.
 - **API Layer:** SvelteKit `+server.ts` endpoints and server-only service modules.
 - **Migrations:** SQL migrations should be committed to the repo. Do not depend on dashboard-only schema changes.
 - **Connection Roles:** `DIRECT_URL` is for migration/seed owner access. `DATABASE_URL` is for the app runtime role and must be subject to RLS.
@@ -59,7 +59,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 
 ### AI and Search
 
-- **Embeddings/RAG:** Postgres + pgvector or a managed vector store if Supabase limits become a constraint.
+- **Embeddings/RAG:** PostgreSQL + pgvector (self-hosted). No external vector store dependency.
 - **LLM Provider:** Adapter interface. Start with one low-cost provider, keep OpenAI-compatible and provider-neutral internal contracts.
 - **OCR:** Provider adapter for OCR; allow manual correction after extraction.
 - **Prompt Versioning:** Store prompt versions and model parameters in code or database with release notes.
@@ -67,11 +67,11 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
 
 ### Deployment
 
-- **Preferred Web Runtime:** Cloudflare Pages/Workers or Vercel with the matching SvelteKit adapter.
-- **Local Infra:** Vendor-neutral `compose.yml` (Podman preferred, Docker fallback) for PostgreSQL and Redis.
-- **Managed Backend Path:** Supabase or equivalent managed Postgres/Auth/Storage stack later.
-- **Async Work:** Queue/background job provider to be selected before OCR/translation bulk processing.
-- **Monitoring:** Sentry for frontend/backend errors, provider usage logs, Supabase logs, and web vitals.
+- **Production Runtime:** `@sveltejs/adapter-node` → self-hosted VPS (Hetzner CX23 Singapore, ~Rp120.000/mo). Cloudflare Pages/Workers as future option.
+- **Local Infra:** Vendor-neutral `compose.yml` (Podman preferred, Docker fallback) for PostgreSQL 16 + Redis 7.
+- **Production DB:** Self-hosted PostgreSQL on VPS. No managed Supabase.
+- **Async Work:** BullMQ + Redis for OCR, embedding, and translation background jobs.
+- **Monitoring:** Sentry for frontend/backend errors, web vitals. No Supabase logs.
 
 ## 4. SvelteKit Architecture Rules
 
@@ -83,7 +83,7 @@ This is not a "small app only" choice. The architecture must keep SvelteKit as t
   - `(dashboard)` for owner/admin.
   - `(staff)` for staff inbox.
   - `(marketing)` only if a marketing site is later required.
-- Use `+page.server.ts` when reading private data, using Supabase service clients, or touching secrets.
+- Use `+page.server.ts` when reading private data, using server-only DB clients, or touching secrets.
 - Use `+page.ts` only for public serializable data that is safe in the browser.
 - Use `+server.ts` for JSON APIs, AI chat, webhooks, and endpoints consumed outside standard forms.
 - Use SvelteKit form actions for admin/staff CRUD where progressive enhancement is valuable.
@@ -159,8 +159,9 @@ src/
   service-worker.ts
 static/
   manifest.webmanifest
-supabase/
+db/
   migrations/
+  seeds/
 tests/
   e2e/
   unit/
@@ -172,18 +173,18 @@ tests/
 Tourist Browser PWA
   -> SvelteKit SSR route
   -> Public scoped APIs / server load
-  -> Supabase Postgres + Storage
+  -> PostgreSQL (self-hosted, RLS enforced) + Cloudflare R2
   -> AI Gateway service
-  -> Staff Inbox Realtime
+  -> Staff Inbox (Redis pub/sub)
 
 Admin/Staff Dashboard
-  -> Supabase Auth
+  -> Auth.js session
   -> SvelteKit server load + form actions
-  -> Menu CRUD + Knowledge Base services
+  -> Catalog CRUD + Knowledge Base services
   -> Staff fallback workflow
 
 AI Gateway
-  -> Retrieve restaurant-scoped knowledge
+  -> Retrieve outlet-scoped knowledge
   -> Apply guardrails
   -> Call LLM/OCR provider adapter
   -> Log answer, latency, retrieval, confidence
@@ -214,7 +215,7 @@ SvelteKit is a strong fit, but the project must be intentional about its weaker 
 
 ## 8.1 Multi-Tenant Routing Strategy
 
-Lingua must support many organizations and restaurants in one deployment.
+ainything must support many organizations and restaurants in one deployment.
 
 Tenant entities:
 
@@ -226,13 +227,13 @@ Tenant entities:
 Public routing options:
 
 - Path fallback for MVP and local development: `/r/[restaurantSlug]/table/[tableCode]`.
-- Restaurant subdomain for production branding: `https://[restaurantSlug].lingua.app/table/[tableCode]`.
+- Restaurant subdomain for production branding: `https://[restaurantSlug].ainything.app/table/[tableCode]`.
 - Custom domains can be added later for enterprise customers, for example `menu.restaurant.com/table/T07`.
 
 Admin routing options:
 
 - Shared dashboard path: `/dashboard`, with current organization and restaurant resolved from auth membership and URL/search state.
-- Optional organization workspace subdomain: `https://[organizationSlug].lingua.app/dashboard`.
+- Optional organization workspace subdomain: `https://[organizationSlug].ainything.app/dashboard`.
 
 Resolution rules:
 
@@ -343,7 +344,7 @@ Use UUID primary keys unless there is a clear reason not to.
 
 ### Public APIs
 
-- `GET /api/public/tenant/resolve?host=uma-karang.lingua.app`
+- `GET /api/public/tenant/resolve?host=uma-karang.ainything.app`
   - Optional production helper for host-based restaurant resolution.
 - `GET /api/public/restaurants/:slug/table/:tableCode/bootstrap`
   - Returns restaurant profile, table metadata, languages, published menu summary.

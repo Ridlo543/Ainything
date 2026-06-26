@@ -10,15 +10,15 @@
 
 # CLAUDE.md
 
-Project-specific instructions for coding agents working on Lingua.
+Project-specific instructions for coding agents working on Ainything.
 
 ## Repository Context
 
-Lingua is a documentation-first project for a QR-based AI menu assistant for tourist-heavy restaurants. The repo currently contains planning documents and may later contain the web app, backend, migrations, and tests.
+Ainything is a documentation-first project for a QR-based AI menu assistant for tourist-heavy restaurants. The repo currently contains planning documents and may later contain the web app, backend, migrations, and tests.
 
 Read these files before making product or technical changes:
 
-1.`docs/PRD_Lingua.md`
+1.`docs/PRD_ainything.md`
 
 2.`docs/Technical_Specification.md`
 

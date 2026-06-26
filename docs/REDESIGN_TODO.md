@@ -110,7 +110,7 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 - [x] **Sidebar component** (`src/lib/ui/Sidebar.svelte`)
   - Logo at top
   - Nav groups (Overview, Catalog, Orders, Analytics, Team, Settings)
-  - Active state: bg-lingua-primary-soft + text-lingua-primary-strong
+  - Active state: bg-ainything-primary-soft + text-ainything-primary-strong
   - Collapse on mobile (hamburger menu)
   - Restaurant/tenant switcher dropdown
 - [x] **Bottom nav** (`src/lib/ui/BottomNav.svelte`)
@@ -209,7 +209,7 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ### 2.7 Settings (`/dashboard/settings`) ✅ DONE
 
-- [x] **General info** — business name, slug (lingua.app/r/ prefix), description, location
+- [x] **General info** — business name, slug (ainything.app/r/ prefix), description, location
 - [x] **QR & Link section** — QR preview, copy link button, open catalog link
 - [x] **Billing / plan** — current plan card with usage limits
 - [x] **Save with visual feedback** (Check icon + Tersimpan! state)
@@ -444,10 +444,10 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 5. **Follow existing code patterns** — check `src/lib/server/services/` for service layer style
 6. **Update this file** as you complete tasks
 7. **Commit frequently** — small, focused commits (feat:, fix:, style:)
-8. **Use design tokens** — all new components should use `bg-lingua-*`, `text-lingua-*`, etc. No hardcoded colors.
+8. **Use design tokens** — all new components should use `bg-ainything-*`, `text-ainything-*`, etc. No hardcoded colors.
 9. **Palette reference**: primary=#059669, secondary=#F59E0B, accent=#EC4899 (see `layout.css` or `DESIGN_SYSTEM.md`)
 10. **Ask for clarification** if requirements are unclear
 
-**PRD v2.0** (`docs/PRD_Lingua.md`) covers: multi-tenant scope, tap-first UX, product catalog + cart/order, role-based dashboards. Read it before starting Priority 1.
+**PRD v2.0** (`docs/PRD_ainything.md`) covers: multi-tenant scope, tap-first UX, product catalog + cart/order, role-based dashboards. Read it before starting Priority 1.
 
 **Good luck!**

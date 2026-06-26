@@ -1,8 +1,8 @@
-# Lingua Deployment Guide
+# ainything Deployment Guide
 
 ## Overview
 
-This guide covers deployment for Lingua using Docker/Podman and Kubernetes.
+This guide covers deployment for ainything using Docker/Podman and Kubernetes.
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ podman-compose down
 ### View Logs
 
 ```bash
-docker-compose logs -f lingua
+docker-compose logs -f ainything
 ```
 
 ### Access Services
@@ -48,9 +48,9 @@ docker-compose logs -f lingua
 ### Build Image
 
 ```bash
-docker build -t lingua:latest .
+docker build -t ainything:latest .
 # or with Podman
-podman build -t lingua:latest .
+podman build -t ainything:latest .
 ```
 
 ### Run Container
@@ -61,7 +61,7 @@ docker run -d \
   -e NODE_ENV=production \
   -e USE_MOCK_BACKEND=false \
   -e DATABASE_URL=postgresql://... \
-  lingua:latest
+  ainything:latest
 ```
 
 ## Kubernetes Deployment
@@ -78,18 +78,18 @@ docker run -d \
 kubectl apply -f k8s/manifests.yml
 
 # Check deployment status
-kubectl get pods -n lingua
-kubectl get svc -n lingua
+kubectl get pods -n ainything
+kubectl get svc -n ainything
 ```
 
 ### Scale
 
 ```bash
 # Scale manually
-kubectl scale deployment lingua -n lingua --replicas=5
+kubectl scale deployment ainything -n ainything --replicas=5
 
 # Or use HPA (already configured)
-kubectl get hpa -n lingua
+kubectl get hpa -n ainything
 ```
 
 ## Podman-Specific Instructions
@@ -98,13 +98,13 @@ kubectl get hpa -n lingua
 
 ```bash
 # Build
-podman build -t lingua:latest .
+podman build -t ainything:latest .
 
 # Run with SELinux support
 podman run -d \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data:Z \
-  lingua:latest
+  ainything:latest
 ```
 
 ### Troubleshooting Podman
@@ -139,8 +139,8 @@ Metrics available at `/metrics` endpoint (when configured).
 ```yaml
 - name: Build and Push Docker Image
   run: |
-    docker build -t lingua:${{ github.sha }} .
-    docker push lingua:${{ github.sha }}
+    docker build -t ainything:${{ github.sha }} .
+    docker push ainything:${{ github.sha }}
 ```
 
 ### GitLab CI
@@ -157,13 +157,13 @@ deploy:
 ### PostgreSQL Backup
 
 ```bash
-docker exec lingua-postgres pg_dump -U postgres lingua > backup.sql
+docker exec ainything-postgres pg_dump -U postgres ainything > backup.sql
 ```
 
 ### Restore
 
 ```bash
-docker exec -i lingua-postgres psql -U postgres lingua < backup.sql
+docker exec -i ainything-postgres psql -U postgres ainything < backup.sql
 ```
 
 ## Security Best Practices

@@ -1,6 +1,6 @@
 # Production Deployment Checklist
 
-This document covers the steps to deploy Lingua to production.
+This document covers the steps to deploy ainything to production.
 Complete every section before going live with pilot restaurants.
 
 ---
@@ -20,11 +20,11 @@ Complete every section before going live with pilot restaurants.
 
 ```
 # Root domain
-A   lingua.example.com   → server IP
+A   ainything.example.com   → server IP
 
 # Wildcard subdomain for multi-tenant workspace hosts
-# Each restaurant gets  <slug>.lingua.example.com
-A   *.lingua.example.com → server IP
+# Each restaurant gets  <slug>.ainything.example.com
+A   *.ainything.example.com → server IP
 
 # Optional: naked domain redirect
 A   example.com          → server IP
@@ -46,8 +46,8 @@ Set SSL/TLS to "Full (strict)" once the origin certificate is in place.
    - `PUBLIC_SUPABASE_PUBLISHABLE_KEY` (anon key)
    - `SUPABASE_SERVICE_ROLE_KEY` (**secret, never expose to browser**)
 4. Go to **Authentication → URL Configuration** and set:
-   - Site URL: `https://lingua.example.com`
-   - Redirect URLs: `https://lingua.example.com/auth/callback`
+   - Site URL: `https://ainything.example.com`
+   - Redirect URLs: `https://ainything.example.com/auth/callback`
 5. Enable **Email** provider under Authentication → Providers.
    Optionally configure custom SMTP (Settings → Auth → SMTP) to send from your domain.
 
@@ -73,13 +73,13 @@ All 15 migrations (0001–0015) should show as applied.
 
 ```bash
 # Build
-podman build -t ghcr.io/yourorg/lingua-app:latest -f Containerfile .
+podman build -t ghcr.io/yourorg/ainything-app:latest -f Containerfile .
 
 # Test locally
-podman run --rm -p 3000:3000 --env-file .env.production lingua-app
+podman run --rm -p 3000:3000 --env-file .env.production ainything-app
 
 # Push
-podman push ghcr.io/yourorg/lingua-app:latest
+podman push ghcr.io/yourorg/ainything-app:latest
 ```
 
 Or use the **GitHub Actions CI** workflow (`.github/workflows/ci.yml`) which
@@ -100,7 +100,7 @@ See `.env.production` for the full template. Key values to set:
 
 | Variable                          | Where to get it                                                               |
 | --------------------------------- | ----------------------------------------------------------------------------- |
-| `PUBLIC_APP_URL`                  | Your domain, e.g. `https://lingua.example.com`                                |
+| `PUBLIC_APP_URL`                  | Your domain, e.g. `https://ainything.example.com`                             |
 | `ORIGIN`                          | Same as `PUBLIC_APP_URL` (required for SvelteKit CSRF)                        |
 | `DATABASE_URL`                    | Supabase pooled connection string                                             |
 | `DIRECT_URL`                      | Supabase direct connection string                                             |
@@ -116,7 +116,7 @@ See `.env.production` for the full template. Key values to set:
 | `SMTP_PORT`                       | Usually `587` (STARTTLS) or `465` (SSL)                                       |
 | `SMTP_USER`                       | SMTP username                                                                 |
 | `SMTP_PASS`                       | SMTP password                                                                 |
-| `SMTP_FROM`                       | `Lingua <noreply@lingua.example.com>`                                         |
+| `SMTP_FROM`                       | `ainything <noreply@ainything.example.com>`                                   |
 
 ---
 
@@ -126,32 +126,32 @@ See `.env.production` for the full template. Key values to set:
 
 ```bash
 podman run -d \
-  --name lingua-app \
+  --name ainything-app \
   --restart unless-stopped \
   -p 3000:3000 \
-  --env-file /etc/lingua/.env.production.local \
-  ghcr.io/yourorg/lingua-app:latest
+  --env-file /etc/ainything/.env.production.local \
+  ghcr.io/yourorg/ainything-app:latest
 
 # Check health
-podman ps --filter name=lingua-app
-podman logs lingua-app --tail 50
+podman ps --filter name=ainything-app
+podman logs ainything-app --tail 50
 ```
 
 ### Option B: Docker Compose
 
 ```bash
 # Uses docker-compose.yml at repo root
-docker compose up -d lingua-app
+docker compose up -d ainything-app
 docker compose ps
-docker compose logs lingua-app --tail 50
+docker compose logs ainything-app --tail 50
 ```
 
 ### Option C: Systemd unit (rootless Podman)
 
 ```bash
-podman generate systemd --name lingua-app --new --files
-mv container-lingua-app.service ~/.config/systemd/user/
-systemctl --user enable --now container-lingua-app
+podman generate systemd --name ainything-app --new --files
+mv container-ainything-app.service ~/.config/systemd/user/
+systemctl --user enable --now container-ainything-app
 ```
 
 ---
@@ -161,7 +161,7 @@ systemctl --user enable --now container-lingua-app
 ### Caddy (recommended — auto HTTPS)
 
 ```caddyfile
-linguaai.example.com *.linguaai.example.com {
+ainythingai.example.com *.ainythingai.example.com {
   reverse_proxy localhost:3000
   tls {
     dns cloudflare {env.CF_API_TOKEN}
@@ -174,10 +174,10 @@ linguaai.example.com *.linguaai.example.com {
 ```nginx
 server {
   listen 443 ssl http2;
-  server_name lingua.example.com *.lingua.example.com;
+  server_name ainything.example.com *.ainything.example.com;
 
-  ssl_certificate     /etc/letsencrypt/live/lingua.example.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/lingua.example.com/privkey.pem;
+  ssl_certificate     /etc/letsencrypt/live/ainything.example.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/ainything.example.com/privkey.pem;
 
   location / {
     proxy_pass         http://127.0.0.1:3000;
@@ -198,7 +198,7 @@ server {
 
 ## Step 8 — CDN & Caching
 
-Lingua sets HTTP cache headers automatically via `src/lib/server/cache/cache-policy.ts` and the `cacheHandle` in `hooks.server.ts`. The CDN (Cloudflare, Fastly, etc.) respects these headers to cache public responses at the edge.
+ainything sets HTTP cache headers automatically via `src/lib/server/cache/cache-policy.ts` and the `cacheHandle` in `hooks.server.ts`. The CDN (Cloudflare, Fastly, etc.) respects these headers to cache public responses at the edge.
 
 ### Cache Strategies
 
@@ -214,9 +214,9 @@ Lingua sets HTTP cache headers automatically via `src/lib/server/cache/cache-pol
 If using Cloudflare as CDN (recommended):
 
 1. **Page Rules** (or Cache Rules for Cloudflare Pro+):
-   - `lingua.example.com/r/*` → Cache Level: Cache Everything, Edge Cache TTL: 30 s
-   - `lingua.example.com/api/public/*` → Cache Level: Cache Everything, Edge Cache TTL: 60 s
-   - `lingua.example.com/_app/immutable/*` → Cache Level: Cache Everything, Edge Cache TTL: 1 year (immutable build assets)
+   - `ainything.example.com/r/*` → Cache Level: Cache Everything, Edge Cache TTL: 30 s
+   - `ainything.example.com/api/public/*` → Cache Level: Cache Everything, Edge Cache TTL: 60 s
+   - `ainything.example.com/_app/immutable/*` → Cache Level: Cache Everything, Edge Cache TTL: 1 year (immutable build assets)
 
 2. **Cache Purge:** After publishing a menu change, purge by URL pattern:
 
@@ -225,7 +225,7 @@ If using Cloudflare as CDN (recommended):
    curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" \
      -H "Authorization: Bearer {CF_API_TOKEN}" \
      -H "Content-Type: application/json" \
-     --data '{"prefixes":["https://lingua.example.com/r/{slug}","https://lingua.example.com/api/public/bootstrap?restaurant={slug}"]}'
+     --data '{"prefixes":["https://ainything.example.com/r/{slug}","https://ainything.example.com/api/public/bootstrap?restaurant={slug}"]}'
    ```
 
 3. **Always Online:** Enable in Cloudflare dashboard so cached pages remain available during origin downtime.
@@ -234,15 +234,15 @@ If using Cloudflare as CDN (recommended):
 
 ```bash
 # Check Cache-Control on a public catalog page
-curl -I https://lingua.example.com/r/uma-karang
+curl -I https://ainything.example.com/r/uma-karang
 # Expected: Cache-Control: public, s-maxage=30, stale-while-revalidate=120
 
 # Check Cache-Control on the bootstrap API
-curl -I 'https://lingua.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
+curl -I 'https://ainything.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
 # Expected: Cache-Control: public, s-maxage=60, stale-while-revalidate=300
 
 # Check that private routes have no-store
-curl -I https://lingua.example.com/dashboard
+curl -I https://ainything.example.com/dashboard
 # Expected: Cache-Control: private, no-store, no-cache, must-revalidate
 ```
 
@@ -252,14 +252,14 @@ curl -I https://lingua.example.com/dashboard
 
 ```bash
 # Health check
-curl -I https://lingua.example.com/api/health/backend
+curl -I https://ainything.example.com/api/health/backend
 
 # Public menu bootstrap (replace slug + table with your seed data)
-curl 'https://lingua.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
+curl 'https://ainything.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
 
 # Verify redirect
-curl -I https://lingua.example.com/dashboard     # should → /login
-curl -I https://lingua.example.com/platform      # should → /login
+curl -I https://ainything.example.com/dashboard     # should → /login
+curl -I https://ainything.example.com/platform      # should → /login
 ```
 
 ---
@@ -271,7 +271,7 @@ curl -I https://lingua.example.com/platform      # should → /login
 - **Supabase logs:** Check **Logs → API** in the Supabase dashboard.
 - **Health endpoint:** `/api/health/backend` returns 200 when DB + Redis are reachable.
   Wire this into UptimeRobot or Betterstack for uptime monitoring.
-- **Container logs:** `podman logs lingua-app --tail 100 --follow`
+- **Container logs:** `podman logs ainything-app --tail 100 --follow`
 
 ---
 
@@ -290,7 +290,7 @@ Before handing to the first pilot restaurant:
 - [ ] Platform admin login tested (`/platform`)
 - [ ] Sentry receiving errors (trigger a 404, confirm in Sentry)
 - [ ] `/api/health/backend` returns 200
-- [ ] Load test run: `k6 run tests/load/k6-public-endpoints.js -e BASE_URL=https://lingua.example.com`
+- [ ] Load test run: `k6 run tests/load/k6-public-endpoints.js -e BASE_URL=https://ainything.example.com`
 
 ---
 
@@ -298,12 +298,12 @@ Before handing to the first pilot restaurant:
 
 ```bash
 # Pull previous image version
-podman pull ghcr.io/yourorg/lingua-app:previous-tag
+podman pull ghcr.io/yourorg/ainything-app:previous-tag
 
 # Restart with previous image
-podman stop lingua-app
-podman rm lingua-app
-podman run -d --name lingua-app ... ghcr.io/yourorg/lingua-app:previous-tag
+podman stop ainything-app
+podman rm ainything-app
+podman run -d --name ainything-app ... ghcr.io/yourorg/ainything-app:previous-tag
 ```
 
 Database rollbacks are manual — keep a `pg_dump` before each migration.
@@ -318,4 +318,4 @@ pg_dump $DIRECT_URL > backup-$(date +%Y%m%d-%H%M%S).sql
 
 - Internal docs: `docs/`
 - Issue tracker: GitHub Issues
-- Email: support@lingua.ai
+- Email: support@ainything.ai

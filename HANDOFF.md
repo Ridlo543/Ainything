@@ -1,4 +1,4 @@
-# Lingua — Handoff Document
+# Ainything — Handoff Document
 
 **Generated:** 2026-06-21  
 **Purpose:** Session transfer — enable a fresh agent to continue with zero context loss.
@@ -7,7 +7,7 @@
 
 ## Project Overview
 
-Lingua is a multi-tenant QR menu & AI guest assistant SaaS for tourist-heavy restaurants. One deployment serves many organizations/restaurants. PWA-first, no app install or login required for customers.
+Ainything is a multi-tenant QR menu & AI guest assistant SaaS for tourist-heavy restaurants. One deployment serves many organizations/restaurants. PWA-first, no app install or login required for customers.
 
 - **Stack:** SvelteKit 5 (runes), TypeScript, Tailwind CSS, PostgreSQL (pgvector), Redis, Podman-first
 - **Frontend:** SvelteKit route groups: `(public)/` customer QR, `(dashboard)/` admin, `(staff)/` staff inbox, `api/` JSON
@@ -71,7 +71,7 @@ Lingua is a multi-tenant QR menu & AI guest assistant SaaS for tourist-heavy res
 
 | Path                              | Purpose                                            |
 | --------------------------------- | -------------------------------------------------- |
-| `docs/PRD_Lingua.md`              | Product requirements                               |
+| `docs/PRD_ainything.md`              | Product requirements                               |
 | `docs/Technical_Specification.md` | Stack, data model, API, AI/RAG, security           |
 | `docs/ARCHITECTURE.md`            | Module boundaries, tenant isolation, testing rules |
 | `docs/DESIGN_SYSTEM.md`           | Colors, typography, spacing, component states      |

@@ -8,15 +8,15 @@
 
 # AGENTS.md
 
-Project-specific instructions for coding agents working on Lingua.
+Project-specific instructions for coding agents working on ainything.
 
 ## Repository Context
 
-Lingua is a **production-grade multi-tenant UMKM SaaS platform** — not a prototype, not an MVP. It serves businesses of all sizes: small (warung, toko kecil), medium (chain restoran, butik), and large (enterprise UMKM with multiple outlets). The platform gives every business owner a digital product catalog, QR/link access, cart/order management, and buyer interaction — with role-based dashboards, staff workflow, and AI support — from one deployment.
+ainything is a **production-grade multi-tenant UMKM SaaS platform** — not a prototype, not an MVP. It serves businesses of all sizes: small (warung, toko kecil), medium (chain restoran, butik), and large (enterprise UMKM with multiple outlets). The platform gives every business owner a digital product catalog, QR/link access, cart/order management, and buyer interaction — with role-based dashboards, staff workflow, and AI support — from one deployment.
 
 Read these files before making product or technical changes:
 
-1. `docs/PRD_Lingua.md`
+1. `docs/PRD_ainything.md`
 2. `docs/Technical_Specification.md`
 3. `docs/ARCHITECTURE.md`
 4. `docs/DESIGN_SYSTEM.md`
@@ -28,7 +28,7 @@ Also follow the global RTK instruction from `C:\Users\Advan\.codex\RTK.md`: pref
 ## Product Rules
 
 - **This is a production platform for UMKM at any scale — never treat it as MVP or prototype.**
-- Lingua serves restaurants, retail shops, and service businesses — not just restaurants.
+- ainything serves restaurants, retail shops, and service businesses — not just restaurants.
 - Buyer is the UMKM owner (tenant). End user is the buyer/consumer scanning the QR.
 - Customer experience is PWA-first and must not require app install or login for buyers.
 - Product data (name, price, availability, ingredients, allergens, halal status) must come from owner-approved data only.
@@ -52,8 +52,8 @@ Also follow the global RTK instruction from `C:\Users\Advan\.codex\RTK.md`: pref
 - Use **shadcn-svelte (next branch, Tailwind v4)** as the component base — copy-owned, not a runtime dependency.
 - Use **bits-ui** as the headless accessibility primitive layer (shadcn-svelte uses it internally).
 - Use **sveltekit-superforms + Zod** for complex admin forms (product CRUD, settings, invite staff).
-- Design tokens live in `src/routes/layout.css` as `--lingua-*` CSS variables (Tailwind v4 `@theme` directive).
-- Map shadcn CSS variables (`--primary`, `--background`, etc.) to `--lingua-*` tokens in the CSS variable mapping block.
+- Design tokens live in `src/routes/layout.css` as `--ainything-*` CSS variables (Tailwind v4 `@theme` directive).
+- Map shadcn CSS variables (`--primary`, `--background`, etc.) to `--ainything-*` tokens in the CSS variable mapping block.
 - Use mobile-first responsive design — avoid two-column layouts below 768px.
 - Tap targets: minimum 44px height for all interactive elements.
 - Do not nest cards inside cards.
@@ -116,7 +116,7 @@ shadcn-svelte components are **copy-owned code** in `src/lib/ui/`, not runtime d
 
 - Components are copied from shadcn-svelte registry into `src/lib/ui/`
 - We own and can modify them freely
-- Design tokens (`--lingua-*`) override shadcn's default CSS variables
+- Design tokens (`--ainything-*`) override shadcn's default CSS variables
 - No vendor lock-in — if shadcn changes, our copies are unaffected
 - bits-ui IS a runtime dependency (accessibility primitives used by shadcn components)
 
