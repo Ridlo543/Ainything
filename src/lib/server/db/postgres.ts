@@ -1,6 +1,6 @@
 import { building } from '$app/environment';
+import { env } from '$env/dynamic/private';
 import pg from 'pg';
-import { appEnv } from '$lib/server/config/env';
 
 const { Pool } = pg;
 type QueryResultRow = pg.QueryResultRow;
@@ -19,17 +19,29 @@ export type DatabaseClient = {
 
 let pool: pg.Pool | null = null;
 
+/**
+ * Superuser pool using DIRECT_URL (bypasses RLS and connection poolers).
+ * Used for: session resolution, auth operations, migrations, seeds.
+ * NOT for regular app queries — use `query` for those.
+ */
+let directPool: pg.Pool | null = null;
+
 export function getPool() {
 	if (building) {
 		throw new Error('PostgreSQL pool is not available while building the app');
 	}
 
-	if (!appEnv.databaseUrl) {
+	// Read env lazily — $env/dynamic/private is populated after module init in the
+	// built adapter-node output (set_private_env is called by SvelteKit at request time,
+	// not at module evaluation time). Using appEnv (a frozen object literal) would capture
+	// undefined values for DATABASE_URL and DIRECT_URL.
+	const databaseUrl = env.DATABASE_URL;
+	if (!databaseUrl) {
 		throw new Error('DATABASE_URL is not configured');
 	}
 
 	pool ??= new Pool({
-		connectionString: appEnv.databaseUrl,
+		connectionString: databaseUrl,
 		max: 10,
 		idleTimeoutMillis: 30_000,
 		connectionTimeoutMillis: 5_000
@@ -38,8 +50,44 @@ export function getPool() {
 	return pool;
 }
 
+/**
+ * Superuser pool using DIRECT_URL (falls back to DATABASE_URL in local dev).
+ * Used by auth operations that run before user context is established.
+ */
+export function getDirectPool() {
+	if (building) {
+		throw new Error('PostgreSQL pool is not available while building the app');
+	}
+
+	// Read env lazily for the same reason as getPool() above.
+	const url = env.DIRECT_URL || env.DATABASE_URL;
+	if (!url) {
+		throw new Error('DIRECT_URL (or DATABASE_URL) is not configured');
+	}
+
+	directPool ??= new Pool({
+		connectionString: url,
+		max: 5,
+		idleTimeoutMillis: 30_000,
+		connectionTimeoutMillis: 5_000
+	});
+
+	return directPool;
+}
+
 export async function query<T extends QueryResultRow>(text: string, params: QueryParams = []) {
 	return getPool().query<T>(text, params);
+}
+
+/**
+ * Superuser query — bypasses RLS. Use only for auth/session operations where
+ * user context is not yet available.
+ */
+export async function directQuery<T extends QueryResultRow>(
+	text: string,
+	params: QueryParams = []
+) {
+	return getDirectPool().query<T>(text, params);
 }
 
 export async function checkPostgresHealth() {
@@ -81,4 +129,27 @@ export async function withPublicSessionContext<T>(
 		await client.query(`SELECT set_config('app.public_session_id', $1, true)`, [sessionId]);
 		return callback(client);
 	});
+}
+
+/**
+ * Superuser transaction — bypasses RLS entirely.
+ * Use for public-facing writes (e.g. cart order submission) where RLS policies
+ * on ainything_app cannot be satisfied without a pre-existing buyer session.
+ * Security is enforced at the application layer (input validation, outlet existence
+ * check, server-authoritative pricing) before this function is called.
+ */
+export async function withDirectTransaction<T>(callback: (client: pg.PoolClient) => Promise<T>) {
+	const client = await getDirectPool().connect();
+
+	try {
+		await client.query('BEGIN');
+		const result = await callback(client);
+		await client.query('COMMIT');
+		return result;
+	} catch (error) {
+		await client.query('ROLLBACK');
+		throw error;
+	} finally {
+		client.release();
+	}
 }
