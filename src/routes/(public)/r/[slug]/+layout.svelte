@@ -6,24 +6,24 @@
 </script>
 
 <svelte:head>
-	<title>{restaurant.name} &middot; Lingua</title>
+	<title>{restaurant.name} &middot; Ainything</title>
 	<meta name="description" content={restaurant.description} />
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 </svelte:head>
 
-<div class="min-h-screen bg-lingua-bg">
+<div class="min-h-screen bg-ainything-bg">
 	<header
-		class="sticky top-0 z-30 border-b border-lingua-border bg-lingua-surface/95 backdrop-blur-sm"
+		class="sticky top-0 z-30 border-b border-ainything-border bg-ainything-surface/95 backdrop-blur-sm"
 	>
 		<div class="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
 			<div
-				class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-lingua-primary-soft text-lg font-bold text-lingua-primary"
+				class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ainything-primary-soft text-lg font-bold text-ainything-primary"
 			>
 				{restaurant.name.charAt(0)}
 			</div>
 			<div class="min-w-0">
-				<h1 class="truncate text-base font-semibold text-lingua-text">{restaurant.name}</h1>
-				<p class="truncate text-xs text-lingua-subtle">{restaurant.location}</p>
+				<h1 class="truncate text-base font-semibold text-ainything-text">{restaurant.name}</h1>
+				<p class="truncate text-xs text-ainything-subtle">{restaurant.location}</p>
 			</div>
 		</div>
 	</header>

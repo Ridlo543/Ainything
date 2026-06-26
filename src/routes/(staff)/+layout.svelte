@@ -10,7 +10,7 @@
 
 <div class="flex min-h-screen flex-col bg-background">
 	<header
-		class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-card shadow-[0_1px_0_0_var(--color-lingua-border)] px-4"
+		class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-card shadow-[0_1px_0_0_var(--color-ainything-border)] px-4"
 	>
 		<div
 			class="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground"

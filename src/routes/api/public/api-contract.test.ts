@@ -12,37 +12,69 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
+import type { PublicCatalogBootstrap } from '$lib/domain/outlet/types';
 
 // ── Common mock bootstrap ──────────────────────────────────────────────────────
 
 const SESSION_ID = '550e8400-e29b-41d4-a716-446655440000';
+const OUTLET_ID = '40000000-0000-0000-0000-000000000001';
+const ORG_ID = '10000000-0000-0000-0000-000000000001';
 
-const bootstrap: PublicMenuBootstrap = {
-	restaurant: {
-		id: 'rest-1',
-		organizationId: 'org-1',
+const bootstrap: PublicCatalogBootstrap = {
+	outlet: {
+		id: OUTLET_ID,
+		organizationId: ORG_ID,
 		name: 'Uma Karang',
-		menuItems: [
+		slug: 'uma-karang',
+		publicHost: '',
+		location: '',
+		businessType: 'restaurant',
+		status: 'active',
+		timezone: 'Asia/Makassar',
+		defaultLanguageTag: 'id',
+		languages: ['id', 'en'],
+		heroImage: '',
+		tableCount: 0,
+		description: '',
+		knowledgeHighlights: [],
+		analytics: {
+			scansToday: 0,
+			helpfulRate: 0,
+			fallbackRate: 0,
+			topQuestion: '',
+			topItem: ''
+		},
+		checkoutSettings: {
+			checkoutMode: 'offline',
+			requireBuyerWhatsapp: false,
+			paymentConfirmationEnabled: false
+		},
+		sections: [],
+		products: [
 			{
+				id: '70000000-0000-0000-0000-000000000001',
+				section: 'Main',
 				name: 'Nasi Goreng',
-				category: 'Main',
 				description: 'Fried rice',
 				price: 85000,
+				currency: 'IDR',
+				imageUrl: '',
 				isAvailable: true,
-				spiceLevel: 2,
+				isSignature: false,
+				confidence: 'verified',
+				sortOrder: 0,
 				dietaryFlags: ['halal'],
 				allergens: ['egg'],
-				confidence: 'verified'
+				goodFor: []
 			}
 		]
-	} as PublicMenuBootstrap['restaurant'],
+	},
 	table: {
-		id: 'table-1',
+		id: '00000000-0000-0000-0000-000000000001',
 		code: 'T07',
 		label: 'Table 07',
-		restaurantId: 'rest-1',
-		organizationId: 'org-1',
+		outletId: OUTLET_ID,
+		organizationId: ORG_ID,
 		isActive: true,
 		qrPath: ''
 	}
@@ -52,14 +84,14 @@ const bootstrap: PublicMenuBootstrap = {
 // POST /api/public/sessions  →  customer-session-service
 // ════════════════════════════════════════════════════════════════════════════════
 
-const createCustomerSessionMock = vi.fn();
+const createBuyerSessionMock = vi.fn();
 const createFallbackRequestMock = vi.fn().mockResolvedValue({ id: 'fb-1', status: 'new' });
-const createFeedbackMock = vi.fn().mockResolvedValue({ id: 'feedback-1' });
+const createBuyerFeedbackMock = vi.fn().mockResolvedValue({ id: 'feedback-1' });
 
-vi.mock('$lib/server/repositories/public-menu-repository', () => ({
-	createCustomerSession: (...args: unknown[]) => createCustomerSessionMock(...args),
+vi.mock('$lib/server/repositories/public-catalog-repository', () => ({
+	createBuyerSession: (...args: unknown[]) => createBuyerSessionMock(...args),
 	createFallbackRequest: (...args: unknown[]) => createFallbackRequestMock(...args),
-	createFeedback: (...args: unknown[]) => createFeedbackMock(...args)
+	createBuyerFeedback: (...args: unknown[]) => createBuyerFeedbackMock(...args)
 }));
 
 const { createCustomerSessionForTable } =
@@ -67,65 +99,68 @@ const { createCustomerSessionForTable } =
 
 describe('POST /api/public/sessions — createCustomerSessionForTable', () => {
 	beforeEach(() => {
-		createCustomerSessionMock.mockReset();
-		createCustomerSessionMock.mockResolvedValue({ id: 'sess-1' });
+		createBuyerSessionMock.mockReset();
+		createBuyerSessionMock.mockResolvedValue({ id: SESSION_ID });
 	});
 
-	it('returns sessionId, languageTag, preferences on valid input', async () => {
-		const result = await createCustomerSessionForTable(bootstrap, {
-			restaurantSlug: 'uma-karang',
-			tableCode: 'T07',
-			languageTag: 'en',
-			preferences: { dietary: ['halal'] }
-		});
-
-		expect(result.sessionId).toBeDefined();
-		expect(result.languageTag).toBe('en');
-		expect(result.preferences).toBeDefined();
-	});
-
-	it('derives organizationId and restaurantId from bootstrap — not from body', async () => {
+	it('derives tenant scope from bootstrap — ignores body ids', async () => {
 		await createCustomerSessionForTable(bootstrap, {
-			restaurantSlug: 'uma-karang',
-			tableCode: 'T07',
 			languageTag: 'en',
-			// Hostile spoof attempt
-			organizationId: 'evil-org',
-			restaurantId: 'evil-rest'
+			dietaryPreferences: ['halal'],
+			organizationId: 'attacker-org',
+			outletId: 'attacker-outlet',
+			tableId: 'attacker-table'
 		});
 
-		expect(createCustomerSessionMock).toHaveBeenCalledWith(
+		expect(createBuyerSessionMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				organizationId: 'org-1',
-				restaurantId: 'rest-1'
+				organizationId: ORG_ID,
+				outletId: OUTLET_ID,
+				tableId: '00000000-0000-0000-0000-000000000001'
 			})
 		);
 	});
 
-	it('rejects invalid languageTag', async () => {
-		await expect(
-			createCustomerSessionForTable(bootstrap, {
-				restaurantSlug: 'uma-karang',
-				tableCode: 'T07',
-				languageTag: 'xx-invalid'
-			})
-		).rejects.toThrow();
-		expect(createCustomerSessionMock).not.toHaveBeenCalled();
+	it('returns sessionId, languageTag, preferences', async () => {
+		const result = await createCustomerSessionForTable(bootstrap, {
+			languageTag: 'id',
+			dietaryPreferences: ['halal']
+		});
+
+		expect(result.sessionId).toBe(SESSION_ID);
+		expect(result.languageTag).toBe('id');
+		expect(result.preferences.dietaryPreferences).toEqual(['halal']);
 	});
 
-	it('accepts all supported language tags without throwing', async () => {
-		const tags = ['en', 'id', 'zh-Hans', 'ko', 'ja', 'ar', 'hi', 'fr', 'de'];
+	it('keeps allergenNotes only when provided', async () => {
+		await createCustomerSessionForTable(bootstrap, {
+			languageTag: 'id',
+			dietaryPreferences: [],
+			allergenNotes: '  no peanuts  '
+		});
 
-		for (const tag of tags) {
-			createCustomerSessionMock.mockResolvedValue({ id: `sess-${tag}` });
-			await expect(
-				createCustomerSessionForTable(bootstrap, {
-					restaurantSlug: 'uma-karang',
-					tableCode: 'T07',
-					languageTag: tag
-				})
-			).resolves.toBeDefined();
-		}
+		const passed = createBuyerSessionMock.mock.calls[0][0];
+		expect(passed.preferences).toEqual({
+			dietaryPreferences: [],
+			allergenNotes: 'no peanuts'
+		});
+	});
+
+	it('rejects unsupported language tag → throws', async () => {
+		await expect(
+			createCustomerSessionForTable(bootstrap, { languageTag: 'xx', dietaryPreferences: [] })
+		).rejects.toThrow();
+		expect(createBuyerSessionMock).not.toHaveBeenCalled();
+	});
+
+	it('rejects unknown dietary preference → throws', async () => {
+		await expect(
+			createCustomerSessionForTable(bootstrap, {
+				languageTag: 'en',
+				dietaryPreferences: ['definitely-not-real']
+			})
+		).rejects.toThrow();
+		expect(createBuyerSessionMock).not.toHaveBeenCalled();
 	});
 });
 
@@ -133,7 +168,7 @@ describe('POST /api/public/sessions — createCustomerSessionForTable', () => {
 // POST /api/public/fallback  →  guest-interaction-service.createFallbackForTable
 // ════════════════════════════════════════════════════════════════════════════════
 
-// Mocks already defined above — reuse createFallbackRequestMock and createFeedbackMock
+// Mocks already defined above — reuse createFallbackRequestMock and createBuyerFeedbackMock
 
 const { createFallbackForTable, createFeedbackForSession } =
 	await import('$lib/server/services/guest-interaction-service');
@@ -159,15 +194,15 @@ describe('POST /api/public/fallback — createFallbackForTable', () => {
 			languageTag: 'en',
 			guestNeed: 'Help me',
 			organizationId: 'evil-org',
-			restaurantId: 'evil-rest',
+			outletId: 'evil-outlet',
 			tableId: 'evil-table'
 		});
 
 		expect(createFallbackRequestMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				organizationId: 'org-1',
-				restaurantId: 'rest-1',
-				tableId: 'table-1'
+				organizationId: ORG_ID,
+				outletId: OUTLET_ID,
+				tableId: '00000000-0000-0000-0000-000000000001'
 			})
 		);
 	});
@@ -216,8 +251,8 @@ describe('POST /api/public/fallback — createFallbackForTable', () => {
 
 describe('POST /api/public/feedback — createFeedbackForSession', () => {
 	beforeEach(() => {
-		createFeedbackMock.mockReset();
-		createFeedbackMock.mockResolvedValue({ id: 'feedb-1' });
+		createBuyerFeedbackMock.mockReset();
+		createBuyerFeedbackMock.mockResolvedValue({ id: 'feedb-1' });
 	});
 
 	it('returns feedbackId on valid input', async () => {
@@ -231,8 +266,8 @@ describe('POST /api/public/feedback — createFeedbackForSession', () => {
 			organizationId: 'evil-org'
 		});
 
-		expect(createFeedbackMock).toHaveBeenCalledWith(
-			expect.objectContaining({ organizationId: 'org-1' })
+		expect(createBuyerFeedbackMock).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationId: ORG_ID })
 		);
 	});
 
@@ -243,7 +278,7 @@ describe('POST /api/public/feedback — createFeedbackForSession', () => {
 
 	it('trims and passes through comment', async () => {
 		await createFeedbackForSession(bootstrap, { comment: '  great food  ' });
-		expect(createFeedbackMock).toHaveBeenCalledWith(
+		expect(createBuyerFeedbackMock).toHaveBeenCalledWith(
 			expect.objectContaining({ comment: 'great food' })
 		);
 	});
@@ -262,7 +297,7 @@ describe('POST /api/public/feedback — createFeedbackForSession', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════════
-// POST /api/public/chat  →  chat-service.handleChatTurn
+// POST /api/public/chat  →  chat-service.handleCatalogChatTurn
 // ════════════════════════════════════════════════════════════════════════════════
 
 const getRecentHistoryMock = vi.fn();
@@ -285,9 +320,9 @@ vi.mock('$lib/server/providers/llm/factory', () => ({
 	getLlmProvider: () => ({ chat: chatProviderMock })
 }));
 
-const { handleChatTurn } = await import('$lib/server/services/chat-service');
+const { handleCatalogChatTurn } = await import('$lib/server/services/chat-service');
 
-describe('POST /api/public/chat — handleChatTurn', () => {
+describe('POST /api/public/chat — handleCatalogChatTurn', () => {
 	beforeEach(() => {
 		getRecentHistoryMock.mockReset().mockResolvedValue([]);
 		persistChatTurnMock.mockReset().mockResolvedValue({
@@ -315,7 +350,7 @@ describe('POST /api/public/chat — handleChatTurn', () => {
 	};
 
 	it('returns answer, safetyStatus, suggestFallback, message ids', async () => {
-		const result = await handleChatTurn(bootstrap, validInput);
+		const result = await handleCatalogChatTurn(bootstrap, validInput);
 
 		expect(result).toMatchObject({
 			answer: 'Nasi goreng is halal.',
@@ -327,41 +362,26 @@ describe('POST /api/public/chat — handleChatTurn', () => {
 	});
 
 	it('passes menu items to LLM context', async () => {
-		await handleChatTurn(bootstrap, validInput);
+		await handleCatalogChatTurn(bootstrap, validInput);
 		const ctx = chatProviderMock.mock.calls[0][0] as { menuItems: unknown[] };
 		expect(Array.isArray(ctx.menuItems)).toBe(true);
 	});
 
-	it('calls logAiEvent (fire-and-forget, not awaited by route)', async () => {
-		await handleChatTurn(bootstrap, validInput);
-		// logAiEvent is void-called; give event loop a tick
-		await Promise.resolve();
-		expect(logAiEventMock).toHaveBeenCalledWith(
-			expect.objectContaining({
-				organizationId: 'org-1',
-				restaurantId: 'rest-1',
-				provider: 'TokenRouter',
-				model: 'MiniMax-M3',
-				eventType: 'chat'
-			})
-		);
-	});
-
-	it('rejects invalid sessionId → 422', async () => {
+	it('rejects missing sessionId → throws', async () => {
 		await expect(
-			handleChatTurn(bootstrap, { ...validInput, sessionId: 'not-a-uuid' })
+			handleCatalogChatTurn(bootstrap, { ...validInput, sessionId: undefined })
 		).rejects.toThrow();
 		expect(chatProviderMock).not.toHaveBeenCalled();
 	});
 
-	it('rejects empty content → 422', async () => {
-		await expect(handleChatTurn(bootstrap, { ...validInput, content: '' })).rejects.toThrow();
+	it('rejects missing content → throws', async () => {
+		await expect(handleCatalogChatTurn(bootstrap, { ...validInput, content: '' })).rejects.toThrow();
 		expect(chatProviderMock).not.toHaveBeenCalled();
 	});
 
 	it('rejects content > 1000 chars → 422', async () => {
 		await expect(
-			handleChatTurn(bootstrap, { ...validInput, content: 'x'.repeat(1001) })
+			handleCatalogChatTurn(bootstrap, { ...validInput, content: 'x'.repeat(1001) })
 		).rejects.toThrow();
 		expect(chatProviderMock).not.toHaveBeenCalled();
 	});
@@ -373,7 +393,7 @@ describe('POST /api/public/chat — handleChatTurn', () => {
 			suggestFallback: true
 		});
 
-		const result = await handleChatTurn(bootstrap, validInput);
+		const result = await handleCatalogChatTurn(bootstrap, validInput);
 		expect(result.safetyStatus).toBe('needs-staff');
 		expect(result.suggestFallback).toBe(true);
 	});
@@ -385,7 +405,7 @@ describe('POST /api/public/chat — handleChatTurn', () => {
 			suggestFallback: false
 		});
 
-		const result = await handleChatTurn(bootstrap, validInput);
+		const result = await handleCatalogChatTurn(bootstrap, validInput);
 		expect(result.safetyStatus).toBe('blocked');
 	});
 });

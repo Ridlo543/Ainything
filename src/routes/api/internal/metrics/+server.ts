@@ -10,7 +10,7 @@
  * Auth: requires a valid session cookie (same auth as dashboard).
  * This endpoint is for internal dashboard use only — not a public API.
  *
- * Response shape: { metrics: Record<restaurantId, RestaurantMetrics>, windowDays: number }
+ * Response shape: { metrics: Record<outletId, OutletMetrics>, windowDays: number }
  */
 
 import { json, error } from '@sveltejs/kit';
@@ -37,9 +37,10 @@ export const GET: RequestHandler = async ({ locals, url, request }) => {
 	);
 
 	const tenant = await resolveTenantContext(locals.user);
-	const restaurantIds = tenant.restaurants.map((r) => r.id);
+	// Use legacy restaurants array for backward compat — contains all outlets for this org.
+	const outletIds = tenant.restaurants.map((r) => r.id);
 
-	const metricsMap = await getOrganizationMetrics(restaurantIds, windowDays);
+	const metricsMap = await getOrganizationMetrics(outletIds, windowDays);
 
 	const metrics: Record<string, unknown> = {};
 	for (const [id, m] of metricsMap) {

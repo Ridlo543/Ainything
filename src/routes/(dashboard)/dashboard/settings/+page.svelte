@@ -9,12 +9,15 @@
 		Check,
 		Globe,
 		Building2,
-		MapPin
+		MapPin,
+		ShoppingCart,
+		MessageCircle
 	} from '@lucide/svelte';
+	import QrCodeDisplay from '$lib/ui/primitives/QrCodeDisplay.svelte';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const org = $derived(data.tenant.organization);
-	const restaurant = $derived(data.tenant.activeRestaurant);
+	const outlet = $derived(data.tenant.activeOutlet);
 	const settings = $derived(data.settings);
 
 	let bizName = $state('');
@@ -22,11 +25,21 @@
 	let bizDesc = $state('');
 	let bizLocation = $state('');
 
+	// Checkout settings — editable local form state, init alongside biz fields.
+	let checkoutMode = $state<'offline' | 'online'>('offline');
+	let requireBuyerWhatsapp = $state(false);
+	let paymentConfirmationEnabled = $state(false);
+	let checkoutSaving = $state(false);
+	let checkoutSaved = $state(false);
+
 	$effect(() => {
 		bizName = settings.name ?? '';
-		bizSlug = settings.slug ?? restaurant.slug ?? '';
+		bizSlug = settings.slug ?? outlet.slug ?? '';
 		bizDesc = settings.description ?? '';
 		bizLocation = settings.location ?? '';
+		checkoutMode = settings.checkoutMode ?? 'offline';
+		requireBuyerWhatsapp = settings.requireBuyerWhatsapp ?? false;
+		paymentConfirmationEnabled = settings.paymentConfirmationEnabled ?? false;
 	});
 
 	let copied = $state(false);
@@ -41,7 +54,9 @@
 		}
 	});
 
-	const catalogUrl = $derived(`https://lingua.app/r/${bizSlug}`);
+	// Use the outlet's real public host (e.g. outlet.publicHost = "bali-table.ainything.online")
+	// and construct the catalog URL from the outlet slug path.
+	const catalogUrl = $derived(`https://${outlet.publicHost}/r/${bizSlug}`);
 
 	function copyLink() {
 		navigator.clipboard.writeText(catalogUrl);
@@ -115,7 +130,7 @@
 					>
 						<span
 							class="flex items-center border-r border-[#f0eeec] px-3 text-sm text-[#a8a29e] whitespace-nowrap"
-							>lingua.app/r/</span
+							>ainything.online/r/</span
 						>
 						<input
 							id="biz-slug"
@@ -184,17 +199,11 @@
 			<div class="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
 				<!-- QR Preview -->
 				<div class="flex shrink-0 flex-col items-center gap-3">
-					<div
-						class="flex h-36 w-36 items-center justify-center rounded-2xl border-2 border-dashed border-[#f0eeec] bg-[#fafaf9]"
-					>
-						<QrCode size={64} class="text-[#1a1a2e]" />
-					</div>
-					<button
-						type="button"
-						class="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-[#f0eeec] px-4 text-xs font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
-					>
-						Download QR
-					</button>
+					<QrCodeDisplay
+						url={catalogUrl}
+						label="Katalog {outlet.name}"
+						size={144}
+					/>
 				</div>
 				<!-- Link info -->
 				<div class="flex-1 space-y-4">
@@ -235,6 +244,132 @@
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<!-- Checkout settings -->
+	<div class="rounded-2xl bg-white shadow-sm">
+		<div class="border-b border-[#f5f5f4] px-6 py-4">
+			<h2 class="flex items-center gap-2 text-sm font-bold text-[#1a1a2e]">
+				<ShoppingCart size={16} class="text-[#059669]" /> Pengaturan Checkout
+			</h2>
+		</div>
+		<form
+			method="POST"
+			action="?/checkout"
+			use:enhance={() => {
+				checkoutSaving = true;
+				return async ({ update }) => {
+					checkoutSaving = false;
+					checkoutSaved = true;
+					setTimeout(() => (checkoutSaved = false), 2000);
+					await update();
+				};
+			}}
+			class="p-6 space-y-5"
+		>
+			<!-- Hidden fields carrying current state -->
+			<input type="hidden" name="checkoutMode" value={checkoutMode} />
+			<input type="hidden" name="requireBuyerWhatsapp" value={String(requireBuyerWhatsapp)} />
+			<input type="hidden" name="paymentConfirmationEnabled" value={String(paymentConfirmationEnabled)} />
+
+			<!-- Mode toggle -->
+			<div>
+				<p class="text-sm font-semibold text-[#1a1a2e] mb-2">Mode Pembayaran</p>
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						type="button"
+						onclick={() => (checkoutMode = 'offline')}
+						class="flex flex-col items-start gap-1 rounded-xl border-2 px-4 py-3 text-left transition-colors {checkoutMode === 'offline'
+							? 'border-[#059669] bg-[#ecfdf5]'
+							: 'border-[#f0eeec] hover:border-[#d6d3d1]'}"
+					>
+						<span class="text-sm font-semibold text-[#1a1a2e]">Offline</span>
+						<span class="text-xs text-[#78716c]">Bayar ke kasir</span>
+					</button>
+					<button
+						type="button"
+						onclick={() => (checkoutMode = 'online')}
+						class="flex flex-col items-start gap-1 rounded-xl border-2 px-4 py-3 text-left transition-colors {checkoutMode === 'online'
+							? 'border-[#059669] bg-[#ecfdf5]'
+							: 'border-[#f0eeec] hover:border-[#d6d3d1]'}"
+					>
+						<span class="text-sm font-semibold text-[#1a1a2e]">Online</span>
+						<span class="text-xs text-[#78716c]">Upload bukti bayar</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Require WhatsApp toggle -->
+			<label class="flex min-h-[44px] items-center justify-between gap-3 cursor-pointer">
+				<div>
+					<p class="text-sm font-semibold text-[#1a1a2e] flex items-center gap-1.5">
+						<MessageCircle size={14} class="text-[#059669]" /> Wajib nomor WhatsApp
+					</p>
+					<p class="text-xs text-[#78716c] mt-0.5">Pembeli harus isi nomor WA saat checkout</p>
+				</div>
+				<button
+						type="button"
+						role="switch"
+						aria-checked={requireBuyerWhatsapp}
+						aria-label="Wajib nomor WhatsApp"
+						onclick={() => (requireBuyerWhatsapp = !requireBuyerWhatsapp)}
+					class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-2 {requireBuyerWhatsapp
+						? 'bg-[#059669]'
+						: 'bg-[#d6d3d1]'}"
+				>
+					<span
+						class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform {requireBuyerWhatsapp
+							? 'translate-x-5'
+							: 'translate-x-0'}"
+					></span>
+				</button>
+			</label>
+
+			<!-- Konfirmasi pembayaran toggle (online only) -->
+			{#if checkoutMode === 'online'}
+				<label class="flex min-h-[44px] items-center justify-between gap-3 cursor-pointer">
+					<div>
+						<p class="text-sm font-semibold text-[#1a1a2e]">Konfirmasi pembayaran manual</p>
+						<p class="text-xs text-[#78716c] mt-0.5">Staf harus konfirmasi bukti bayar sebelum pesanan diproses</p>
+					</div>
+					<button
+						type="button"
+						role="switch"
+						aria-checked={paymentConfirmationEnabled}
+						aria-label="Konfirmasi pembayaran manual"
+						onclick={() => (paymentConfirmationEnabled = !paymentConfirmationEnabled)}
+						class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-2 {paymentConfirmationEnabled
+							? 'bg-[#059669]'
+							: 'bg-[#d6d3d1]'}"
+					>
+						<span
+							class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform {paymentConfirmationEnabled
+								? 'translate-x-5'
+								: 'translate-x-0'}"
+						></span>
+					</button>
+				</label>
+			{/if}
+
+			{#if form?.error}
+				<p class="text-sm text-red-600">{form.error}</p>
+			{/if}
+
+			<button
+				type="submit"
+				disabled={checkoutSaving}
+				class="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-[#059669] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#047857] disabled:opacity-50"
+			>
+				{#if checkoutSaved}
+					<Check size={16} /> Tersimpan
+				{:else if checkoutSaving}
+					<div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+					Menyimpan...
+				{:else}
+					<Save size={16} /> Simpan Pengaturan Checkout
+				{/if}
+			</button>
+		</form>
 	</div>
 
 	<!-- Billing / plan -->

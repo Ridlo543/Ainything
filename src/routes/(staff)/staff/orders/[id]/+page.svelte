@@ -4,7 +4,7 @@
 	import * as Badge from '$lib/ui/badge';
 	import * as Button from '$lib/ui/button';
 	import * as Separator from '$lib/ui/separator';
-	import { ArrowLeft, Clock, CheckCircle, XCircle, ChefHat, Package } from '@lucide/svelte';
+	import { ArrowLeft, Clock, CheckCircle, XCircle, ChefHat, Package, Phone, Image, Check, X } from '@lucide/svelte';
 	import OrderStatusTimeline from '$lib/ui/OrderStatusTimeline.svelte';
 	import type { PageData, ActionData } from './$types';
 	import type { OrderStatus } from '$lib/domain/order/types';
@@ -86,7 +86,7 @@
 			<ArrowLeft size={20} />
 		</a>
 		<div class="flex-1">
-			<h1 class="text-xl font-bold">Pesanan #{order.id.slice(0, 8)}</h1>
+			<h1 class="text-xl font-bold">Pesanan #{ String(order.orderNumber).padStart(4, '0')}</h1>
 			<p class="text-sm text-muted-foreground">{formatDateTime(order.createdAt)}</p>
 		</div>
 		<Badge.Badge variant={config.variant}>
@@ -160,6 +160,71 @@
 			<Card.Content>
 				<p class="text-sm text-muted-foreground">Catatan:</p>
 				<p class="text-sm italic">"{order.notes}"</p>
+			</Card.Content>
+		</Card.Root>
+	{/if}
+
+	<!-- Payment section: buyer WA + proof + confirm/reject -->
+	{#if order.buyerWhatsapp || order.paymentProofUrl}
+		<Card.Root>
+			<Card.Content class="space-y-3">
+				<p class="text-sm font-semibold">Pembayaran</p>
+
+				{#if order.buyerWhatsapp}
+					<a
+						href="https://wa.me/{order.buyerWhatsapp.replace(/\D/g, '')}"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex min-h-[44px] items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800 hover:bg-green-100"
+					>
+						<Phone size={14} class="shrink-0" />
+						Hubungi via WA: {order.buyerWhatsapp}
+					</a>
+				{/if}
+
+				{#if order.paymentProofUrl}
+					<div class="space-y-2">
+						<p class="text-xs text-muted-foreground">Bukti pembayaran:</p>
+						<a href={order.paymentProofUrl} target="_blank" rel="noopener noreferrer">
+							<img
+								src={order.paymentProofUrl}
+								alt="Bukti pembayaran"
+								class="h-32 w-auto rounded-lg object-cover"
+							/>
+						</a>
+					</div>
+				{/if}
+
+				{#if order.paymentConfirmedAt}
+					<div class="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2">
+						<Check size={14} class="shrink-0 text-emerald-600" />
+						<p class="text-sm text-emerald-700">Pembayaran dikonfirmasi</p>
+					</div>
+				{:else if order.paymentRejectedAt}
+					<div class="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
+						<X size={14} class="shrink-0 text-red-600" />
+						<p class="text-sm text-red-700">Pembayaran ditolak</p>
+					</div>
+				{:else if order.paymentProofUrl}
+					<!-- Proof uploaded but not yet actioned — show confirm/reject buttons -->
+					{#if form?.error}
+						<p class="text-sm text-destructive">{form.error}</p>
+					{/if}
+					<div class="flex gap-2">
+						<form method="POST" action="?/confirmPayment" use:enhance class="flex-1">
+							<input type="hidden" name="orderId" value={order.id} />
+							<Button.Root type="submit" class="w-full tap-target" variant="default">
+								<Check size={14} class="mr-1" /> Konfirmasi
+							</Button.Root>
+						</form>
+						<form method="POST" action="?/rejectPayment" use:enhance class="flex-1">
+							<input type="hidden" name="orderId" value={order.id} />
+							<Button.Root type="submit" class="w-full tap-target" variant="destructive">
+								<X size={14} class="mr-1" /> Tolak
+							</Button.Root>
+						</form>
+					</div>
+				{/if}
 			</Card.Content>
 		</Card.Root>
 	{/if}

@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { RequestHandler } from './$types';
-import { resolvePublicMenu } from '$lib/server/tenant/public-context';
+import { resolvePublicCatalogMenu } from '$lib/server/tenant/public-context';
 import { createCustomerSessionForTable } from '$lib/server/services/customer-session-service';
 import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 
@@ -17,10 +17,15 @@ import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-h
  */
 const bodySchema = z
 	.object({
-		restaurantSlug: z.string().trim().min(1).max(120),
+		// Accept both outletSlug (new) and restaurantSlug (legacy clients) for backward compat.
+		outletSlug: z.string().trim().min(1).max(120).optional(),
+		restaurantSlug: z.string().trim().min(1).max(120).optional(),
 		tableCode: z.string().trim().min(1).max(60)
 	})
-	.passthrough();
+	.passthrough()
+	.refine((d) => d.outletSlug ?? d.restaurantSlug, {
+		message: 'outletSlug or restaurantSlug is required'
+	});
 
 export const POST: RequestHandler = async ({ request }) => {
 	await applyRateLimit('session-create', request);
@@ -40,7 +45,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(400, 'Missing or invalid restaurant/table identity.');
 	}
 
-	const bootstrap = await resolvePublicMenu(parsed.data.restaurantSlug, parsed.data.tableCode);
+	// Support both outletSlug (new) and restaurantSlug (legacy clients).
+	const slug = parsed.data.outletSlug ?? parsed.data.restaurantSlug!;
+	const bootstrap = await resolvePublicCatalogMenu(slug, parsed.data.tableCode);
 
 	if (!bootstrap) {
 		error(404, 'Menu not found for this restaurant and table.');

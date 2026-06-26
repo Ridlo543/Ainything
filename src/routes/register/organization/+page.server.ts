@@ -2,7 +2,6 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { authProvider } from '$lib/server/auth/auth-factory';
-import { appEnv } from '$lib/server/config/env';
 import { isOrganizationSlugAvailable } from '$lib/server/repositories/onboarding-repository';
 
 // Local slugify (mirrors onboarding-repository.ts implementation)
@@ -32,15 +31,11 @@ export const load: PageServerLoad = ({ locals }) => {
 		}
 		redirect(303, '/register/restaurant/setup');
 	}
-	return { isMock: appEnv.authProvider === 'mock' };
+	return {};
 };
 
 export const actions: Actions = {
 	register: async ({ request }) => {
-		if (appEnv.authProvider === 'mock') {
-			return fail(400, { message: 'Registration is disabled in demo mode.' });
-		}
-
 		const formData = await request.formData();
 		const parseResult = registerSchema.safeParse({
 			name: formData.get('name'),
@@ -62,17 +57,15 @@ export const actions: Actions = {
 
 		// Check org slug availability before registering the auth user.
 		// Better UX: surface the conflict before creating the auth account.
-		if (appEnv.databaseUrl) {
-			const orgSlug = slugify(organizationName);
-			const orgAvailable = await isOrganizationSlugAvailable(orgSlug).catch(() => true);
-			if (!orgAvailable) {
-				return fail(400, {
-					message: 'That organization name is already taken. Try a different name.',
-					email,
-					name,
-					organizationName
-				});
-			}
+		const orgSlug = slugify(organizationName);
+		const orgAvailable = await isOrganizationSlugAvailable(orgSlug).catch(() => true);
+		if (!orgAvailable) {
+			return fail(400, {
+				message: 'That organization name is already taken. Try a different name.',
+				email,
+				name,
+				organizationName
+			});
 		}
 
 		try {
@@ -82,8 +75,7 @@ export const actions: Actions = {
 			return fail(400, { message, email, name, organizationName });
 		}
 
-		// After email verification, auth/callback redirects to /register/restaurant/setup
-		// which provisions the org + first restaurant in one transaction.
+		// After successful registration, redirect to confirmation page.
 		redirect(303, '/register/confirm');
 	}
 };

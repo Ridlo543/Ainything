@@ -10,7 +10,9 @@
 		X,
 		RotateCcw,
 		MapPin,
-		FileText
+		FileText,
+		Phone,
+		Image
 	} from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
@@ -42,7 +44,8 @@
 	}
 
 	function selectOrder(order: (typeof allOrders)[0]) {
-		goto(`?order=${order.id}`, { keepFocus: true, noScroll: true });
+		// Use fullId (UUID) — order.id contains '#0042' which corrupts the URL as a fragment anchor.
+		goto(`?order=${order.fullId}`, { keepFocus: true, noScroll: true });
 	}
 
 	const statusCfg: Record<string, { label: string; bg: string; text: string }> = {
@@ -136,7 +139,7 @@
 								</div>
 								<div class="min-w-0 flex-1">
 									<div class="flex items-center gap-2">
-										<span class="font-bold text-[#1a1a2e]">#{order.id}</span>
+										<span class="font-bold text-[#1a1a2e]">{order.id}</span>
 										<span
 											class="rounded-full px-2 py-0.5 text-[10px] font-bold {statusCfg[order.status]
 												.bg} {statusCfg[order.status].text}">{statusCfg[order.status].label}</span
@@ -169,7 +172,7 @@
 		<div class="rounded-2xl bg-white shadow-sm">
 			{#if selectedOrder}
 				<div class="flex items-center justify-between border-b border-[#f5f5f4] px-5 py-4">
-					<h2 class="text-sm font-bold text-[#1a1a2e]">Detail Pesanan #{selectedOrder.id}</h2>
+					<h2 class="text-sm font-bold text-[#1a1a2e]">Detail Pesanan {selectedOrder.id}</h2>
 					<button
 						type="button"
 						onclick={() => goto('?', { keepFocus: true, noScroll: true })}
@@ -234,6 +237,85 @@
 							>
 						</div>
 					</div>
+
+					<!-- Buyer info + payment proof (online mode) -->
+					{#if selectedOrder.buyerWhatsapp || selectedOrder.paymentProofUrl}
+						<div class="space-y-3">
+							<p class="text-xs font-bold uppercase tracking-wide text-[#78716c]">Pembayaran</p>
+
+							{#if selectedOrder.buyerWhatsapp}
+								<div class="flex items-center justify-between rounded-xl bg-[#fafaf9] px-4 py-3">
+									<div class="flex items-center gap-2">
+										<Phone size={14} class="text-[#059669]" />
+										<span class="text-xs text-[#78716c]">WhatsApp Pembeli</span>
+									</div>
+									<a
+										href="https://wa.me/{selectedOrder.buyerWhatsapp.replace(/\D/g, '')}"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-xs font-semibold text-[#059669] hover:underline"
+									>
+										{selectedOrder.buyerWhatsapp}
+									</a>
+								</div>
+							{/if}
+
+							{#if selectedOrder.paymentProofUrl}
+								<div class="space-y-2">
+									<div class="flex items-center gap-2">
+										<Image size={14} class="text-[#78716c]" />
+										<span class="text-xs text-[#78716c]">Bukti Transfer</span>
+									</div>
+									<a
+										href={selectedOrder.paymentProofUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="block overflow-hidden rounded-xl border border-[#f0eeec]"
+									>
+										<img
+											src={selectedOrder.paymentProofUrl}
+											alt="Bukti transfer"
+											class="w-full object-cover"
+											style="max-height: 200px"
+										/>
+									</a>
+
+									{#if selectedOrder.paymentConfirmedAt}
+										<div class="flex items-center gap-2 rounded-xl bg-[#d1fae5] px-4 py-2.5">
+											<Check size={14} class="text-[#059669]" />
+											<span class="text-xs font-semibold text-[#059669]">Pembayaran dikonfirmasi</span>
+										</div>
+									{:else if selectedOrder.paymentRejectedAt}
+										<div class="flex items-center gap-2 rounded-xl bg-[#fef2f2] px-4 py-2.5">
+											<X size={14} class="text-[#dc2626]" />
+											<span class="text-xs font-semibold text-[#dc2626]">Bukti ditolak</span>
+										</div>
+									{:else if data.paymentConfirmationEnabled}
+										<div class="grid grid-cols-2 gap-2">
+											<form method="POST" action="?/confirmPayment" use:enhance>
+												<input type="hidden" name="orderId" value={selectedOrder.fullId} />
+												<button
+													type="submit"
+													class="flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-[#059669] text-xs font-bold text-white hover:bg-[#047857] transition-colors"
+												>
+													<Check size={14} /> Konfirmasi
+												</button>
+											</form>
+											<form method="POST" action="?/rejectPayment" use:enhance>
+												<input type="hidden" name="orderId" value={selectedOrder.fullId} />
+												<button
+													type="submit"
+													class="flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl border border-[#f0eeec] text-xs font-semibold text-[#dc2626] hover:bg-[#fef2f2] transition-colors"
+												>
+													<X size={14} /> Tolak
+												</button>
+											</form>
+										</div>
+									{/if}
+								</div>
+							{/if}
+						</div>
+					{/if}
 
 					<!-- Actions -->
 					{#if selectedOrder.status === 'pending'}

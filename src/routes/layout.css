@@ -9,29 +9,29 @@
 		-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 	--font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
 
-	--color-lingua-bg: #fafaf9;
-	--color-lingua-surface: #ffffff;
-	--color-lingua-muted: #f5f5f4;
-	--color-lingua-text: #1a1a2e;
-	--color-lingua-subtle: #78716c;
-	--color-lingua-border: #e7e5e4;
-	--color-lingua-primary: #059669;
-	--color-lingua-primary-strong: #047857;
-	--color-lingua-primary-soft: #d1fae5;
-	--color-lingua-secondary: #f59e0b;
-	--color-lingua-secondary-strong: #d97706;
-	--color-lingua-secondary-soft: #fef3c7;
-	--color-lingua-accent: #ec4899;
-	--color-lingua-accent-strong: #db2777;
-	--color-lingua-accent-soft: #fce7f3;
-	--color-lingua-success: #059669;
-	--color-lingua-success-soft: #ecfdf5;
-	--color-lingua-warning: #d97706;
-	--color-lingua-warning-soft: #fffbeb;
-	--color-lingua-danger: #dc2626;
-	--color-lingua-danger-soft: #fef2f2;
-	--color-lingua-info: #2563eb;
-	--color-lingua-info-soft: #eff6ff;
+	--color-ainything-bg: #fafaf9;
+	--color-ainything-surface: #ffffff;
+	--color-ainything-muted: #f5f5f4;
+	--color-ainything-text: #1a1a2e;
+	--color-ainything-subtle: #78716c;
+	--color-ainything-border: #e7e5e4;
+	--color-ainything-primary: #059669;
+	--color-ainything-primary-strong: #047857;
+	--color-ainything-primary-soft: #d1fae5;
+	--color-ainything-secondary: #f59e0b;
+	--color-ainything-secondary-strong: #d97706;
+	--color-ainything-secondary-soft: #fef3c7;
+	--color-ainything-accent: #ec4899;
+	--color-ainything-accent-strong: #db2777;
+	--color-ainything-accent-soft: #fce7f3;
+	--color-ainything-success: #059669;
+	--color-ainything-success-soft: #ecfdf5;
+	--color-ainything-warning: #d97706;
+	--color-ainything-warning-soft: #fffbeb;
+	--color-ainything-danger: #dc2626;
+	--color-ainything-danger-soft: #fef2f2;
+	--color-ainything-info: #2563eb;
+	--color-ainything-info-soft: #eff6ff;
 
 	--radius-sm: 0.5rem;
 	--radius-md: 0.75rem;
@@ -56,34 +56,34 @@
 }
 
 [data-theme='dark'] {
-	--color-lingua-bg: #0c0a09;
-	--color-lingua-surface: #1c1917;
-	--color-lingua-muted: #292524;
-	--color-lingua-text: #f5f5f4;
-	--color-lingua-subtle: #a8a29e;
-	--color-lingua-border: #44403c;
-	--color-lingua-primary: #34d399;
-	--color-lingua-primary-strong: #10b981;
-	--color-lingua-primary-soft: #064e3b;
-	--color-lingua-secondary: #fbbf24;
-	--color-lingua-secondary-strong: #f59e0b;
-	--color-lingua-secondary-soft: #78350f;
-	--color-lingua-accent: #f472b6;
-	--color-lingua-accent-strong: #ec4899;
-	--color-lingua-accent-soft: #831843;
-	--color-lingua-success: #059669;
-	--color-lingua-success-soft: #064e3b;
-	--color-lingua-warning: #fbbf24;
-	--color-lingua-warning-soft: #78350f;
-	--color-lingua-danger: #f87171;
-	--color-lingua-danger-soft: #7f1d1d;
-	--color-lingua-info: #60a5fa;
-	--color-lingua-info-soft: #1e3a8a;
+	--color-ainything-bg: #0c0a09;
+	--color-ainything-surface: #1c1917;
+	--color-ainything-muted: #292524;
+	--color-ainything-text: #f5f5f4;
+	--color-ainything-subtle: #a8a29e;
+	--color-ainything-border: #44403c;
+	--color-ainything-primary: #34d399;
+	--color-ainything-primary-strong: #10b981;
+	--color-ainything-primary-soft: #064e3b;
+	--color-ainything-secondary: #fbbf24;
+	--color-ainything-secondary-strong: #f59e0b;
+	--color-ainything-secondary-soft: #78350f;
+	--color-ainything-accent: #f472b6;
+	--color-ainything-accent-strong: #ec4899;
+	--color-ainything-accent-soft: #831843;
+	--color-ainything-success: #059669;
+	--color-ainything-success-soft: #064e3b;
+	--color-ainything-warning: #fbbf24;
+	--color-ainything-warning-soft: #78350f;
+	--color-ainything-danger: #f87171;
+	--color-ainything-danger-soft: #7f1d1d;
+	--color-ainything-info: #60a5fa;
+	--color-ainything-info-soft: #1e3a8a;
 }
 
 :root {
-	color: var(--color-lingua-text);
-	background: var(--color-lingua-bg);
+	color: var(--color-ainything-text);
+	background: var(--color-ainything-bg);
 	font-family: var(--font-sans);
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -93,76 +93,76 @@
 
 	/* ── shadcn-svelte CSS variable bridge ──────────────────────────────────
 	   shadcn-svelte components use these standard names internally.
-	   We map them to lingua-* tokens so all copied components automatically
+	   We map them to ainything-* tokens so all copied components automatically
 	   use the Fresh Growth palette without any modification.
 	   ────────────────────────────────────────────────────────────────────── */
-	--background: var(--color-lingua-bg);
-	--foreground: var(--color-lingua-text);
-	--card: var(--color-lingua-surface);
-	--card-foreground: var(--color-lingua-text);
-	--popover: var(--color-lingua-surface);
-	--popover-foreground: var(--color-lingua-text);
-	--primary: var(--color-lingua-primary);
+	--background: var(--color-ainything-bg);
+	--foreground: var(--color-ainything-text);
+	--card: var(--color-ainything-surface);
+	--card-foreground: var(--color-ainything-text);
+	--popover: var(--color-ainything-surface);
+	--popover-foreground: var(--color-ainything-text);
+	--primary: var(--color-ainything-primary);
 	--primary-foreground: #ffffff;
-	--secondary: var(--color-lingua-secondary-soft);
-	--secondary-foreground: var(--color-lingua-text);
-	--muted: var(--color-lingua-muted);
-	--muted-foreground: var(--color-lingua-subtle);
-	--accent: var(--color-lingua-muted);
-	--accent-foreground: var(--color-lingua-text);
-	--destructive: var(--color-lingua-danger);
+	--secondary: var(--color-ainything-secondary-soft);
+	--secondary-foreground: var(--color-ainything-text);
+	--muted: var(--color-ainything-muted);
+	--muted-foreground: var(--color-ainything-subtle);
+	--accent: var(--color-ainything-muted);
+	--accent-foreground: var(--color-ainything-text);
+	--destructive: var(--color-ainything-danger);
 	--destructive-foreground: #ffffff;
-	--border: var(--color-lingua-border);
-	--input: var(--color-lingua-border);
-	--ring: var(--color-lingua-primary);
+	--border: var(--color-ainything-border);
+	--input: var(--color-ainything-border);
+	--ring: var(--color-ainything-primary);
 	--radius: var(--radius-sm);
 	/* Sidebar tokens (used by shadcn sidebar component) */
-	--sidebar: var(--color-lingua-surface);
-	--sidebar-foreground: var(--color-lingua-text);
-	--sidebar-primary: var(--color-lingua-primary);
+	--sidebar: var(--color-ainything-surface);
+	--sidebar-foreground: var(--color-ainything-text);
+	--sidebar-primary: var(--color-ainything-primary);
 	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: var(--color-lingua-muted);
-	--sidebar-accent-foreground: var(--color-lingua-text);
-	--sidebar-border: var(--color-lingua-border);
-	--sidebar-ring: var(--color-lingua-primary);
+	--sidebar-accent: var(--color-ainything-muted);
+	--sidebar-accent-foreground: var(--color-ainything-text);
+	--sidebar-border: var(--color-ainything-border);
+	--sidebar-ring: var(--color-ainything-primary);
 }
 
 [data-theme='dark'] {
 	color-scheme: dark;
 
 	/* shadcn-svelte dark mode bridge */
-	--background: var(--color-lingua-bg);
-	--foreground: var(--color-lingua-text);
-	--card: var(--color-lingua-surface);
-	--card-foreground: var(--color-lingua-text);
-	--popover: var(--color-lingua-surface);
-	--popover-foreground: var(--color-lingua-text);
-	--primary: var(--color-lingua-primary);
+	--background: var(--color-ainything-bg);
+	--foreground: var(--color-ainything-text);
+	--card: var(--color-ainything-surface);
+	--card-foreground: var(--color-ainything-text);
+	--popover: var(--color-ainything-surface);
+	--popover-foreground: var(--color-ainything-text);
+	--primary: var(--color-ainything-primary);
 	--primary-foreground: #0c0a09;
-	--secondary: var(--color-lingua-secondary-soft);
-	--secondary-foreground: var(--color-lingua-text);
-	--muted: var(--color-lingua-muted);
-	--muted-foreground: var(--color-lingua-subtle);
-	--accent: var(--color-lingua-muted);
-	--accent-foreground: var(--color-lingua-text);
-	--destructive: var(--color-lingua-danger);
+	--secondary: var(--color-ainything-secondary-soft);
+	--secondary-foreground: var(--color-ainything-text);
+	--muted: var(--color-ainything-muted);
+	--muted-foreground: var(--color-ainything-subtle);
+	--accent: var(--color-ainything-muted);
+	--accent-foreground: var(--color-ainything-text);
+	--destructive: var(--color-ainything-danger);
 	--destructive-foreground: #ffffff;
-	--border: var(--color-lingua-border);
-	--input: var(--color-lingua-border);
-	--ring: var(--color-lingua-primary);
-	--sidebar: var(--color-lingua-surface);
-	--sidebar-foreground: var(--color-lingua-text);
-	--sidebar-primary: var(--color-lingua-primary);
+	--border: var(--color-ainything-border);
+	--input: var(--color-ainything-border);
+	--ring: var(--color-ainything-primary);
+	--sidebar: var(--color-ainything-surface);
+	--sidebar-foreground: var(--color-ainything-text);
+	--sidebar-primary: var(--color-ainything-primary);
 	--sidebar-primary-foreground: #0c0a09;
-	--sidebar-accent: var(--color-lingua-muted);
-	--sidebar-accent-foreground: var(--color-lingua-text);
-	--sidebar-border: var(--color-lingua-border);
-	--sidebar-ring: var(--color-lingua-primary);
+	--sidebar-accent: var(--color-ainything-muted);
+	--sidebar-accent-foreground: var(--color-ainything-text);
+	--sidebar-border: var(--color-ainything-border);
+	--sidebar-ring: var(--color-ainything-primary);
 }
 
 html {
 	min-width: 320px;
-	background: var(--color-lingua-bg);
+	background: var(--color-ainything-bg);
 	scroll-behavior: smooth;
 }
 
@@ -175,7 +175,7 @@ html {
 body {
 	margin: 0;
 	min-height: 100vh;
-	background: var(--color-lingua-bg);
+	background: var(--color-ainything-bg);
 	transition:
 		background-color 0.2s ease,
 		color 0.2s ease;
@@ -221,15 +221,15 @@ img {
 }
 
 .surface {
-	border: 1px solid var(--color-lingua-border);
-	background: var(--color-lingua-surface);
+	border: 1px solid var(--color-ainything-border);
+	background: var(--color-ainything-surface);
 	box-shadow: var(--shadow-sm);
 	border-radius: var(--radius-md);
 }
 
 [data-theme='dark'] .surface {
-	border-color: var(--color-lingua-border);
-	background: var(--color-lingua-surface);
+	border-color: var(--color-ainything-border);
+	background: var(--color-ainything-surface);
 	box-shadow: var(--shadow-md);
 }
 

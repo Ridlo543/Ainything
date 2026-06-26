@@ -1,13 +1,15 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
-import { appEnv } from '$lib/server/config/env';
-import { withTransaction } from '$lib/server/db/postgres';
 import {
-	listOrdersForRestaurant,
-	findOrderById,
+	listOrdersWithItems,
 	updateOrderStatus
 } from '$lib/server/repositories/order-repository';
+import { getPool } from '$lib/server/db/postgres';
 import type { OrderStatus, OrderWithItems } from '$lib/domain/order/types';
+import {
+	notifyBuyerPaymentConfirmed,
+	notifyBuyerPaymentRejected
+} from '$lib/server/services/order-notification-service';
 
 function timeAgo(date: Date): string {
 	const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -21,8 +23,9 @@ function timeAgo(date: Date): string {
 
 function mapOrderForUI(order: OrderWithItems) {
 	return {
-		id: order.id.slice(0, 8),
+		id: `#${String(order.orderNumber).padStart(4, '0')}`,
 		fullId: order.id,
+		orderNumber: order.orderNumber,
 		table: order.tableCode ? `Meja ${order.tableCode}` : order.customerName || 'Takeaway',
 		location: order.tableCode ? 'Main Dining' : '',
 		items: order.items.map((i) => ({ name: i.name, qty: i.quantity, note: i.notes || '' })),
@@ -31,176 +34,216 @@ function mapOrderForUI(order: OrderWithItems) {
 			order.status === 'new' ? 'pending' : order.status === 'completed' ? 'done' : order.status,
 		rawStatus: order.status,
 		time: timeAgo(new Date(order.createdAt)),
-		ts: new Date(order.createdAt)
+		ts: new Date(order.createdAt),
+		// Payment fields for online mode
+		buyerWhatsapp: order.buyerWhatsapp ?? null,
+		paymentProofUrl: order.paymentProofUrl ?? null,
+		paymentConfirmedAt: order.paymentConfirmedAt ?? null,
+		paymentRejectedAt: order.paymentRejectedAt ?? null,
+		paymentNotes: order.paymentNotes ?? null
 	};
 }
 
 export const load: PageServerLoad = async ({ parent, url }) => {
 	const { tenant } = await parent();
 	const org = tenant.organization;
-	const restaurant = tenant.activeRestaurant;
+	const outlet = tenant.activeOutlet;
 	const selectedId = url.searchParams.get('order');
 
-	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
-		const mockOrders = getMockOrders();
-		const selectedOrder = selectedId ? mockOrders.find((o) => o.id === selectedId) || null : null;
-		return { orders: mockOrders, selectedOrder };
-	}
-
 	try {
-		const orders = await listOrdersForRestaurant({
+		const ordersWithItems = await listOrdersWithItems({
 			organizationId: org.id,
-			restaurantId: restaurant.id,
+			outletId: outlet.id,
 			limit: 50
 		});
 
-		const ordersWithItems = await Promise.all(
-			orders.map(async (order) => {
-				const full = await withTransaction(async (client) => {
-					return findOrderById(client, {
-						organizationId: org.id,
-						restaurantId: restaurant.id,
-						orderId: order.id
-					});
-				});
-				return full ? mapOrderForUI(full) : null;
-			})
-		);
-
-		const validOrders = ordersWithItems.filter(Boolean) as ReturnType<typeof mapOrderForUI>[];
+		const validOrders = ordersWithItems.map(mapOrderForUI);
 		const selectedOrder = selectedId
 			? validOrders.find((o) => o.id === selectedId || o.fullId === selectedId) || null
 			: null;
 
-		return { orders: validOrders, selectedOrder };
+		return {
+			orders: validOrders,
+			selectedOrder,
+			paymentConfirmationEnabled: outlet.checkoutSettings.paymentConfirmationEnabled
+		};
 	} catch (err) {
-		console.error('[orders] Failed to load orders, falling back to mock:', err);
-		const mockOrders = getMockOrders();
-		const selectedOrder = selectedId ? mockOrders.find((o) => o.id === selectedId) || null : null;
-		return { orders: mockOrders, selectedOrder };
+		console.error('[orders] Failed to load orders:', err);
+		return { orders: [], selectedOrder: null, paymentConfirmationEnabled: false };
 	}
 };
 
 export const actions: Actions = {
 	updateStatus: async ({ request, locals }) => {
+		const user = locals.user;
+		if (!user) return fail(401, { error: 'Not authenticated' });
+
 		const formData = await request.formData();
 		const orderId = formData.get('orderId') as string;
 		const newStatus = formData.get('status') as OrderStatus;
 
-		if (!orderId || !newStatus) return fail(400, { error: 'Missing order ID or status' });
+		if (!orderId || !newStatus) return fail(400, { error: 'Missing orderId or status' });
 
-		const user = locals.user;
-		if (!user) return fail(401, { error: 'Not authenticated' });
-
-		if (!appEnv.databaseUrl || appEnv.useMockBackend) {
-			return { success: true, orderId, newStatus };
+		const validStatuses: OrderStatus[] = ['new', 'processing', 'completed', 'cancelled'];
+		if (!validStatuses.includes(newStatus)) {
+			return fail(400, { error: `Invalid status: ${newStatus}` });
 		}
 
 		try {
-			const tenantContext = await import('$lib/server/tenant/tenant-context').then((m) =>
-				m.resolveTenantContext(user)
-			);
+			const { resolveTenantContext } = await import('$lib/server/tenant/tenant-context');
+			const tenantContext = await resolveTenantContext(user);
+
 			const updated = await updateOrderStatus({
 				userId: user.id,
 				organizationId: tenantContext.organization.id,
-				restaurantId: tenantContext.activeRestaurant.id,
+				outletId: tenantContext.activeOutlet.id,
 				orderId,
 				newStatus
 			});
+
 			if (!updated) return fail(404, { error: 'Order not found' });
-			return { success: true, orderId, newStatus };
+
+			return { success: true, newStatus };
 		} catch (err) {
-			console.error('[orders] Status update failed:', err);
+			console.error('[orders] updateStatus failed:', err);
 			return fail(500, { error: 'Failed to update order status' });
+		}
+	},
+
+	/**
+	 * Owner/manager confirms a buyer's uploaded payment proof.
+	 */
+	confirmPayment: async ({ request, locals }) => {
+		const user = locals.user;
+		if (!user) return fail(401, { error: 'Not authenticated' });
+
+		const formData = await request.formData();
+		const orderId = formData.get('orderId')?.toString();
+		if (!orderId) return fail(400, { error: 'Missing orderId' });
+
+		try {
+			const { resolveTenantContext } = await import('$lib/server/tenant/tenant-context');
+			const tenantContext = await resolveTenantContext(user);
+
+			const role = tenantContext.membership?.role;
+			if (role === 'staff') return fail(403, { error: 'Tidak punya akses untuk konfirmasi pembayaran' });
+
+			const result = await getPool().query<{
+				id: string;
+				buyer_whatsapp: string | null;
+				order_number: number;
+				total: number;
+			}>(
+				`UPDATE orders
+				 SET payment_confirmed_at = now(),
+				     payment_confirmed_by = $1::uuid,
+				     payment_rejected_at = NULL,
+				     payment_rejected_by = NULL,
+				     updated_at = now()
+				 WHERE id = $2::uuid
+				   AND organization_id = $3::uuid
+				   AND outlet_id = $4::uuid
+				   AND payment_proof_url IS NOT NULL
+				   AND payment_confirmed_at IS NULL
+				 RETURNING id, buyer_whatsapp, order_number, total`,
+				[
+					user.id,
+					orderId,
+					tenantContext.organization.id,
+					tenantContext.activeOutlet.id
+				]
+			);
+
+			if (result.rowCount === 0) {
+				return fail(404, { error: 'Pesanan tidak ditemukan atau sudah dikonfirmasi.' });
+			}
+
+			// Fire-and-forget WA notification to buyer.
+			const row = result.rows[0];
+			if (row.buyer_whatsapp) {
+				notifyBuyerPaymentConfirmed({
+					buyerWhatsapp: row.buyer_whatsapp,
+					outletName: tenantContext.activeOutlet.name,
+					orderNumber: `#${String(row.order_number).padStart(4, '0')}`,
+					orderId: row.id,
+					total: row.total
+				}).catch(() => {});
+			}
+
+			return { success: true, action: 'confirmed' };
+		} catch (err) {
+			console.error('[orders] confirmPayment failed:', err);
+			return fail(500, { error: 'Gagal mengkonfirmasi pembayaran.' });
+		}
+	},
+
+	/**
+	 * Owner/manager rejects a buyer's uploaded payment proof.
+	 */
+	rejectPayment: async ({ request, locals }) => {
+		const user = locals.user;
+		if (!user) return fail(401, { error: 'Not authenticated' });
+
+		const formData = await request.formData();
+		const orderId = formData.get('orderId')?.toString();
+		const notes = formData.get('notes')?.toString()?.trim() || null;
+		if (!orderId) return fail(400, { error: 'Missing orderId' });
+
+		try {
+			const { resolveTenantContext } = await import('$lib/server/tenant/tenant-context');
+			const tenantContext = await resolveTenantContext(user);
+
+			const role = tenantContext.membership?.role;
+			if (role === 'staff') return fail(403, { error: 'Tidak punya akses untuk menolak pembayaran' });
+
+			const result = await getPool().query<{
+				id: string;
+				buyer_whatsapp: string | null;
+				order_number: number;
+				total: number;
+			}>(
+				`UPDATE orders
+				 SET payment_rejected_at = now(),
+				     payment_rejected_by = $1::uuid,
+				     payment_notes = $2,
+				     payment_confirmed_at = NULL,
+				     payment_confirmed_by = NULL,
+				     updated_at = now()
+				 WHERE id = $3::uuid
+				   AND organization_id = $4::uuid
+				   AND outlet_id = $5::uuid
+				   AND payment_proof_url IS NOT NULL
+				   AND payment_confirmed_at IS NULL
+				 RETURNING id, buyer_whatsapp, order_number, total`,
+				[
+					user.id,
+					notes,
+					orderId,
+					tenantContext.organization.id,
+					tenantContext.activeOutlet.id
+				]
+			);
+
+			if (result.rowCount === 0) {
+				return fail(404, { error: 'Pesanan tidak ditemukan atau sudah dikonfirmasi.' });
+			}
+
+			// Fire-and-forget WA notification to buyer.
+			const row = result.rows[0];
+			if (row.buyer_whatsapp) {
+				notifyBuyerPaymentRejected({
+					buyerWhatsapp: row.buyer_whatsapp,
+					outletName: tenantContext.activeOutlet.name,
+					orderNumber: `#${String(row.order_number).padStart(4, '0')}`,
+					orderId: row.id,
+					notes
+				}).catch(() => {});
+			}
+
+			return { success: true, action: 'rejected' };
+		} catch (err) {
+			console.error('[orders] rejectPayment failed:', err);
+			return fail(500, { error: 'Gagal menolak pembayaran.' });
 		}
 	}
 };
-
-function getMockOrders() {
-	return [
-		{
-			id: '1024',
-			fullId: 'mock-1024',
-			table: 'Meja T03',
-			location: 'Main Dining',
-			items: [
-				{ name: 'Ayam Betutu', qty: 1, note: 'tidak pedas' },
-				{ name: 'Es Kelapa Muda', qty: 2, note: '' }
-			],
-			total: 182000,
-			status: 'pending',
-			rawStatus: 'new' as OrderStatus,
-			time: '2 mnt lalu',
-			ts: new Date(Date.now() - 2 * 60000)
-		},
-		{
-			id: '1023',
-			fullId: 'mock-1023',
-			table: 'Meja T07',
-			location: 'Main Dining',
-			items: [{ name: 'Ikan Bakar Jimbaran', qty: 2, note: 'sambal terpisah' }],
-			total: 290000,
-			status: 'processing',
-			rawStatus: 'processing' as OrderStatus,
-			time: '8 mnt lalu',
-			ts: new Date(Date.now() - 8 * 60000)
-		},
-		{
-			id: '1022',
-			fullId: 'mock-1022',
-			table: 'Takeaway',
-			location: '',
-			items: [
-				{ name: 'Sate Ayam', qty: 3, note: '' },
-				{ name: 'Es Cendol', qty: 2, note: '' }
-			],
-			total: 312000,
-			status: 'done',
-			rawStatus: 'completed' as OrderStatus,
-			time: '15 mnt lalu',
-			ts: new Date(Date.now() - 15 * 60000)
-		},
-		{
-			id: '1021',
-			fullId: 'mock-1021',
-			table: 'Meja B12',
-			location: 'Main Dining',
-			items: [
-				{ name: 'Betutu Chicken', qty: 2, note: '' },
-				{ name: 'Es Teh Manis', qty: 3, note: '' }
-			],
-			total: 322000,
-			status: 'done',
-			rawStatus: 'completed' as OrderStatus,
-			time: '22 mnt lalu',
-			ts: new Date(Date.now() - 22 * 60000)
-		},
-		{
-			id: '1020',
-			fullId: 'mock-1020',
-			table: 'Meja T01',
-			location: 'Main Dining',
-			items: [{ name: 'Lamb Satay', qty: 2, note: 'no peanut' }],
-			total: 196000,
-			status: 'cancelled',
-			rawStatus: 'cancelled' as OrderStatus,
-			time: '30 mnt lalu',
-			ts: new Date(Date.now() - 30 * 60000)
-		},
-		{
-			id: '1019',
-			fullId: 'mock-1019',
-			table: 'Meja T05',
-			location: 'Main Dining',
-			items: [
-				{ name: 'Grilled Sea Bass', qty: 1, note: '' },
-				{ name: 'Coconut Cendol', qty: 1, note: '' }
-			],
-			total: 207000,
-			status: 'done',
-			rawStatus: 'completed' as OrderStatus,
-			time: '45 mnt lalu',
-			ts: new Date(Date.now() - 45 * 60000)
-		}
-	];
-}

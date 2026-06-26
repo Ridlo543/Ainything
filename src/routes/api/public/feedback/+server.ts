@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { RequestHandler } from './$types';
-import { resolvePublicMenu } from '$lib/server/tenant/public-context';
+import { resolvePublicCatalogMenu } from '$lib/server/tenant/public-context';
 import { createFeedbackForSession } from '$lib/server/services/guest-interaction-service';
 import { applyRateLimit, checkBodySize } from '$lib/server/services/public-api-helpers';
 
@@ -38,7 +38,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(400, 'Missing or invalid restaurant/table identity.');
 	}
 
-	const bootstrap = await resolvePublicMenu(parsed.data.restaurantSlug, parsed.data.tableCode);
+	const bootstrap = await resolvePublicCatalogMenu(parsed.data.restaurantSlug, parsed.data.tableCode);
 
 	if (!bootstrap) {
 		error(404, 'Menu not found for this restaurant and table.');

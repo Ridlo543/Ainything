@@ -1,10 +1,10 @@
 /**
  * POST /api/admin/embeddings
  *
- * Triggers embedding re-index for a restaurant's published menu items
+ * Triggers embedding re-index for an outlet's published products
  * and knowledge documents. Authenticated admin action only.
  *
- * Body: { restaurantSlug: string }
+ * Body: { outletSlug: string }
  * Response: { generated: number, skipped: number, embeddingEnabled: boolean }
  *
  * When EMBEDDING_ENABLED=false, the endpoint returns early with a flag
@@ -20,7 +20,7 @@ import { appEnv } from '$lib/server/config/env';
 import { applyRateLimit } from '$lib/server/services/public-api-helpers';
 
 const bodySchema = z.object({
-	restaurantSlug: z.string().trim().min(1).max(120)
+	outletSlug: z.string().trim().min(1).max(120)
 });
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -42,11 +42,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const parsed = bodySchema.safeParse(raw);
 
 	if (!parsed.success) {
-		error(400, 'Missing or invalid restaurant slug.');
+		error(400, 'Missing or invalid outlet slug.');
 	}
 
-	const tenant = await resolveTenantContext(locals.user, parsed.data.restaurantSlug);
-	const { activeRestaurant } = tenant;
+	const tenant = await resolveTenantContext(locals.user, parsed.data.outletSlug);
+	const activeRestaurant = tenant.activeRestaurant;
 
 	if (!appEnv.embeddingEnabled) {
 		return json({

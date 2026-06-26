@@ -109,11 +109,11 @@
 	];
 
 	const inputClass =
-		'tap-target w-full rounded-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary dark:bg-lingua-surface dark:text-lingua-text';
+		'tap-target w-full rounded-lg border border-ainything-border bg-white px-3 py-2 text-sm font-normal text-ainything-text placeholder:text-ainything-subtle/60 focus:border-ainything-primary focus:outline-none focus:ring-1 focus:ring-ainything-primary dark:bg-ainything-surface dark:text-ainything-text';
 </script>
 
 <svelte:head>
-	<title>Set up your restaurant - Lingua</title>
+	<title>Set up your restaurant - Ainything</title>
 </svelte:head>
 
 <main class="min-h-screen py-6 sm:py-10">
@@ -121,35 +121,35 @@
 		<section class="surface w-full max-w-lg rounded-lg p-5 sm:p-7">
 			<!-- Header -->
 			<div class="flex items-start gap-3">
-				<span class="rounded-lg bg-lingua-primary-soft p-3 text-lingua-primary">
+				<span class="rounded-lg bg-ainything-primary-soft p-3 text-ainything-primary">
 					<Building2 size={26} />
 				</span>
 				<div>
-					<h1 class="text-2xl font-semibold text-lingua-text">Set up your restaurant</h1>
-					<p class="mt-1 text-sm leading-6 text-lingua-subtle">
+					<h1 class="text-2xl font-semibold text-ainything-text">Set up your restaurant</h1>
+					<p class="mt-1 text-sm leading-6 text-ainything-subtle">
 						Almost there, {data.user.name.split(' ')[0]}. Tell us about your restaurant.
 					</p>
 				</div>
 			</div>
 
 			<!-- Step indicator -->
-			<div class="mt-5 flex items-center gap-2 text-xs text-lingua-subtle">
+			<div class="mt-5 flex items-center gap-2 text-xs text-ainything-subtle">
 				<span
-					class="flex h-5 w-5 items-center justify-center rounded-full bg-lingua-primary/20 text-lingua-primary font-semibold"
+					class="flex h-5 w-5 items-center justify-center rounded-full bg-ainything-primary/20 text-ainything-primary font-semibold"
 					>✓</span
 				>
-				<span class="text-lingua-subtle/60">Account created</span>
-				<span class="mx-1 text-lingua-border">→</span>
+				<span class="text-ainything-subtle/60">Account created</span>
+				<span class="mx-1 text-ainything-border">→</span>
 				<span
-					class="flex h-5 w-5 items-center justify-center rounded-full bg-lingua-primary text-white font-semibold"
+					class="flex h-5 w-5 items-center justify-center rounded-full bg-ainything-primary text-white font-semibold"
 					>2</span
 				>
-				<span class="font-semibold text-lingua-text">Restaurant details</span>
+				<span class="font-semibold text-ainything-text">Restaurant details</span>
 			</div>
 
 			<form method="POST" action="?/setup" class="mt-6 grid gap-4">
 				<!-- Restaurant name -->
-				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+				<label class="grid gap-1.5 text-sm font-semibold text-ainything-text">
 					Restaurant name
 					<input
 						type="text"
@@ -164,13 +164,13 @@
 				</label>
 
 				<!-- URL slug -->
-				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+				<label class="grid gap-1.5 text-sm font-semibold text-ainything-text">
 					Restaurant URL
 					<div class="flex items-center gap-1">
 						<span
-							class="rounded-l-lg border border-r-0 border-lingua-border bg-lingua-surface px-3 py-2 text-sm text-lingua-subtle whitespace-nowrap"
+							class="rounded-l-lg border border-r-0 border-ainything-border bg-ainything-surface px-3 py-2 text-sm text-ainything-subtle whitespace-nowrap"
 						>
-							lingua.app/r/
+							ainything.online/r/
 						</span>
 						<input
 							type="text"
@@ -182,14 +182,14 @@
 							pattern="[a-z0-9-]+"
 							minlength="2"
 							maxlength="60"
-							class="tap-target min-w-0 flex-1 rounded-r-lg border border-lingua-border bg-white px-3 py-2 text-sm font-normal text-lingua-text placeholder:text-lingua-subtle/60 focus:border-lingua-primary focus:outline-none focus:ring-1 focus:ring-lingua-primary dark:bg-lingua-surface dark:text-lingua-text"
+							class="tap-target min-w-0 flex-1 rounded-r-lg border border-ainything-border bg-white px-3 py-2 text-sm font-normal text-ainything-text placeholder:text-ainything-subtle/60 focus:border-ainything-primary focus:outline-none focus:ring-1 focus:ring-ainything-primary dark:bg-ainything-surface dark:text-ainything-text"
 						/>
 						{#if slugManuallyEdited}
 							<button
 								type="button"
 								onclick={resetSlug}
 								title="Reset to auto-generated slug"
-								class="tap-target ml-1 rounded-lg border border-lingua-border p-2 text-lingua-subtle hover:text-lingua-text"
+								class="tap-target ml-1 rounded-lg border border-ainything-border p-2 text-ainything-subtle hover:text-ainything-text"
 							>
 								<RefreshCw size={14} />
 							</button>
@@ -197,7 +197,7 @@
 					</div>
 					<!-- Real-time availability feedback -->
 					{#if slugStatus === 'checking'}
-						<span class="flex items-center gap-1 text-xs font-normal text-lingua-subtle">
+						<span class="flex items-center gap-1 text-xs font-normal text-ainything-subtle">
 							<Loader size={12} class="animate-spin" /> Checking availability...
 						</span>
 					{:else if slugStatus === 'available'}
@@ -213,17 +213,18 @@
 							<XCircle size={12} /> Already taken — choose a different slug.
 						</span>
 					{:else if slugStatus === 'error'}
-						<span class="text-xs font-normal text-lingua-subtle">Could not check availability.</span
+						<span class="text-xs font-normal text-ainything-subtle"
+							>Could not check availability.</span
 						>
 					{:else}
-						<span class="text-xs font-normal text-lingua-subtle">
+						<span class="text-xs font-normal text-ainything-subtle">
 							Lowercase letters, numbers, and hyphens only. This is permanent.
 						</span>
 					{/if}
 				</label>
 
 				<!-- Segment -->
-				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+				<label class="grid gap-1.5 text-sm font-semibold text-ainything-text">
 					Restaurant type
 					<select name="segment" required class={inputClass}>
 						<option value="" disabled selected={!fields?.segment}>Select type...</option>
@@ -234,7 +235,7 @@
 				</label>
 
 				<!-- Location -->
-				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+				<label class="grid gap-1.5 text-sm font-semibold text-ainything-text">
 					City / Location
 					<input
 						type="text"
@@ -244,13 +245,13 @@
 						maxlength="100"
 						class={inputClass}
 					/>
-					<span class="text-xs font-normal text-lingua-subtle"
+					<span class="text-xs font-normal text-ainything-subtle"
 						>Optional — helps tourists find you.</span
 					>
 				</label>
 
 				<!-- Default language -->
-				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+				<label class="grid gap-1.5 text-sm font-semibold text-ainything-text">
 					Menu default language
 					<select name="defaultLanguageTag" required class={inputClass}>
 						{#each LANGUAGES as lang (lang.value)}
@@ -263,13 +264,13 @@
 							</option>
 						{/each}
 					</select>
-					<span class="text-xs font-normal text-lingua-subtle">
+					<span class="text-xs font-normal text-ainything-subtle">
 						The language your menu is written in. Guests can switch languages anytime.
 					</span>
 				</label>
 
 				<!-- Timezone -->
-				<label class="grid gap-1.5 text-sm font-semibold text-lingua-text">
+				<label class="grid gap-1.5 text-sm font-semibold text-ainything-text">
 					Timezone
 					<select name="timezone" required class={inputClass}>
 						{#each TIMEZONES as tz (tz.value)}
@@ -295,7 +296,7 @@
 
 				<button
 					type="submit"
-					class="tap-target mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-lingua-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
+					class="tap-target mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-ainything-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-95"
 				>
 					Finish setup <ArrowRight size={16} />
 				</button>

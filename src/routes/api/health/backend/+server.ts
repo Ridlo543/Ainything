@@ -17,12 +17,11 @@ export const GET: RequestHandler = async () => {
 	return json(
 		{
 			ok: backendOk,
-			backend: {
-				database,
-				redis,
-				supabase: appEnv.supabaseUrl && appEnv.supabaseAnonKey ? 'configured' : 'not-configured',
-				mockBackend: appEnv.useMockBackend
-			}
+		backend: {
+			database,
+			redis,
+			authProvider: appEnv.authProvider
+		}
 		},
 		{ status: backendOk ? 200 : 503 }
 	);

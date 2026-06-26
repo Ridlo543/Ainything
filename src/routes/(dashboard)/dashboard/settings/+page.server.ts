@@ -1,65 +1,43 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
-import { appEnv } from '$lib/server/config/env';
-import {
-	getRestaurantSettings,
-	updateRestaurantSettings
-} from '$lib/server/repositories/staff-repository';
+import { updateOutletSettings } from '$lib/server/services/outlet-management-service';
+import { updateOutletCheckoutSettings } from '$lib/server/repositories/outlet-repository';
 
-interface RestaurantSettings {
+interface PageSettings {
 	name: string;
 	slug: string;
 	location: string;
-	segment: string;
+	businessType: string;
 	timezone: string;
 	defaultLanguageTag: string;
 	languageTags: string[];
 	description: string;
 	status: string;
-}
-
-function getMockSettings(): RestaurantSettings {
-	return {
-		name: 'Bali Table Restaurant',
-		slug: 'bali-table',
-		location: 'Jl. Sunset Road No. 88, Seminyak, Bali',
-		segment: 'restaurant',
-		timezone: 'Asia/Makassar',
-		defaultLanguageTag: 'id',
-		languageTags: ['id', 'en'],
-		description: 'Authentic Balinese cuisine in the heart of Seminyak',
-		status: 'active'
-	};
+	checkoutMode: 'offline' | 'online';
+	requireBuyerWhatsapp: boolean;
+	paymentConfirmationEnabled: boolean;
 }
 
 export const load: PageServerLoad = async ({ parent }) => {
 	const { tenant } = await parent();
-	const restaurant = tenant.activeRestaurant;
+	const outlet = tenant.activeOutlet;
 
-	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
-		return { settings: getMockSettings() };
-	}
+	const settings: PageSettings = {
+		name: outlet.name,
+		slug: outlet.slug,
+		location: outlet.location ?? '',
+		businessType: outlet.businessType ?? 'restaurant',
+		timezone: outlet.timezone ?? 'Asia/Makassar',
+		defaultLanguageTag: outlet.defaultLanguageTag ?? 'id',
+		languageTags: outlet.languages ?? ['id'],
+		description: outlet.description ?? '',
+		status: outlet.status ?? 'active',
+		checkoutMode: outlet.checkoutSettings.checkoutMode,
+		requireBuyerWhatsapp: outlet.checkoutSettings.requireBuyerWhatsapp,
+		paymentConfirmationEnabled: outlet.checkoutSettings.paymentConfirmationEnabled
+	};
 
-	try {
-		const row = await getRestaurantSettings(restaurant.id);
-		if (!row) return { settings: getMockSettings() };
-
-		return {
-			settings: {
-				name: row.name,
-				slug: row.slug,
-				location: row.location ?? '',
-				segment: row.segment ?? 'restaurant',
-				timezone: row.timezone ?? 'Asia/Makassar',
-				defaultLanguageTag: row.default_language_tag ?? 'id',
-				languageTags: row.language_tags ?? ['id'],
-				description: row.description ?? '',
-				status: row.status ?? 'active'
-			}
-		};
-	} catch {
-		return { settings: getMockSettings() };
-	}
+	return { settings };
 };
 
 export const actions: Actions = {
@@ -73,34 +51,77 @@ export const actions: Actions = {
 		const description = formData.get('description')?.toString().trim() ?? '';
 		const timezone = formData.get('timezone')?.toString().trim() ?? 'Asia/Makassar';
 		const defaultLanguageTag = formData.get('defaultLanguageTag')?.toString().trim() ?? 'id';
-		const segment = formData.get('segment')?.toString().trim() ?? 'restaurant';
+		const businessType = formData.get('businessType')?.toString().trim() ?? 'restaurant';
 
-		if (!name) return fail(400, { error: 'Nama restoran wajib diisi' });
+		if (!name) return fail(400, { error: 'Nama outlet wajib diisi' });
 		if (!location) return fail(400, { error: 'Lokasi wajib diisi' });
 
-		if (!appEnv.databaseUrl || appEnv.useMockBackend) {
-			return { success: true };
-		}
-
 		try {
-			const tenantContext = await import('$lib/server/tenant/tenant-context').then((m) =>
-				m.resolveTenantContext(user)
-			);
-			await updateRestaurantSettings(
-				tenantContext.activeRestaurant.id,
-				tenantContext.organization.id,
-				{
-					name,
-					location,
-					segment,
-					description,
-					timezone,
-					defaultLanguageTag
-				}
-			);
+			const { resolveTenantContext } = await import('$lib/server/tenant/tenant-context');
+			const tenantContext = await resolveTenantContext(user);
+
+			const BUSINESS_TYPES = ['restaurant', 'retail', 'service', 'cafe', 'hotel'] as const;
+			const TIMEZONES = ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'] as const;
+			const LANGUAGE_TAGS = ['id', 'en', 'zh-Hans', 'ar', 'ja'] as const;
+
+			const safeBusinessType = BUSINESS_TYPES.includes(businessType as never)
+				? (businessType as (typeof BUSINESS_TYPES)[number])
+				: undefined;
+			const safeTimezone = TIMEZONES.includes(timezone as never)
+				? (timezone as (typeof TIMEZONES)[number])
+				: undefined;
+			const safeLang = LANGUAGE_TAGS.includes(defaultLanguageTag as never)
+				? (defaultLanguageTag as (typeof LANGUAGE_TAGS)[number])
+				: undefined;
+
+			await updateOutletSettings(user, tenantContext.activeOutlet.id, {
+				name,
+				location,
+				businessType: safeBusinessType,
+				description,
+				timezone: safeTimezone,
+				defaultLanguageTag: safeLang
+			});
 			return { success: true };
 		} catch {
 			return fail(500, { error: 'Gagal menyimpan pengaturan' });
+		}
+	},
+
+	checkout: async ({ request, locals }) => {
+		const user = locals.user;
+		if (!user) return fail(401, { error: 'Not authenticated' });
+
+		const formData = await request.formData();
+		const checkoutMode = formData.get('checkoutMode')?.toString();
+		const requireBuyerWhatsapp = formData.get('requireBuyerWhatsapp') === 'true';
+		const paymentConfirmationEnabled = formData.get('paymentConfirmationEnabled') === 'true';
+
+		if (checkoutMode !== 'offline' && checkoutMode !== 'online') {
+			return fail(400, { error: 'Checkout mode tidak valid.' });
+		}
+
+		try {
+			const { resolveTenantContext } = await import('$lib/server/tenant/tenant-context');
+			const tenantContext = await resolveTenantContext(user);
+
+			const role = tenantContext.membership?.role;
+			if (role === 'staff') return fail(403, { error: 'Tidak punya akses mengubah pengaturan checkout' });
+
+			await updateOutletCheckoutSettings(
+				tenantContext.activeOutlet.id,
+				tenantContext.organization.id,
+				{
+					checkoutMode,
+					requireBuyerWhatsapp,
+					// paymentConfirmationEnabled only relevant when online
+					paymentConfirmationEnabled: checkoutMode === 'online' ? paymentConfirmationEnabled : false
+				}
+			);
+
+			return { success: true };
+		} catch {
+			return fail(500, { error: 'Gagal menyimpan pengaturan checkout.' });
 		}
 	}
 };

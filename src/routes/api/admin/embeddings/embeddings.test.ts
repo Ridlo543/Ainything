@@ -52,7 +52,7 @@ const TENANT = {
 		id: 'org-1',
 		name: 'Test Org',
 		slug: 'test-org',
-		workspaceHost: 'test.lingua.app',
+		workspaceHost: 'test.ainything.online',
 		plan: 'pilot',
 		restaurantIds: ['rest-1']
 	},

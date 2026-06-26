@@ -34,7 +34,7 @@
 </script>
 
 <svelte:head>
-	<title>Daftar — Lingua</title>
+	<title>Daftar — Ainything</title>
 </svelte:head>
 
 <div class="flex min-h-screen bg-[#fafaf9]">
@@ -54,12 +54,12 @@
 
 		<!-- Logo -->
 		<div class="relative z-10 p-10">
-			<a href="/" class="flex items-center gap-2.5" aria-label="Lingua beranda">
+			<a href="/" class="flex items-center gap-2.5" aria-label="Ainything beranda">
 				<span
 					class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-xl font-black text-white"
 					>L</span
 				>
-				<span class="text-xl font-extrabold text-white">Lingua</span>
+				<span class="text-xl font-extrabold text-white">Ainything</span>
 			</a>
 		</div>
 
@@ -76,7 +76,7 @@
 			<div class="mt-8 overflow-hidden rounded-2xl border border-white/20 shadow-2xl">
 				<img
 					src="/mock-images/photo-1600891964599-f61ba0e24092.jpg"
-					alt="Contoh katalog digital Lingua"
+					alt="Contoh katalog digital Ainything"
 					class="h-44 w-full object-cover"
 					width="560"
 					height="176"
@@ -110,7 +110,7 @@
 		<!-- Footer -->
 		<div class="relative z-10 px-10 pb-8">
 			<p class="text-xs text-white/30">
-				&copy; {new Date().getFullYear()} Lingua. Hak cipta dilindungi.
+				&copy; {new Date().getFullYear()} Ainything. Hak cipta dilindungi.
 			</p>
 		</div>
 	</div>
@@ -124,7 +124,7 @@
 					class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
 					>L</span
 				>
-				<span class="text-lg font-extrabold text-[#1a1a2e]">Lingua</span>
+				<span class="text-lg font-extrabold text-[#1a1a2e]">Ainything</span>
 			</div>
 
 			<!-- Step indicator -->

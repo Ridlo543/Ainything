@@ -44,7 +44,7 @@
 </script>
 
 <svelte:head>
-	<title>Masuk — Lingua</title>
+	<title>Masuk — Ainything</title>
 </svelte:head>
 
 <div class="flex min-h-screen bg-[#fafaf9]">
@@ -63,12 +63,12 @@
 		></div>
 
 		<div class="relative z-10 p-10">
-			<a href="/" class="flex items-center gap-3" aria-label="Lingua beranda">
+			<a href="/" class="flex items-center gap-3" aria-label="Ainything beranda">
 				<span
 					class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-xl font-black text-white"
 					>L</span
 				>
-				<span class="text-xl font-extrabold text-white">Lingua</span>
+				<span class="text-xl font-extrabold text-white">Ainything</span>
 			</a>
 		</div>
 
@@ -88,12 +88,12 @@
 					<span class="h-2.5 w-2.5 rounded-full bg-yellow-400/70"></span>
 					<span class="h-2.5 w-2.5 rounded-full bg-green-400/70"></span>
 					<span class="ml-3 rounded bg-white/10 px-3 py-0.5 text-[11px] text-white/50"
-						>lingua.app/dashboard</span
+						>ainything.online/dashboard</span
 					>
 				</div>
 				<img
 					src="/mock-images/photo-1551288049-bebda4e38f71.jpg"
-					alt="Dashboard Lingua"
+					alt="Dashboard Ainything"
 					class="h-48 w-full object-cover object-top opacity-90"
 					width="640"
 					height="192"
@@ -120,7 +120,7 @@
 
 		<div class="relative z-10 px-10 pb-8">
 			<p class="text-xs text-white/30">
-				&copy; {new Date().getFullYear()} Lingua. Hak cipta dilindungi.
+				&copy; {new Date().getFullYear()} Ainything. Hak cipta dilindungi.
 			</p>
 		</div>
 	</div>
@@ -134,7 +134,7 @@
 					class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
 					>L</span
 				>
-				<span class="text-lg font-extrabold text-[#1a1a2e]">Lingua</span>
+				<span class="text-lg font-extrabold text-[#1a1a2e]">Ainything</span>
 			</div>
 
 			<div class="mb-7">

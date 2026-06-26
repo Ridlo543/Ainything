@@ -9,8 +9,8 @@
 
 	const tenant = $derived(data.tenant);
 	const org = $derived(tenant.organization);
-	const restaurants = $derived(tenant.restaurants);
-	const activeRestaurant = $derived(tenant.activeRestaurant);
+	const outlets = $derived(tenant.outlets);
+	const activeOutlet = $derived(tenant.activeOutlet);
 
 	let sidebarOpen = $state(false);
 </script>
@@ -23,8 +23,8 @@
 		tenantSlug={org.slug}
 		userName={tenant.user.name}
 		userRole={tenant.membership.role}
-		outlets={restaurants.map((r) => ({ id: r.id, name: r.name, slug: r.slug }))}
-		activeOutletSlug={activeRestaurant.slug}
+		outlets={outlets.map((o) => ({ id: o.id, name: o.name, slug: o.slug }))}
+		activeOutletSlug={activeOutlet.slug}
 		onoutletchange={(slug) => {
 			const url = new URL(location.href);
 			url.searchParams.set('restaurant', slug);

@@ -27,7 +27,7 @@ type VitalsPayloadEntry = {
 	value: number;
 	rating: string;
 	path: string;
-	restaurantId?: string | null;
+	outletId?: string | null;
 };
 
 function isValidEntry(e: unknown): e is VitalsPayloadEntry {
@@ -48,8 +48,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	// Rate-limit: 60 batches per minute per IP (Web Vitals are sent on page unload)
 	await applyRateLimit('vitals', request);
 
-	// Skip DB write if no database is configured or mock backend is active.
-	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
+	// Skip DB write if no database is configured.
+	if (!appEnv.databaseUrl) {
 		return new Response(null, { status: 204 });
 	}
 
@@ -69,7 +69,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		.filter(isValidEntry)
 		.map(
 			(e): VitalsInsert => ({
-				restaurantId: e.restaurantId ?? null,
+				outletId: e.outletId ?? null,
 				name: e.name as VitalsInsert['name'],
 				value: Math.round(e.value * 100) / 100,
 				rating: e.rating as VitalsInsert['rating'],

@@ -1,14 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { appEnv } from '$lib/server/config/env';
+import { directQuery } from '$lib/server/db/postgres';
 
 const emailSchema = z.object({
 	email: z.string().email('Enter a valid email address.')
 });
 
 export const load: PageServerLoad = ({ locals }) => {
-	// Already logged in — no need to reset
 	if (locals.user) {
 		return { alreadyLoggedIn: true };
 	}
@@ -29,31 +28,11 @@ export const actions: Actions = {
 
 		const { email } = parsed.data;
 
-		if (appEnv.authProvider === 'mock') {
-			// In mock mode, just pretend it worked
-			return { sent: true, email };
-		}
+		// Check user exists (don't reveal if not — return success either way)
+		await directQuery(`SELECT id FROM app_users WHERE email = $1`, [email]).catch(() => {});
 
-		const supabaseUrl = appEnv.supabaseUrl;
-		const supabaseAnonKey = appEnv.supabaseAnonKey;
-
-		if (!supabaseUrl || !supabaseAnonKey) {
-			return fail(503, { message: 'Authentication is not configured.', email });
-		}
-
-		const { createClient } = await import('@supabase/supabase-js');
-		const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-		const { error } = await supabase.auth.resetPasswordForEmail(email, {
-			redirectTo: `${appEnv.publicAppUrl}/auth/callback?type=recovery`
-		});
-
-		if (error) {
-			console.error('[forgot-password] Supabase reset error:', error.message);
-			// Do not reveal whether the email exists — always return success
-		}
-
-		// Always show success to prevent email enumeration
+		// TODO: send password reset email via SMTP when email provider is configured.
+		// For now, always return success to prevent email enumeration.
 		return { sent: true, email };
 	}
 };

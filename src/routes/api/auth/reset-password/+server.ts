@@ -23,9 +23,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ message: parsed.error.issues[0]?.message ?? 'Invalid input.' }, { status: 400 });
 	}
 
-	// NOTE: This is a stub — the real implementation is in /auth/forgot-password
-	// which uses Supabase's built-in resetPasswordForEmail.
-	// This legacy endpoint is kept for backward compat but does nothing.
+	// NOTE: This is a stub kept for API backward compat.
+	// The form-based flow is at /auth/forgot-password.
+	// TODO: trigger SMTP reset email when email provider is configured.
 	return json({
 		message: 'If an account with that email exists, a password reset link has been sent.'
 	});

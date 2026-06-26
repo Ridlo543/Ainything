@@ -13,15 +13,21 @@ import { checkDailyAiCap } from '$lib/server/services/ai-cost-cap';
  * calls the LLM adapter, persists the turn, and returns the answer.
  * Rate limit: 20 / 60 s per session token (chat tier).
  *
- * `restaurantSlug` + `tableCode` resolve the tenant server-side. `sessionId` must be
+ * `outletSlug` + `tableCode` resolve the tenant server-side. `sessionId` must be
  * a valid UUID previously issued by POST /api/public/sessions.
+ *
+ * Backward-compat: also accepts `restaurantSlug` (legacy clients).
  */
 const bodySchema = z
 	.object({
-		restaurantSlug: z.string().trim().min(1).max(120),
+		outletSlug: z.string().trim().min(1).max(120).optional(),
+		restaurantSlug: z.string().trim().min(1).max(120).optional(),
 		tableCode: z.string().trim().min(1).max(60)
 	})
-	.passthrough();
+	.passthrough()
+	.refine((d) => d.outletSlug ?? d.restaurantSlug, {
+		message: 'outletSlug is required'
+	});
 
 export const POST: RequestHandler = async ({ request }) => {
 	await applyRateLimit('chat', request);
@@ -41,14 +47,17 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(400, 'Missing or invalid restaurant/table identity.');
 	}
 
-	const bootstrap = await resolvePublicMenu(parsed.data.restaurantSlug, parsed.data.tableCode);
+	// Accept outletSlug (new) or restaurantSlug (legacy QR codes already printed).
+	// The .refine() above guarantees at least one is present, so the fallback '' is unreachable.
+	const outletSlug = (parsed.data.outletSlug ?? parsed.data.restaurantSlug)!;
+	const bootstrap = await resolvePublicMenu(outletSlug, parsed.data.tableCode);
 
 	if (!bootstrap) {
 		error(404, 'Menu not found for this restaurant and table.');
 	}
 
 	// Per-restaurant daily AI-call cap check (Phase 6d / item 3).
-	const capResult = await checkDailyAiCap(bootstrap.table.restaurantId);
+	const capResult = await checkDailyAiCap(bootstrap.table.outletId);
 
 	if (!capResult.allowed) {
 		return json(

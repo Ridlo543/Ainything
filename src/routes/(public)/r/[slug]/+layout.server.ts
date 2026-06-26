@@ -1,5 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 import { resolvePublicCatalog } from '$lib/server/tenant/public-context';
+import { loadPublicCatalog } from '$lib/server/repositories/public-catalog-repository';
 import { error } from '@sveltejs/kit';
 import { cachePolicy } from '$lib/server/cache/cache-policy';
 
@@ -11,9 +12,11 @@ export const load: LayoutServerLoad = async ({ params, url, request, setHeaders 
 	}
 
 	const tableCode = url.searchParams.get('table') ?? undefined;
-	const expectedHost = restaurant.publicHost || `${restaurant.slug}.lingua.app`;
+	const expectedHost = restaurant.publicHost || `${restaurant.slug}.ainything.online`;
 	const host = request.headers.get('host') ?? '';
 	const hostValidated = host.startsWith(expectedHost) || host.startsWith('localhost');
+
+	const catalog = await loadPublicCatalog(restaurant.id);
 
 	setHeaders(cachePolicy.PUBLIC_PAGE);
 
@@ -21,6 +24,8 @@ export const load: LayoutServerLoad = async ({ params, url, request, setHeaders 
 		restaurant,
 		slug: params.slug,
 		tableCode,
-		hostValidated
+		hostValidated,
+		products: catalog.products,
+		sections: catalog.sections
 	};
 };

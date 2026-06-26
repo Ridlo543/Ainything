@@ -1,8 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { createSupabaseServerClient } from '$lib/server/auth/supabase-client';
-import { appEnv } from '$lib/server/config/env';
+import { directQuery } from '$lib/server/db/postgres';
+import bcrypt from 'bcryptjs';
 
 const passwordSchema = z
 	.object({
@@ -15,8 +15,6 @@ const passwordSchema = z
 	});
 
 export const load: PageServerLoad = ({ locals }) => {
-	// User must have an active recovery session (Supabase sets a session after
-	// the recovery link is clicked and exchanged in /auth/callback)
 	if (!locals.user) {
 		redirect(303, '/auth/forgot-password');
 	}
@@ -24,7 +22,11 @@ export const load: PageServerLoad = ({ locals }) => {
 };
 
 export const actions: Actions = {
-	update: async ({ request, cookies }) => {
+	update: async ({ request, locals }) => {
+		if (!locals.user) {
+			redirect(303, '/auth/forgot-password');
+		}
+
 		const formData = await request.formData();
 		const parsed = passwordSchema.safeParse({
 			password: formData.get('password'),
@@ -37,20 +39,12 @@ export const actions: Actions = {
 			});
 		}
 
-		const supabaseUrl = appEnv.supabaseUrl;
-		const supabaseAnonKey = appEnv.supabaseAnonKey;
+		const hash = await bcrypt.hash(parsed.data.password, 12);
 
-		if (!supabaseUrl || !supabaseAnonKey) {
-			return fail(503, { message: 'Authentication is not configured.' });
-		}
-
-		const supabase = createSupabaseServerClient(supabaseUrl, supabaseAnonKey, cookies);
-		const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
-
-		if (error) {
-			console.error('[update-password] Supabase error:', error.message);
-			return fail(400, { message: error.message });
-		}
+		await directQuery(`UPDATE app_users SET password_hash = $1 WHERE id = $2::uuid`, [
+			hash,
+			locals.user.id
+		]);
 
 		redirect(303, '/dashboard');
 	}

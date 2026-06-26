@@ -92,7 +92,7 @@
 	<meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)" />
 	<meta
 		name="description"
-		content="Lingua — multi-tenant QR catalog, cart, and order platform for restaurants, retail, and services."
+		content="Ainything — multi-tenant QR catalog, cart, and order platform for restaurants, retail, and services."
 	/>
 </svelte:head>
 {@render children()}

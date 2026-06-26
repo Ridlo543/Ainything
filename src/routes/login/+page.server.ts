@@ -3,6 +3,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { authProvider } from '$lib/server/auth/auth-factory';
 import { resolveRoleRedirect } from '$lib/server/auth/role-routing';
+import { applyLoginRateLimit } from '$lib/server/services/public-api-helpers';
 
 export const load: PageServerLoad = ({ locals, url }) => {
 	if (locals.user) {
@@ -10,6 +11,8 @@ export const load: PageServerLoad = ({ locals, url }) => {
 		if (redirectTo && redirectTo.startsWith('/')) {
 			redirect(303, redirectTo);
 		}
+		// Authenticated user with no explicit redirectTo — send to their role home.
+		redirect(303, resolveRoleRedirect(locals.user));
 	}
 
 	return {
@@ -25,6 +28,9 @@ const loginSchema = z.object({
 
 export const actions: Actions = {
 	login: async ({ cookies, request, url }) => {
+		// Rate limit: 5 attempts per 300s per IP — brute-force protection
+		await applyLoginRateLimit(request);
+
 		const formData = await request.formData();
 		const parseResult = loginSchema.safeParse({
 			email: formData.get('email'),

@@ -64,7 +64,7 @@
 					class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
 					>L</span
 				>
-				<span class="text-lg font-extrabold text-[#1a1a2e]">Lingua</span>
+				<span class="text-lg font-extrabold text-[#1a1a2e]">Ainything</span>
 			</div>
 			<form method="POST" action="?/skip" use:enhance>
 				<button

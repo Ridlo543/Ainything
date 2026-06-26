@@ -18,7 +18,7 @@
 	let { data }: { data: PageData } = $props();
 
 	const org = $derived(data.tenant.organization);
-	const restaurant = $derived(data.tenant.activeRestaurant);
+	const restaurant = $derived(data.tenant.activeOutlet);
 	const userName = $derived(data.tenant.user.name?.split(' ')[0] ?? 'Owner');
 
 	const stats = $derived(data.stats);
@@ -65,10 +65,10 @@
 			</div>
 		</div>
 		<!-- Quick actions -->
-		<div class="flex items-center gap-2">
+		<div class="flex flex-wrap items-center gap-2">
 			<a
 				href="/dashboard/catalog?new=1"
-				class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#059669] px-4 text-sm font-bold text-white shadow-sm hover:bg-[#047857] transition-colors"
+				class="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-[#059669] px-4 text-sm font-bold text-white shadow-sm hover:bg-[#047857] transition-colors"
 			>
 				<Plus size={16} /> Tambah Produk
 			</a>
@@ -76,7 +76,7 @@
 				href="/r/{restaurant.slug}"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#f0eeec] bg-white px-4 text-sm font-semibold text-[#1a1a2e] hover:bg-[#f5f5f4] transition-colors"
+				class="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-[#f0eeec] bg-white px-4 text-sm font-semibold text-[#1a1a2e] hover:bg-[#f5f5f4] transition-colors"
 			>
 				<Eye size={16} /> Lihat Katalog
 			</a>
@@ -102,7 +102,7 @@
 						{s.trend}
 					</span>
 				</div>
-				<p class="mt-3 text-2xl font-extrabold text-[#1a1a2e]">{s.value}</p>
+				<p class="mt-3 truncate text-xl font-extrabold text-[#1a1a2e] sm:text-2xl">{s.value}</p>
 				<p class="mt-0.5 text-xs text-[#78716c]">{s.label}</p>
 				<p class="mt-0.5 text-[11px] text-[#a8a29e]">{s.note}</p>
 			</div>
@@ -125,7 +125,7 @@
 			<div class="divide-y divide-[#f5f5f4]">
 				{#each recentOrders as order (order.id)}
 					<a
-						href="/dashboard/orders/{order.id.replace('#', '')}"
+						href="/dashboard/orders?order={order.fullId}"
 						class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#fafaf9] transition-colors"
 					>
 						<!-- Status dot -->

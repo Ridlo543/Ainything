@@ -9,12 +9,12 @@
 </script>
 
 <svelte:head>
-	<title>Lingua — Platform Digital UMKM Indonesia</title>
+	<title>Ainything — Platform Digital UMKM Indonesia</title>
 	<meta
 		name="description"
 		content="Katalog produk digital, QR code, keranjang, dan manajemen pesanan untuk UMKM Indonesia. Setup dalam 2 menit, tanpa install app."
 	/>
-	<meta property="og:title" content="Lingua — Platform Digital UMKM Indonesia" />
+	<meta property="og:title" content="Ainything — Platform Digital UMKM Indonesia" />
 	<meta
 		property="og:description"
 		content="Pelanggan scan QR → lihat katalog → pesan langsung. Semua tanpa install app."
