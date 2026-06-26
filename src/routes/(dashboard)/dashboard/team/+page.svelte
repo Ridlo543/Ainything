@@ -516,7 +516,7 @@
 				>
 					<input type="hidden" name="membershipId" value={selectedId} />
 					<div class="flex gap-3">
-						{#each ['staff', 'manager'] as roleOption}
+						{#each ['staff', 'manager'] as roleOption (roleOption)}
 							{@const cfg = roleCfg[roleOption as Role]}
 							<label
 								class="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors {selectedRole ===

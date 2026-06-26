@@ -13,10 +13,11 @@
 		Check
 	} from '@lucide/svelte';
 	import type { PaymentMethod, PaymentMethodType } from '$lib/domain/outlet/types';
+	import type { PageData } from './$types';
 
 	type FormResult = { success: true } | { error: string } | null;
 
-	let { data, form }: { data: any; form: FormResult } = $props();
+	let { data, form }: { data: PageData; form: FormResult } = $props();
 
 	const paymentMethods = $derived(data.paymentMethods as PaymentMethod[]);
 
@@ -41,13 +42,13 @@
 	let toastVisible = $state(false);
 
 	$effect(() => {
-		if ((form as any)?.success) {
+		if (form && 'success' in form) {
 			showModal = false;
 			submitting = false;
 			showToast('Metode pembayaran berhasil disimpan', 'success');
-		} else if ((form as any)?.error) {
+		} else if (form && 'error' in form) {
 			submitting = false;
-			showToast((form as any).error, 'error');
+			showToast(form.error, 'error');
 		}
 	});
 
@@ -300,7 +301,7 @@
 					bind:value={fType}
 					class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
 				>
-					{#each Object.entries(typeLabels) as [value, label]}
+					{#each Object.entries(typeLabels) as [value, label] (value)}
 						<option {value}>{label}</option>
 					{/each}
 				</select>
