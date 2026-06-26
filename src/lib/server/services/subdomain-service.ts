@@ -5,10 +5,10 @@
  * workspace_host is stored on the organizations table and used by the
  * host-resolver to route subdomain-based requests to the right tenant.
  *
- * Format: {slug}.lingua.app
- * e.g.   bali-table-group → bali-table-group.lingua.app
+ * Format: {slug}.ainything.online
+ * e.g.   bali-table-group → bali-table-group.ainything.online
  *
- * DNS wildcard (*.lingua.app) must be configured in production separately.
+ * DNS wildcard (*.ainything.online) must be configured in production separately.
  * This service only handles the DB side.
  */
 
@@ -17,7 +17,7 @@ import { appEnv } from '$lib/server/config/env';
 
 /** The apex domain used for subdomain generation (configurable via PUBLIC_APP_DOMAIN). */
 function getApexDomain(): string {
-	// Allow override for staging/test, e.g. "lingua-staging.app"
+	// Allow override for staging/test, e.g. "ainything-staging.app"
 	const raw = process.env.PUBLIC_APP_DOMAIN ?? '';
 	if (raw) return raw;
 	// Fall back to extracting domain from PUBLIC_APP_URL
@@ -25,13 +25,13 @@ function getApexDomain(): string {
 		const url = new URL(appEnv.publicAppUrl);
 		return url.hostname;
 	} catch {
-		return 'lingua.app';
+		return 'ainything.online';
 	}
 }
 
 /**
  * Generate the workspace_host value for an organization slug.
- * e.g. "bali-table-group" → "bali-table-group.lingua.app"
+ * e.g. "bali-table-group" → "bali-table-group.ainything.online"
  */
 export function generateWorkspaceHost(slug: string): string {
 	return `${slug}.${getApexDomain()}`;

@@ -46,15 +46,15 @@ export class StaffInboxTransitionError extends Error {
 /**
  * Returns all fallback requests the staff member is allowed to see.
  *
- * The `restaurantIds` array comes from the server-resolved TenantContext
+ * The `outletIds` array comes from the server-resolved TenantContext
  * (memberships table) — it is NOT trusted from the client.
  */
 export async function listRequests(
 	userId: string,
 	organizationId: string,
-	restaurantIds: string[]
+	outletIds: string[]
 ): Promise<StaffRequest[]> {
-	const parsed = listRequestsInputSchema.safeParse({ userId, organizationId, restaurantIds });
+	const parsed = listRequestsInputSchema.safeParse({ userId, organizationId, outletIds });
 
 	if (!parsed.success) {
 		throw new StaffInboxAuthorizationError(
@@ -62,7 +62,7 @@ export async function listRequests(
 		);
 	}
 
-	return listFallbackRequests(parsed.data.restaurantIds);
+	return listFallbackRequests(parsed.data.outletIds);
 }
 
 /**
@@ -70,26 +70,26 @@ export async function listRequests(
  *
  * Validates:
  * 1. Input shape (Zod)
- * 2. The restaurantId is in the staff member's scoped restaurant list
+ * 2. The outletId is in the staff member's scoped outlet list
  * 3. The status transition is allowed by the workflow
  *
  * @param userId           Authenticated staff user ID (for `withUserContext`)
  * @param requestId        UUID of the fallback_request row
- * @param restaurantId     UUID of the restaurant — used as a second-factor scope guard
+ * @param outletId         UUID of the outlet — used as a second-factor scope guard
  * @param newStatus        Target status: 'in_progress' | 'resolved'
- * @param memberRestaurantIds List of restaurant IDs the user has membership for
+ * @param memberOutletIds  List of outlet IDs the user has membership for
  */
 export async function transitionStatus(
 	userId: string,
 	requestId: string,
-	restaurantId: string,
+	outletId: string,
 	newStatus: 'in-progress' | 'resolved',
-	memberRestaurantIds: string[]
+	memberOutletIds: string[]
 ): Promise<void> {
 	const parsed = transitionStatusInputSchema.safeParse({
 		userId,
 		requestId,
-		restaurantId,
+		outletId,
 		newStatus
 	});
 
@@ -100,16 +100,14 @@ export async function transitionStatus(
 	}
 
 	// Belt-and-suspenders membership check before the DB round-trip
-	if (!memberRestaurantIds.includes(restaurantId)) {
-		throw new StaffInboxAuthorizationError(
-			`User ${userId} is not a member of restaurant ${restaurantId}`
-		);
+	if (!memberOutletIds.includes(outletId)) {
+		throw new StaffInboxAuthorizationError(`User ${userId} is not a member of outlet ${outletId}`);
 	}
 
 	// Validate the transition is allowed. We look up the current request to
 	// check its status before updating — this prevents idempotent re-applies
 	// from silently jumping states.
-	const requests = await listFallbackRequests([restaurantId]);
+	const requests = await listFallbackRequests([outletId]);
 	const currentRow = requests.find((r) => r.id === requestId);
 
 	if (!currentRow) {
@@ -124,5 +122,5 @@ export async function transitionStatus(
 		);
 	}
 
-	await updateFallbackStatus(requestId, restaurantId, newStatus, userId);
+	await updateFallbackStatus(requestId, outletId, newStatus, userId);
 }

@@ -4,7 +4,7 @@ import { canTransitionOrder } from '$lib/domain/order/policy';
 import { transitionOrderStatusSchema } from '$lib/domain/order/schema';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
 import {
-	listOrdersForRestaurant,
+	listOrdersForOutlet,
 	findOrderById,
 	updateOrderStatus
 } from '$lib/server/repositories/order-repository';
@@ -22,29 +22,29 @@ export class StaffOrderError extends Error {
 
 export async function listStaffOrders(
 	user: AuthUser,
-	{ statuses, restaurantSlug }: { statuses?: OrderStatus[]; restaurantSlug?: string } = {}
+	{ statuses, outletSlug }: { statuses?: OrderStatus[]; outletSlug?: string } = {}
 ): Promise<Order[]> {
-	const tenant = await resolveTenantContext(user, restaurantSlug);
-	const { activeRestaurant } = tenant;
+	const tenant = await resolveTenantContext(user, outletSlug);
+	const { activeOutlet } = tenant;
 
-	return listOrdersForRestaurant({
-		organizationId: activeRestaurant.organizationId,
-		restaurantId: activeRestaurant.id,
+	return listOrdersForOutlet({
+		organizationId: activeOutlet.organizationId,
+		outletId: activeOutlet.id,
 		statuses
 	});
 }
 
 export async function getStaffOrder(
 	user: AuthUser,
-	{ orderId, restaurantSlug }: { orderId: string; restaurantSlug?: string }
+	{ orderId, outletSlug }: { orderId: string; outletSlug?: string }
 ): Promise<OrderWithItems> {
-	const tenant = await resolveTenantContext(user, restaurantSlug);
-	const { activeRestaurant } = tenant;
+	const tenant = await resolveTenantContext(user, outletSlug);
+	const { activeOutlet } = tenant;
 
 	const order: OrderWithItems | null = await withUserContext(user.id, async (client) => {
 		return findOrderById(client, {
-			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
+			organizationId: activeOutlet.organizationId,
+			outletId: activeOutlet.id,
 			orderId
 		});
 	});
@@ -58,14 +58,14 @@ export async function getStaffOrder(
 
 export async function transitionStaffOrder(
 	user: AuthUser,
-	input: { orderId: string; restaurantSlug?: string; newStatus: OrderStatus }
+	input: { orderId: string; outletSlug?: string; newStatus: OrderStatus }
 ): Promise<Order> {
-	const tenant = await resolveTenantContext(user, input.restaurantSlug);
-	const { activeRestaurant } = tenant;
+	const tenant = await resolveTenantContext(user, input.outletSlug);
+	const { activeOutlet } = tenant;
 
 	const parsed = transitionOrderStatusSchema.safeParse({
 		orderId: input.orderId,
-		restaurantId: activeRestaurant.id,
+		outletId: activeOutlet.id,
 		newStatus: input.newStatus
 	});
 
@@ -78,8 +78,8 @@ export async function transitionStaffOrder(
 
 	const currentOrder: OrderWithItems | null = await withUserContext(user.id, async (client) => {
 		return findOrderById(client, {
-			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
+			organizationId: activeOutlet.organizationId,
+			outletId: activeOutlet.id,
 			orderId: input.orderId
 		});
 	});
@@ -97,8 +97,8 @@ export async function transitionStaffOrder(
 
 	const updated = await updateOrderStatus({
 		userId: user.id,
-		organizationId: activeRestaurant.organizationId,
-		restaurantId: activeRestaurant.id,
+		organizationId: activeOutlet.organizationId,
+		outletId: activeOutlet.id,
 		orderId: input.orderId,
 		newStatus: input.newStatus
 	});

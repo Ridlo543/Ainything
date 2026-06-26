@@ -22,25 +22,29 @@ import { appEnv } from '$lib/server/config/env';
 
 export type RateLimitEndpoint =
 	| 'session-create'
+	| 'order-create'
 	| 'chat'
 	| 'fallback'
 	| 'feedback'
 	| 'bootstrap'
 	| 'slug-check'
 	| 'password-reset'
+	| 'login-attempt'
 	| 'embeddings'
 	| 'vitals'
 	| 'metrics';
 
 const LIMITS: Record<RateLimitEndpoint, { max: number; windowSec: number }> = {
 	'session-create': { max: 5, windowSec: 60 },
+	'order-create': { max: 10, windowSec: 60 }, // 10 orders per min per IP
 	chat: { max: 20, windowSec: 60 },
 	fallback: { max: 5, windowSec: 60 },
 	feedback: { max: 10, windowSec: 60 },
 	bootstrap: { max: 30, windowSec: 60 },
 	'slug-check': { max: 30, windowSec: 60 },
-	// Authenticated endpoints — still rate-limited to prevent abuse
+	// Authenticated / sensitive endpoints
 	'password-reset': { max: 5, windowSec: 300 }, // 5 per 5 min per IP
+	'login-attempt': { max: 5, windowSec: 300 }, // 5 per 5 min per IP — brute-force protection
 	embeddings: { max: 10, windowSec: 60 }, // 10 per min per user
 	vitals: { max: 60, windowSec: 60 }, // 60 batches per min per IP
 	metrics: { max: 60, windowSec: 60 } // 60 req per min per authenticated user

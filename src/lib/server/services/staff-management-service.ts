@@ -1,10 +1,16 @@
 import { randomBytes } from 'crypto';
+import bcryptjs from 'bcryptjs';
+const bcryptHash = bcryptjs.hash;
 import type { z } from 'zod';
 import {
 	inviteStaffSchema,
 	removeMemberSchema,
 	cancelInviteSchema,
-	changeRoleSchema
+	changeRoleSchema,
+	createStaffSchema,
+	editStaffSchema,
+	type CreateStaffInput,
+	type EditStaffInput
 } from '$lib/domain/staff/schema';
 import {
 	listMembershipsWithUsers,
@@ -13,6 +19,8 @@ import {
 	deleteMembership,
 	deleteInvite,
 	updateMembershipRole,
+	createUserWithMembership,
+	updateUserProfile,
 	type MembershipWithUserRow,
 	type InviteWithInviterRow
 } from '$lib/server/repositories/staff-repository';
@@ -134,6 +142,7 @@ export async function inviteStaff(params: {
 
 export async function removeMember(params: {
 	membershipId: string;
+	organizationId: string;
 	requesterRole: string;
 }): Promise<void> {
 	const parsed = parseInput(
@@ -147,11 +156,12 @@ export async function removeMember(params: {
 		throw new StaffManagementPermissionError('Only owners can remove members');
 	}
 
-	await deleteMembership(membershipId);
+	await deleteMembership(membershipId, params.organizationId);
 }
 
 export async function cancelInvite(params: {
 	inviteId: string;
+	organizationId: string;
 	requesterRole: string;
 }): Promise<void> {
 	const parsed = parseInput({ inviteId: params.inviteId }, cancelInviteSchema, 'cancel invite');
@@ -161,11 +171,12 @@ export async function cancelInvite(params: {
 		throw new StaffManagementPermissionError('Only owners can cancel invites');
 	}
 
-	await deleteInvite(inviteId);
+	await deleteInvite(inviteId, params.organizationId);
 }
 
 export async function changeRole(params: {
 	membershipId: string;
+	organizationId: string;
 	role: string;
 	requesterRole: string;
 }): Promise<void> {
@@ -180,5 +191,63 @@ export async function changeRole(params: {
 		throw new StaffManagementPermissionError('Only owners can change roles');
 	}
 
-	await updateMembershipRole(membershipId, role);
+	await updateMembershipRole(membershipId, params.organizationId, role);
+}
+
+/**
+ * Creates a staff account directly — no invite token required.
+ * Atomically inserts app_user + membership in one transaction.
+ * Only org owners may create staff accounts.
+ */
+export async function createStaffAccount(params: {
+	input: CreateStaffInput;
+	organizationId: string;
+	requesterRole: string;
+}): Promise<{ userId: string; email: string }> {
+	if (params.requesterRole !== 'owner') {
+		throw new StaffManagementPermissionError('Only owners can create staff accounts');
+	}
+
+	const parsed = parseInput(params.input, createStaffSchema, 'create staff') as CreateStaffInput;
+	const passwordHash = await bcryptHash(parsed.password, 12);
+
+	try {
+		const user = await createUserWithMembership({
+			email: parsed.email,
+			name: parsed.name,
+			passwordHash,
+			organizationId: params.organizationId,
+			role: parsed.role
+		});
+		return { userId: user.id, email: user.email };
+	} catch (err) {
+		if (err instanceof Error && err.message === 'EMAIL_ALREADY_EXISTS') {
+			throw new StaffManagementInputError(`An account with email "${parsed.email}" already exists`);
+		}
+		throw err;
+	}
+}
+
+/**
+ * Edits a staff member's name and optionally resets their password.
+ * Only org owners may edit members.
+ */
+export async function editStaffMember(params: {
+	input: EditStaffInput;
+	organizationId: string;
+	requesterRole: string;
+}): Promise<void> {
+	if (params.requesterRole !== 'owner') {
+		throw new StaffManagementPermissionError('Only owners can edit staff members');
+	}
+
+	const parsed = parseInput(params.input, editStaffSchema, 'edit staff') as EditStaffInput;
+	const passwordHash = parsed.password ? await bcryptHash(parsed.password, 12) : undefined;
+
+	await updateUserProfile({
+		membershipId: parsed.membershipId,
+		organizationId: params.organizationId,
+		name: parsed.name,
+		passwordHash
+	});
 }

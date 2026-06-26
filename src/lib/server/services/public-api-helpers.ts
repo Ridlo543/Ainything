@@ -38,6 +38,21 @@ export function getRateLimitKey(request: Request): string {
 }
 
 /**
+ * Returns an IP-first rate-limit key for login/auth endpoints.
+ *
+ * Login attempts happen before any session token exists, so we always key
+ * by IP. This is intentionally stricter than getRateLimitKey.
+ */
+export function getLoginRateLimitKey(request: Request): string {
+	const forwarded = request.headers.get('x-forwarded-for');
+	const ip = forwarded ? forwarded.split(',')[0].trim() : null;
+	// Fall back to x-real-ip (Nginx/Caddy without XFF proxy config)
+	const realIp = request.headers.get('x-real-ip');
+
+	return ip ? `ip:${ip}` : realIp ? `ip:${realIp}` : 'unknown';
+}
+
+/**
  * Checks the rate limit and throws `429` if exceeded.
  * Call this at the top of every public endpoint handler.
  */
@@ -47,6 +62,23 @@ export async function applyRateLimit(endpoint: RateLimitEndpoint, request: Reque
 
 	if (!result.allowed) {
 		error(429, `Rate limit reached. Retry after ${result.retryAfterSec}s.`);
+	}
+}
+
+/**
+ * Checks the rate limit using an IP-first key (for login/auth endpoints where
+ * no session token exists yet). Throws `429` if exceeded.
+ */
+export async function applyLoginRateLimit(request: Request): Promise<void> {
+	// Skip rate limiting in test environment — Playwright requests have no IP headers,
+	// so all attempts share key 'unknown' and hit the 5/300s ceiling quickly.
+	if (process.env.NODE_ENV === 'test') return;
+
+	const key = getLoginRateLimitKey(request);
+	const result = await checkRateLimit('login-attempt', key);
+
+	if (!result.allowed) {
+		error(429, `Terlalu banyak percobaan login. Coba lagi dalam ${result.retryAfterSec} detik.`);
 	}
 }
 
