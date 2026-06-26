@@ -1,5 +1,5 @@
 /**
- * k6 load test — Lingua public API endpoints
+ * k6 load test — Ainything public API endpoints
  *
  * Targets:
  *   GET  /api/public/bootstrap   (30 req/60s per IP)
@@ -14,7 +14,7 @@
  *   k6 run tests/load/k6-public-endpoints.js
  *
  *   # Against staging:
- *   k6 run -e BASE_URL=https://lingua.example.com tests/load/k6-public-endpoints.js
+ *   k6 run -e BASE_URL=https://Ainything.example.com tests/load/k6-public-endpoints.js
  *
  *   # Smoke test (1 VU, 10 iterations):
  *   k6 run --vus 1 --iterations 10 tests/load/k6-public-endpoints.js

@@ -1,4 +1,4 @@
-# Load Testing Container for Lingua
+# Load Testing Container for Ainything
 # Uses Grafana K6 with Docker/Podman support
 
 FROM grafana/k6:latest
@@ -7,10 +7,10 @@ FROM grafana/k6:latest
 WORKDIR /tests
 
 # Copy test script
-COPY tests/load/lingua-load-test.js ./lingua-load-test.js
+COPY tests/load/ainything-load-test.js ./ainything-load-test.js
 
 # Install additional tools if needed
 # RUN apk add --no-cache curl
 
 # Default command
-CMD ["run", "lingua-load-test.js"]
+CMD ["run", "ainything-load-test.js"]

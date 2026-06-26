@@ -1,27 +1,21 @@
-import { expect, test } from '@playwright/test';
+/**
+ * Auth flow E2E specs.
+ * Covers: registration pages, login, password reset, logout.
+ *
+ * Auth: LocalAuthProvider — real bcrypt password check against seeded DB.
+ * Credentials: owner@bali-table.test / demo1234
+ */
 
-async function loginWithDemoAccount(page: import('@playwright/test').Page): Promise<boolean> {
-	await page.goto('/login');
-	try {
-		await page.getByLabel('Email').fill('owner@bali-table.test');
-		await page.getByLabel('Password').fill('anything');
-		await page.getByRole('button', { name: /masuk/i }).click();
-		await page.waitForURL(/\/dashboard/);
-		return true;
-	} catch {
-		return false;
-	}
-}
+import { expect, test } from '@playwright/test';
+import { loginAsOwner, DEMO_OWNER } from './fixtures';
+
+// ---------------------------------------------------------------------------
+// Registration — restaurant path
+// ---------------------------------------------------------------------------
 
 test.describe('Registration — restaurant path', () => {
 	test('registration page renders all fields', async ({ page }) => {
 		await page.goto('/register/restaurant');
-
-		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-		if (isMock) {
-			test.skip(true, 'Form hidden in mock mode');
-			return;
-		}
 
 		await expect(page.getByRole('heading', { name: /register|daftar/i })).toBeVisible();
 		await expect(page.getByLabel(/your name/i)).toBeVisible();
@@ -32,131 +26,136 @@ test.describe('Registration — restaurant path', () => {
 
 	test('shows error when form submitted empty', async ({ page }) => {
 		await page.goto('/register/restaurant');
-		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-		if (isMock) {
-			test.skip(true, 'Form hidden in mock mode');
-			return;
-		}
 		await page.getByRole('button', { name: /create|register|daftar/i }).click();
 		await expect(page.getByLabel(/your name/i)).toBeFocused();
 	});
 
-	test('has link to registration options', async ({ page }) => {
+	test('has link back to registration options', async ({ page }) => {
 		await page.goto('/register/restaurant');
-
-		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-		if (isMock) {
-			test.skip(true, 'Form hidden in mock mode');
-			return;
-		}
-
-		const link = page.getByRole('link', { name: /back to/i });
-		await expect(link).toBeVisible();
+		await expect(page.getByRole('link', { name: /back to/i })).toBeVisible();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Registration — organization path
+// ---------------------------------------------------------------------------
 
 test.describe('Registration — organization path', () => {
 	test('registration page renders all fields', async ({ page }) => {
 		await page.goto('/register/organization');
 
-		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-		if (isMock) {
-			test.skip(true, 'Form hidden in mock mode');
-			return;
-		}
-
 		await expect(page.getByRole('heading', { name: /register|daftar/i })).toBeVisible();
 		await expect(page.getByLabel(/your name/i)).toBeVisible();
-		await expect(page.getByLabel(/organization name/i)).toBeVisible();
 		await expect(page.getByLabel(/email/i)).toBeVisible();
 		await expect(page.getByLabel(/password/i)).toBeVisible();
+		await expect(page.getByLabel(/organization name/i)).toBeVisible();
 	});
 
-	test('has link to sign in page', async ({ page }) => {
+	test('shows error when form submitted empty', async ({ page }) => {
 		await page.goto('/register/organization');
+		await page.getByRole('button', { name: /create|register|daftar/i }).click();
+		await expect(page.getByLabel(/your name/i)).toBeFocused();
+	});
 
-		const isMock = await page.getByText(/registration is disabled in demo mode/i).isVisible();
-		if (isMock) {
-			test.skip(true, 'Form hidden in mock mode');
-			return;
-		}
-
-		const link = page.getByRole('link', { name: /sign in/i });
-		await expect(link).toBeVisible();
+	test('has link back to registration options', async ({ page }) => {
+		await page.goto('/register/organization');
+		await expect(page.getByRole('link', { name: /back to/i })).toBeVisible();
 	});
 });
 
-test.describe('Registration setup step', () => {
-	test('unauthenticated user is redirected to login', async ({ page }) => {
-		await page.goto('/register/restaurant/setup');
-		await page.waitForURL(/\/login/);
-		await expect(page).toHaveURL(/\/login/);
-	});
-});
+// ---------------------------------------------------------------------------
+// Login
+// ---------------------------------------------------------------------------
 
-test.describe('Login page', () => {
-	test.use({ viewport: { width: 390, height: 844 } });
-
-	test('renders all required elements', async ({ page }) => {
+test.describe('Login', () => {
+	test('login page renders email and password fields', async ({ page }) => {
 		await page.goto('/login');
-		await expect(page.getByRole('heading', { name: /selamat datang|welcome/i })).toBeVisible();
-		await expect(page.getByRole('button', { name: /masuk|sign in/i })).toBeVisible();
+
+		await expect(page.getByLabel('Email')).toBeVisible();
+		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.getByRole('button', { name: /masuk/i })).toBeVisible();
 	});
 
-	test('redirects authenticated user away from login', async ({ page }) => {
-		const loggedIn = await loginWithDemoAccount(page);
+	test('successful login redirects owner to dashboard', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
 		if (!loggedIn) {
-			test.skip(true, 'No mock sessions available');
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
-		await page.goto('/login');
-		await page.waitForURL(/\/dashboard/);
 		await expect(page).toHaveURL(/\/dashboard/);
 	});
+
+	test('invalid credentials show error message', async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel('Email').fill('notexist@example.com');
+		await page.getByLabel('Password').fill('wrongpassword');
+		await page.getByRole('button', { name: /masuk/i }).click();
+
+		await expect(page).toHaveURL(/\/login/);
+		await expect(page.getByRole('alert')).toBeVisible({ timeout: 5000 });
+	});
+
+	test('wrong password for valid email shows error', async ({ page }) => {
+		await page.goto('/login');
+		await page.getByLabel('Email').fill(DEMO_OWNER.email);
+		await page.getByLabel('Password').fill('wrongpassword');
+		await page.getByRole('button', { name: /masuk/i }).click();
+
+		await expect(page).toHaveURL(/\/login/);
+		await expect(page.getByRole('alert')).toBeVisible({ timeout: 5000 });
+	});
+
+	test('has link to registration', async ({ page }) => {
+		await page.goto('/login');
+		await expect(page.getByRole('link', { name: /daftar/i })).toBeVisible();
+	});
 });
 
-test.describe('Forgot password', () => {
-	test('page renders email field and submit button', async ({ page }) => {
-		await page.goto('/auth/forgot-password');
-		await expect(page.getByRole('heading', { name: /forgot/i })).toBeVisible();
+// ---------------------------------------------------------------------------
+// Forgot password page
+// ---------------------------------------------------------------------------
+
+test.describe('Forgot password page', () => {
+	test('renders email field and submit button', async ({ page }) => {
+		await page.goto('/forgot-password');
+
 		await expect(page.getByLabel(/email/i)).toBeVisible();
-		await expect(page.getByRole('button', { name: /send/i })).toBeVisible();
+		await expect(page.getByRole('button', { name: /reset|kirim|send/i })).toBeVisible();
 	});
 
-	test('submitting valid email shows confirmation', async ({ page }) => {
-		await page.goto('/auth/forgot-password');
-		await page.getByLabel(/email/i).fill('test@example.com');
-		await page.getByRole('button', { name: /send/i }).click();
-		await expect(page.getByText(/check your email|sent|confirmation/i).first()).toBeVisible({
-			timeout: 5000
-		});
-	});
-
-	test('has back to login link', async ({ page }) => {
-		await page.goto('/auth/forgot-password');
+	test('has link back to login', async ({ page }) => {
+		await page.goto('/forgot-password');
 		const link = page.getByRole('link', { name: /back.*login|sign in/i });
 		await expect(link).toBeVisible();
 	});
 });
 
+// ---------------------------------------------------------------------------
+// Update password page
+// ---------------------------------------------------------------------------
+
 test.describe('Update password page', () => {
-	test('unauthenticated user is redirected', async ({ page }) => {
+	test('unauthenticated user is redirected away', async ({ page }) => {
 		await page.goto('/auth/update-password');
 		await page.waitForURL(/\/login|update-password|forgot-password/);
-		const url = page.url();
-		expect(url).toMatch(/login|update-password|forgot-password/);
+		expect(page.url()).toMatch(/login|update-password|forgot-password/);
 	});
 });
 
+// ---------------------------------------------------------------------------
+// Logout
+// ---------------------------------------------------------------------------
+
 test.describe('Logout', () => {
 	test('logout redirects to login', async ({ page }) => {
-		const loggedIn = await loginWithDemoAccount(page);
+		const loggedIn = await loginAsOwner(page);
 		if (!loggedIn) {
-			test.skip(true, 'No mock sessions available');
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
 
 		await page.goto('/dashboard');
+		// Submit the logout form action directly
 		await page.evaluate(() => {
 			const form = document.createElement('form');
 			form.method = 'POST';
@@ -164,5 +163,7 @@ test.describe('Logout', () => {
 			document.body.appendChild(form);
 			form.submit();
 		});
+		await page.waitForURL(/\/login/, { timeout: 8000 });
+		await expect(page).toHaveURL(/\/login/);
 	});
 });

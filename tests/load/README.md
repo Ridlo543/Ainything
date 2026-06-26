@@ -1,4 +1,4 @@
-# Load Testing Guide for Lingua
+# Load Testing Guide for Ainything
 
 ## Overview
 
@@ -9,7 +9,7 @@ Load testing infrastructure using K6 for 100+ concurrent users.
 ### Local (K6 installed)
 
 ```bash
-k6 run tests/load/lingua-load-test.js
+k6 run tests/load/Ainything-load-test.js
 ```
 
 ### With Docker
@@ -18,7 +18,7 @@ k6 run tests/load/lingua-load-test.js
 docker run --rm \
   -v $(pwd):/tests \
   grafana/k6:latest \
-  run /tests/tests/load/lingua-load-test.js
+  run /tests/tests/load/Ainything-load-test.js
 ```
 
 ### With Podman
@@ -26,8 +26,8 @@ docker run --rm \
 ```bash
 podman run --rm \
   -v $(pwd):/tests:Z \
-  lingua-load-test \
-  run /tests/lingua-load-test.js
+  Ainything-load-test \
+  run /tests/Ainything-load-test.js
 ```
 
 ## Test Scenarios
@@ -47,10 +47,10 @@ podman run --rm \
 
 ```bash
 # JSON output
-k6 run tests/load/lingua-load-test.js --out json=output.json
+k6 run tests/load/Ainything-load-test.js --out json=output.json
 
 # InfluxDB (for Grafana)
-k6 run tests/load/lingua-load-test.js --out influxdb=http://localhost:8086/lingua
+k6 run tests/load/Ainything-load-test.js --out influxdb=http://localhost:8086/Ainything
 ```
 
 ## Integration

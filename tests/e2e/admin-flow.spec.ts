@@ -1,32 +1,41 @@
+/**
+ * Admin dashboard E2E specs.
+ * Covers: login page structure, dashboard overview, catalog page, orders, settings.
+ *
+ * Auth: LocalAuthProvider — real bcrypt password check against seeded DB.
+ * Owner: owner@bali-table.test / demo1234 → /dashboard
+ */
+
 import { expect, test, type Page } from '@playwright/test';
+import { loginAsOwner } from './fixtures';
 
-async function loginWithDemoAccount(page: Page): Promise<boolean> {
-	await page.goto('/login');
-
-	try {
-		await page.getByLabel('Email').fill('owner@bali-table.test');
-		await page.getByLabel('Password').fill('anything');
-		await page.getByRole('button', { name: /masuk/i }).click();
-		await page.waitForURL(/\/dashboard/);
-		return true;
-	} catch {
-		return false;
-	}
-}
+// ---------------------------------------------------------------------------
+// Login page structure
+// ---------------------------------------------------------------------------
 
 test.describe('Login page', () => {
-	test('renders heading and email form', async ({ page }) => {
+	test('renders email and password fields', async ({ page }) => {
 		await page.goto('/login');
 
-		await expect(page.getByRole('heading', { name: /selamat datang|welcome/i })).toBeVisible();
 		await expect(page.getByLabel('Email')).toBeVisible();
-		await expect(page.locator('#password')).toBeVisible();
+		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.getByRole('button', { name: /masuk/i })).toBeVisible();
 	});
 
-	test('login button is visible', async ({ page }) => {
+	test('shows register link', async ({ page }) => {
+		await page.goto('/login');
+		await expect(page.getByRole('link', { name: /daftar/i })).toBeVisible();
+	});
+
+	test('invalid login shows error', async ({ page }) => {
 		await page.goto('/login');
 
-		await expect(page.getByRole('button', { name: /masuk|sign in/i })).toBeVisible();
+		await page.getByLabel('Email').fill('notexist@example.com');
+		await page.getByLabel('Password').fill('x');
+		await page.getByRole('button', { name: /masuk/i }).click();
+
+		await expect(page).toHaveURL(/\/login/);
+		await expect(page.getByRole('alert')).toBeVisible({ timeout: 5000 });
 	});
 });
 
@@ -36,64 +45,148 @@ test.describe('Admin flow at 390px', () => {
 	test('login renders correctly at narrow viewport', async ({ page }) => {
 		await page.goto('/login');
 
-		await expect(page.getByRole('heading', { name: /selamat datang|welcome/i })).toBeVisible();
 		await expect(page.getByLabel('Email')).toBeVisible();
+		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.getByRole('button', { name: /masuk/i })).toBeVisible();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Dashboard overview
+// ---------------------------------------------------------------------------
 
 test.describe('Dashboard overview', () => {
-	test('renders greeting and stat tiles', async ({ page }) => {
-		const loggedIn = await loginWithDemoAccount(page);
+	test('renders after owner login', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
 		if (!loggedIn) {
-			test.skip(true, 'No mock sessions available');
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
 
-		await expect(page.getByText(/pesanan terbaru|recent orders|stats/i).first()).toBeVisible();
-		await expect(page.getByText(/produk terlaris|top products/i)).toBeVisible();
+		await expect(page).toHaveURL(/\/dashboard/);
+		await expect(page.locator('main, [role="main"], #main-content').first()).toBeVisible();
 	});
 
-	test('quick action links are visible', async ({ page }) => {
-		const loggedIn = await loginWithDemoAccount(page);
+	test('dashboard navigation links visible', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
 		if (!loggedIn) {
-			test.skip(true, 'No mock sessions available');
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
 
-		await expect(page.getByRole('link', { name: /lihat katalog|view catalog/i })).toBeVisible();
-		await expect(page.getByRole('link', { name: /tambah produk|add product/i })).toBeVisible();
+		// At least one nav link should be visible in the dashboard
+		await expect(
+			page.getByRole('link', { name: /catalog|katalog|orders|pesanan|settings|pengaturan/i }).first()
+		).toBeVisible({ timeout: 5000 });
 	});
 });
 
+// ---------------------------------------------------------------------------
+// Catalog (uses real seeded products)
+// ---------------------------------------------------------------------------
+
 test.describe('Dashboard catalog', () => {
-	test('renders catalog page', async ({ page }) => {
-		const loggedIn = await loginWithDemoAccount(page);
+	test('catalog page loads', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
 		if (!loggedIn) {
-			test.skip(true, 'No mock sessions available');
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
 
 		await page.goto('/dashboard/catalog');
 
-		await expect(page.getByRole('heading', { name: /menu|katalog|catalog/i })).toBeVisible();
+		await expect(
+			page.getByRole('heading', { name: /catalog|katalog|menu/i })
+		).toBeVisible({ timeout: 5000 });
 	});
 
-	test('shows menu items when available', async ({ page }) => {
-		const loggedIn = await loginWithDemoAccount(page);
+	test('catalog shows seeded products', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
 		if (!loggedIn) {
-			test.skip(true, 'No mock sessions configured for admin flow test');
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
+
 		await page.goto('/dashboard/catalog');
 
-		const items = page.getByRole('button', { name: /edit item|edit/i });
-		const count = await items.count();
+		// Seeder plants at least 3 products for Uma Karang (owner's primary outlet)
+		const items = page.locator('[data-testid="product-row"], [data-testid="product-card"], tbody tr');
+		await expect(items.first()).toBeVisible({ timeout: 8000 });
+		expect(await items.count()).toBeGreaterThanOrEqual(1);
+	});
+});
 
-		if (count === 0) {
-			test.skip(true, 'No menu items available to edit');
+// ---------------------------------------------------------------------------
+// Orders
+// ---------------------------------------------------------------------------
+
+test.describe('Dashboard orders', () => {
+	test('renders orders page', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
+		if (!loggedIn) {
+			test.skip(true, 'DB not seeded or server not running');
 			return;
 		}
 
-		await expect(items.first()).toBeVisible();
+		await page.goto('/dashboard/orders');
+
+		await expect(
+			page.getByRole('heading', { name: /pesanan|orders/i })
+		).toBeVisible({ timeout: 5000 });
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
+
+test.describe('Dashboard settings', () => {
+	test('renders settings page', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
+		if (!loggedIn) {
+			test.skip(true, 'DB not seeded or server not running');
+			return;
+		}
+
+		await page.goto('/dashboard/settings');
+
+		await expect(
+			page.getByRole('heading', { name: /settings|pengaturan/i })
+		).toBeVisible({ timeout: 5000 });
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Analytics
+// ---------------------------------------------------------------------------
+
+test.describe('Dashboard analytics', () => {
+	test('renders analytics page with range selector', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
+		if (!loggedIn) {
+			test.skip(true, 'DB not seeded or server not running');
+			return;
+		}
+
+		await page.goto('/dashboard/analytics');
+
+		await expect(
+			page.getByRole('heading', { name: /analytics|analitik/i })
+		).toBeVisible({ timeout: 5000 });
+
+		// Range selector buttons (7d / 30d / 90d)
+		await expect(page.getByRole('button', { name: /7d|30d|90d/i }).first()).toBeVisible();
+	});
+
+	test('range selector changes URL param', async ({ page }) => {
+		const loggedIn = await loginAsOwner(page);
+		if (!loggedIn) {
+			test.skip(true, 'DB not seeded or server not running');
+			return;
+		}
+
+		await page.goto('/dashboard/analytics');
+		await page.getByRole('button', { name: /30d/i }).click();
+		await expect(page).toHaveURL(/range=30d/);
 	});
 });

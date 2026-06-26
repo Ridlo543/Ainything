@@ -2,7 +2,7 @@ import { check, sleep } from 'k6';
 import http from 'k6/http';
 
 /**
- * Load Testing Script for Lingua
+ * Load Testing Script for Ainything
  *
  * Test scenarios:
  * 1. Customer flow - browse menu, chat with AI
