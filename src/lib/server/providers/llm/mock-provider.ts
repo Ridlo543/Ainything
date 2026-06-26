@@ -14,7 +14,7 @@ export class MockLlmProvider implements LlmProvider {
 	async chat(context: LlmChatContext): Promise<LlmChatResult> {
 		return {
 			answer: [
-				`Thank you for your question about ${context.restaurantName}.`,
+				`Thank you for your question about ${context.outletName}.`,
 				`Our AI assistant is not yet fully connected.`,
 				`Please ask our staff for help — they will be happy to answer in your language.`
 			].join(' '),

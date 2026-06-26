@@ -10,8 +10,8 @@ import { PROMPT_VERSION } from '$lib/server/providers/llm/prompt';
  */
 export type AiEventInput = {
 	organizationId: string;
-	restaurantId: string;
-	sessionId?: string;
+	outletId: string;
+	buyerSessionId?: string;
 	provider: string;
 	model: string;
 	/** Matches PROMPT_VERSION — logged so regression tests can be scoped per version. */
@@ -47,10 +47,10 @@ export async function logAiEvent(input: AiEventInput): Promise<void> {
 	try {
 		await query(
 			`
-			INSERT INTO ai_events (
-				organization_id,
-				restaurant_id,
-				session_id,
+		INSERT INTO ai_events (
+			organization_id,
+			outlet_id,
+			buyer_session_id,
 				provider,
 				model,
 				prompt_version,
@@ -71,9 +71,9 @@ export async function logAiEvent(input: AiEventInput): Promise<void> {
 			)
 		`,
 			[
-				input.organizationId,
-				input.restaurantId,
-				input.sessionId ?? null,
+			input.organizationId,
+			input.outletId,
+			input.buyerSessionId ?? null,
 				input.provider,
 				input.model,
 				input.promptVersion ?? PROMPT_VERSION,

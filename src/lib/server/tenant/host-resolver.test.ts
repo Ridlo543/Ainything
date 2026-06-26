@@ -10,28 +10,28 @@ function makeRequest(host: string | null): Request {
 describe('host-resolver', () => {
 	describe('resolveRestaurantFromRequest', () => {
 		it('returns the path slug when provided (path always wins)', () => {
-			const request = makeRequest('uma-karang.lingua.app');
+			const request = makeRequest('uma-karang.ainything.online');
 			const result = resolveRestaurantFromRequest(request, { restaurantSlug: 'taman-sate' });
 			expect(result.slug).toBe('taman-sate');
 			expect(result.source).toBe('path');
 		});
 
 		it('extracts the subdomain from a host header when no path slug is present', () => {
-			const request = makeRequest('uma-karang.lingua.app');
+			const request = makeRequest('uma-karang.ainything.online');
 			const result = resolveRestaurantFromRequest(request, {});
 			expect(result.slug).toBe('uma-karang');
 			expect(result.source).toBe('host');
 		});
 
 		it('strips the port from the host header', () => {
-			const request = makeRequest('uma-karang.lingua.app:443');
+			const request = makeRequest('uma-karang.ainything.online:443');
 			const result = resolveRestaurantFromRequest(request, {});
 			expect(result.slug).toBe('uma-karang');
 			expect(result.source).toBe('host');
 		});
 
 		it('returns null for the apex domain (no subdomain)', () => {
-			const request = makeRequest('lingua.app');
+			const request = makeRequest('ainything.online');
 			const result = resolveRestaurantFromRequest(request, {});
 			expect(result.slug).toBeNull();
 			expect(result.source).toBeNull();
@@ -63,7 +63,7 @@ describe('host-resolver', () => {
 		});
 
 		it('rejects nested subdomains', () => {
-			const request = makeRequest('staging.uma-karang.lingua.app');
+			const request = makeRequest('staging.uma-karang.ainything.online');
 			const result = resolveRestaurantFromRequest(request, {});
 			expect(result.slug).toBeNull();
 		});
@@ -71,30 +71,36 @@ describe('host-resolver', () => {
 
 	describe('hostMatchesRestaurant', () => {
 		it('matches identical hosts', () => {
-			expect(hostMatchesRestaurant('uma-karang.lingua.app', 'uma-karang.lingua.app')).toBe(true);
+			expect(
+				hostMatchesRestaurant('uma-karang.ainything.online', 'uma-karang.ainything.online')
+			).toBe(true);
 		});
 
 		it('strips port from the request host before comparing', () => {
-			expect(hostMatchesRestaurant('uma-karang.lingua.app:443', 'uma-karang.lingua.app')).toBe(
-				true
-			);
+			expect(
+				hostMatchesRestaurant('uma-karang.ainything.online:443', 'uma-karang.ainything.online')
+			).toBe(true);
 		});
 
 		it('is case-insensitive', () => {
-			expect(hostMatchesRestaurant('UMA-KARANG.lingua.app', 'uma-karang.lingua.app')).toBe(true);
+			expect(
+				hostMatchesRestaurant('UMA-KARANG.ainything.online', 'uma-karang.ainything.online')
+			).toBe(true);
 		});
 
 		it('returns false for different hosts', () => {
-			expect(hostMatchesRestaurant('taman-sate.lingua.app', 'uma-karang.lingua.app')).toBe(false);
+			expect(
+				hostMatchesRestaurant('taman-sate.ainything.online', 'uma-karang.ainything.online')
+			).toBe(false);
 		});
 
 		it('returns false when either side is null', () => {
-			expect(hostMatchesRestaurant(null, 'uma-karang.lingua.app')).toBe(false);
-			expect(hostMatchesRestaurant('uma-karang.lingua.app', null)).toBe(false);
+			expect(hostMatchesRestaurant(null, 'uma-karang.ainything.online')).toBe(false);
+			expect(hostMatchesRestaurant('uma-karang.ainything.online', null)).toBe(false);
 		});
 
 		it('returns false for an empty stored public_host', () => {
-			expect(hostMatchesRestaurant('uma-karang.lingua.app', '')).toBe(false);
+			expect(hostMatchesRestaurant('uma-karang.ainything.online', '')).toBe(false);
 		});
 	});
 });

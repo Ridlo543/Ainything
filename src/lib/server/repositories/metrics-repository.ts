@@ -4,7 +4,7 @@
  * All queries are scoped by restaurant_id and run as a direct pool query
  * (no user context needed — analytics reads are admin-tier, not guest-tier).
  *
- * The pool connects as `lingua_app`; the SELECT policies on ai_events and feedback
+ * The pool connects as `ainything_app`; the SELECT policies on ai_events and feedback
  * (defined in 0001) already scope by restaurant_id, so cross-tenant leakage is
  * impossible even if the caller passes an unscoped list.
  *
@@ -15,8 +15,8 @@
  */
 
 import { query } from '$lib/server/db/postgres';
-import type { RestaurantMetrics } from '$lib/domain/analytics/types';
-export type { RestaurantMetrics };
+import type { OutletMetrics } from '$lib/domain/analytics/types';
+export type { OutletMetrics };
 
 type AiEventRow = {
 	total_chats: string;
@@ -56,10 +56,10 @@ function toPercent(numerator: number, denominator: number): number {
  * safetyFlags is a text[] column. We check for 'needs-staff' or 'blocked'
  * using the PostgreSQL && (array overlap) operator.
  */
-async function fetchRestaurantMetrics(
-	restaurantId: string,
+async function fetchOutletMetrics(
+	outletId: string,
 	windowDays: number
-): Promise<RestaurantMetrics> {
+): Promise<OutletMetrics> {
 	const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
 
 	// AI events query
@@ -80,7 +80,7 @@ async function fetchRestaurantMetrics(
 			WHERE restaurant_id = $1::uuid
 				AND created_at >= $2::timestamptz
 		`,
-		[restaurantId, since]
+		[outletId, since]
 	);
 
 	// Feedback query
@@ -93,7 +93,7 @@ async function fetchRestaurantMetrics(
 			WHERE restaurant_id = $1::uuid
 				AND created_at >= $2::timestamptz
 		`,
-		[restaurantId, since]
+		[outletId, since]
 	);
 
 	const ai = aiResult.rows[0];
@@ -109,7 +109,7 @@ async function fetchRestaurantMetrics(
 	const latencyP95 = latencyP95Raw != null ? toInt(latencyP95Raw) : null;
 
 	return {
-		restaurantId,
+		outletId,
 		windowDays,
 		totalChats,
 		helpfulRate: toPercent(okChats, totalChats),
@@ -128,16 +128,16 @@ async function fetchRestaurantMetrics(
  * Returns metrics for a single restaurant. Fail-open: on DB error returns
  * zeroed metrics so the analytics page never crashes.
  */
-export async function getRestaurantMetrics(
-	restaurantId: string,
+export async function getOutletMetrics(
+	outletId: string,
 	windowDays = 7
-): Promise<RestaurantMetrics> {
+): Promise<OutletMetrics> {
 	try {
-		return await fetchRestaurantMetrics(restaurantId, windowDays);
+		return await fetchOutletMetrics(outletId, windowDays);
 	} catch (err) {
-		console.error('[metrics-repo] Failed to load restaurant metrics:', err);
+		console.error('[metrics-repo] Failed to load outlet metrics:', err);
 		return {
-			restaurantId,
+			outletId,
 			windowDays,
 			totalChats: 0,
 			helpfulRate: 0,
@@ -150,16 +150,16 @@ export async function getRestaurantMetrics(
 }
 
 /**
- * Fans out across all restaurant IDs in parallel.
- * Returns a map from restaurantId → RestaurantMetrics.
+ * Fans out across all outlet IDs in parallel.
+ * Returns a map from outletId → OutletMetrics.
  */
 export async function getOrganizationMetrics(
-	restaurantIds: string[],
+	outletIds: string[],
 	windowDays = 7
-): Promise<Map<string, RestaurantMetrics>> {
+): Promise<Map<string, OutletMetrics>> {
 	const results = await Promise.all(
-		restaurantIds.map((id) => getRestaurantMetrics(id, windowDays))
+		outletIds.map((id) => getOutletMetrics(id, windowDays))
 	);
 
-	return new Map(results.map((m) => [m.restaurantId, m]));
+	return new Map(results.map((m: OutletMetrics) => [m.outletId, m]));
 }

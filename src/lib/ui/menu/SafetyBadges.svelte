@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Badge from '$lib/ui/primitives/Badge.svelte';
-	import type { MenuItem } from '$lib/domain/menu/types';
+	import type { Product } from '$lib/domain/outlet/types';
 	import { t, tWithVars } from '$lib/i18n';
 
-	let { item }: { item: MenuItem } = $props();
+	let { item }: { item: Pick<Product, 'dietaryFlags' | 'allergens' | 'confidence'> } = $props();
 </script>
 
 <div class="flex flex-wrap gap-2">

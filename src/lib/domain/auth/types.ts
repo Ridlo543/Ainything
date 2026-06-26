@@ -1,8 +1,8 @@
-export type PlatformRole = 'super_admin' | 'org_owner' | 'restaurant_admin' | 'staff';
+export type PlatformRole = 'super_admin' | 'org_owner' | 'outlet_admin' | 'staff';
 
 export type OrgMembership = {
 	organizationId: string;
-	restaurantIds: string[];
+	outletIds: string[];
 	role: Exclude<PlatformRole, 'super_admin'>;
 };
 

@@ -1,13 +1,5 @@
 import type { AuthUser, OrgMembership } from '$lib/domain/auth/types';
-import type {
-	Allergen,
-	DietaryFlag,
-	MenuItem,
-	MenuSourceType,
-	TenantContext
-} from '$lib/domain/menu/types';
-import type { MenuImportIssue } from '$lib/domain/menu/types';
-import type { Membership, Organization } from '$lib/domain/menu/types';
+import type { MenuItem, MenuImportIssue, TenantContext, Membership, Organization } from '$lib/domain/menu/types';
 import { query, withUserContext, type DatabaseClient } from '$lib/server/db/postgres';
 import { mapRestaurantRow, type RestaurantRow } from '$lib/server/repositories/menu-row-mapper';
 
@@ -16,7 +8,7 @@ function mapMembershipRole(role: Membership['role']): OrgMembership['role'] {
 		case 'owner':
 			return 'org_owner';
 		case 'manager':
-			return 'restaurant_admin';
+			return 'outlet_admin';
 		case 'staff':
 			return 'staff';
 	}
@@ -37,73 +29,65 @@ type OrganizationRow = {
 	plan: Organization['plan'];
 };
 
-type MenuItemRow = {
-	id: string;
-	restaurant_id: string;
-	category: string;
-	name: string;
-	local_name: string | null;
-	description: string;
-	price_amount: number;
-	currency: MenuItem['currency'];
-	image_url: string;
-	spice_level: MenuItem['spiceLevel'];
-	is_available: boolean;
-	is_signature: boolean;
-	confidence: MenuItem['confidence'];
-	good_for: string[];
-	dietary_flags: string[];
-	allergens: string[];
-};
-
-type ImportIssueRow = {
-	id: string;
-	restaurant_id: string;
-	source_type: string;
-	label: string;
-	confidence: string;
-	issue: string;
-	status: MenuImportIssue['status'];
-};
 
 async function loadPublishedCategoriesForTenant(restaurantIds: string[]) {
+	// Queries catalog_sections (generalized schema). outletIds == restaurantIds (same UUIDs).
 	if (restaurantIds.length === 0) return new Map<string, string[]>();
-	const result = await query<{ restaurant_id: string; name: string }>(
-		`SELECT DISTINCT mc.restaurant_id::text, mc.name, mc.sort_order
-		 FROM menu_categories mc
-		 JOIN menus m ON m.id = mc.menu_id
-		 WHERE mc.restaurant_id = ANY($1::uuid[])
-		   AND m.status = 'published'
-		 ORDER BY mc.restaurant_id::text, mc.sort_order, mc.name`,
+	const result = await query<{ outlet_id: string; name: string }>(
+		`SELECT DISTINCT cs.outlet_id::text, cs.name, cs.sort_order
+		 FROM catalog_sections cs
+		 JOIN catalogs c ON c.id = cs.catalog_id
+		 WHERE cs.outlet_id = ANY($1::uuid[])
+		   AND c.status = 'published'
+		 ORDER BY cs.outlet_id::text, cs.sort_order, cs.name`,
 		[restaurantIds]
 	);
 	const map = new Map<string, string[]>();
 	for (const row of result.rows) {
-		map.set(row.restaurant_id, [...(map.get(row.restaurant_id) ?? []), row.name]);
+		map.set(row.outlet_id, [...(map.get(row.outlet_id) ?? []), row.name]);
 	}
 	return map;
 }
 
 async function loadPublishedMenuItemsForTenant(restaurantIds: string[]) {
+	// Queries products/catalog_sections/catalogs (generalized schema). outletIds == restaurantIds.
 	if (restaurantIds.length === 0) return new Map<string, MenuItem[]>();
-	const result = await query<MenuItemRow>(
-		`SELECT mi.id::text, mi.restaurant_id::text, mc.name AS category,
-				mi.name, mi.local_name, mi.description,
-				mi.price_amount, mi.currency, mi.image_url,
-				mi.spice_level, mi.is_available, mi.is_signature,
-				mi.confidence,
-				COALESCE(mi.source_metadata->'goodFor', '[]'::jsonb) AS good_for,
-				COALESCE(ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL), ARRAY[]::text[]) AS dietary_flags,
-				COALESCE(ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL), ARRAY[]::text[]) AS allergens
-		 FROM menu_items mi
-		 JOIN menus m ON m.id = mi.menu_id
-		 JOIN menu_categories mc ON mc.id = mi.category_id
-		 LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-		 LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
-		 WHERE mi.restaurant_id = ANY($1::uuid[])
-		   AND m.status = 'published'
-		 GROUP BY mi.id, mc.name
-		 ORDER BY mi.restaurant_id::text, mi.sort_order, mi.name`,
+
+	type ProductRow = {
+		outlet_id: string;
+		category: string;
+		id: string;
+		name: string;
+		local_name: string | null;
+		description: string;
+		price_amount: number;
+		currency: MenuItem['currency'];
+		image_url: string;
+		is_available: boolean;
+		is_featured: boolean;
+		confidence: MenuItem['confidence'];
+	};
+
+	const result = await query<ProductRow>(
+		`SELECT
+				p.outlet_id::text,
+				cs.name AS category,
+				p.id::text,
+				p.name,
+				p.local_name,
+				COALESCE(p.description, '') AS description,
+				p.price_amount,
+				COALESCE(p.currency, 'IDR') AS currency,
+				COALESCE(p.image_url, '') AS image_url,
+				p.is_available,
+				p.is_featured,
+				COALESCE(p.confidence, 'needs-review') AS confidence
+		 FROM products p
+		 JOIN catalog_sections cs ON cs.id = p.section_id
+		 JOIN catalogs c ON c.id = p.catalog_id
+		 WHERE p.outlet_id = ANY($1::uuid[])
+		   AND c.status = 'published'
+		 ORDER BY p.outlet_id::text, p.sort_order, p.name`,
 		[restaurantIds]
 	);
 	const items = new Map<string, MenuItem[]>();
@@ -117,49 +101,31 @@ async function loadPublishedMenuItemsForTenant(restaurantIds: string[]) {
 			price: row.price_amount,
 			currency: row.currency,
 			image: row.image_url,
-			spiceLevel: row.spice_level,
+			spiceLevel: 0,
 			isAvailable: row.is_available,
-			isSignature: row.is_signature,
-			dietaryFlags: row.dietary_flags as DietaryFlag[],
-			allergens: row.allergens as Allergen[],
-			goodFor: row.good_for,
+			isSignature: row.is_featured,
+			dietaryFlags: [],
+			allergens: [],
+			goodFor: [],
 			confidence: row.confidence
 		};
-		items.set(row.restaurant_id, [...(items.get(row.restaurant_id) ?? []), item]);
+		items.set(row.outlet_id, [...(items.get(row.outlet_id) ?? []), item]);
 	}
 	return items;
 }
 
-async function loadImportIssuesForTenant(restaurantIds: string[]) {
-	if (restaurantIds.length === 0) return new Map<string, MenuImportIssue[]>();
-	const result = await query<ImportIssueRow>(
-		`SELECT id::text, restaurant_id::text, source_type, label,
-				confidence::text, issue, status
-		 FROM menu_import_issues
-		 WHERE restaurant_id = ANY($1::uuid[])
-		 ORDER BY created_at DESC`,
-		[restaurantIds]
-	);
-	const issues = new Map<string, MenuImportIssue[]>();
-	for (const row of result.rows) {
-		const issue: MenuImportIssue = {
-			id: row.id,
-			sourceType: row.source_type as MenuSourceType,
-			label: row.label,
-			confidence: Number(row.confidence),
-			issue: row.issue,
-			status: row.status
-		};
-		issues.set(row.restaurant_id, [...(issues.get(row.restaurant_id) ?? []), issue]);
-	}
-	return issues;
+async function loadImportIssuesForTenant(
+	_restaurantIds: string[]
+): Promise<Map<string, MenuImportIssue[]>> {
+	// menu_import_issues was dropped in migration 0024. Return empty map.
+	return new Map<string, MenuImportIssue[]>();
 }
 
 export async function resolveTenantContextFromDatabase(
 	user: AuthUser,
-	selectedRestaurantSlug?: string
+	selectedOutletSlug?: string
 ): Promise<TenantContext> {
-	const { base, restaurants } = await withUserContext(user.id, async (client) => {
+	const { base, restaurants, outletRows } = await withUserContext(user.id, async (client) => {
 		const base = await loadMembership(client, user.id, user.memberships[0]?.organizationId ?? '');
 
 		if (!base) {
@@ -167,12 +133,13 @@ export async function resolveTenantContextFromDatabase(
 		}
 
 		const restaurants = await loadRestaurantsForMembership(client, base.membership_id);
+		const outletRows = await loadOutletsForMembership(client, base.membership_id);
 
-		if (restaurants.length === 0) {
-			throw new Error(`No restaurants available for membership ${base.membership_id}`);
+		if (outletRows.length === 0) {
+			throw new Error(`No outlets available for membership ${base.membership_id}`);
 		}
 
-		return { base, restaurants };
+		return { base, restaurants, outletRows };
 	});
 
 	const restaurantIds = restaurants.map((restaurant) => restaurant.id);
@@ -191,9 +158,14 @@ export async function resolveTenantContextFromDatabase(
 		)
 	);
 
+	const outlets: Outlet[] = outletRows.map((row) => mapOutletRow(row));
+	const outletIds = outlets.map((o) => o.id);
+
+	const activeOutlet =
+		outlets.find((o) => o.slug === selectedOutletSlug) ?? outlets[0];
+
 	const activeRestaurant =
-		mappedRestaurants.find((restaurant) => restaurant.slug === selectedRestaurantSlug) ??
-		mappedRestaurants[0];
+		mappedRestaurants.find((r) => r.slug === selectedOutletSlug) ?? mappedRestaurants[0];
 
 	return {
 		user: {
@@ -204,7 +176,7 @@ export async function resolveTenantContextFromDatabase(
 			memberships: [
 				{
 					organizationId: base.organization_id,
-					restaurantIds,
+					outletIds,
 					role: mapMembershipRole(base.role)
 				}
 			]
@@ -213,7 +185,7 @@ export async function resolveTenantContextFromDatabase(
 			id: base.membership_id,
 			userId: base.user_id,
 			organizationId: base.organization_id,
-			restaurantIds,
+			restaurantIds: outletIds,
 			role: base.role
 		},
 		organization: {
@@ -222,10 +194,12 @@ export async function resolveTenantContextFromDatabase(
 			slug: base.organization_slug,
 			workspaceHost: base.workspace_host,
 			plan: base.plan,
-			restaurantIds
+			restaurantIds: outletIds
 		},
 		restaurants: mappedRestaurants,
-		activeRestaurant
+		activeRestaurant,
+		outlets,
+		activeOutlet
 	};
 }
 
@@ -263,32 +237,138 @@ async function loadMembership(
 }
 
 async function loadRestaurantsForMembership(client: DatabaseClient, membershipId: string) {
+	// Query outlets via membership_outlets (generalized schema from migration 0025).
+	// Returns OutletRow aliased to RestaurantRow shape for backward compatibility.
 	const result = await client.query<RestaurantRow>(
 		`
 			SELECT
-				r.id::text,
-				r.organization_id::text,
-				r.name,
-				r.slug,
-				COALESCE(r.public_host, '') AS public_host,
-				r.location,
-				r.segment,
-				r.language_tags,
-				r.hero_image_url,
-				r.menu_scan_url,
-				r.table_count,
-				r.menu_source_type,
-				r.description,
-				r.knowledge_highlights,
-				COALESCE(r.analytics, '{}'::jsonb) AS analytics
-			FROM membership_restaurants mr
-			JOIN restaurants r ON r.id = mr.restaurant_id
-			WHERE mr.membership_id = $1::uuid
-				AND r.status = 'active'
-			ORDER BY r.name ASC
+				o.id::text,
+				o.organization_id::text,
+				o.name,
+				o.slug,
+				COALESCE(o.public_host, '') AS public_host,
+				COALESCE(o.location, '') AS location,
+				COALESCE(o.business_type, 'other') AS segment,
+				COALESCE(o.language_tags, ARRAY['id']) AS language_tags,
+				COALESCE(o.hero_image_url, '') AS hero_image_url,
+				COALESCE(o.catalog_scan_url, '') AS menu_scan_url,
+				COALESCE(o.table_count, 0) AS table_count,
+				COALESCE(o.catalog_source_type, 'photo') AS menu_source_type,
+				COALESCE(o.description, '') AS description,
+				COALESCE(o.knowledge_highlights, ARRAY[]::text[]) AS knowledge_highlights,
+				COALESCE(o.analytics, '{}'::jsonb) AS analytics
+			FROM membership_outlets mo
+			JOIN outlets o ON o.id = mo.outlet_id
+			WHERE mo.membership_id = $1::uuid
+				AND o.status = 'active'
+			ORDER BY o.name ASC
 		`,
 		[membershipId]
 	);
 
 	return result.rows;
+}
+
+// ---------------------------------------------------------------------------
+// Outlet-based tenant resolution (new generalized schema from migration 0022)
+// ---------------------------------------------------------------------------
+
+import type { Outlet } from '$lib/domain/outlet/types';
+import { mapOutletRow, type OutletRow } from '$lib/server/repositories/outlet-row-mapper';
+
+async function loadOutletsForMembership(
+	client: DatabaseClient,
+	membershipId: string
+): Promise<OutletRow[]> {
+	const result = await client.query<OutletRow>(
+		`
+			SELECT
+				o.id::text,
+				o.organization_id::text,
+				o.name,
+				o.slug,
+				COALESCE(o.public_host, '') AS public_host,
+				COALESCE(o.location, '') AS location,
+				o.business_type,
+				o.status,
+				COALESCE(o.language_tags, ARRAY['id']) AS language_tags,
+				COALESCE(o.default_language_tag, 'id') AS default_language_tag,
+				COALESCE(o.timezone, 'Asia/Jakarta') AS timezone,
+				COALESCE(o.hero_image_url, '') AS hero_image_url,
+				COALESCE(o.table_count, 0) AS table_count,
+				COALESCE(o.description, '') AS description,
+				COALESCE(o.knowledge_highlights, ARRAY[]::text[]) AS knowledge_highlights,
+				COALESCE(o.analytics, '{}'::jsonb) AS analytics
+			FROM membership_outlets mo
+			JOIN outlets o ON o.id = mo.outlet_id
+			WHERE mo.membership_id = $1::uuid
+			  AND o.status = 'active'
+			ORDER BY o.name ASC
+		`,
+		[membershipId]
+	);
+	return result.rows;
+}
+
+/**
+ * Resolve outlet-based tenant context. Returns null if no outlets are found
+ * (caller should fall back to the legacy restaurant-based path).
+ */
+export async function resolveOutletTenantContext(
+	user: AuthUser,
+	selectedOutletSlug?: string
+): Promise<{
+	user: AuthUser;
+	membership: { id: string; userId: string; organizationId: string; outletIds: string[]; role: 'owner' | 'manager' | 'staff' };
+	organization: { id: string; name: string; slug: string; workspaceHost: string; plan: Organization['plan']; outletIds: string[] };
+	outlets: Outlet[];
+	activeOutlet: Outlet;
+} | null> {
+	const { base, outletRows } = await withUserContext(user.id, async (client) => {
+		const base = await loadMembership(client, user.id, user.memberships[0]?.organizationId ?? '');
+		if (!base) throw new Error(`No database membership found for user ${user.id}`);
+		const outletRows = await loadOutletsForMembership(client, base.membership_id);
+		return { base, outletRows };
+	});
+
+	if (outletRows.length === 0) return null;
+
+	const outlets: Outlet[] = outletRows.map((row) => mapOutletRow(row));
+	const outletIds = outlets.map((o) => o.id);
+
+	const activeOutlet =
+		outlets.find((o) => o.slug === selectedOutletSlug) ?? outlets[0];
+
+	return {
+		user: {
+			id: base.user_id,
+			email: base.email,
+			name: base.user_name,
+			platformRole: (base.platform_role as AuthUser['platformRole']) ?? 'staff',
+			memberships: [
+				{
+					organizationId: base.organization_id,
+					outletIds, // outletIds maps to OrgMembership.outletIds
+					role: mapMembershipRole(base.role)
+				}
+			]
+		},
+		membership: {
+			id: base.membership_id,
+			userId: base.user_id,
+			organizationId: base.organization_id,
+			outletIds,
+			role: base.role
+		},
+		organization: {
+			id: base.organization_id,
+			name: base.organization_name,
+			slug: base.organization_slug,
+			workspaceHost: base.workspace_host,
+			plan: base.plan,
+			outletIds
+		},
+		outlets,
+		activeOutlet
+	};
 }

@@ -86,7 +86,7 @@
 			>
 				<span
 					class="border-r border-[#e7e5e4] bg-[#f5f5f4] px-3 py-2.5 text-sm text-[#78716c] whitespace-nowrap"
-					>lingua.app/</span
+					>ainything.online/</span
 				>
 				<input
 					id="slug"

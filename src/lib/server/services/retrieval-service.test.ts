@@ -84,7 +84,7 @@ describe('retrieveMenuContext — structured-only path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue(items);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'spicy noodles',
 			embeddingEnabled: false
 		});
@@ -100,7 +100,7 @@ describe('retrieveMenuContext — structured-only path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue(items);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: '   ',
 			embeddingEnabled: true
 		});
@@ -113,7 +113,7 @@ describe('retrieveMenuContext — structured-only path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue([]);
 
 		await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'vegan',
 			preferences: {
 				dietaryFlags: ['vegan'],
@@ -135,7 +135,7 @@ describe('retrieveMenuContext — structured-only path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue(manyItems);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'food',
 			embeddingEnabled: false
 		});
@@ -163,7 +163,7 @@ describe('retrieveMenuContext — hybrid path', () => {
 		// For the semantic-only items, retrieval returns them too
 		const semanticItem = makeMenuItem({ id: 'item-2', name: 'Mie Goreng' });
 		retrieveMenuItemsByFiltersMock.mockImplementation(
-			(_restaurantId: string, filters: { availableOnly?: boolean }) => {
+			(_outletId: string, filters: { availableOnly?: boolean }) => {
 				// First call is structured, second is for semantic-only items
 				if (filters?.availableOnly && !('searchQuery' in filters)) {
 					return Promise.resolve([structuredItem, semanticItem]);
@@ -173,7 +173,7 @@ describe('retrieveMenuContext — hybrid path', () => {
 		);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'fried noodles',
 			embeddingEnabled: true
 		});
@@ -189,7 +189,7 @@ describe('retrieveMenuContext — hybrid path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue([structuredItem]);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'something',
 			embeddingEnabled: true
 		});
@@ -203,7 +203,7 @@ describe('retrieveMenuContext — hybrid path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue([structuredItem]);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'something',
 			embeddingEnabled: true
 		});
@@ -220,7 +220,7 @@ describe('retrieveMenuContext — hybrid path', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue([structuredItem]);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'something',
 			embeddingEnabled: true
 		});
@@ -238,7 +238,7 @@ describe('retrieveMenuContext — error fallback', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue([structuredItem]);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'something',
 			embeddingEnabled: true
 		});
@@ -254,7 +254,7 @@ describe('retrieveMenuContext — error fallback', () => {
 		retrieveMenuItemsByFiltersMock.mockResolvedValue([structuredItem]);
 
 		const result = await retrieveMenuContext({
-			restaurantId: RESTAURANT_ID,
+			outletId: RESTAURANT_ID,
 			query: 'something',
 			embeddingEnabled: true
 		});

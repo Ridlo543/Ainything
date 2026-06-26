@@ -1,6 +1,7 @@
 export type StorageObjectMeta = {
-	restaurantId: string;
-	sourceType: 'menu-import' | 'item-image' | 'knowledge-attachment';
+	/** Organization (tenant) ID that owns this file. */
+	organizationId: string;
+	sourceType: 'menu-import' | 'item-image' | 'knowledge-attachment' | 'qris-image' | 'payment-proof';
 	fileName: string;
 	mimeType: string;
 	sizeBytes: number;

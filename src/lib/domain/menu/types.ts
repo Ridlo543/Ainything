@@ -1,3 +1,19 @@
+/**
+ * menu/types.ts — legacy restaurant-specific types.
+ *
+ * These types are kept for backward compatibility while the codebase migrates
+ * to the generalized outlet/* types from migration 0022 onward.
+ *
+ * Migration path:
+ *   Restaurant      → use Outlet      from '$lib/domain/outlet/types'
+ *   MenuItem        → use Product     from '$lib/domain/outlet/types'
+ *   MenuImportIssue → use ProductImportIssue from '$lib/domain/outlet/types'
+ *   RestaurantTable → use OutletTable from '$lib/domain/outlet/types'
+ *   TenantContext   → use TenantContext from '$lib/domain/outlet/types'
+ *
+ * Do NOT add new fields here. Add them in '$lib/domain/outlet/types' instead.
+ */
+
 import type { AuthUser } from '$lib/domain/auth/types';
 
 export type LanguageTag = 'en' | 'id' | 'zh-Hans' | 'ko' | 'ja' | 'ar' | 'hi' | 'fr' | 'de';
@@ -63,6 +79,7 @@ export type Organization = {
 	slug: string;
 	workspaceHost: string;
 	plan: 'pilot' | 'starter' | 'pro' | 'enterprise';
+	/** @deprecated Use outletIds from '$lib/domain/outlet/types' Organization */
 	restaurantIds: string[];
 };
 
@@ -79,6 +96,7 @@ export type Membership = {
 	id: string;
 	userId: string;
 	organizationId: string;
+	/** @deprecated Use outletIds from '$lib/domain/outlet/types' Membership */
 	restaurantIds: string[];
 	role: UserRole;
 };
@@ -122,6 +140,30 @@ export type TenantContext = {
 	user: AuthUser;
 	membership: Membership;
 	organization: Organization;
+	/** @deprecated Use `outlets` instead */
 	restaurants: Restaurant[];
+	/** @deprecated Use `activeOutlet` instead */
 	activeRestaurant: Restaurant;
+	outlets: import('$lib/domain/outlet/types').Outlet[];
+	activeOutlet: import('$lib/domain/outlet/types').Outlet;
 };
+
+// ---------------------------------------------------------------------------
+// Re-exports from outlet types for gradual migration
+// ---------------------------------------------------------------------------
+
+export type {
+	Outlet,
+	Catalog,
+	CatalogSection,
+	Product,
+	ProductImportIssue,
+	OutletTable,
+	BuyerSession,
+	OutletWithCatalog,
+	PublicCatalogBootstrap,
+	BusinessType,
+	TenantContext as OutletTenantContext,
+	Organization as OutletOrganization,
+	Membership as OutletMembership
+} from '$lib/domain/outlet/types';

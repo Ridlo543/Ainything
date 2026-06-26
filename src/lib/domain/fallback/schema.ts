@@ -20,12 +20,12 @@ export type CreateFallbackInput = z.infer<typeof createFallbackInputSchema>;
 export const listRequestsInputSchema = z.object({
 	userId: z.string().min(1),
 	organizationId: z.string().min(1),
-	restaurantIds: z.array(z.string().min(1)).min(1)
+	outletIds: z.array(z.string().min(1)).min(1)
 });
 
 export const transitionStatusInputSchema = z.object({
 	userId: z.string().min(1),
 	requestId: z.string().uuid(),
-	restaurantId: z.string().uuid(),
+	outletId: z.string().uuid(),
 	newStatus: z.enum(['in-progress', 'resolved'])
 });

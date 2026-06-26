@@ -27,9 +27,9 @@ const REQUEST_ID = 'f1e2d3c4-b5a6-4789-abcd-eeeeeeeeeeee';
 
 const makeRequest = (status: 'new' | 'in-progress' | 'resolved') => ({
 	id: REQUEST_ID,
-	restaurantId: RESTAURANT_ID_A,
-	restaurantSlug: 'test-restaurant',
-	restaurantName: 'Test Restaurant',
+	outletId: RESTAURANT_ID_A,
+	outletSlug: 'test-restaurant',
+	outletName: 'Test Restaurant',
 	tableId: '00000000-0000-0000-0000-bbbbbbbbbbbb',
 	tableCode: 'T01',
 	language: 'en' as const,

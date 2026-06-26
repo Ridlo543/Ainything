@@ -6,7 +6,7 @@
 import { build, files, version } from '$service-worker';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
-const cacheName = `lingua-${version}`;
+const cacheName = `ainything-${version}`;
 const appShell = [...build, ...files];
 
 worker.addEventListener('install', (event) => {

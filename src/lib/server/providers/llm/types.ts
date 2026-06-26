@@ -24,8 +24,8 @@ export type LlmMenuItem = {
  * guest preferences). The adapter must never receive raw user-supplied tenant ids.
  */
 export type LlmChatContext = {
-	restaurantId: string;
-	restaurantName: string;
+	outletId: string;
+	outletName: string;
 	languageTag: string;
 	/** Guest dietary preferences from the session. */
 	dietaryPreferences: string[];

@@ -1,13 +1,13 @@
 /**
- * Service layer for admin/manager menu operations.
+ * Service layer for admin/manager catalog operations.
  *
  * Orchestrates domain validation, tenant resolution, and repository calls.
- * Every write runs inside `withUserContext` so the 0006 RLS policies evaluate
+ * Every write runs inside `withUserContext` so RLS policies evaluate
  * against the authenticated membership.
  *
- * Tenant scope (organizationId, restaurantId) is ALWAYS derived from the
+ * Tenant scope (organizationId, outletId) is ALWAYS derived from the
  * server-side `TenantContext` — never from the request body. The body carries
- * a `restaurant` slug only to pick the active scope, which is re-validated
+ * an `outlet` slug only to pick the active scope, which is re-validated
  * against the membership.
  */
 
@@ -16,17 +16,17 @@ import type { UpdateMenuItemInput } from '$lib/domain/menu/admin-schema';
 import { canPublishMenu, type PublishValidation } from '$lib/domain/menu/policy';
 import { withUserContext } from '$lib/server/db/postgres';
 import {
-	findMenuItemById,
-	loadMenusForRestaurant,
-	loadMenuItemsForMenu,
-	countMenuItems,
-	createDraftMenu,
+	getProductById,
+	loadCatalogsForOutlet,
+	loadProductsForCatalog,
+	createProduct,
+	updateProduct,
+	setProductAvailability,
+	updateProductFlags,
+	publishCatalog,
 	ensureCategory,
-	insertMenuItem,
-	updateMenuItem as repoUpdateMenuItem,
-	setMenuItemAvailability as repoSetAvailability,
-	updateMenuItemFlags as repoUpdateFlags,
-	publishMenu as repoPublishMenu
+	createDraftMenu,
+	productToMenuItem
 } from '$lib/server/repositories/admin-menu-repository';
 import { resolveTenantContext } from '$lib/server/tenant/tenant-context';
 import { appEnv } from '$lib/server/config/env';
@@ -48,16 +48,16 @@ export class MenuPublishValidationError extends Error {
 // ---------------------------------------------------------------------------
 
 /**
- * Updates a menu item's scalar columns and flags in a single transaction.
+ * Updates a product's scalar columns and flags in a single transaction.
  *
  * Steps:
  *  1. Resolve tenant context from the authenticated user + slug.
  *  2. Open a user-scoped transaction (sets app.user_external_id for RLS).
- *  3. Update scalar columns (name, price, spice, availability, confidence).
+ *  3. Update scalar columns (name, price, availability, confidence).
  *  4. Replace dietary flags and allergens (delete-then-insert).
- *  5. Re-read the item with flags to return the full MenuItem.
+ *  5. Re-read the product with flags to return the full MenuItem.
  *
- * Throws if the item does not exist or the caller lacks access (RLS).
+ * Throws if the product does not exist or the caller lacks access (RLS).
  */
 export async function editMenuItem(
 	user: AuthUser,
@@ -71,49 +71,51 @@ export async function editMenuItem(
 	const { activeRestaurant } = tenant;
 
 	return withUserContext(user.id, async (client) => {
-		const updated = await repoUpdateMenuItem(client, {
+		const updated = await updateProduct(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			itemId,
-			name: input.name,
-			localName: input.localName,
-			description: input.description,
-			price: input.price,
-			spiceLevel: input.spiceLevel,
-			isAvailable: input.isAvailable,
-			confidence: input.confidence
+			outletId: activeRestaurant.id,
+			productId: itemId,
+			data: {
+				name: input.name,
+				localName: input.localName ?? null,
+				description: input.description,
+				priceAmount: input.price,
+				isAvailable: input.isAvailable,
+				confidence: input.confidence,
+				...(input.spiceLevel !== undefined ? { spiceLevel: input.spiceLevel } : {})
+			}
 		});
 
 		if (!updated) {
-			throw new Error(`Menu item ${itemId} not found or access denied.`);
+			throw new Error(`Product ${itemId} not found or access denied.`);
 		}
 
-		// Update dietary flags and allergens in the same transaction.
-		await repoUpdateFlags(client, {
+		// Replace dietary flags and allergens in the same transaction.
+		await updateProductFlags(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			itemId,
+			outletId: activeRestaurant.id,
+			productId: itemId,
 			dietaryFlags: input.dietaryFlags,
 			allergens: input.allergens
 		});
 
-		// Re-read to get the full item with flags after the update.
-		const full = await findMenuItemById(client, {
+		// Re-read to get the full product with flags after the update.
+		const full = await getProductById(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			itemId
+			outletId: activeRestaurant.id,
+			productId: itemId
 		});
 
 		if (!full) {
-			throw new Error(`Menu item ${itemId} disappeared after update — this should not happen.`);
+			throw new Error(`Product ${itemId} disappeared after update — this should not happen.`);
 		}
 
-		return full;
+		return productToMenuItem(full);
 	});
 }
 
 /**
- * Fast path for toggling item availability (sold-out / back in stock).
+ * Fast path for toggling product availability (sold-out / back in stock).
  * Only touches `is_available`; does not re-read flags or metadata.
  */
 export async function toggleAvailability(
@@ -128,15 +130,15 @@ export async function toggleAvailability(
 	const { activeRestaurant } = tenant;
 
 	await withUserContext(user.id, async (client) => {
-		const success = await repoSetAvailability(client, {
+		const success = await setProductAvailability(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			itemId,
+			outletId: activeRestaurant.id,
+			productId: itemId,
 			isAvailable
 		});
 
 		if (!success) {
-			throw new Error(`Menu item ${itemId} not found or access denied.`);
+			throw new Error(`Product ${itemId} not found or access denied.`);
 		}
 	});
 }
@@ -146,17 +148,17 @@ export async function toggleAvailability(
 // ---------------------------------------------------------------------------
 
 /**
- * Validates and publishes the current draft menu for a restaurant.
+ * Validates and publishes the current draft catalog for an outlet.
  *
  * Steps:
  *  1. Resolve tenant context.
- *  2. Load menus for the restaurant.
- *  3. Find the latest draft menu (if none, throw).
- *  4. Load all items for the draft menu.
+ *  2. Load catalogs for the outlet.
+ *  3. Find the latest draft catalog (if none, throw).
+ *  4. Load all products for the draft catalog.
  *  5. Run the Data Quality Gate (`canPublishMenu`).
  *  6. If blocking issues exist, throw `MenuPublishValidationError`.
- *  7. Open a transaction: archive published menu, promote draft.
- *  8. Return the newly published menu id.
+ *  7. Open a transaction: archive published catalog, promote draft.
+ *  8. Return the newly published catalog id.
  */
 export async function publishDraftMenu(
 	user: AuthUser,
@@ -166,65 +168,59 @@ export async function publishDraftMenu(
 	const { activeRestaurant } = tenant;
 
 	const publishedId = await withUserContext(user.id, async (client) => {
-		// Load menu records for this restaurant.
-		const menus = await loadMenusForRestaurant(client, {
+		// Load catalog records for this outlet.
+		const catalogs = await loadCatalogsForOutlet(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id
+			outletId: activeRestaurant.id
 		});
 
-		// Find the latest draft menu.
-		const draft = menus.find((m) => m.status === 'draft');
+		// Find the latest draft catalog.
+		const draft = catalogs.find((c) => c.status === 'draft');
 		if (!draft) {
-			throw new Error(`No draft menu found for restaurant ${activeRestaurant.slug}.`);
+			throw new Error(`No draft catalog found for outlet ${activeRestaurant.slug}.`);
 		}
 
-		// Check item count — a menu with zero items should not be published.
-		const itemCount = await countMenuItems(client, {
+		// Load products from the draft catalog and run the Data Quality Gate.
+		const draftProducts = await loadProductsForCatalog(client, {
+			catalogId: draft.id,
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			menuId: draft.id
+			outletId: activeRestaurant.id
 		});
-		if (itemCount === 0) {
+
+		if (draftProducts.length === 0) {
 			throw new MenuPublishValidationError({
 				ok: false,
 				issues: [
 					{
 						itemId: '',
-						itemName: '(menu)',
-						issues: ['The draft menu has no items. Add items before publishing.']
+						itemName: '(catalog)',
+						issues: ['The draft catalog has no products. Add products before publishing.']
 					}
 				]
 			});
 		}
 
-		// Load items from the draft menu and run the Data Quality Gate.
-		const draftItems = await loadMenuItemsForMenu(client, {
-			menuId: draft.id,
-			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id
-		});
-		const validation = canPublishMenu(draftItems);
+		const validation = canPublishMenu(draftProducts.map(productToMenuItem));
 		if (!validation.ok) {
 			throw new MenuPublishValidationError(validation);
 		}
 
 		// Archive published, promote draft.
-		const publishedId = await repoPublishMenu(client, {
+		const newPublishedId = await publishCatalog(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			menuId: draft.id
+			outletId: activeRestaurant.id,
+			catalogId: draft.id
 		});
 
-		if (!publishedId) {
-			throw new Error(`Failed to publish menu for restaurant ${activeRestaurant.slug}.`);
+		if (!newPublishedId) {
+			throw new Error(`Failed to publish catalog for outlet ${activeRestaurant.slug}.`);
 		}
 
-		return publishedId;
+		return newPublishedId;
 	});
 
 	// Fire-and-forget embedding generation after publish.
 	// Only runs when EMBEDDING_ENABLED=true; errors are logged but never propagate.
-	// Uses BullMQ queue so processing happens asynchronously outside the HTTP request.
 	if (appEnv.embeddingEnabled) {
 		import('$lib/server/queue/embedding-queue')
 			.then(({ enqueueEmbeddingJob }) => enqueueEmbeddingJob(activeRestaurant.id))
@@ -240,7 +236,7 @@ export async function publishDraftMenu(
 }
 
 /**
- * Runs the Data Quality Gate against a set of menu items without publishing.
+ * Runs the Data Quality Gate against a set of products without publishing.
  * Used by the dashboard to show publish-readiness warnings before the admin
  * commits to a publish.
  */
@@ -249,12 +245,12 @@ export function validateMenuForPublish(items: MenuItem[]): PublishValidation {
 }
 
 // ---------------------------------------------------------------------------
-// Add single item (setup wizard / manual add)
+// Add single product (setup wizard / manual add)
 // ---------------------------------------------------------------------------
 
 /**
- * Adds a single menu item during onboarding or manual product creation.
- * Automatically finds or creates a draft menu.
+ * Adds a single product during onboarding or manual product creation.
+ * Automatically finds or creates a draft catalog.
  */
 export async function addMenuItem(
 	user: AuthUser,
@@ -276,18 +272,18 @@ export async function addMenuItem(
 	const { activeRestaurant } = tenant;
 
 	return withUserContext(user.id, async (client) => {
-		const existingMenus = await loadMenusForRestaurant(client, {
+		const existingCatalogs = await loadCatalogsForOutlet(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id
+			outletId: activeRestaurant.id
 		});
-		const existingDraft = existingMenus.find((m) => m.status === 'draft');
+		const existingDraft = existingCatalogs.find((c) => c.status === 'draft');
 
-		let draftMenuId: string;
+		let draftCatalogId: string;
 		if (existingDraft) {
-			draftMenuId = existingDraft.id;
+			draftCatalogId = existingDraft.id;
 		} else {
-			const latestVersion = existingMenus.reduce((max, m) => Math.max(max, m.version), 0);
-			draftMenuId = await createDraftMenu(client, {
+			const latestVersion = existingCatalogs.reduce((max, c) => Math.max(max, c.version ?? 0), 0);
+			draftCatalogId = await createDraftMenu(client, {
 				organizationId: activeRestaurant.organizationId,
 				restaurantId: activeRestaurant.id,
 				version: latestVersion + 1,
@@ -295,25 +291,32 @@ export async function addMenuItem(
 			});
 		}
 
-		const categoryId = await ensureCategory(client, {
+		const sectionId = await ensureCategory(client, {
 			organizationId: activeRestaurant.organizationId,
 			restaurantId: activeRestaurant.id,
-			menuId: draftMenuId,
+			menuId: draftCatalogId,
 			name: category
 		});
 
-		return insertMenuItem(client, {
+		const product = await createProduct(client, {
 			organizationId: activeRestaurant.organizationId,
-			restaurantId: activeRestaurant.id,
-			menuId: draftMenuId,
-			categoryId,
-			name,
-			description: description ?? '',
-			price,
-			spiceLevel: 0,
-			isSignature: false,
-			dietaryFlags: [],
-			allergens: []
+			outletId: activeRestaurant.id,
+			catalogId: draftCatalogId,
+			sectionId,
+			data: {
+				name,
+				description: description ?? '',
+				priceAmount: price,
+				isAvailable: true,
+				isSignature: false,
+				confidence: 'needs-review'
+			}
 		});
+
+		if (!product) {
+			throw new Error(`Failed to create product "${name}".`);
+		}
+
+		return productToMenuItem(product);
 	});
 }

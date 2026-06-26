@@ -1,75 +1,38 @@
-import { getRestaurant } from '$lib/mock/restaurants';
-import type { PublicMenuBootstrap, Restaurant } from '$lib/domain/menu/types';
-import { appEnv } from '$lib/server/config/env';
+import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
+import type { Outlet, PublicCatalogBootstrap } from '$lib/domain/outlet/types';
+import { resolvePublicMenuBootstrap } from '$lib/server/repositories/public-menu-repository';
 import {
-	resolvePublicMenuBootstrap,
-	loadPublishedRestaurantBySlug
-} from '$lib/server/repositories/public-menu-repository';
+	resolvePublicCatalogBootstrap,
+	loadPublicOutletBySlug
+} from '$lib/server/repositories/public-catalog-repository';
 
-export async function resolvePublicCatalog(restaurantSlug: string): Promise<Restaurant | null> {
-	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
-		return getRestaurant(restaurantSlug);
-	}
-
-	try {
-		return await loadPublishedRestaurantBySlug(restaurantSlug);
-	} catch (error) {
-		if (appEnv.nodeEnv === 'production') {
-			throw error;
-		}
-
-		console.warn('Falling back to mock catalog because database resolution failed.', error);
-		return getRestaurant(restaurantSlug);
-	}
+/**
+ * Resolves a published outlet by slug — used by cart and order routes
+ * that need only the outlet identity (id, organizationId) to create orders.
+ *
+ * Returns an Outlet or null if the slug is not found or the outlet is inactive.
+ */
+export async function resolvePublicCatalog(outletSlug: string): Promise<Outlet | null> {
+	return loadPublicOutletBySlug(outletSlug);
 }
 
 /**
- * Resolves the public QR bootstrap (active restaurant + active table + published menu).
- *
- * Mirrors the dashboard tenant resolver: use PostgreSQL when configured, fall back to
- * mock data only outside production so local frontend work keeps running without a DB.
- * Returns `null` when the slug/table pair does not resolve to publishable data.
+ * Resolves the public QR bootstrap using the outlets/catalog schema.
+ * Returns `PublicCatalogBootstrap` (outlet + table + sections + products).
  */
-export async function resolvePublicMenu(
-	restaurantSlug: string,
+export async function resolvePublicCatalogMenu(
+	outletSlug: string,
 	tableCode: string
-): Promise<PublicMenuBootstrap | null> {
-	if (!appEnv.databaseUrl || appEnv.useMockBackend) {
-		return resolveMockPublicMenu(restaurantSlug, tableCode);
-	}
-
-	try {
-		return await resolvePublicMenuBootstrap(restaurantSlug, tableCode);
-	} catch (error) {
-		if (appEnv.nodeEnv === 'production') {
-			throw error;
-		}
-
-		console.warn('Falling back to mock public menu because database resolution failed.', error);
-		return resolveMockPublicMenu(restaurantSlug, tableCode);
-	}
+): Promise<PublicCatalogBootstrap | null> {
+	return resolvePublicCatalogBootstrap(outletSlug, tableCode);
 }
 
-function resolveMockPublicMenu(
-	restaurantSlug: string,
+/**
+ * @deprecated Use resolvePublicCatalogMenu instead.
+ */
+export async function resolvePublicMenu(
+	outletSlug: string,
 	tableCode: string
-): PublicMenuBootstrap | null {
-	const restaurant = getRestaurant(restaurantSlug);
-
-	if (!restaurant) {
-		return null;
-	}
-
-	return {
-		restaurant,
-		table: {
-			id: `${restaurant.id}-${tableCode}`,
-			code: tableCode,
-			label: `Table ${tableCode}`,
-			restaurantId: restaurant.id,
-			organizationId: restaurant.organizationId,
-			isActive: true,
-			qrPath: ''
-		}
-	};
+): Promise<PublicMenuBootstrap | null> {
+	return resolvePublicMenuBootstrap(outletSlug, tableCode);
 }

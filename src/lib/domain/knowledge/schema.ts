@@ -31,7 +31,7 @@ export type KnowledgeSourceType = (typeof KNOWLEDGE_SOURCE_TYPES)[number];
  * only picks the active scope, never grants authorization.
  */
 export const createKnowledgeDocInputSchema = z.object({
-	restaurant: z.string().trim().min(1).max(120),
+	outlet: z.string().trim().min(1).max(120),
 	title: z.string().trim().min(1).max(200),
 	content: z.string().trim().min(1).max(4000),
 	visibility: z.enum(KNOWLEDGE_VISIBILITY_CODES).default('published')
@@ -43,7 +43,7 @@ export type CreateKnowledgeDocInput = z.infer<typeof createKnowledgeDocInputSche
  * Body for the `updateNote` form action. The `docId` is the existing row UUID.
  */
 export const updateKnowledgeDocInputSchema = z.object({
-	restaurant: z.string().trim().min(1).max(120),
+	outlet: z.string().trim().min(1).max(120),
 	docId: z.string().uuid(),
 	title: z.string().trim().min(1).max(200),
 	content: z.string().trim().min(1).max(4000),
@@ -56,7 +56,7 @@ export type UpdateKnowledgeDocInput = z.infer<typeof updateKnowledgeDocInputSche
  * Body for the `deleteNote` form action — only the doc id is required.
  */
 export const deleteKnowledgeDocInputSchema = z.object({
-	restaurant: z.string().trim().min(1).max(120),
+	outlet: z.string().trim().min(1).max(120),
 	docId: z.string().uuid()
 });
 

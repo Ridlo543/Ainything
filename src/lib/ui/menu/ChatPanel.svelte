@@ -95,10 +95,10 @@
 <section class="surface rounded-lg p-4">
 	<div class="flex items-center justify-between gap-3">
 		<div>
-			<p class="font-semibold text-lingua-text">{t('chat.heading')}</p>
-			<p class="text-sm text-lingua-subtle">{t('chat.subtitle')}</p>
+			<p class="font-semibold text-ainything-text">{t('chat.heading')}</p>
+			<p class="text-sm text-ainything-subtle">{t('chat.subtitle')}</p>
 		</div>
-		<span class="rounded-lg bg-lingua-primary-soft p-2 text-lingua-primary">
+		<span class="rounded-lg bg-ainything-primary-soft p-2 text-ainything-primary">
 			<MessageCircleQuestion size={22} />
 		</span>
 	</div>
@@ -114,7 +114,7 @@
 				{#if msg.role === 'user'}
 					<div class="flex justify-end">
 						<p
-							class="max-w-[85%] rounded-lg rounded-br-sm bg-lingua-primary px-3 py-2 text-sm text-white"
+							class="max-w-[85%] rounded-lg rounded-br-sm bg-ainything-primary px-3 py-2 text-sm text-white"
 						>
 							{msg.content}
 						</p>
@@ -123,27 +123,27 @@
 					<div class="flex items-start gap-2">
 						{#if safetyIcon(msg.safety) === 'warn'}
 							<CircleAlert
-								class="mt-0.5 shrink-0 text-lingua-warning"
+								class="mt-0.5 shrink-0 text-ainything-warning"
 								size={18}
 								aria-hidden="true"
 							/>
 						{:else}
 							<MessageCircleQuestion
-								class="mt-0.5 shrink-0 text-lingua-primary"
+								class="mt-0.5 shrink-0 text-ainything-primary"
 								size={18}
 								aria-hidden="true"
 							/>
 						{/if}
 						<div
-							class="max-w-[85%] rounded-lg rounded-bl-sm border border-lingua-border bg-slate-50 px-3 py-2 text-sm leading-6 text-lingua-text"
+							class="max-w-[85%] rounded-lg rounded-bl-sm border border-ainything-border bg-slate-50 px-3 py-2 text-sm leading-6 text-ainything-text"
 						>
 							{msg.content}
 							{#if msg.safety === 'needs-staff'}
-								<p class="mt-1 text-xs font-semibold text-lingua-warning">
+								<p class="mt-1 text-xs font-semibold text-ainything-warning">
 									{t('chat.safety.staff')}
 								</p>
 							{:else if msg.safety === 'low-confidence'}
-								<p class="mt-1 text-xs text-lingua-subtle">
+								<p class="mt-1 text-xs text-ainything-subtle">
 									{t('chat.safety.lowConfidence')}
 								</p>
 							{/if}
@@ -153,7 +153,7 @@
 			{/each}
 
 			{#if uiState === 'loading'}
-				<div class="flex items-center gap-2 text-sm text-lingua-subtle">
+				<div class="flex items-center gap-2 text-sm text-ainything-subtle">
 					<Loader2 class="animate-spin" size={16} aria-hidden="true" />
 					{t('chat.loading')}
 				</div>
@@ -161,19 +161,19 @@
 		</div>
 	{:else}
 		<!-- Empty state with prompt suggestions -->
-		<div class="mt-4 rounded-lg border border-lingua-border bg-slate-50 p-3">
+		<div class="mt-4 rounded-lg border border-ainything-border bg-slate-50 p-3">
 			{#if uiState === 'loading'}
-				<div class="flex items-center gap-2 text-sm text-lingua-subtle">
+				<div class="flex items-center gap-2 text-sm text-ainything-subtle">
 					<Loader2 class="animate-spin" size={16} aria-hidden="true" />
 					{t('chat.loading')}
 				</div>
 			{:else}
-				<p class="text-sm text-lingua-subtle">{t('chat.empty.prompt')}</p>
+				<p class="text-sm text-ainything-subtle">{t('chat.empty.prompt')}</p>
 				<div class="mt-2 flex flex-wrap gap-2">
 					{#each [t('chat.suggestion.halal'), t('chat.suggestion.nutFree'), t('chat.suggestion.spice')] as suggestion (suggestion)}
 						<button
 							type="button"
-							class="rounded-md border border-lingua-border bg-lingua-surface px-2 py-1 text-xs text-lingua-text hover:border-lingua-primary hover:text-lingua-primary"
+							class="rounded-md border border-ainything-border bg-ainything-surface px-2 py-1 text-xs text-ainything-text hover:border-ainything-primary hover:text-ainything-primary"
 							onclick={() => {
 								draft = suggestion;
 							}}
@@ -199,7 +199,7 @@
 	<!-- Input -->
 	<div class="mt-4 flex gap-2">
 		<input
-			class="tap-target min-w-0 flex-1 rounded-lg border border-lingua-border bg-lingua-surface px-3 text-sm disabled:opacity-50"
+			class="tap-target min-w-0 flex-1 rounded-lg border border-ainything-border bg-ainything-surface px-3 text-sm disabled:opacity-50"
 			placeholder={t('chat.input.placeholder')}
 			bind:value={draft}
 			aria-label={t('chat.input.ariaLabel')}
@@ -208,7 +208,7 @@
 		/>
 		<button
 			type="button"
-			class="tap-target inline-flex items-center gap-2 rounded-lg bg-lingua-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
+			class="tap-target inline-flex items-center gap-2 rounded-lg bg-ainything-primary px-4 text-sm font-semibold text-white disabled:opacity-50"
 			onclick={sendMessage}
 			disabled={uiState === 'loading' || !draft.trim()}
 			aria-label={t('chat.send.ariaLabel')}
@@ -226,7 +226,7 @@
 	{#if lastSuggestFallback || uiState === 'error'}
 		<button
 			type="button"
-			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-warning bg-amber-50 px-4 text-sm font-semibold text-amber-900"
+			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ainything-warning bg-amber-50 px-4 text-sm font-semibold text-amber-900"
 			onclick={() => {
 				/* parent handles fallback flow */
 			}}
@@ -237,7 +237,7 @@
 	{:else}
 		<button
 			type="button"
-			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-lingua-border bg-lingua-surface px-4 text-sm font-semibold text-lingua-text"
+			class="tap-target mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ainything-border bg-ainything-surface px-4 text-sm font-semibold text-ainything-text"
 			onclick={() => {
 				/* parent handles fallback flow */
 			}}

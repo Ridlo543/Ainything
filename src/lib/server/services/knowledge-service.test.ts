@@ -41,7 +41,7 @@ const USER = {
 	email: 'owner@test.com',
 	name: 'Owner',
 	platformRole: 'org_owner' as const,
-	memberships: [{ organizationId: 'org-1', restaurantIds: ['rest-1'], role: 'org_owner' as const }]
+	memberships: [{ organizationId: 'org-1', outletIds: ['rest-1'], role: 'org_owner' as const }]
 };
 
 const ORG_ID = 'org-1';
@@ -61,7 +61,7 @@ const TENANT = {
 		id: ORG_ID,
 		name: 'Test Org',
 		slug: 'test-org',
-		workspaceHost: 'test.lingua.app',
+		workspaceHost: 'test.ainything.online',
 		plan: 'pilot' as const,
 		restaurantIds: [RESTAURANT_ID]
 	},
@@ -147,7 +147,7 @@ describe('createDoc', () => {
 		});
 
 		const input = {
-			restaurant: RESTAURANT_SLUG,
+			outlet: RESTAURANT_SLUG,
 			title: 'New note',
 			content: 'Some helpful context.',
 			visibility: 'published' as const
@@ -192,7 +192,7 @@ describe('updateDoc', () => {
 		});
 
 		const input = {
-			restaurant: RESTAURANT_SLUG,
+			outlet: RESTAURANT_SLUG,
 			docId: 'doc-1',
 			title: 'Updated title',
 			content: 'Updated content',
@@ -224,7 +224,7 @@ describe('updateDoc', () => {
 		});
 
 		const input = {
-			restaurant: RESTAURANT_SLUG,
+			outlet: RESTAURANT_SLUG,
 			docId: 'nonexistent',
 			title: 'x',
 			content: 'y',
@@ -256,7 +256,7 @@ describe('deleteDoc', () => {
 			return cb(fakeClient as never);
 		});
 
-		const input = { restaurant: RESTAURANT_SLUG, docId: 'doc-1' };
+		const input = { outlet: RESTAURANT_SLUG, docId: 'doc-1' };
 
 		await deleteDoc(USER, { restaurantSlug: RESTAURANT_SLUG, input });
 
@@ -278,7 +278,7 @@ describe('deleteDoc', () => {
 			return cb(fakeClient as never);
 		});
 
-		const input = { restaurant: RESTAURANT_SLUG, docId: 'missing' };
+		const input = { outlet: RESTAURANT_SLUG, docId: 'missing' };
 
 		await expect(
 			deleteDoc(USER, { restaurantSlug: RESTAURANT_SLUG, input })

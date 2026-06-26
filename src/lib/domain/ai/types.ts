@@ -11,8 +11,8 @@ export type ChatMessage = {
 };
 
 export type AiEventInput = {
-	restaurantId: string;
-	sessionId: string;
+	outletId: string;
+	buyerSessionId: string;
 	model: string;
 	promptTokens: number;
 	completionTokens: number;

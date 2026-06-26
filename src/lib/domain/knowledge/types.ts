@@ -11,7 +11,7 @@ import type { KnowledgeSourceType, KnowledgeVisibilityCode } from './schema';
 export type KnowledgeDoc = {
 	id: string;
 	organizationId: string;
-	restaurantId: string;
+	outletId: string;
 	title: string;
 	content: string;
 	visibility: KnowledgeVisibilityCode;

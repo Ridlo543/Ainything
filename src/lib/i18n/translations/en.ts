@@ -117,9 +117,9 @@ export const en: TranslationDict = {
 		'To request deletion of your session data, ask restaurant staff for assistance.',
 	'privacy.close': 'Close',
 
-	'app.title': 'Lingua',
-	'app.titlePage': '{name} - Lingua',
-	'app.backLink': 'Lingua',
+	'app.title': 'Ainything',
+	'app.titlePage': '{name} - Ainything',
+	'app.backLink': 'Ainything',
 	'app.tableBadge': 'Table {code}',
 
 	// Landing Page (Marketing)
@@ -131,7 +131,7 @@ export const en: TranslationDict = {
 	'page.landing.hero.cta.secondary': 'See live demo',
 	'page.landing.hero.trust': 'No credit card required · Setup in 15 minutes · Works on any phone',
 
-	'page.landing.value.title': 'Why restaurants choose Lingua',
+	'page.landing.value.title': 'Why restaurants choose Ainything',
 	'page.landing.value.multilingual.title': 'Menu that speaks their language',
 	'page.landing.value.multilingual.description':
 		'Automatic translation in 10+ languages. Tourists scan QR and instantly see your menu in English, Chinese, Korean, Japanese, Arabic, and more.',
@@ -175,7 +175,7 @@ export const en: TranslationDict = {
 	'page.landing.testimonial.1.name': 'Made Wijaya',
 	'page.landing.testimonial.1.role': 'Owner, Warung Nusantara Bali',
 	'page.landing.testimonial.2.quote':
-		'Halal and allergen questions were our biggest headache. Lingua answers instantly from our actual menu data. No more miscommunication, no more kitchen emergencies.',
+		'Halal and allergen questions were our biggest headache. Ainything answers instantly from our actual menu data. No more miscommunication, no more kitchen emergencies.',
 	'page.landing.testimonial.2.name': 'Sarah Tanaka',
 	'page.landing.testimonial.2.role': 'Manager, Spice Garden Jakarta',
 	'page.landing.testimonial.3.quote':
@@ -215,7 +215,7 @@ export const en: TranslationDict = {
 	'page.landing.staffInbox': 'Open staff inbox',
 
 	// Staff inbox
-	'staff.inbox.title': 'Staff Inbox - Lingua',
+	'staff.inbox.title': 'Staff Inbox - Ainything',
 	'staff.inbox.workflow': 'Staff workflow',
 	'staff.inbox.heading': 'Help requests',
 	'staff.inbox.description':
@@ -236,7 +236,7 @@ export const en: TranslationDict = {
 	'staff.inbox.table': 'Table {code} —',
 
 	// Dashboard
-	'dashboard.title': 'Management Dashboard - Lingua',
+	'dashboard.title': 'Management Dashboard - Ainything',
 	'dashboard.heading': 'Restaurant operations',
 	'dashboard.description':
 		'Manage many restaurant QR experiences from one workspace. Each row stays scoped to one restaurant so menu data, staff requests, and reports do not mix.',
@@ -265,7 +265,7 @@ export const en: TranslationDict = {
 	'dashboard.queue.openInbox': 'Open staff inbox →',
 
 	// Analytics
-	'analytics.title': 'Reports - Lingua',
+	'analytics.title': 'Reports - Ainything',
 	'analytics.heading': 'Restaurant reports',
 	'analytics.description.live': 'Live metrics from the last {days} days.',
 	'analytics.description.preview': 'Preview data — connect the database to see live metrics.',
@@ -286,7 +286,7 @@ export const en: TranslationDict = {
 	'analytics.breakdown.feedback': '{helpful}/{total} helpful',
 
 	// Knowledge / Restaurant Facts
-	'knowledge.title': 'Restaurant Facts - Lingua',
+	'knowledge.title': 'Restaurant Facts - Ainything',
 	'knowledge.heading': 'Approved notes for guest answers',
 	'knowledge.description':
 		'Keep kitchen rules, dietary notes, promos, and service policies separate per restaurant.',
@@ -322,7 +322,7 @@ export const en: TranslationDict = {
 	'knowledge.tenantsLabel': 'Tenant scope:',
 
 	// QR Tables
-	'tables.title': 'QR Tables - Lingua',
+	'tables.title': 'QR Tables - Ainything',
 	'tables.eyebrow': 'QR table manager',
 	'tables.heading': 'Print-ready QR cards',
 	'tables.description':

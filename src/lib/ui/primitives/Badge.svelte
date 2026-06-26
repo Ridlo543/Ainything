@@ -8,13 +8,13 @@
 	}: { label: string; tone?: Tone; shape?: 'rounded' | 'pill' } = $props();
 
 	const toneClass: Record<Tone, string> = {
-		neutral: 'border-lingua-border bg-lingua-muted text-lingua-text',
-		primary: 'border-lingua-primary/30 bg-lingua-primary-soft text-lingua-primary-strong',
-		accent: 'border-lingua-accent/30 bg-lingua-accent-soft text-lingua-accent',
-		success: 'border-lingua-success/30 bg-lingua-success-soft text-lingua-success',
-		warning: 'border-lingua-warning/30 bg-lingua-warning-soft text-lingua-warning',
-		danger: 'border-lingua-danger/30 bg-lingua-danger-soft text-lingua-danger',
-		info: 'border-lingua-info/30 bg-lingua-info-soft text-lingua-info'
+		neutral: 'border-ainything-border bg-ainything-muted text-ainything-text',
+		primary: 'border-ainything-primary/30 bg-ainything-primary-soft text-ainything-primary-strong',
+		accent: 'border-ainything-accent/30 bg-ainything-accent-soft text-ainything-accent',
+		success: 'border-ainything-success/30 bg-ainything-success-soft text-ainything-success',
+		warning: 'border-ainything-warning/30 bg-ainything-warning-soft text-ainything-warning',
+		danger: 'border-ainything-danger/30 bg-ainything-danger-soft text-ainything-danger',
+		info: 'border-ainything-info/30 bg-ainything-info-soft text-ainything-info'
 	};
 </script>
 

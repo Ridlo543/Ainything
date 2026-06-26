@@ -68,7 +68,7 @@
 	</button>
 
 	<h2 class="text-2xl font-extrabold text-[#1a1a2e]">Info akun</h2>
-	<p class="mt-1.5 text-sm text-[#78716c]">Data ini digunakan untuk login ke Lingua.</p>
+	<p class="mt-1.5 text-sm text-[#78716c]">Data ini digunakan untuk login ke Ainything.</p>
 
 	{#if error}
 		<Alert.Root variant="destructive" class="mt-4">

@@ -3,8 +3,8 @@ import { browser } from '$app/environment';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
 
-const STORAGE_KEY = 'lingua-theme';
-const COOKIE_KEY = 'lingua-theme';
+const STORAGE_KEY = 'ainything-theme';
+const COOKIE_KEY = 'ainything-theme';
 
 function getSystemTheme(): ResolvedTheme {
 	if (!browser) return 'light';

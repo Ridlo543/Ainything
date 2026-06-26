@@ -19,7 +19,7 @@
 				{ label: 'Restoran & Cafe', href: '/register' },
 				{ label: 'Toko & Retail', href: '/register' },
 				{ label: 'Jasa & Layanan', href: '/register' },
-				{ label: 'Enterprise', href: 'mailto:halo@lingua.app' }
+				{ label: 'Enterprise', href: 'mailto:halo@ainything.online' }
 			]
 		},
 		{
@@ -27,7 +27,7 @@
 			items: [
 				{ label: 'Tentang Kami', href: '/about' },
 				{ label: 'Blog', href: '/blog' },
-				{ label: 'Kontak', href: 'mailto:halo@lingua.app' },
+				{ label: 'Kontak', href: 'mailto:halo@ainything.online' },
 				{ label: 'Karir', href: '/careers' }
 			]
 		},
@@ -73,12 +73,12 @@
 		<div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
 			<!-- Brand -->
 			<div class="lg:col-span-1">
-				<a href="/" class="flex items-center gap-2.5" aria-label="Lingua beranda">
+				<a href="/" class="flex items-center gap-2.5" aria-label="Ainything beranda">
 					<span
 						class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
 						>L</span
 					>
-					<span class="text-lg font-extrabold tracking-tight text-white">Lingua</span>
+					<span class="text-lg font-extrabold tracking-tight text-white">Ainything</span>
 				</a>
 				<p class="mt-4 text-sm leading-relaxed text-white/50">
 					Platform digital untuk bisnis dari semua skala. Katalog, QR, pesanan — semua dari satu
@@ -106,7 +106,7 @@
 		<div
 			class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row"
 		>
-			<p class="text-xs text-white/30">&copy; {year} Lingua. Hak cipta dilindungi undang-undang.</p>
+			<p class="text-xs text-white/30">&copy; {year} Ainything. Hak cipta dilindungi undang-undang.</p>
 			<p class="text-xs text-white/30">Dibuat dengan ❤ untuk bisnis Indonesia</p>
 		</div>
 	</div>

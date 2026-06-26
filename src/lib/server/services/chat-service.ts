@@ -1,4 +1,5 @@
 import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
+import type { PublicCatalogBootstrap } from '$lib/domain/outlet/types';
 import { createChatMessageInputSchema } from '$lib/domain/ai/schema';
 import { persistChatTurn, getRecentHistory } from '$lib/server/repositories/chat-repository';
 import { getLlmProvider } from '$lib/server/providers/llm/factory';
@@ -100,7 +101,7 @@ export async function handleChatTurn(
 	const input = createChatMessageInputSchema.parse(rawInput);
 
 	// Load recent conversation history for this session (max 5 turns = 10 messages).
-	const history = await getRecentHistory(input.sessionId, 10);
+	const history = await getRecentHistory(input.sessionId, bootstrap.table.outletId, 10);
 
 	const provider = getLlmProvider();
 
@@ -111,8 +112,8 @@ export async function handleChatTurn(
 	try {
 		const embeddingEnabled = appEnv.embeddingEnabled;
 
-		const result = await retrieveMenuContext({
-			restaurantId: bootstrap.table.restaurantId,
+	const result = await retrieveMenuContext({
+			outletId: bootstrap.table.outletId,
 			query: input.content,
 			preferences: {
 				dietaryFlags: input.dietaryPreferences as
@@ -136,8 +137,8 @@ export async function handleChatTurn(
 	}
 
 	const llmResult = await provider.chat({
-		restaurantId: bootstrap.table.restaurantId,
-		restaurantName: bootstrap.restaurant.name,
+		outletId: bootstrap.table.outletId,
+		outletName: bootstrap.restaurant.name,
 		languageTag: input.languageTag,
 		dietaryPreferences: input.dietaryPreferences,
 		menuItems,
@@ -148,8 +149,8 @@ export async function handleChatTurn(
 	// Log AI event (fail-open — never throws).
 	void logAiEvent({
 		organizationId: bootstrap.table.organizationId,
-		restaurantId: bootstrap.table.restaurantId,
-		sessionId: input.sessionId,
+		outletId: bootstrap.table.outletId,
+		buyerSessionId: input.sessionId,
 		provider: llmResult.provider ?? 'unknown',
 		model: llmResult.model ?? 'unknown',
 		eventType: 'chat',
@@ -162,8 +163,125 @@ export async function handleChatTurn(
 
 	const { customerMessage, assistantMessage } = await persistChatTurn({
 		organizationId: bootstrap.table.organizationId,
-		restaurantId: bootstrap.table.restaurantId,
-		sessionId: input.sessionId,
+		outletId: bootstrap.table.outletId,
+		buyerSessionId: input.sessionId,
+		customerContent: input.content,
+		assistantContent: llmResult.answer,
+		assistantSafety: llmResult.safetyStatus
+	});
+
+	return {
+		customerMessageId: customerMessage.id,
+		assistantMessageId: assistantMessage.id,
+		answer: llmResult.answer,
+		safetyStatus: llmResult.safetyStatus,
+		suggestFallback: llmResult.suggestFallback
+	};
+}
+
+// ---------------------------------------------------------------------------
+// Outlet/catalog-aware chat turn (new outlets schema, migration 0022+)
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps Product objects from the new outlets schema to the slim LlmMenuItem snapshot.
+ * Product uses `section` (category name string) instead of `category`.
+ * `spiceLevel` is not on Product (only on legacy MenuItem) — default to 0.
+ */
+function productsToLlmItems(
+	products: import('$lib/domain/outlet/types').Product[]
+): LlmMenuItem[] {
+	return products
+		.filter((p) => p.isAvailable)
+		.map((p) => ({
+			name: p.name,
+			localName: p.localName,
+			category: p.section,
+			description: p.description,
+			price: p.price,
+			isAvailable: p.isAvailable,
+			spiceLevel: 0 as LlmMenuItem['spiceLevel'],
+			dietaryFlags: p.dietaryFlags as string[],
+			allergens: p.allergens as string[],
+			confidence: p.confidence
+		}));
+}
+
+/**
+ * Handles a single chat turn from a buyer on the new outlets/catalog schema.
+ *
+ * Mirrors handleChatTurn but uses:
+ *  - `bootstrap.table.outletId` instead of `bootstrap.table.restaurantId`
+ *  - `bootstrap.outlet.products` for the fallback product snapshot
+ *  - Product type (section, no spiceLevel) instead of MenuItem
+ *
+ * The retrieval and LLM layers are shared — only the bootstrap mapping differs.
+ */
+export async function handleCatalogChatTurn(
+	bootstrap: PublicCatalogBootstrap,
+	rawInput: unknown
+): Promise<ChatTurnResult> {
+	const input = createChatMessageInputSchema.parse(rawInput);
+
+	const history = await getRecentHistory(input.sessionId, bootstrap.table.outletId, 10);
+
+	const provider = getLlmProvider();
+
+	let menuItems: LlmMenuItem[];
+
+	try {
+		const embeddingEnabled = appEnv.embeddingEnabled;
+
+		const result = await retrieveMenuContext({
+			outletId: bootstrap.table.outletId,
+			query: input.content,
+			preferences: {
+				dietaryFlags: input.dietaryPreferences as
+					| import('$lib/domain/menu/types').DietaryFlag[]
+					| undefined,
+				allergenExcludes: undefined
+			},
+			embeddingEnabled
+		});
+
+		menuItems = retrievalItemsToLlmItems(result.items);
+	} catch (err) {
+		console.error('[chat-service] Retrieval service failed, falling back to catalog snapshot:', err);
+		menuItems = productsToLlmItems(bootstrap.outlet.products).slice(0, 80);
+	}
+
+	if (menuItems.length === 0) {
+		menuItems = productsToLlmItems(bootstrap.outlet.products).slice(0, 80);
+	}
+
+	const llmResult = await provider.chat({
+		outletId: bootstrap.table.outletId,
+		outletName: bootstrap.outlet.name,
+		languageTag: input.languageTag,
+		dietaryPreferences: input.dietaryPreferences,
+		menuItems,
+		question: input.content,
+		history
+	});
+
+	void logAiEvent({
+		organizationId: bootstrap.table.organizationId,
+		outletId: bootstrap.table.outletId,
+		buyerSessionId: input.sessionId,
+		provider: llmResult.provider ?? 'unknown',
+		model: llmResult.model ?? 'unknown',
+		eventType: 'chat',
+		latencyMs: llmResult.latencyMs,
+		inputTokens: llmResult.usage?.inputTokens,
+		outputTokens: llmResult.usage?.outputTokens,
+		confidence: safetyToConfidence(llmResult.safetyStatus),
+		safetyFlags: [llmResult.safetyStatus]
+	});
+
+	const { customerMessage, assistantMessage } = await persistChatTurn({
+		organizationId: bootstrap.table.organizationId,
+		outletId: bootstrap.table.outletId,
+		buyerSessionId: input.sessionId,
 		customerContent: input.content,
 		assistantContent: llmResult.answer,
 		assistantSafety: llmResult.safetyStatus

@@ -73,19 +73,19 @@
 </script>
 
 <figure
-	class="qr-card flex flex-col items-center gap-2 rounded-lg border border-lingua-border bg-lingua-surface p-3"
+	class="qr-card flex flex-col items-center gap-2 rounded-lg border border-ainything-border bg-ainything-surface p-3"
 	data-printable="qr-card"
 >
 	{#if isGenerating && !svgMarkup}
 		<div
-			class="grid place-items-center text-xs text-lingua-subtle"
+			class="grid place-items-center text-xs text-ainything-subtle"
 			style="width: {size}px; height: {size}px;"
 		>
 			Generating…
 		</div>
 	{:else if error}
 		<div
-			class="grid place-items-center rounded border border-lingua-danger/30 bg-lingua-danger-soft p-2 text-center text-xs text-lingua-danger"
+			class="grid place-items-center rounded border border-ainything-danger/30 bg-ainything-danger-soft p-2 text-center text-xs text-ainything-danger"
 			style="width: {size}px; height: {size}px;"
 		>
 			{error}
@@ -102,12 +102,12 @@
 		</div>
 	{/if}
 	{#if label}
-		<figcaption class="text-xs font-semibold text-lingua-text">{label}</figcaption>
+		<figcaption class="text-xs font-semibold text-ainything-text">{label}</figcaption>
 	{/if}
 	<div class="no-print flex w-full gap-1">
 		<button
 			type="button"
-			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-lingua-border bg-lingua-surface px-2 py-1.5 text-xs font-semibold text-lingua-text hover:bg-lingua-primary-soft"
+			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-ainything-border bg-ainything-surface px-2 py-1.5 text-xs font-semibold text-ainything-text hover:bg-ainything-primary-soft"
 			onclick={downloadPng}
 			aria-label="Download QR code as PNG"
 			disabled={!svgMarkup}
@@ -116,7 +116,7 @@
 		</button>
 		<button
 			type="button"
-			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-lingua-border bg-lingua-surface px-2 py-1.5 text-xs font-semibold text-lingua-text hover:bg-lingua-primary-soft"
+			class="tap-target inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-ainything-border bg-ainything-surface px-2 py-1.5 text-xs font-semibold text-ainything-text hover:bg-ainything-primary-soft"
 			onclick={printCard}
 			aria-label="Print QR code"
 		>

@@ -58,7 +58,7 @@
 			<Bell size={20} />
 			{#if notificationCount > 0}
 				<span
-					class="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-[var(--color-lingua-accent)] text-white text-[10px] font-bold leading-none"
+					class="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-[var(--color-ainything-accent)] text-white text-[10px] font-bold leading-none"
 					aria-hidden="true"
 				>
 					{notificationCount > 9 ? '9+' : notificationCount}
@@ -76,7 +76,7 @@
 						aria-label="User menu"
 					>
 						<div
-							class="flex size-7 items-center justify-center rounded-full bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)] text-xs font-bold"
+							class="flex size-7 items-center justify-center rounded-full bg-[var(--color-ainything-primary-soft)] text-[var(--color-ainything-primary-strong)] text-xs font-bold"
 							aria-hidden="true"
 						>
 							{userName ? userName.charAt(0).toUpperCase() : '?'}

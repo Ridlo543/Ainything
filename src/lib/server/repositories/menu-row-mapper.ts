@@ -89,14 +89,15 @@ export async function loadPublishedCategories(client: DatabaseClient, restaurant
 		return new Map<string, string[]>();
 	}
 
-	const result = await client.query<{ restaurant_id: string; name: string }>(
+	// Query catalog_sections (generalized schema). outletIds == restaurantIds (same UUIDs).
+	const result = await client.query<{ outlet_id: string; name: string }>(
 		`
-			SELECT DISTINCT mc.restaurant_id::text, mc.name, mc.sort_order
-			FROM menu_categories mc
-			JOIN menus m ON m.id = mc.menu_id
-			WHERE mc.restaurant_id = ANY($1::uuid[])
-				AND m.status = 'published'
-			ORDER BY mc.restaurant_id::text, mc.sort_order, mc.name
+			SELECT DISTINCT cs.outlet_id::text, cs.name, cs.sort_order
+			FROM catalog_sections cs
+			JOIN catalogs c ON c.id = cs.catalog_id
+			WHERE cs.outlet_id = ANY($1::uuid[])
+				AND c.status = 'published'
+			ORDER BY cs.outlet_id::text, cs.sort_order, cs.name
 		`,
 		[restaurantIds]
 	);
@@ -104,7 +105,7 @@ export async function loadPublishedCategories(client: DatabaseClient, restaurant
 	const categories = new Map<string, string[]>();
 
 	for (const row of result.rows) {
-		categories.set(row.restaurant_id, [...(categories.get(row.restaurant_id) ?? []), row.name]);
+		categories.set(row.outlet_id, [...(categories.get(row.outlet_id) ?? []), row.name]);
 	}
 
 	return categories;
@@ -115,40 +116,44 @@ export async function loadPublishedMenuItems(client: DatabaseClient, restaurantI
 		return new Map<string, MenuItem[]>();
 	}
 
-	const result = await client.query<MenuItemRow>(
+	// Query products joined with catalog_sections/catalogs (generalized schema).
+	// outletIds == restaurantIds (same UUIDs).
+	type ProductRow = {
+		outlet_id: string;
+		category: string;
+		id: string;
+		name: string;
+		local_name: string | null;
+		description: string;
+		price_amount: number;
+		currency: MenuItem['currency'];
+		image_url: string;
+		is_available: boolean;
+		is_featured: boolean;
+		confidence: MenuItem['confidence'];
+	};
+
+	const result = await client.query<ProductRow>(
 		`
 			SELECT
-				mi.id::text,
-				mi.restaurant_id::text,
-				mc.name AS category,
-				mi.name,
-				mi.local_name,
-				mi.description,
-				mi.price_amount,
-				mi.currency,
-				mi.image_url,
-				mi.spice_level,
-				mi.is_available,
-				mi.is_signature,
-				mi.confidence,
-				COALESCE(mi.source_metadata->'goodFor', '[]'::jsonb) AS good_for,
-				COALESCE(
-					ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
-					ARRAY[]::text[]
-				) AS dietary_flags,
-				COALESCE(
-					ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
-					ARRAY[]::text[]
-				) AS allergens
-			FROM menu_items mi
-			JOIN menus m ON m.id = mi.menu_id
-			JOIN menu_categories mc ON mc.id = mi.category_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
-			WHERE mi.restaurant_id = ANY($1::uuid[])
-				AND m.status = 'published'
-			GROUP BY mi.id, mc.name
-			ORDER BY mi.restaurant_id::text, mi.sort_order, mi.name
+				p.outlet_id::text,
+				cs.name AS category,
+				p.id::text,
+				p.name,
+				p.local_name,
+				COALESCE(p.description, '') AS description,
+				p.price_amount,
+				COALESCE(p.currency, 'IDR') AS currency,
+				COALESCE(p.image_url, '') AS image_url,
+				p.is_available,
+				p.is_featured,
+				COALESCE(p.confidence, 'needs-review') AS confidence
+			FROM products p
+			JOIN catalog_sections cs ON cs.id = p.section_id
+			JOIN catalogs c ON c.id = p.catalog_id
+			WHERE p.outlet_id = ANY($1::uuid[])
+				AND c.status = 'published'
+			ORDER BY p.outlet_id::text, p.sort_order, p.name
 		`,
 		[restaurantIds]
 	);
@@ -165,57 +170,26 @@ export async function loadPublishedMenuItems(client: DatabaseClient, restaurantI
 			price: row.price_amount,
 			currency: row.currency,
 			image: row.image_url,
-			spiceLevel: row.spice_level,
+			spiceLevel: 0,
 			isAvailable: row.is_available,
-			isSignature: row.is_signature,
-			dietaryFlags: row.dietary_flags,
-			allergens: row.allergens,
-			goodFor: row.good_for,
+			isSignature: row.is_featured,
+			dietaryFlags: [],
+			allergens: [],
+			goodFor: [],
 			confidence: row.confidence
 		};
 
-		items.set(row.restaurant_id, [...(items.get(row.restaurant_id) ?? []), item]);
+		items.set(row.outlet_id, [...(items.get(row.outlet_id) ?? []), item]);
 	}
 
 	return items;
 }
 
-export async function loadImportIssues(client: DatabaseClient, restaurantIds: string[]) {
-	if (restaurantIds.length === 0) {
-		return new Map<string, MenuImportIssue[]>();
-	}
-
-	const result = await client.query<ImportIssueRow>(
-		`
-			SELECT
-				id::text,
-				restaurant_id::text,
-				source_type,
-				label,
-				confidence::text,
-				issue,
-				status
-			FROM menu_import_issues
-			WHERE restaurant_id = ANY($1::uuid[])
-			ORDER BY created_at DESC
-		`,
-		[restaurantIds]
-	);
-
-	const issues = new Map<string, MenuImportIssue[]>();
-
-	for (const row of result.rows) {
-		const issue: MenuImportIssue = {
-			id: row.id,
-			sourceType: row.source_type,
-			label: row.label,
-			confidence: Number(row.confidence),
-			issue: row.issue,
-			status: row.status
-		};
-
-		issues.set(row.restaurant_id, [...(issues.get(row.restaurant_id) ?? []), issue]);
-	}
-
-	return issues;
+export async function loadImportIssues(
+	_client: DatabaseClient,
+	_restaurantIds: string[]
+): Promise<Map<string, MenuImportIssue[]>> {
+	// menu_import_issues was dropped in migration 0024.
+	// Return empty map — callers treat missing issues as an empty list.
+	return new Map<string, MenuImportIssue[]>();
 }

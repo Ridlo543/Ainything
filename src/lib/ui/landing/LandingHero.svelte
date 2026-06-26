@@ -109,7 +109,7 @@
 				>
 					<!-- Phone top bar -->
 					<div class="flex items-center justify-between bg-[#059669] px-4 py-2.5">
-						<span class="text-[10px] font-bold text-white">lingua.app/warung-sari</span>
+						<span class="text-[10px] font-bold text-white">ainything.online/warung-sari</span>
 						<QrCode size={14} class="text-white" />
 					</div>
 

@@ -44,13 +44,13 @@ export async function getPlatformStatsRow(): Promise<PlatformStatsRow> {
 	const pool = getPool();
 	const [orgs, restaurants, users] = await Promise.all([
 		pool.query<{ count: string }>(`SELECT COUNT(*) AS count FROM organizations`),
-		pool.query<{ count: string }>(`SELECT COUNT(*) AS count FROM restaurants`),
+		pool.query<{ count: string }>(`SELECT COUNT(*) AS count FROM outlets`),
 		pool.query<{ count: string }>(`SELECT COUNT(*) AS count FROM app_users`)
 	]);
 
 	return {
 		totalOrganizations: Number(orgs.rows[0]?.count ?? 0),
-		totalRestaurants: Number(restaurants.rows[0]?.count ?? 0),
+		totalRestaurants: Number(restaurants.rows[0]?.count ?? 0), // variable name kept for compat
 		platformUsers: Number(users.rows[0]?.count ?? 0)
 	};
 }
@@ -78,7 +78,7 @@ export async function listOrganizationsRows(opts: {
 			COUNT(DISTINCT m.user_id) AS "userCount",
 			o.created_at AS "createdAt"
 		FROM organizations o
-		LEFT JOIN restaurants r ON r.organization_id = o.id
+		LEFT JOIN outlets r ON r.organization_id = o.id
 		LEFT JOIN memberships m ON m.organization_id = o.id
 		${whereClause}
 		GROUP BY o.id, o.name, o.slug, o.plan, o.status, o.created_at
@@ -120,12 +120,12 @@ export async function listRestaurantsRows(opts: {
 			r.id::text,
 			r.name,
 			r.slug,
-			r.segment,
+			r.business_type AS segment,
 			o.name AS "organizationName",
 			r.status,
 			r.table_count AS "tableCount",
 			r.created_at AS "createdAt"
-		FROM restaurants r
+		FROM outlets r
 		JOIN organizations o ON o.id = r.organization_id
 		${whereClause}
 		ORDER BY r.created_at DESC
@@ -155,7 +155,7 @@ export async function getOrganizationByIdRow(
 			COUNT(DISTINCT m.user_id) AS "userCount",
 			o.created_at AS "createdAt"
 		FROM organizations o
-		LEFT JOIN restaurants r ON r.organization_id = o.id
+		LEFT JOIN outlets r ON r.organization_id = o.id
 		LEFT JOIN memberships m ON m.organization_id = o.id
 		WHERE o.id = $1::uuid
 		GROUP BY o.id, o.name, o.slug, o.plan, o.status, o.workspace_host, o.created_at
@@ -184,7 +184,7 @@ export async function getOrganizationBySlugRow(
 			COUNT(DISTINCT m.user_id) AS "userCount",
 			o.created_at AS "createdAt"
 		FROM organizations o
-		LEFT JOIN restaurants r ON r.organization_id = o.id
+		LEFT JOIN outlets r ON r.organization_id = o.id
 		LEFT JOIN memberships m ON m.organization_id = o.id
 		WHERE o.slug = $1
 		GROUP BY o.id, o.name, o.slug, o.plan, o.status, o.workspace_host, o.created_at
@@ -217,7 +217,7 @@ export async function getRestaurantBySlugRow(
 			r.id::text,
 			r.name,
 			r.slug,
-			r.segment,
+			r.business_type AS segment,
 			o.id::text AS "organizationId",
 			o.name AS "organizationName",
 			o.slug AS "organizationSlug",
@@ -227,7 +227,7 @@ export async function getRestaurantBySlugRow(
 			COALESCE(r.timezone, 'Asia/Makassar') AS timezone,
 			r.table_count AS "tableCount",
 			r.created_at AS "createdAt"
-		FROM restaurants r
+		FROM outlets r
 		JOIN organizations o ON o.id = r.organization_id
 		WHERE r.slug = $1
 		`,
@@ -285,7 +285,7 @@ export async function getPlatformAnalyticsRow(windowDays = 30): Promise<Platform
 			`
 			SELECT
 				(SELECT COUNT(*)::text FROM organizations WHERE created_at >= $1::timestamptz) AS new_orgs,
-				(SELECT COUNT(*)::text FROM restaurants WHERE created_at >= $1::timestamptz) AS new_restaurants
+				(SELECT COUNT(*)::text FROM outlets WHERE created_at >= $1::timestamptz) AS new_restaurants
 			`,
 			[since7d]
 		)
@@ -307,7 +307,7 @@ export async function updateRestaurantStatus(
 	status: 'active' | 'paused' | 'archived'
 ): Promise<void> {
 	const pool = getPool();
-	await pool.query(`UPDATE restaurants SET status = $1, updated_at = now() WHERE id = $2::uuid`, [
+	await pool.query(`UPDATE outlets SET status = $1, updated_at = now() WHERE id = $2::uuid`, [
 		status,
 		id
 	]);

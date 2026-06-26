@@ -19,7 +19,9 @@
 </script>
 
 {#if skeleton}
-	<div class="w-full animate-pulse rounded-lg border border-lingua-border bg-lingua-surface p-3">
+	<div
+		class="w-full animate-pulse rounded-lg border border-ainything-border bg-ainything-surface p-3"
+	>
 		<div class="grid grid-cols-[76px_1fr] gap-3">
 			<div class="h-20 w-20 rounded-md bg-slate-200"></div>
 			<div class="min-w-0 space-y-2">
@@ -33,8 +35,8 @@
 {:else}
 	<button
 		type="button"
-		class={`w-full rounded-lg border bg-lingua-surface p-3 text-left transition hover:border-lingua-primary hover:shadow-sm ${
-			selected ? 'border-lingua-primary ring-2 ring-teal-100' : 'border-lingua-border'
+		class={`w-full rounded-lg border bg-ainything-surface p-3 text-left transition hover:border-ainything-primary hover:shadow-sm ${
+			selected ? 'border-ainything-primary ring-2 ring-teal-100' : 'border-ainything-border'
 		}`}
 		{onclick}
 	>
@@ -43,15 +45,15 @@
 			<div class="min-w-0">
 				<div class="flex items-start justify-between gap-3">
 					<div class="min-w-0">
-						<p class="truncate font-semibold text-lingua-text">{item.name}</p>
-						<p class="truncate text-sm text-lingua-subtle">{item.localName}</p>
+						<p class="truncate font-semibold text-ainything-text">{item.name}</p>
+						<p class="truncate text-sm text-ainything-subtle">{item.localName}</p>
 					</div>
-					<p class="shrink-0 text-sm font-semibold text-lingua-primary">
+					<p class="shrink-0 text-sm font-semibold text-ainything-primary">
 						{formatPrice(item.price)}
 					</p>
 				</div>
 
-				<p class="mt-2 line-clamp-2 text-sm text-lingua-subtle">{item.description}</p>
+				<p class="mt-2 line-clamp-2 text-sm text-ainything-subtle">{item.description}</p>
 				<div class="mt-3 flex flex-wrap gap-2">
 					<span
 						class="inline-flex items-center gap-1 rounded-md bg-orange-50 px-2 py-1 text-xs font-semibold text-orange-800"

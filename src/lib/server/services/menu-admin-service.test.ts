@@ -1,17 +1,17 @@
 import type { MenuItem } from '$lib/domain/menu/types';
+import type { Product } from '$lib/domain/outlet/types';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const withUserContextMock = vi.fn();
 const resolveTenantContextMock = vi.fn();
-const findMenuItemByIdMock = vi.fn();
-const loadMenusForRestaurantMock = vi.fn();
-const loadMenuItemsForMenuMock = vi.fn();
-const countMenuItemsMock = vi.fn();
-const repoUpdateMenuItemMock = vi.fn();
-const repoSetAvailabilityMock = vi.fn();
-const repoUpdateFlagsMock = vi.fn();
-const repoPublishMenuMock = vi.fn();
-const generateEmbeddingsMock = vi.fn();
+const getProductByIdMock = vi.fn();
+const loadCatalogsForOutletMock = vi.fn();
+const loadProductsForCatalogMock = vi.fn();
+const updateProductMock = vi.fn();
+const setProductAvailabilityMock = vi.fn();
+const updateProductFlagsMock = vi.fn();
+const publishCatalogMock = vi.fn();
+const productToMenuItemMock = vi.fn();
 
 vi.mock('$lib/server/db/postgres', () => ({
 	withUserContext: (...args: unknown[]) => withUserContextMock(...args)
@@ -22,22 +22,30 @@ vi.mock('$lib/server/tenant/tenant-context', () => ({
 }));
 
 vi.mock('$lib/server/repositories/admin-menu-repository', () => ({
-	findMenuItemById: (...args: unknown[]) => findMenuItemByIdMock(...args),
-	loadMenusForRestaurant: (...args: unknown[]) => loadMenusForRestaurantMock(...args),
-	loadMenuItemsForMenu: (...args: unknown[]) => loadMenuItemsForMenuMock(...args),
-	countMenuItems: (...args: unknown[]) => countMenuItemsMock(...args),
-	updateMenuItem: (...args: unknown[]) => repoUpdateMenuItemMock(...args),
-	setMenuItemAvailability: (...args: unknown[]) => repoSetAvailabilityMock(...args),
-	updateMenuItemFlags: (...args: unknown[]) => repoUpdateFlagsMock(...args),
-	publishMenu: (...args: unknown[]) => repoPublishMenuMock(...args)
+	getProductById: (...args: unknown[]) => getProductByIdMock(...args),
+	loadCatalogsForOutlet: (...args: unknown[]) => loadCatalogsForOutletMock(...args),
+	loadProductsForCatalog: (...args: unknown[]) => loadProductsForCatalogMock(...args),
+	updateProduct: (...args: unknown[]) => updateProductMock(...args),
+	setProductAvailability: (...args: unknown[]) => setProductAvailabilityMock(...args),
+	updateProductFlags: (...args: unknown[]) => updateProductFlagsMock(...args),
+	publishCatalog: (...args: unknown[]) => publishCatalogMock(...args),
+	productToMenuItem: (...args: unknown[]) => productToMenuItemMock(...args),
+	// legacy shims still exported — include them so vi.mock doesn't blow up if anything imports them
+	findMenuItemById: vi.fn(),
+	loadMenusForRestaurant: vi.fn(),
+	loadMenuItemsForMenu: vi.fn(),
+	countMenuItems: vi.fn(),
+	updateMenuItem: vi.fn(),
+	setMenuItemAvailability: vi.fn(),
+	updateMenuItemFlags: vi.fn(),
+	publishMenu: vi.fn(),
+	ensureCategory: vi.fn(),
+	createDraftMenu: vi.fn(),
+	createProduct: vi.fn()
 }));
 
 vi.mock('$lib/server/config/env', () => ({
 	appEnv: { embeddingEnabled: false }
-}));
-
-vi.mock('$lib/server/services/embedding-worker', () => ({
-	generateEmbeddingsForRestaurant: (...args: unknown[]) => generateEmbeddingsMock(...args)
 }));
 
 const {
@@ -53,15 +61,22 @@ beforeEach(() => {
 	withUserContextMock.mockImplementation(
 		async (_userId: string, fn: (...args: unknown[]) => unknown) => fn({})
 	);
+	// Default: productToMenuItem returns a minimal MenuItem shape
+	productToMenuItemMock.mockImplementation((p: Product) => ({
+		...p,
+		category: p.section ?? '',
+		image: p.imageUrl ?? '',
+		spiceLevel: 0
+	}));
 });
 
 const USER = {
 	id: 'user-1',
 	email: 'admin@test.com',
 	name: 'Admin',
-	platformRole: 'restaurant_admin' as const,
+	platformRole: 'outlet_admin' as const,
 	memberships: [
-		{ organizationId: 'org-1', restaurantIds: ['rest-1'], role: 'restaurant_admin' as const }
+		{ organizationId: 'org-1', outletIds: ['rest-1'], role: 'outlet_admin' as const }
 	]
 };
 
@@ -70,13 +85,29 @@ const TENANT = {
 	activeRestaurant: { id: 'rest-1', slug: 'bali-kafe', organizationId: 'org-1' }
 };
 
+const MOCK_PRODUCT: Product = {
+	id: 'item-1',
+	section: 'Main',
+	name: 'Nasi Goreng',
+	description: '',
+	price: 50000,
+	currency: 'IDR',
+	imageUrl: '',
+	isAvailable: true,
+	isSignature: false,
+	sortOrder: 0,
+	dietaryFlags: [],
+	allergens: [],
+	goodFor: [],
+	confidence: 'verified'
+};
+
 describe('editMenuItem', () => {
 	it('updates item and returns full result', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		const updatedItem = { id: 'item-1', name: 'Nasi Goreng' };
-		repoUpdateMenuItemMock.mockResolvedValue(updatedItem);
-		repoUpdateFlagsMock.mockResolvedValue(undefined);
-		findMenuItemByIdMock.mockResolvedValue({ ...updatedItem, dietaryFlags: [] });
+		updateProductMock.mockResolvedValue(MOCK_PRODUCT);
+		updateProductFlagsMock.mockResolvedValue(undefined);
+		getProductByIdMock.mockResolvedValue(MOCK_PRODUCT);
 
 		const result = await editMenuItem(USER, {
 			restaurantSlug: 'bali-kafe',
@@ -91,18 +122,19 @@ describe('editMenuItem', () => {
 				spiceLevel: 0,
 				confidence: 'verified',
 				itemId: 'item-1',
-				restaurant: 'bali-kafe'
+				outlet: 'bali-kafe'
 			}
 		});
 
 		expect(result.name).toBe('Nasi Goreng');
-		expect(repoUpdateMenuItemMock).toHaveBeenCalled();
-		expect(repoUpdateFlagsMock).toHaveBeenCalled();
+		expect(updateProductMock).toHaveBeenCalled();
+		expect(updateProductFlagsMock).toHaveBeenCalled();
+		expect(getProductByIdMock).toHaveBeenCalled();
 	});
 
 	it('throws when item not found after update', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		repoUpdateMenuItemMock.mockResolvedValue(null);
+		updateProductMock.mockResolvedValue(null);
 
 		await expect(
 			editMenuItem(USER, {
@@ -116,7 +148,7 @@ describe('editMenuItem', () => {
 					spiceLevel: 0,
 					confidence: 'verified',
 					itemId: 'missing',
-					restaurant: 'bali-kafe',
+					outlet: 'bali-kafe',
 					price: 0,
 					isAvailable: false
 				}
@@ -128,7 +160,7 @@ describe('editMenuItem', () => {
 describe('toggleAvailability', () => {
 	it('sets availability successfully', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		repoSetAvailabilityMock.mockResolvedValue(true);
+		setProductAvailabilityMock.mockResolvedValue(true);
 
 		await expect(
 			toggleAvailability(USER, {
@@ -138,7 +170,7 @@ describe('toggleAvailability', () => {
 			})
 		).resolves.toBeUndefined();
 
-		expect(repoSetAvailabilityMock).toHaveBeenCalledWith(
+		expect(setProductAvailabilityMock).toHaveBeenCalledWith(
 			expect.anything(),
 			expect.objectContaining({ isAvailable: false })
 		);
@@ -146,7 +178,7 @@ describe('toggleAvailability', () => {
 
 	it('throws when item not found', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		repoSetAvailabilityMock.mockResolvedValue(false);
+		setProductAvailabilityMock.mockResolvedValue(false);
 
 		await expect(
 			toggleAvailability(USER, {
@@ -159,47 +191,31 @@ describe('toggleAvailability', () => {
 });
 
 describe('publishDraftMenu', () => {
-	it('publishes draft menu successfully', async () => {
+	it('publishes draft catalog successfully', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		loadMenusForRestaurantMock.mockResolvedValue([
-			{ id: 'menu-draft', status: 'draft', version: 1 }
-		]);
-		countMenuItemsMock.mockResolvedValue(5);
-		loadMenuItemsForMenuMock.mockResolvedValue([
-			{
-				id: 'i1',
-				name: 'A',
-				price: 10000,
-				isAvailable: true,
-				dietaryFlags: [],
-				allergens: []
-			}
-		]);
-		repoPublishMenuMock.mockResolvedValue('menu-published');
+		loadCatalogsForOutletMock.mockResolvedValue([{ id: 'cat-draft', status: 'draft', version: 1 }]);
+		loadProductsForCatalogMock.mockResolvedValue([MOCK_PRODUCT]);
+		publishCatalogMock.mockResolvedValue('cat-published');
 
 		const result = await publishDraftMenu(USER, { restaurantSlug: 'bali-kafe' });
 
-		expect(result).toBe('menu-published');
-		expect(repoPublishMenuMock).toHaveBeenCalled();
+		expect(result).toBe('cat-published');
+		expect(publishCatalogMock).toHaveBeenCalled();
 	});
 
-	it('throws when no draft menu exists', async () => {
+	it('throws when no draft catalog exists', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		loadMenusForRestaurantMock.mockResolvedValue([
-			{ id: 'menu-pub', status: 'published', version: 1 }
-		]);
+		loadCatalogsForOutletMock.mockResolvedValue([{ id: 'cat-pub', status: 'published', version: 1 }]);
 
 		await expect(publishDraftMenu(USER, { restaurantSlug: 'bali-kafe' })).rejects.toThrow(
-			'No draft menu found'
+			'No draft catalog found'
 		);
 	});
 
-	it('throws MenuPublishValidationError when draft has zero items', async () => {
+	it('throws MenuPublishValidationError when draft catalog has zero products', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		loadMenusForRestaurantMock.mockResolvedValue([
-			{ id: 'menu-draft', status: 'draft', version: 1 }
-		]);
-		countMenuItemsMock.mockResolvedValue(0);
+		loadCatalogsForOutletMock.mockResolvedValue([{ id: 'cat-draft', status: 'draft', version: 1 }]);
+		loadProductsForCatalogMock.mockResolvedValue([]);
 
 		await expect(publishDraftMenu(USER, { restaurantSlug: 'bali-kafe' })).rejects.toThrow(
 			MenuPublishValidationError

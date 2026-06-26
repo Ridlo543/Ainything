@@ -1,7 +1,7 @@
 import type { LlmChatContext, LlmMenuItem } from './types';
 
 /**
- * Prompt versioning for Lingua.
+ * Prompt versioning for Ainything.
  *
  * Bump PROMPT_VERSION whenever guardrail rules, answer format, or the menu snapshot
  * format changes so ai_events can scope regression testing by version.
@@ -70,7 +70,7 @@ export function buildSystemPrompt(context: LlmChatContext): string {
 			? `\nMENU DATA (authoritative — use ONLY this data, do not invent anything):\n${buildMenuSnapshot(context.menuItems)}\n`
 			: '\n(No menu data provided — for specific item questions, tell the guest you cannot confirm details and suggest asking staff.)\n';
 
-	return `You are the AI menu assistant for ${context.restaurantName}.
+	return `You are the AI menu assistant for ${context.outletName}.
 Your role is to help international guests understand the menu, ingredients, spice levels,
 dietary flags, and ordering choices — based ONLY on the verified restaurant data below.
 

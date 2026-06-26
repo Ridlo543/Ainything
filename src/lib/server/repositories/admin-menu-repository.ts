@@ -1,29 +1,32 @@
 /**
- * Admin/manager write operations for menu data.
+ * Admin/manager write operations for catalog/product data.
  *
  * All methods accept a `DatabaseClient` so callers control the transaction
  * boundary (typically `withUserContext`). Every query is scoped by
- * organization_id + restaurant_id so the 0006 RLS write policies evaluate
- * correctly for the authenticated membership.
+ * organization_id + outlet_id so RLS write policies evaluate correctly for
+ * the authenticated membership.
  *
- * This repository intentionally does NOT handle menu publishing (archive old +
+ * This repository intentionally does NOT handle catalog publishing (archive old +
  * promote new) — that multi-step operation is owned by the service layer
- * because it requires a single transaction across the `menus` table.
+ * because it requires a single transaction across the `catalogs` table.
+ *
+ * @deprecated Renamed from menu-centric to outlet/catalog/product terminology.
+ *   Prefer using outlet-repository.ts and catalog-admin-service.ts for new code.
  */
 
 import type { DatabaseClient } from '$lib/server/db/postgres';
-import type { MenuItem, Allergen, DietaryFlag } from '$lib/domain/menu/types';
+import type { Product, DietaryFlag, Allergen } from '$lib/domain/outlet/types';
 
 // ---------------------------------------------------------------------------
 // Types matching the DB row shape (snake_case, postgres native types)
 // ---------------------------------------------------------------------------
 
-type AdminMenuItemRow = {
+type AdminProductRow = {
 	id: string;
-	restaurant_id: string;
-	menu_id: string;
-	category_id: string;
-	category: string;
+	outlet_id: string;
+	catalog_id: string;
+	section_id: string;
+	section_name: string;
 	name: string;
 	local_name: string | null;
 	description: string;
@@ -40,9 +43,9 @@ type AdminMenuItemRow = {
 	allergens: Allergen[];
 };
 
-type MenuRow = {
+type CatalogRow = {
 	id: string;
-	restaurant_id: string;
+	outlet_id: string;
 	version: number;
 	status: string;
 	published_at: string | null;
@@ -52,17 +55,16 @@ type MenuRow = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function mapRowToMenuItem(row: AdminMenuItemRow): MenuItem {
+function mapRowToProduct(row: AdminProductRow): Product {
 	return {
 		id: row.id,
-		category: row.category,
+		section: row.section_name,
 		name: row.name,
 		localName: row.local_name ?? undefined,
 		description: row.description,
 		price: row.price_amount,
-		currency: row.currency as MenuItem['currency'],
-		image: row.image_url,
-		spiceLevel: row.spice_level as MenuItem['spiceLevel'],
+		currency: row.currency as Product['currency'],
+		imageUrl: row.image_url,
 		isAvailable: row.is_available,
 		isSignature: row.is_signature,
 		dietaryFlags: row.dietary_flags,
@@ -70,340 +72,736 @@ function mapRowToMenuItem(row: AdminMenuItemRow): MenuItem {
 		goodFor: (row.source_metadata as Record<string, unknown>)?.goodFor
 			? ((row.source_metadata as Record<string, unknown>).goodFor as string[])
 			: [],
-		confidence: row.confidence as MenuItem['confidence']
+		confidence: row.confidence as Product['confidence'],
+		sortOrder: row.sort_order
 	};
 }
 
-// ---------------------------------------------------------------------------
-// Read
-// ---------------------------------------------------------------------------
-
 /**
- * Loads a single menu item scoped to an organization + restaurant + item id.
- * Returns null if the row does not exist or the caller lacks access (RLS).
+ * Reloads a single product with its dietary flags and allergens.
+ * Used after scalar field updates to return the complete domain object.
  */
-export async function findMenuItemById(
+async function reloadProductFlags(
 	client: DatabaseClient,
 	{
 		organizationId,
-		restaurantId,
-		itemId
-	}: { organizationId: string; restaurantId: string; itemId: string }
-): Promise<MenuItem | null> {
-	const result = await client.query<AdminMenuItemRow>(
+		outletId,
+		productId
+	}: { organizationId: string; outletId: string; productId: string }
+): Promise<Product | null> {
+	const result = await client.query<AdminProductRow>(
 		`
 			SELECT
-				mi.id::text,
-				mi.restaurant_id::text,
-				mi.menu_id::text,
-				mi.category_id::text,
-				mc.name AS category,
-				mi.name,
-				mi.local_name,
-				mi.description,
-				mi.price_amount,
-				mi.currency,
-				mi.image_url,
-				mi.spice_level,
-				mi.is_available,
-				mi.is_signature,
-				mi.confidence,
-				mi.sort_order,
-				mi.source_metadata,
+				p.id::text,
+				p.outlet_id::text,
+				p.catalog_id::text,
+				p.section_id::text,
+				cs.name AS section_name,
+				p.name,
+				p.local_name,
+				p.description,
+				p.price_amount,
+				p.currency,
+				p.image_url,
+				p.spice_level,
+				p.is_available,
+				p.is_signature,
+				p.confidence,
+				p.sort_order,
+				p.source_metadata,
 				COALESCE(
-					ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
+					ARRAY_AGG(DISTINCT pdf.flag_code) FILTER (WHERE pdf.flag_code IS NOT NULL),
 					ARRAY[]::text[]
 				) AS dietary_flags,
 				COALESCE(
-					ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
+					ARRAY_AGG(DISTINCT pa.allergen_code) FILTER (WHERE pa.allergen_code IS NOT NULL),
 					ARRAY[]::text[]
 				) AS allergens
-			FROM menu_items mi
-			JOIN menus m ON m.id = mi.menu_id
-			JOIN menu_categories mc ON mc.id = mi.category_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
-			WHERE mi.id = $1::uuid
-				AND mi.restaurant_id = $2::uuid
-				AND mi.organization_id = $3::uuid
-			GROUP BY mi.id, mc.name
+			FROM products p
+			JOIN catalog_sections cs ON cs.id = p.section_id
+			LEFT JOIN product_dietary_flags pdf ON pdf.product_id = p.id
+			LEFT JOIN product_allergens pa ON pa.product_id = p.id
+			WHERE p.id = $1::uuid
+				AND p.outlet_id = $2::uuid
+				AND p.organization_id = $3::uuid
+			GROUP BY p.id, cs.name
 		`,
-		[itemId, restaurantId, organizationId]
+		[productId, outletId, organizationId]
 	);
 
 	const row = result.rows[0];
-	return row ? mapRowToMenuItem(row) : null;
+	return row ? mapRowToProduct(row) : null;
 }
 
 /**
- * Loads ALL menu items for a restaurant (regardless of menu status — draft +
- * published). Used by the admin menu editor to show the full picture.
- * Returns items grouped by menu_id; the caller picks the active/draft menu.
+ * Fetches a single product by ID, scoped to an outlet and organization.
  */
-export async function loadMenuItemsForRestaurant(
+export async function getProductById(
 	client: DatabaseClient,
-	{ organizationId, restaurantId }: { organizationId: string; restaurantId: string }
-): Promise<MenuItem[]> {
-	const result = await client.query<AdminMenuItemRow>(
+	{
+		organizationId,
+		outletId,
+		productId
+	}: { organizationId: string; outletId: string; productId: string }
+): Promise<Product | null> {
+	return reloadProductFlags(client, { organizationId, outletId, productId });
+}
+
+/**
+ * Loads ALL products for an outlet (regardless of catalog status — draft +
+ * published). Used by the admin catalog editor to show the full picture.
+ */
+export async function loadProductsForOutlet(
+	client: DatabaseClient,
+	{ organizationId, outletId }: { organizationId: string; outletId: string }
+): Promise<Product[]> {
+	const result = await client.query<AdminProductRow>(
 		`
 			SELECT
-				mi.id::text,
-				mi.restaurant_id::text,
-				mi.menu_id::text,
-				mi.category_id::text,
-				mc.name AS category,
-				mi.name,
-				mi.local_name,
-				mi.description,
-				mi.price_amount,
-				mi.currency,
-				mi.image_url,
-				mi.spice_level,
-				mi.is_available,
-				mi.is_signature,
-				mi.confidence,
-				mi.sort_order,
-				mi.source_metadata,
-				COALESCE(
-					ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
-					ARRAY[]::text[]
-				) AS dietary_flags,
-				COALESCE(
-					ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
-					ARRAY[]::text[]
-				) AS allergens
-			FROM menu_items mi
-			JOIN menu_categories mc ON mc.id = mi.category_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
-			WHERE mi.restaurant_id = $1::uuid
-				AND mi.organization_id = $2::uuid
-			GROUP BY mi.id, mc.name
-			ORDER BY mi.sort_order, mi.name
-		`,
-		[restaurantId, organizationId]
+				p.id::text,
+				p.outlet_id::text,
+				p.catalog_id::text,
+				p.section_id::text,
+				cs.name AS section_name,
+				p.name,
+				p.local_name,
+				p.description,
+				p.price_amount,
+				p.currency,
+				p.image_url,
+			0 AS spice_level,
+			p.is_available,
+			p.is_signature,
+			p.confidence,
+			p.sort_order,
+			p.source_metadata,
+			COALESCE(
+				ARRAY_AGG(DISTINCT pdf.flag_code) FILTER (WHERE pdf.flag_code IS NOT NULL),
+				ARRAY[]::text[]
+			) AS dietary_flags,
+			COALESCE(
+				ARRAY_AGG(DISTINCT pa.allergen_code) FILTER (WHERE pa.allergen_code IS NOT NULL),
+				ARRAY[]::text[]
+			) AS allergens
+		FROM products p
+		JOIN catalog_sections cs ON cs.id = p.section_id
+		LEFT JOIN product_dietary_flags pdf ON pdf.product_id = p.id
+		LEFT JOIN product_allergens pa ON pa.product_id = p.id
+		WHERE p.outlet_id = $1::uuid
+			AND p.organization_id = $2::uuid
+		GROUP BY p.id, cs.name
+		ORDER BY p.sort_order, p.name
+	`,
+		[outletId, organizationId]
 	);
 
-	return result.rows.map(mapRowToMenuItem);
+	return result.rows.map(mapRowToProduct);
 }
 
 /**
- * Loads the menu records for a restaurant (draft + published + archived).
- * Returns the most recent draft and the current published menu (if any).
+ * Loads the catalog records for an outlet (draft + published + archived).
  */
-export async function loadMenusForRestaurant(
+export async function loadCatalogsForOutlet(
 	client: DatabaseClient,
-	{ organizationId, restaurantId }: { organizationId: string; restaurantId: string }
-): Promise<MenuRow[]> {
-	const result = await client.query<MenuRow>(
+	{ organizationId, outletId }: { organizationId: string; outletId: string }
+): Promise<CatalogRow[]> {
+	const result = await client.query<CatalogRow>(
 		`
-			SELECT id::text, restaurant_id::text, version, status, published_at::text
-			FROM menus
-			WHERE restaurant_id = $1::uuid
+			SELECT id::text, outlet_id::text, version, status, published_at::text
+			FROM catalogs
+			WHERE outlet_id = $1::uuid
 				AND organization_id = $2::uuid
-			ORDER BY version DESC
+			ORDER BY sort_order ASC, name ASC
 		`,
-		[restaurantId, organizationId]
+		[outletId, organizationId]
 	);
 	return result.rows;
 }
 
 /**
- * Loads menu items for a specific menu (draft or published), including flags +
- * allergens. Used by the publish DQG gate to validate all items before going
- * live.
+ * Loads products for a specific catalog (draft or published), including flags +
+ * allergens. Used by the publish quality-gate to validate all items before going live.
  */
-export async function loadMenuItemsForMenu(
+export async function loadProductsForCatalog(
 	client: DatabaseClient,
 	{
-		menuId,
-		restaurantId,
-		organizationId
-	}: { menuId: string; restaurantId: string; organizationId: string }
-): Promise<MenuItem[]> {
-	const result = await client.query<AdminMenuItemRow>(
+		organizationId,
+		outletId,
+		catalogId
+	}: { organizationId: string; outletId: string; catalogId: string }
+): Promise<Product[]> {
+	const result = await client.query<AdminProductRow>(
 		`
 			SELECT
-				mi.id::text,
-				mi.restaurant_id::text,
-				mi.menu_id::text,
-				mi.category_id::text,
-				mc.name AS category,
-				mi.name,
-				mi.local_name,
-				mi.description,
-				mi.price_amount,
-				mi.currency,
-				mi.image_url,
-				mi.spice_level,
-				mi.is_available,
-				mi.is_signature,
-				mi.confidence,
-				mi.sort_order,
-				mi.source_metadata,
+				p.id::text,
+				p.outlet_id::text,
+				p.catalog_id::text,
+				p.section_id::text,
+				cs.name AS section_name,
+				p.name,
+				p.local_name,
+				p.description,
+				p.price_amount,
+				p.currency,
+				p.image_url,
+				p.spice_level,
+				p.is_available,
+				p.is_signature,
+				p.confidence,
+				p.sort_order,
+				p.source_metadata,
 				COALESCE(
-					ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
+					ARRAY_AGG(DISTINCT pdf.flag_code) FILTER (WHERE pdf.flag_code IS NOT NULL),
 					ARRAY[]::text[]
 				) AS dietary_flags,
 				COALESCE(
-					ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
+					ARRAY_AGG(DISTINCT pa.allergen_code) FILTER (WHERE pa.allergen_code IS NOT NULL),
 					ARRAY[]::text[]
 				) AS allergens
-			FROM menu_items mi
-			JOIN menu_categories mc ON mc.id = mi.category_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
-			WHERE mi.menu_id = $1::uuid
-				AND mi.restaurant_id = $2::uuid
-				AND mi.organization_id = $3::uuid
-			GROUP BY mi.id, mc.name
-			ORDER BY mi.sort_order, mi.name
+			FROM products p
+			JOIN catalog_sections cs ON cs.id = p.section_id
+			LEFT JOIN product_dietary_flags pdf ON pdf.product_id = p.id
+			LEFT JOIN product_allergens pa ON pa.product_id = p.id
+			WHERE p.catalog_id = $1::uuid
+				AND p.outlet_id = $2::uuid
+				AND p.organization_id = $3::uuid
+			GROUP BY p.id, cs.name
+			ORDER BY p.sort_order, p.name
 		`,
-		[menuId, restaurantId, organizationId]
+		[catalogId, outletId, organizationId]
 	);
 
-	return result.rows.map(mapRowToMenuItem);
+	return result.rows.map(mapRowToProduct);
 }
 
 /**
- * Loads the count of menu items in a given menu (for publish validation).
+ * Creates a new product under a catalog section.
  */
-export async function countMenuItems(
+export async function createProduct(
 	client: DatabaseClient,
 	{
 		organizationId,
-		restaurantId,
-		menuId
-	}: { organizationId: string; restaurantId: string; menuId: string }
-): Promise<number> {
-	const result = await client.query<{ count: string }>(
-		`SELECT COUNT(*)::text AS count FROM menu_items WHERE menu_id = $1::uuid AND restaurant_id = $2::uuid AND organization_id = $3::uuid`,
-		[menuId, restaurantId, organizationId]
-	);
-	return Number(result.rows[0]?.count ?? 0);
-}
-
-// ---------------------------------------------------------------------------
-// Write
-// ---------------------------------------------------------------------------
-
-/**
- * Updates the scalar columns of a menu item (name, localName, description,
- * price, spiceLevel, isAvailable, confidence). Flags are handled separately
- * by `updateMenuItemFlags`.
- *
- * Returns the updated row mapped to a MenuItem, or null if the row was not
- * found / access denied (RLS).
- */
-export async function updateMenuItem(
-	client: DatabaseClient,
-	{
-		organizationId,
-		restaurantId,
-		itemId,
-		name,
-		localName,
-		description,
-		price,
-		spiceLevel,
-		isAvailable,
-		confidence
+		outletId,
+		catalogId,
+		sectionId,
+		data
 	}: {
 		organizationId: string;
-		restaurantId: string;
-		itemId: string;
-		name: string;
-		localName: string | undefined;
-		description: string;
-		price: number;
-		spiceLevel: number;
-		isAvailable: boolean;
-		confidence: string;
+		outletId: string;
+		catalogId: string;
+		sectionId: string;
+		data: {
+			name: string;
+			localName?: string;
+			description?: string;
+			priceAmount: number;
+			currency?: string;
+			imageUrl?: string;
+			spiceLevel?: number;
+			isAvailable?: boolean;
+			isSignature?: boolean;
+			confidence?: string;
+			sortOrder?: number;
+		};
 	}
-): Promise<MenuItem | null> {
-	const result = await client.query<AdminMenuItemRow>(
+): Promise<Product | null> {
+	const result = await client.query<{ id: string }>(
 		`
-			UPDATE menu_items
-			SET
-				name        = $3,
-				local_name  = $4,
-				description = $5,
-				price_amount = $6,
-				spice_level = $7,
-				is_available = $8,
-				confidence  = $9
-			WHERE id = $1::uuid
-				AND restaurant_id = $2::uuid
-				AND organization_id = $10::uuid
-			RETURNING
-				id::text, restaurant_id::text, menu_id::text, category_id::text,
-				name, local_name, description, price_amount, currency, image_url,
-				spice_level, is_available, is_signature, confidence, sort_order,
-				source_metadata,
-				COALESCE(ARRAY[]::text[]) AS dietary_flags,
-				COALESCE(ARRAY[]::text[]) AS allergens
+			INSERT INTO products (
+				organization_id, outlet_id, catalog_id, section_id,
+				name, local_name, description, price_amount, currency,
+				image_url, spice_level, is_available, is_signature, confidence, sort_order
+			) VALUES (
+				$1::uuid, $2::uuid, $3::uuid, $4::uuid,
+				$5, $6, $7, $8, $9,
+				$10, $11, $12, $13, $14, $15
+			)
+			RETURNING id::text
 		`,
 		[
-			itemId,
-			restaurantId,
-			name,
-			localName ?? null,
-			description,
-			price,
-			spiceLevel,
-			isAvailable,
-			confidence,
-			organizationId
+			organizationId,
+			outletId,
+			catalogId,
+			sectionId,
+			data.name,
+			data.localName ?? null,
+			data.description ?? '',
+			data.priceAmount,
+			data.currency ?? 'IDR',
+			data.imageUrl ?? '',
+			data.spiceLevel ?? 0,
+			data.isAvailable ?? true,
+			data.isSignature ?? false,
+			data.confidence ?? 'needs-review',
+			data.sortOrder ?? 0
 		]
 	);
 
 	const row = result.rows[0];
 	if (!row) return null;
-
-	// Dietary flags and allergens need a separate load after the scalar update.
-	return reloadItemFlags(client, { organizationId, restaurantId, itemId: row.id });
+	return reloadProductFlags(client, { organizationId, outletId, productId: row.id });
 }
 
 /**
- * Fast path for toggling item availability (sold-out / back in stock).
- * Only touches `is_available`; does not re-read flags or metadata.
+ * Updates the scalar fields of an existing product.
+ * Does NOT update dietary_flags or allergens — use updateProductFlags for that.
  */
-export async function setMenuItemAvailability(
+export async function updateProduct(
 	client: DatabaseClient,
 	{
 		organizationId,
-		restaurantId,
-		itemId,
+		outletId,
+		productId,
+		data
+	}: {
+		organizationId: string;
+		outletId: string;
+		productId: string;
+		data: Partial<{
+			name: string;
+			localName: string | null;
+			description: string;
+			priceAmount: number;
+			imageUrl: string;
+			spiceLevel: number;
+			isAvailable: boolean;
+			isSignature: boolean;
+			confidence: string;
+			sortOrder: number;
+		}>;
+	}
+): Promise<Product | null> {
+	const updates: string[] = [];
+	const values: (string | number | boolean | null)[] = [];
+	let idx = 1;
+
+	const fieldMap: Record<string, string> = {
+		name: 'name',
+		localName: 'local_name',
+		description: 'description',
+		priceAmount: 'price_amount',
+		imageUrl: 'image_url',
+		spiceLevel: 'spice_level',
+		isAvailable: 'is_available',
+		isSignature: 'is_signature',
+		confidence: 'confidence',
+		sortOrder: 'sort_order'
+	};
+
+	for (const [key, col] of Object.entries(fieldMap)) {
+		if (key in data) {
+			updates.push(`${col} = $${idx}`);
+			values.push(data[key as keyof typeof data] as string | number | boolean | null);
+			idx++;
+		}
+	}
+
+	if (updates.length === 0) return getProductById(client, { organizationId, outletId, productId });
+
+	updates.push(`updated_at = now()`);
+	values.push(productId, outletId, organizationId);
+
+	const result = await client.query<{ id: string }>(
+		`
+			UPDATE products
+			SET ${updates.join(', ')}
+			WHERE id = $${idx}::uuid
+				AND outlet_id = $${idx + 1}::uuid
+				AND organization_id = $${idx + 2}::uuid
+			RETURNING id::text
+		`,
+		values
+	);
+
+	const row = result.rows[0];
+	if (!row) return null;
+	return reloadProductFlags(client, { organizationId, outletId, productId: row.id });
+}
+
+/**
+ * Fast path for toggling product availability (sold-out / back in stock).
+ */
+export async function setProductAvailability(
+	client: DatabaseClient,
+	{
+		organizationId,
+		outletId,
+		productId,
 		isAvailable
-	}: { organizationId: string; restaurantId: string; itemId: string; isAvailable: boolean }
+	}: { organizationId: string; outletId: string; productId: string; isAvailable: boolean }
 ): Promise<boolean> {
 	const result = await client.query<{ id: string }>(
 		`
-			UPDATE menu_items
+			UPDATE products
 			SET is_available = $4
 			WHERE id = $1::uuid
-				AND restaurant_id = $2::uuid
+				AND outlet_id = $2::uuid
 				AND organization_id = $3::uuid
 			RETURNING id::text
 		`,
-		[itemId, restaurantId, organizationId, isAvailable]
+		[productId, outletId, organizationId, isAvailable]
 	);
 	return result.rows.length > 0;
 }
 
 /**
- * Replaces the dietary flags and allergens for a menu item by deleting all
- * existing rows and inserting the new set. Runs within the caller's transaction.
+ * Replaces the dietary flags and allergens for a product.
  */
-export async function updateMenuItemFlags(
+export async function updateProductFlags(
 	client: DatabaseClient,
 	{
 		organizationId,
-		restaurantId,
-		itemId,
+		outletId,
+		productId,
 		dietaryFlags,
 		allergens
 	}: {
+		organizationId: string;
+		outletId: string;
+		productId: string;
+		dietaryFlags: string[];
+		allergens: string[];
+	}
+): Promise<void> {
+	const check = await client.query<{ id: string }>(
+		`SELECT id::text FROM products WHERE id = $1::uuid AND outlet_id = $2::uuid AND organization_id = $3::uuid`,
+		[productId, outletId, organizationId]
+	);
+	if (check.rows.length === 0) return;
+
+	await client.query(`DELETE FROM product_dietary_flags WHERE product_id = $1::uuid`, [productId]);
+	await client.query(`DELETE FROM product_allergens WHERE product_id = $1::uuid`, [productId]);
+
+	for (const code of dietaryFlags) {
+		await client.query(
+			`INSERT INTO product_dietary_flags (product_id, flag_code) VALUES ($1::uuid, $2)`,
+			[productId, code]
+		);
+	}
+	for (const code of allergens) {
+		await client.query(
+			`INSERT INTO product_allergens (product_id, allergen_code) VALUES ($1::uuid, $2)`,
+			[productId, code]
+		);
+	}
+}
+
+/**
+ * Publishes a catalog: archives the current published catalog and promotes a draft.
+ */
+export async function publishCatalog(
+	client: DatabaseClient,
+	{
+		organizationId,
+		outletId,
+		catalogId
+	}: { organizationId: string; outletId: string; catalogId: string }
+): Promise<string | null> {
+	// Archive the currently published catalog (if any).
+	await client.query(
+		`
+			UPDATE catalogs
+			SET status = 'archived', updated_at = now()
+			WHERE outlet_id = $1::uuid
+				AND organization_id = $2::uuid
+				AND status = 'published'
+		`,
+		[outletId, organizationId]
+	);
+
+	// Promote the specified draft catalog to published.
+	const result = await client.query<{ id: string }>(
+		`
+			UPDATE catalogs
+			SET status = 'published', published_at = now(), updated_at = now()
+			WHERE id = $1::uuid
+				AND outlet_id = $2::uuid
+				AND organization_id = $3::uuid
+				AND status = 'draft'
+			RETURNING id::text
+		`,
+		[catalogId, outletId, organizationId]
+	);
+
+	return result.rows[0]?.id ?? null;
+}
+
+/**
+ * Loads the published (public-facing) products for a given outlet.
+ * Used by retrieval/embedding pipelines that need the canonical product set.
+ */
+export async function loadPublishedProductsForOutlet(
+	client: DatabaseClient,
+	{ organizationId, outletId }: { organizationId: string; outletId: string }
+): Promise<Product[]> {
+	const result = await client.query<AdminProductRow>(
+		`
+			SELECT
+				p.id::text,
+				p.outlet_id::text,
+				p.catalog_id::text,
+				p.section_id::text,
+				cs.name AS section_name,
+				p.name,
+				p.local_name,
+				p.description,
+				p.price_amount,
+				p.currency,
+				p.image_url,
+				p.spice_level,
+				p.is_available,
+				p.is_signature,
+				p.confidence,
+				p.sort_order,
+				p.source_metadata,
+				COALESCE(
+					ARRAY_AGG(DISTINCT pdf.flag_code) FILTER (WHERE pdf.flag_code IS NOT NULL),
+					ARRAY[]::text[]
+				) AS dietary_flags,
+				COALESCE(
+					ARRAY_AGG(DISTINCT pa.allergen_code) FILTER (WHERE pa.allergen_code IS NOT NULL),
+					ARRAY[]::text[]
+				) AS allergens
+			FROM products p
+			JOIN catalogs c ON c.id = p.catalog_id
+			JOIN catalog_sections cs ON cs.id = p.section_id
+			LEFT JOIN product_dietary_flags pdf ON pdf.product_id = p.id
+			LEFT JOIN product_allergens pa ON pa.product_id = p.id
+			WHERE p.outlet_id = $1::uuid
+				AND p.organization_id = $2::uuid
+				AND c.status = 'published'
+				AND p.is_available = true
+			GROUP BY p.id, cs.name
+			ORDER BY p.sort_order, p.name
+		`,
+		[outletId, organizationId]
+	);
+
+	return result.rows.map(mapRowToProduct);
+}
+
+// ---------------------------------------------------------------------------
+// Backward-compat shims — map old restaurant/menu API to new outlet/catalog API
+//
+// Mapping:
+//   restaurantId  → outletId
+//   menu          → catalog  (catalogs table)
+//   menu_category → section  (catalog_sections table)
+//   menu_item     → product  (products table)
+//
+// Remove after all callers migrate to the new names.
+// ---------------------------------------------------------------------------
+
+import type { MenuItem } from '$lib/domain/menu/types';
+import { query as dbQuery } from '$lib/server/db/postgres';
+
+/** Converts a Product to the legacy MenuItem shape. */
+export function productToMenuItem(p: Product): MenuItem {
+	return {
+		id: p.id,
+		category: p.section,
+		name: p.name,
+		localName: p.localName,
+		description: p.description,
+		price: p.price,
+		currency: p.currency,
+		image: p.imageUrl,
+		spiceLevel: 0, // products table has no spice_level column
+		isAvailable: p.isAvailable,
+		isSignature: p.isSignature,
+		dietaryFlags: p.dietaryFlags,
+		allergens: p.allergens,
+		goodFor: p.goodFor,
+		confidence: p.confidence
+	};
+}
+
+/** @deprecated Use getProductById */
+export async function findMenuItemById(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string; itemId: string }
+): Promise<MenuItem | null> {
+	const product = await getProductById(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		productId: params.itemId
+	});
+	return product ? productToMenuItem(product) : null;
+}
+
+/** @deprecated Use loadCatalogsForOutlet */
+export async function loadMenusForRestaurant(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string }
+): Promise<{ id: string; status: string; version: number }[]> {
+	return loadCatalogsForOutlet(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId
+	});
+}
+
+/** @deprecated Use loadProductsForCatalog — returns count */
+export async function countMenuItems(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string; menuId: string }
+): Promise<number> {
+	const products = await loadProductsForCatalog(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		catalogId: params.menuId
+	});
+	return products.length;
+}
+
+/** @deprecated Use loadProductsForCatalog */
+export async function loadMenuItemsForMenu(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string; menuId: string }
+): Promise<MenuItem[]> {
+	const products = await loadProductsForCatalog(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		catalogId: params.menuId
+	});
+	return products.map(productToMenuItem);
+}
+
+/** @deprecated Creates a draft catalog (menu equivalent) */
+export async function createDraftMenu(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string; version: number; sourceType: string }
+): Promise<string> {
+	const result = await client.query<{ id: string }>(
+		`INSERT INTO catalogs (organization_id, outlet_id, name, status, sort_order)
+		 VALUES ($1::uuid, $2::uuid, $3, 'draft', $4)
+		 RETURNING id::text`,
+		[params.organizationId, params.restaurantId, `Draft Catalog v${params.version}`, params.version]
+	);
+	const row = result.rows[0];
+	if (!row) throw new Error('Failed to create draft catalog');
+	return row.id;
+}
+
+/** @deprecated Finds or creates a catalog section by name */
+export async function ensureCategory(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string; menuId: string; name: string }
+): Promise<string> {
+	const existing = await client.query<{ id: string }>(
+		`SELECT id::text FROM catalog_sections
+		 WHERE catalog_id = $1::uuid AND organization_id = $2::uuid AND name = $3
+		 LIMIT 1`,
+		[params.menuId, params.organizationId, params.name]
+	);
+	if (existing.rows[0]) return existing.rows[0].id;
+
+	const inserted = await client.query<{ id: string }>(
+		`INSERT INTO catalog_sections (organization_id, outlet_id, catalog_id, name, sort_order)
+		 VALUES ($1::uuid, $2::uuid, $3::uuid, $4, 0)
+		 RETURNING id::text`,
+		[params.organizationId, params.restaurantId, params.menuId, params.name]
+	);
+	const row = inserted.rows[0];
+	if (!row) throw new Error(`Failed to create catalog section "${params.name}"`);
+	return row.id;
+}
+
+/** @deprecated Use createProduct */
+export async function insertMenuItem(
+	client: DatabaseClient,
+	params: {
+		organizationId: string;
+		restaurantId: string;
+		menuId: string;
+		categoryId: string;
+		name: string;
+		localName?: string;
+		description?: string;
+		price: number;
+		spiceLevel?: number;
+		isSignature?: boolean;
+		dietaryFlags?: string[];
+		allergens?: string[];
+		sourceMetadata?: Record<string, unknown>;
+		sortOrder?: number;
+	}
+): Promise<MenuItem> {
+	const product = await createProduct(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		catalogId: params.menuId,
+		sectionId: params.categoryId,
+		data: {
+			name: params.name,
+			localName: params.localName,
+			description: params.description,
+			priceAmount: params.price,
+			spiceLevel: params.spiceLevel ?? 0,
+			isSignature: params.isSignature ?? false,
+			confidence: 'needs-review',
+			sortOrder: params.sortOrder ?? 0
+		}
+	});
+	if (!product) throw new Error(`Failed to insert product "${params.name}"`);
+
+	if ((params.dietaryFlags?.length ?? 0) > 0 || (params.allergens?.length ?? 0) > 0) {
+		await updateProductFlags(client, {
+			organizationId: params.organizationId,
+			outletId: params.restaurantId,
+			productId: product.id,
+			dietaryFlags: params.dietaryFlags ?? [],
+			allergens: params.allergens ?? []
+		});
+	}
+	return productToMenuItem(product);
+}
+
+/** @deprecated Use updateProduct */
+export async function updateMenuItem(
+	client: DatabaseClient,
+	params: {
+		organizationId: string;
+		restaurantId: string;
+		itemId: string;
+		data: Partial<{
+			name: string;
+			localName: string | null;
+			description: string;
+			priceAmount: number;
+			imageUrl: string;
+			spiceLevel: number;
+			isAvailable: boolean;
+			isSignature: boolean;
+			confidence: string;
+		}>;
+	}
+): Promise<MenuItem | null> {
+	const product = await updateProduct(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		productId: params.itemId,
+		data: params.data
+	});
+	return product ? productToMenuItem(product) : null;
+}
+
+/** @deprecated Use setProductAvailability */
+export async function setMenuItemAvailability(
+	client: DatabaseClient,
+	params: { organizationId: string; restaurantId: string; itemId: string; isAvailable: boolean }
+): Promise<boolean> {
+	return setProductAvailability(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		productId: params.itemId,
+		isAvailable: params.isAvailable
+	});
+}
+
+/** @deprecated Use updateProductFlags */
+export async function updateMenuItemFlags(
+	client: DatabaseClient,
+	params: {
 		organizationId: string;
 		restaurantId: string;
 		itemId: string;
@@ -411,288 +809,49 @@ export async function updateMenuItemFlags(
 		allergens: string[];
 	}
 ): Promise<void> {
-	// Scope check: verify the item belongs to this restaurant before mutating flags.
-	const check = await client.query<{ id: string }>(
-		`SELECT id::text FROM menu_items WHERE id = $1::uuid AND restaurant_id = $2::uuid AND organization_id = $3::uuid`,
-		[itemId, restaurantId, organizationId]
-	);
-	if (check.rows.length === 0) return;
-
-	// Delete existing flags (RLS ensures only accessible rows are affected).
-	await client.query(`DELETE FROM menu_item_dietary_flags WHERE menu_item_id = $1::uuid`, [itemId]);
-	await client.query(`DELETE FROM menu_item_allergens WHERE menu_item_id = $1::uuid`, [itemId]);
-
-	// Insert new flags.
-	for (const code of dietaryFlags) {
-		await client.query(
-			`INSERT INTO menu_item_dietary_flags (menu_item_id, flag_code) VALUES ($1::uuid, $2)`,
-			[itemId, code]
-		);
-	}
-	for (const code of allergens) {
-		await client.query(
-			`INSERT INTO menu_item_allergens (menu_item_id, allergen_code) VALUES ($1::uuid, $2)`,
-			[itemId, code]
-		);
-	}
+	return updateProductFlags(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		productId: params.itemId,
+		dietaryFlags: params.dietaryFlags,
+		allergens: params.allergens
+	});
 }
 
-// ---------------------------------------------------------------------------
-// Publish operations (single-transaction)
-// ---------------------------------------------------------------------------
-
-/**
- * Archives the currently published menu (if any) and promotes a draft menu to
- * published status. Must run inside a `withUserContext` transaction so RLS
- * evaluates correctly for the UPDATE.
- *
- * The DB partial unique index `menus_one_published_per_restaurant` ensures
- * only one menu is published at a time per restaurant — this function archives
- * the old one first so the constraint is never violated.
- *
- * Returns the newly published menu id, or null if the draft menu does not exist.
- */
+/** @deprecated Use publishCatalog */
 export async function publishMenu(
 	client: DatabaseClient,
-	{
-		organizationId,
-		restaurantId,
-		menuId
-	}: { organizationId: string; restaurantId: string; menuId: string }
+	params: { organizationId: string; restaurantId: string; menuId: string }
 ): Promise<string | null> {
-	// Archive the current published menu (if any) for this restaurant.
-	await client.query(
-		`UPDATE menus SET status = 'archived' WHERE restaurant_id = $1::uuid AND organization_id = $2::uuid AND status = 'published'`,
-		[restaurantId, organizationId]
-	);
-
-	// Promote the draft menu.
-	const result = await client.query<{ id: string }>(
-		`
-			UPDATE menus
-			SET status = 'published', published_at = now()
-			WHERE id = $1::uuid
-				AND restaurant_id = $2::uuid
-				AND organization_id = $3::uuid
-				AND status = 'draft'
-			RETURNING id::text
-		`,
-		[menuId, restaurantId, organizationId]
-	);
-
-	return result.rows[0]?.id ?? null;
+	return publishCatalog(client, {
+		organizationId: params.organizationId,
+		outletId: params.restaurantId,
+		catalogId: params.menuId
+	});
 }
 
-/**
- * Creates a new draft menu for a restaurant. Used by the OCR import path
- * when no draft menu exists.
- */
-export async function createDraftMenu(
-	client: DatabaseClient,
-	{
-		organizationId,
-		restaurantId,
-		version,
-		sourceType
-	}: {
-		organizationId: string;
-		restaurantId: string;
-		version: number;
-		sourceType: string;
-	}
-): Promise<string> {
-	const result = await client.query<{ id: string }>(
-		`
-			INSERT INTO menus (organization_id, restaurant_id, version, status, source_type)
-			VALUES ($1::uuid, $2::uuid, $3, 'draft', $4)
-			RETURNING id::text
-		`,
-		[organizationId, restaurantId, version, sourceType]
+/** @deprecated Use loadPublishedProductsForOutlet */
+export async function loadMenuItemsForRestaurant(
+	outletId: string,
+	organizationId: string
+): Promise<MenuItem[]> {
+	const result = await dbQuery<AdminProductRow>(
+		`SELECT
+			p.id::text, p.outlet_id::text, p.catalog_id::text, p.section_id::text,
+			cs.name AS section_name, p.name, p.local_name, p.description,
+		p.price_amount, p.currency, p.image_url, 0 AS spice_level,
+		p.is_available, p.is_signature, p.confidence, p.sort_order, p.source_metadata,
+		COALESCE(ARRAY_AGG(DISTINCT pdf.flag_code) FILTER (WHERE pdf.flag_code IS NOT NULL), ARRAY[]::text[]) AS dietary_flags,
+		COALESCE(ARRAY_AGG(DISTINCT pa.allergen_code) FILTER (WHERE pa.allergen_code IS NOT NULL), ARRAY[]::text[]) AS allergens
+	 FROM products p
+	 JOIN catalogs c ON c.id = p.catalog_id
+	 JOIN catalog_sections cs ON cs.id = p.section_id
+	 LEFT JOIN product_dietary_flags pdf ON pdf.product_id = p.id
+	 LEFT JOIN product_allergens pa ON pa.product_id = p.id
+	 WHERE p.outlet_id = $1::uuid AND p.organization_id = $2::uuid AND c.status = 'published'
+		 GROUP BY p.id, cs.name
+		 ORDER BY p.sort_order, p.name`,
+		[outletId, organizationId]
 	);
-
-	const row = result.rows[0];
-	if (!row) {
-		throw new Error('Failed to create draft menu: INSERT returned no rows');
-	}
-	return row.id;
-}
-
-// ---------------------------------------------------------------------------
-// Insert (OCR import path)
-// ---------------------------------------------------------------------------
-
-/**
- * Ensures a category exists for a menu, creating one if it doesn't.
- * Returns the category id — either the existing one or the newly created one.
- */
-export async function ensureCategory(
-	client: DatabaseClient,
-	{
-		organizationId,
-		restaurantId,
-		menuId,
-		name
-	}: { organizationId: string; restaurantId: string; menuId: string; name: string }
-): Promise<string> {
-	await client.query(
-		`
-			INSERT INTO menu_categories (organization_id, restaurant_id, menu_id, name)
-			VALUES ($1::uuid, $2::uuid, $3::uuid, $4)
-			ON CONFLICT (menu_id, name) DO NOTHING
-		`,
-		[organizationId, restaurantId, menuId, name]
-	);
-
-	const result = await client.query<{ id: string }>(
-		`SELECT id::text FROM menu_categories WHERE menu_id = $1::uuid AND name = $2`,
-		[menuId, name]
-	);
-
-	return result.rows[0]!.id;
-}
-
-/**
- * Inserts a single menu item with dietary flags, allergens, and source_metadata
- * (used to store OCR confidence scores). Runs within the caller's transaction.
- * All items imported via OCR start with confidence='needs-review'.
- */
-export async function insertMenuItem(
-	client: DatabaseClient,
-	{
-		organizationId,
-		restaurantId,
-		menuId,
-		categoryId,
-		name,
-		localName,
-		description,
-		price,
-		spiceLevel,
-		isSignature,
-		dietaryFlags,
-		allergens,
-		sourceMetadata,
-		sortOrder
-	}: {
-		organizationId: string;
-		restaurantId: string;
-		menuId: string;
-		categoryId: string;
-		name: string;
-		localName?: string;
-		description: string;
-		price: number;
-		spiceLevel: number;
-		isSignature: boolean;
-		dietaryFlags: string[];
-		allergens: string[];
-		sourceMetadata?: Record<string, unknown>;
-		sortOrder?: number;
-	}
-): Promise<MenuItem> {
-	const result = await client.query<{ id: string }>(
-		`
-			INSERT INTO menu_items (
-				organization_id, restaurant_id, menu_id, category_id,
-				name, local_name, description, price_amount,
-				spice_level, is_signature, confidence, sort_order, source_metadata
-			) VALUES (
-				$1::uuid, $2::uuid, $3::uuid, $4::uuid,
-				$5, $6, $7, $8,
-				$9, $10, 'needs-review', $11, $12::jsonb
-			)
-			RETURNING id::text
-		`,
-		[
-			organizationId,
-			restaurantId,
-			menuId,
-			categoryId,
-			name,
-			localName ?? null,
-			description,
-			price,
-			spiceLevel,
-			isSignature,
-			sortOrder ?? 0,
-			JSON.stringify(sourceMetadata ?? {})
-		]
-	);
-
-	const itemId = result.rows[0]!.id;
-
-	for (const code of dietaryFlags) {
-		await client.query(
-			`INSERT INTO menu_item_dietary_flags (menu_item_id, flag_code) VALUES ($1::uuid, $2)`,
-			[itemId, code]
-		);
-	}
-	for (const code of allergens) {
-		await client.query(
-			`INSERT INTO menu_item_allergens (menu_item_id, allergen_code) VALUES ($1::uuid, $2)`,
-			[itemId, code]
-		);
-	}
-
-	return (await reloadItemFlags(client, { organizationId, restaurantId, itemId }))!;
-}
-
-// ---------------------------------------------------------------------------
-// Internal
-// ---------------------------------------------------------------------------
-
-/**
- * Re-reads a menu item with its dietary flags and allergens after a scalar
- * update that didn't return the join data.
- */
-async function reloadItemFlags(
-	client: DatabaseClient,
-	{
-		organizationId,
-		restaurantId,
-		itemId
-	}: { organizationId: string; restaurantId: string; itemId: string }
-): Promise<MenuItem | null> {
-	const result = await client.query<AdminMenuItemRow>(
-		`
-			SELECT
-				mi.id::text,
-				mi.restaurant_id::text,
-				mi.menu_id::text,
-				mi.category_id::text,
-				mc.name AS category,
-				mi.name,
-				mi.local_name,
-				mi.description,
-				mi.price_amount,
-				mi.currency,
-				mi.image_url,
-				mi.spice_level,
-				mi.is_available,
-				mi.is_signature,
-				mi.confidence,
-				mi.sort_order,
-				mi.source_metadata,
-				COALESCE(
-					ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
-					ARRAY[]::text[]
-				) AS dietary_flags,
-				COALESCE(
-					ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
-					ARRAY[]::text[]
-				) AS allergens
-			FROM menu_items mi
-			JOIN menu_categories mc ON mc.id = mi.category_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
-			WHERE mi.id = $1::uuid
-				AND mi.restaurant_id = $2::uuid
-				AND mi.organization_id = $3::uuid
-			GROUP BY mi.id, mc.name
-		`,
-		[itemId, restaurantId, organizationId]
-	);
-
-	const row = result.rows[0];
-	return row ? mapRowToMenuItem(row) : null;
+	return result.rows.map((row) => productToMenuItem(mapRowToProduct(row)));
 }

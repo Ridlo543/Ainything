@@ -9,8 +9,8 @@ import {
 import type { LlmChatContext, LlmMenuItem } from './types';
 
 const baseContext: LlmChatContext = {
-	restaurantId: 'rest-1',
-	restaurantName: 'Uma Karang',
+	outletId: 'rest-1',
+	outletName: 'Uma Karang',
 	languageTag: 'en',
 	dietaryPreferences: ['halal', 'vegetarian'],
 	question: 'Is the nasi goreng halal?'

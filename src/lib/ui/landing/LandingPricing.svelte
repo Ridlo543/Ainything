@@ -49,7 +49,7 @@
 				'White-label tersedia'
 			],
 			cta: 'Hubungi Kami',
-			href: 'mailto:halo@lingua.app',
+			href: 'mailto:halo@ainything.online',
 			highlight: false
 		}
 	];

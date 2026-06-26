@@ -12,7 +12,7 @@
 	onclick={() => theme.cycle()}
 	aria-label={`Switch theme (current: ${label})`}
 	title={label}
-	class="flex h-9 w-9 items-center justify-center rounded-lg text-lingua-subtle transition-all hover:bg-lingua-muted hover:text-lingua-text"
+	class="flex h-9 w-9 items-center justify-center rounded-lg text-ainything-subtle transition-all hover:bg-ainything-muted hover:text-ainything-text"
 >
 	{#if theme.mode === 'light'}
 		<Sun size={16} />

@@ -9,7 +9,7 @@ export class MockStorageProvider implements StorageProvider {
 	private store = new Map<string, { buffer: Uint8Array; meta: StorageObjectMeta }>();
 
 	async storeFile(buffer: Uint8Array, meta: StorageObjectMeta): Promise<StorageUploadResult> {
-		const objectKey = `mock/${meta.restaurantId}/${meta.sourceType}/${Date.now()}-${meta.fileName}`;
+		const objectKey = `mock/${meta.organizationId}/${meta.sourceType}/${Date.now()}-${meta.fileName}`;
 		this.store.set(objectKey, { buffer, meta });
 
 		return {

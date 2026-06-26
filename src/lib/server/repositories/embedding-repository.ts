@@ -19,33 +19,35 @@ export type EmbeddableItemRow = {
 };
 
 /**
- * Fetches all published menu items for embedding generation.
+ * Fetches all published products for an outlet for embedding generation.
  * Builds a text representation from name, local_name, description, price, spice, dietary flags.
+ *
+ * @param outletId — the outlet (formerly restaurant) UUID to embed products for.
  */
-export async function getEmbeddableMenuItems(restaurantId: string): Promise<EmbeddableItemRow[]> {
+export async function getEmbeddableMenuItems(outletId: string): Promise<EmbeddableItemRow[]> {
 	const result = await query<EmbeddableItemRow>(
 		`
 			SELECT
-				mi.id::text,
+				p.id::text,
 				CONCAT_WS(' | ',
-					mi.name,
-					mi.local_name,
-					mi.description,
-					'IDR ' || mi.price_amount,
-					'spice:' || mi.spice_level,
-					COALESCE(STRING_AGG(DISTINCT midf.flag_code, ','), ''),
-					CASE WHEN mi.is_signature THEN 'signature' ELSE '' END
+					p.name,
+					p.local_name,
+					p.description,
+					'IDR ' || p.price_amount,
+					'spice:' || p.spice_level,
+					COALESCE(STRING_AGG(DISTINCT pdf.flag_code, ','), ''),
+					CASE WHEN p.is_signature THEN 'signature' ELSE '' END
 				) AS content
-			FROM menu_items mi
-			JOIN menus m ON m.id = mi.menu_id
-			LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-			WHERE mi.restaurant_id = $1::uuid
-				AND m.status = 'published'
-				AND mi.is_available = true
-			GROUP BY mi.id
-			ORDER BY mi.sort_order, mi.name
+			FROM products p
+			JOIN catalogs c ON c.id = p.catalog_id
+			LEFT JOIN product_dietary_flags pdf ON pdf.product_id = p.id
+			WHERE p.outlet_id = $1::uuid
+				AND c.status = 'published'
+				AND p.is_available = true
+			GROUP BY p.id
+			ORDER BY p.sort_order, p.name
 		`,
-		[restaurantId]
+		[outletId]
 	);
 
 	return result.rows;
@@ -91,14 +93,14 @@ export async function upsertEmbeddings(
 
 	// Resolve organization_id once for this batch.
 	const orgResult = await query<{ organization_id: string }>(
-		`SELECT organization_id::text FROM restaurants WHERE id = $1::uuid`,
+		`SELECT organization_id::text FROM outlets WHERE id = $1::uuid`,
 		[restaurantId]
 	);
 
 	const organizationId = orgResult.rows[0]?.organization_id;
 
 	if (!organizationId) {
-		console.error('[embedding-repo] Restaurant not found:', restaurantId);
+		console.error('[embedding-repo] Outlet not found:', restaurantId);
 		return;
 	}
 
@@ -107,7 +109,7 @@ export async function upsertEmbeddings(
 	// we don't have in a background worker. Instead, we run a direct transaction.
 	// RLS on item_embeddings uses app.has_restaurant_access which checks membership.
 	// The admin action path will need to set the appropriate user context at a
-	// higher level. For now, we use the pool-level query which runs as lingua_app.
+	// higher level. For now, we use the pool-level query which runs as ainything_app.
 	for (const item of items) {
 		const embeddingStr = `[${item.embedding.join(',')}]`;
 

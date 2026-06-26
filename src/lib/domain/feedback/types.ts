@@ -7,8 +7,8 @@ export type FeedbackIssueType =
 
 export type Feedback = {
 	id: string;
-	sessionId?: string;
-	restaurantId: string;
+	buyerSessionId?: string;
+	outletId: string;
 	helpful?: boolean;
 	issueType?: FeedbackIssueType;
 	comment?: string;

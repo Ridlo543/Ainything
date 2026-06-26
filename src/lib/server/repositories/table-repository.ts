@@ -8,7 +8,7 @@
  *
  * All reads are tenant-scoped through the 0001 RLS SELECT policy
  * (`restaurant_tables_tenant_select`) — the bare pool connection is enough
- * because the policy restricts `lingua_app` to rows where
+ * because the policy restricts `ainything_app` to rows where
  * `app.has_restaurant_access(restaurant_id)`.
  */
 
@@ -39,7 +39,7 @@ function mapRowToTable(row: RestaurantTableRow): RestaurantTable {
 	return {
 		id: row.id,
 		organizationId: row.organization_id,
-		restaurantId: row.restaurant_id,
+		outletId: row.restaurant_id,
 		code: row.code,
 		label: row.label,
 		isActive: row.is_active,

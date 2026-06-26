@@ -87,6 +87,7 @@
 			children: [
 				{ href: '/dashboard/settings', label: 'General' },
 				{ href: '/dashboard/settings/qr', label: 'QR & Links' },
+				{ href: '/dashboard/settings/payment', label: 'Pembayaran' },
 				{ href: '/dashboard/settings/billing', label: 'Billing' }
 			]
 		}
@@ -204,7 +205,7 @@
 					<button
 						class="tap-target w-full flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors
 							{isGroupActive(item)
-							? 'bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)]'
+							? 'bg-[var(--color-ainything-primary-soft)] text-[var(--color-ainything-primary-strong)]'
 							: 'text-foreground hover:bg-accent'}"
 						onclick={() => toggleGroup(item.href)}
 						aria-expanded={expandedGroups.has(item.href)}
@@ -224,7 +225,7 @@
 									href={child.href}
 									class="tap-target flex items-center gap-2 rounded-lg px-3 text-sm transition-colors
 										{isActive(child.href)
-										? 'font-semibold text-[var(--color-lingua-primary-strong)] bg-[var(--color-lingua-primary-soft)]'
+										? 'font-semibold text-[var(--color-ainything-primary-strong)] bg-[var(--color-ainything-primary-soft)]'
 										: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
 									aria-current={isActive(child.href) ? 'page' : undefined}
 								>
@@ -241,7 +242,7 @@
 					href={item.href}
 					class="tap-target flex items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors
 						{isActive(item.href)
-						? 'bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)]'
+						? 'bg-[var(--color-ainything-primary-soft)] text-[var(--color-ainything-primary-strong)]'
 						: 'text-foreground hover:bg-accent'}"
 					aria-current={isActive(item.href) ? 'page' : undefined}
 				>
@@ -259,7 +260,7 @@
 		{#if userName}
 			<div class="flex items-center gap-3 px-2 py-2 mb-1">
 				<div
-					class="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-lingua-primary-soft)] text-[var(--color-lingua-primary-strong)] text-sm font-bold"
+					class="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-ainything-primary-soft)] text-[var(--color-ainything-primary-strong)] text-sm font-bold"
 					aria-hidden="true"
 				>
 					{userName.charAt(0).toUpperCase()}

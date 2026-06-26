@@ -37,7 +37,7 @@
 				Dipercaya bisnis dari seluruh Indonesia
 			</h2>
 			<p class="mx-auto mt-4 max-w-lg text-base text-[#78716c]">
-				Dari warung pinggir jalan sampai chain restoran — semua cocok pakai Lingua.
+				Dari warung pinggir jalan sampai chain restoran — semua cocok pakai Ainything.
 			</p>
 		</div>
 

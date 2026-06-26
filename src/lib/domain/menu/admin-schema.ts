@@ -54,7 +54,7 @@ export const MENU_ALLERGEN_CODES = [
  */
 export const updateMenuItemInputSchema = z.object({
 	itemId: z.string().uuid(),
-	restaurant: z.string().trim().min(1).max(120),
+	outlet: z.string().trim().min(1).max(120),
 	name: z.string().trim().min(1).max(200),
 	localName: z.string().trim().max(200).optional(),
 	description: z.string().trim().max(1000).default(''),
@@ -74,7 +74,7 @@ export type UpdateMenuItemInput = z.infer<typeof updateMenuItemInputSchema>;
  */
 export const toggleAvailabilityInputSchema = z.object({
 	itemId: z.string().uuid(),
-	restaurant: z.string().trim().min(1).max(120),
+	outlet: z.string().trim().min(1).max(120),
 	isAvailable: z.boolean()
 });
 
@@ -85,7 +85,7 @@ export type ToggleAvailabilityInput = z.infer<typeof toggleAvailabilityInputSche
  * menu is resolved server-side from the active restaurant's menus.
  */
 export const publishMenuInputSchema = z.object({
-	restaurant: z.string().trim().min(1).max(120)
+	outlet: z.string().trim().min(1).max(120)
 });
 
 export type PublishMenuInput = z.infer<typeof publishMenuInputSchema>;

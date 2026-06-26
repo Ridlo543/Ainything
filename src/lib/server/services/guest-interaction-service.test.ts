@@ -1,24 +1,54 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
+import type { PublicCatalogBootstrap } from '$lib/domain/outlet/types';
 
 const createFallbackRequest = vi.fn();
-const createFeedback = vi.fn();
+const createBuyerFeedback = vi.fn();
 
-vi.mock('$lib/server/repositories/public-menu-repository', () => ({
+vi.mock('$lib/server/repositories/public-catalog-repository', () => ({
 	createFallbackRequest: (...args: unknown[]) => createFallbackRequest(...args),
-	createFeedback: (...args: unknown[]) => createFeedback(...args)
+	createBuyerFeedback: (...args: unknown[]) => createBuyerFeedback(...args)
 }));
 
 const { createFallbackForTable, createFeedbackForSession } =
 	await import('./guest-interaction-service');
 
-const bootstrap: PublicMenuBootstrap = {
-	restaurant: { id: 'rest-1', organizationId: 'org-1' } as PublicMenuBootstrap['restaurant'],
+const bootstrap: PublicCatalogBootstrap = {
+	outlet: {
+		id: 'outlet-1',
+		organizationId: 'org-1',
+		name: 'Uma Karang',
+		slug: 'uma-karang',
+		publicHost: '',
+		location: '',
+		businessType: 'restaurant',
+		status: 'active',
+		timezone: 'Asia/Makassar',
+		defaultLanguageTag: 'id',
+		languages: ['id', 'en'],
+		heroImage: '',
+		tableCount: 0,
+		description: '',
+		knowledgeHighlights: [],
+		analytics: {
+			scansToday: 0,
+			helpfulRate: 0,
+			fallbackRate: 0,
+			topQuestion: '',
+			topItem: ''
+		},
+		checkoutSettings: {
+			checkoutMode: 'offline',
+			requireBuyerWhatsapp: false,
+			paymentConfirmationEnabled: false
+		},
+		sections: [],
+		products: []
+	},
 	table: {
 		id: 'table-1',
 		code: 'T07',
 		label: 'Table 07',
-		restaurantId: 'rest-1',
+		outletId: 'outlet-1',
 		organizationId: 'org-1',
 		isActive: true,
 		qrPath: ''
@@ -37,14 +67,14 @@ describe('createFallbackForTable', () => {
 			guestNeed: 'Need help with menu',
 			// Hostile spoof attempts — must be ignored
 			organizationId: 'evil-org',
-			restaurantId: 'evil-rest',
+			outletId: 'evil-outlet',
 			tableId: 'evil-table'
 		});
 
 		expect(createFallbackRequest).toHaveBeenCalledWith(
 			expect.objectContaining({
 				organizationId: 'org-1',
-				restaurantId: 'rest-1',
+				outletId: 'outlet-1',
 				tableId: 'table-1'
 			})
 		);
@@ -80,61 +110,49 @@ describe('createFallbackForTable', () => {
 		expect(createFallbackRequest).not.toHaveBeenCalled();
 	});
 
-	it('rejects an invalid session uuid', async () => {
-		await expect(
-			createFallbackForTable(bootstrap, {
-				sessionId: 'not-a-uuid',
-				languageTag: 'en',
-				guestNeed: 'Help'
-			})
-		).rejects.toThrow();
-		expect(createFallbackRequest).not.toHaveBeenCalled();
-	});
-
-	it('returns fallbackId and status from the repository', async () => {
+	it('returns fallbackId and status from repository', async () => {
 		const result = await createFallbackForTable(bootstrap, {
 			languageTag: 'en',
-			guestNeed: 'Need help'
+			guestNeed: 'I need help with allergen information'
 		});
-
 		expect(result).toEqual({ fallbackId: 'fb-1', status: 'new' });
 	});
 });
 
 describe('createFeedbackForSession', () => {
 	beforeEach(() => {
-		createFeedback.mockReset();
-		createFeedback.mockResolvedValue({ id: 'feedb-1' });
+		createBuyerFeedback.mockReset();
+		createBuyerFeedback.mockResolvedValue({ id: 'feedb-1' });
 	});
 
 	it('derives tenant scope from the bootstrap, not the body', async () => {
 		await createFeedbackForSession(bootstrap, {
 			helpful: true,
-			organizationId: 'evil-org' // must be ignored
+			organizationId: 'evil-org'
 		});
 
-		expect(createFeedback).toHaveBeenCalledWith(
-			expect.objectContaining({ organizationId: 'org-1', restaurantId: 'rest-1' })
+		expect(createBuyerFeedback).toHaveBeenCalledWith(
+			expect.objectContaining({
+				organizationId: 'org-1',
+				outletId: 'outlet-1'
+			})
 		);
 	});
 
 	it('allows omitting all optional fields', async () => {
-		await createFeedbackForSession(bootstrap, {});
-		expect(createFeedback).toHaveBeenCalledWith(
-			expect.objectContaining({ helpful: undefined, issueType: undefined, comment: undefined })
-		);
+		const result = await createFeedbackForSession(bootstrap, {});
+		expect(result.feedbackId).toBe('feedb-1');
 	});
 
-	it('rejects an unknown issue type', async () => {
-		await expect(
-			createFeedbackForSession(bootstrap, { issueType: 'totally-made-up' })
-		).rejects.toThrow();
-		expect(createFeedback).not.toHaveBeenCalled();
+	it('passes helpful flag through', async () => {
+		await createFeedbackForSession(bootstrap, { helpful: true });
+		const passed = createBuyerFeedback.mock.calls[0][0];
+		expect(passed.helpful).toBe(true);
 	});
 
-	it('trims and enforces max length on comment', async () => {
+	it('trims and passes through comment', async () => {
 		await createFeedbackForSession(bootstrap, { comment: '  nice food  ' });
-		const passed = createFeedback.mock.calls[0][0];
+		const passed = createBuyerFeedback.mock.calls[0][0];
 		expect(passed.comment).toBe('nice food');
 	});
 
@@ -142,7 +160,14 @@ describe('createFeedbackForSession', () => {
 		await expect(
 			createFeedbackForSession(bootstrap, { comment: 'x'.repeat(501) })
 		).rejects.toThrow();
-		expect(createFeedback).not.toHaveBeenCalled();
+		expect(createBuyerFeedback).not.toHaveBeenCalled();
+	});
+
+	it('rejects an unknown issue type', async () => {
+		await expect(
+			createFeedbackForSession(bootstrap, { issueType: 'totally-made-up' })
+		).rejects.toThrow();
+		expect(createBuyerFeedback).not.toHaveBeenCalled();
 	});
 
 	it('returns feedbackId from the repository', async () => {

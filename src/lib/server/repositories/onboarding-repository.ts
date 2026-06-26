@@ -57,7 +57,7 @@ export async function isRestaurantSlugAvailable(slug: string): Promise<boolean> 
 	const { getPool } = await import('$lib/server/db/postgres');
 	const pool = getPool();
 	const { rows } = await pool.query<{ exists: boolean }>(
-		`SELECT EXISTS (SELECT 1 FROM restaurants WHERE slug = $1) AS exists`,
+		`SELECT EXISTS (SELECT 1 FROM outlets WHERE slug = $1) AS exists`,
 		[slug]
 	);
 	return !rows[0]?.exists;

@@ -18,12 +18,12 @@ export function buildInviteEmail(params: {
 		day: 'numeric'
 	});
 
-	const subject = `You've been invited to join ${organizationName} on Lingua`;
+	const subject = `You've been invited to join ${organizationName} on Ainything`;
 
 	const text = [
 		`Hi,`,
 		``,
-		`${inviterName} has invited you to join ${organizationName} on Lingua as ${role}.`,
+		`${inviterName} has invited you to join ${organizationName} on Ainything as ${role}.`,
 		``,
 		`Accept your invitation here:`,
 		acceptUrl,
@@ -32,7 +32,7 @@ export function buildInviteEmail(params: {
 		``,
 		`If you didn't expect this email, you can safely ignore it.`,
 		``,
-		`— The Lingua Team`
+		`— The Ainything Team`
 	].join('\n');
 
 	const html = `
@@ -44,7 +44,7 @@ export function buildInviteEmail(params: {
     <h1 style="font-size: 20px; color: #111827; margin: 0 0 16px;">You've been invited</h1>
     <p style="color: #374151; margin: 0 0 8px;">
       <strong>${inviterName}</strong> has invited you to join
-      <strong>${organizationName}</strong> on Lingua as <strong>${role}</strong>.
+      <strong>${organizationName}</strong> on Ainything as <strong>${role}</strong>.
     </p>
     <p style="color: #6b7280; font-size: 14px; margin: 0 0 24px;">This invitation expires on ${expiryStr}.</p>
     <a href="${acceptUrl}"

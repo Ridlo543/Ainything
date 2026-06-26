@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { restaurants } from '$lib/mock/restaurants';
 import {
 	formatPrice,
 	needsStaffConfirmation,
@@ -22,19 +21,47 @@ describe('menu policy', () => {
 	});
 
 	it('requires staff confirmation for allergen conflicts', () => {
-		const seafoodItem = restaurants[0].menuItems.find((item) => item.allergens.includes('seafood'));
+		const seafoodItem: MenuItem = {
+			id: 'allergen-test-1',
+			category: 'Main',
+			name: 'Grilled Squid',
+			localName: 'Cumi Bakar',
+			description: '',
+			price: 45000,
+			currency: 'IDR',
+			image: '',
+			spiceLevel: 1,
+			isAvailable: true,
+			isSignature: false,
+			dietaryFlags: [],
+			allergens: ['seafood'],
+			goodFor: [],
+			confidence: 'verified'
+		};
 
-		expect(seafoodItem).toBeDefined();
-		expect(needsStaffConfirmation(seafoodItem!, [], ['seafood'])).toBe(true);
+		expect(needsStaffConfirmation(seafoodItem, [], ['seafood'])).toBe(true);
 	});
 
 	it('requires staff confirmation for non-verified menu data', () => {
-		const staffConfirmItem = restaurants[1].menuItems.find(
-			(item) => item.confidence === 'staff-confirm'
-		);
+		const staffConfirmItem: MenuItem = {
+			id: 'staff-confirm-1',
+			category: 'Main',
+			name: 'Special Dish',
+			localName: '',
+			description: '',
+			price: 50000,
+			currency: 'IDR',
+			image: '',
+			spiceLevel: 0,
+			isAvailable: true,
+			isSignature: false,
+			dietaryFlags: [],
+			allergens: [],
+			goodFor: [],
+			confidence: 'staff-confirm'
+		};
 
-		expect(staffConfirmItem).toBeDefined();
-		expect(needsStaffConfirmation(staffConfirmItem!, [], [])).toBe(true);
+		expect(needsStaffConfirmation(staffConfirmItem, [], [])).toBe(true);
 	});
 
 	// ── Publish Data Quality Gate ────────────────────────────────────────────

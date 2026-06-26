@@ -71,12 +71,12 @@ const bootstrap: PublicMenuBootstrap = {
 		id: 'table-1',
 		code: 'T07',
 		label: 'Table 07',
-		restaurantId: 'rest-1',
+		outletId: 'rest-1',
 		organizationId: 'org-1',
 		isActive: true,
 		qrPath: ''
 	}
-};
+} as PublicMenuBootstrap;
 
 const validInput = {
 	sessionId: SESSION_ID,
@@ -153,13 +153,13 @@ describe('handleChatTurn — happy path', () => {
 		});
 	});
 
-	it('passes restaurantId and restaurantName from the bootstrap to the LLM', async () => {
+	it('passes outletId and outletName from the bootstrap to the LLM', async () => {
 		await handleChatTurn(bootstrap, validInput);
 
 		expect(chatMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				restaurantId: 'rest-1',
-				restaurantName: 'Uma Karang'
+				outletId: 'rest-1',
+				outletName: 'Uma Karang'
 			})
 		);
 	});
@@ -208,7 +208,7 @@ describe('handleChatTurn — happy path', () => {
 
 	it('requests the last 10 messages for the given sessionId', async () => {
 		await handleChatTurn(bootstrap, validInput);
-		expect(getRecentHistoryMock).toHaveBeenCalledWith(SESSION_ID, 10);
+		expect(getRecentHistoryMock).toHaveBeenCalledWith(SESSION_ID, 'rest-1', 10);
 	});
 
 	it('persists the turn with answer content and safety status', async () => {
@@ -217,8 +217,8 @@ describe('handleChatTurn — happy path', () => {
 		expect(persistChatTurnMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				organizationId: 'org-1',
-				restaurantId: 'rest-1',
-				sessionId: SESSION_ID,
+				outletId: 'rest-1',
+				buyerSessionId: SESSION_ID,
 				customerContent: 'Is the nasi goreng halal?',
 				assistantContent: 'Yes, it is halal.',
 				assistantSafety: 'ok'
@@ -231,7 +231,7 @@ describe('handleChatTurn — happy path', () => {
 
 		expect(retrieveMenuContextMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				restaurantId: 'rest-1',
+				outletId: 'rest-1',
 				query: 'Is the nasi goreng halal?',
 				preferences: {
 					dietaryFlags: ['halal', 'vegetarian'],

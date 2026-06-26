@@ -19,8 +19,8 @@ type SavedMessage = {
 
 type PersistChatTurnInput = {
 	organizationId: string;
-	restaurantId: string;
-	sessionId: string;
+	outletId: string;
+	buyerSessionId: string;
 	customerContent: string;
 	assistantContent: string;
 	assistantSafety: ChatSafetyStatus;
@@ -45,7 +45,7 @@ async function insertMessage(
 	client: DatabaseClient,
 	params: {
 		organizationId: string;
-		restaurantId: string;
+		outletId: string;
 		sessionId: string;
 		role: ChatRole;
 		content: string;
@@ -67,7 +67,7 @@ async function insertMessage(
 		`,
 		[
 			params.organizationId,
-			params.restaurantId,
+			params.outletId,
 			params.sessionId,
 			params.role,
 			params.content,
@@ -86,11 +86,11 @@ async function insertMessage(
  * content with a real RAG-generated response before calling this function.
  */
 export async function persistChatTurn(input: PersistChatTurnInput): Promise<PersistChatTurnResult> {
-	return withPublicSessionContext(input.sessionId, async (client) => {
+	return withPublicSessionContext(input.buyerSessionId, async (client) => {
 		const customerMessage = await insertMessage(client, {
 			organizationId: input.organizationId,
-			restaurantId: input.restaurantId,
-			sessionId: input.sessionId,
+			outletId: input.outletId,
+			sessionId: input.buyerSessionId,
 			role: 'customer',
 			content: input.customerContent,
 			safetyStatus: 'ok'
@@ -98,8 +98,8 @@ export async function persistChatTurn(input: PersistChatTurnInput): Promise<Pers
 
 		const assistantMessage = await insertMessage(client, {
 			organizationId: input.organizationId,
-			restaurantId: input.restaurantId,
-			sessionId: input.sessionId,
+			outletId: input.outletId,
+			sessionId: input.buyerSessionId,
 			role: 'assistant',
 			content: input.assistantContent,
 			safetyStatus: input.assistantSafety
@@ -113,26 +113,33 @@ export async function persistChatTurn(input: PersistChatTurnInput): Promise<Pers
  * Loads the most recent `limit` chat messages for a session, ordered oldest-first
  * so the LLM receives the conversation in natural reading order.
  * Only customer and assistant messages are returned (not system/staff messages).
+ *
+ * Scoped by both session_id AND restaurant_id to prevent cross-tenant history bleed
+ * into the LLM context window.
  */
 export async function getRecentHistory(
 	sessionId: string,
+	restaurantId: string,
 	limit: number
 ): Promise<Array<{ role: 'customer' | 'assistant'; content: string }>> {
-	const result = await query<{ role: ChatRole; content: string }>(
-		`
-			SELECT role, content
-			FROM (
-				SELECT role, content, created_at
-				FROM chat_messages
-				WHERE session_id = $1::uuid
-					AND role IN ('customer', 'assistant')
-				ORDER BY created_at DESC
-				LIMIT $2
-			) recent
-			ORDER BY created_at ASC
-		`,
-		[sessionId, limit]
-	);
+	const result = await withPublicSessionContext(sessionId, async (client) => {
+		return client.query<{ role: ChatRole; content: string }>(
+			`
+				SELECT role, content
+				FROM (
+					SELECT role, content, created_at
+					FROM chat_messages
+					WHERE session_id = $1::uuid
+						AND restaurant_id = $2::uuid
+						AND role IN ('customer', 'assistant')
+					ORDER BY created_at DESC
+					LIMIT $3
+				) recent
+				ORDER BY created_at ASC
+			`,
+			[sessionId, restaurantId, limit]
+		);
+	});
 
 	return result.rows.map((row) => ({
 		role: row.role as 'customer' | 'assistant',

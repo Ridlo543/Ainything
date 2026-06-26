@@ -34,7 +34,7 @@ describe('logAiEvent', () => {
 
 	const baseInput = {
 		organizationId: 'org-1',
-		restaurantId: 'rest-1',
+		outletId: 'rest-1',
 		provider: 'TokenRouter',
 		model: 'MiniMax-M3',
 		eventType: 'chat' as const
@@ -78,7 +78,7 @@ describe('logAiEvent', () => {
 	it('passes sessionId when provided', async () => {
 		queryMock.mockResolvedValue({ rows: [] });
 		const sid = '550e8400-e29b-41d4-a716-446655440000';
-		await logAiEvent({ ...baseInput, sessionId: sid });
+		await logAiEvent({ ...baseInput, buyerSessionId: sid });
 		const [, params] = queryMock.mock.calls[0] as [string, unknown[]];
 		expect(params).toContain(sid);
 	});

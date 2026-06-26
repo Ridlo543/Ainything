@@ -12,14 +12,13 @@ function requireEnv(value: string | undefined, key: string) {
 export const appEnv = {
 	publicAppUrl: publicEnv.PUBLIC_APP_URL || 'http://localhost:5173',
 	nodeEnv: env.NODE_ENV || 'development',
-	useMockBackend: env.USE_MOCK_BACKEND === 'true',
 	sessionSecret: env.SESSION_SECRET || 'demo-session-secret-change-me',
 	databaseUrl: env.DATABASE_URL,
 	directUrl: env.DIRECT_URL,
 	redisUrl: env.REDIS_URL,
 
 	// Auth
-	authProvider: env.AUTH_PROVIDER || 'mock',
+	authProvider: env.AUTH_PROVIDER || 'local',
 
 	// LLM — provider selector and per-provider keys.
 	// LLM_PROVIDER values: 'mock' | 'tokenrouter' | 'openai' | 'anthropic'
@@ -46,9 +45,16 @@ export const appEnv = {
 
 	// WhatsApp
 	whatsappProvider: env.WHATSAPP_PROVIDER || 'mock',
+	// WAHA (self-hosted WhatsApp HTTP API) — used when WHATSAPP_PROVIDER=waha
+	wahaBaseUrl: env.WAHA_BASE_URL,
+	wahaSession: env.WAHA_SESSION || 'default',
+	wahaApiKey: env.WAHA_API_KEY,
 
 	// Storage (menu imports, item images, knowledge attachments)
+	// STORAGE_PROVIDER values: 'mock' | 'local' | 'r2'
 	storageProvider: env.STORAGE_PROVIDER || 'mock',
+	// Absolute or CWD-relative path used when STORAGE_PROVIDER=local (VPS deployments)
+	storageLocalPath: env.STORAGE_LOCAL_PATH || './uploads',
 
 	// Email (SMTP)
 	smtpHost: env.SMTP_HOST,
@@ -57,15 +63,12 @@ export const appEnv = {
 	smtpPass: env.SMTP_PASS,
 	smtpFrom: env.SMTP_FROM,
 
-	// Supabase
-	// Supports both `@supabase/ssr` (PUBLIC_*) and `@supabase/server` (SUPABASE_*) env conventions
-	supabaseUrl: env.SUPABASE_URL || publicEnv.PUBLIC_SUPABASE_URL,
-	supabaseAnonKey:
-		env.SUPABASE_PUBLISHABLE_KEY ||
-		publicEnv.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-		publicEnv.PUBLIC_SUPABASE_ANON_KEY,
-	supabaseServiceRoleKey: env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY,
-	supabaseJwksUrl: env.SUPABASE_JWKS_URL
+	// R2 / Object Storage
+	r2AccountId: env.R2_ACCOUNT_ID,
+	r2AccessKeyId: env.R2_ACCESS_KEY_ID,
+	r2SecretAccessKey: env.R2_SECRET_ACCESS_KEY,
+	r2BucketName: env.R2_BUCKET_NAME,
+	r2PublicUrl: env.R2_PUBLIC_URL
 };
 
 export function requireDatabaseEnv() {

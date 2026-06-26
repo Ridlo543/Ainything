@@ -12,10 +12,11 @@ import {
 	type RestaurantRow
 } from '$lib/server/repositories/menu-row-mapper';
 
+// TableRow maps outlet_tables columns to the legacy RestaurantTable shape.
 type TableRow = {
 	id: string;
 	organization_id: string;
-	restaurant_id: string;
+	restaurant_id: string; // outlet_id aliased for compat
 	code: string;
 	label: string;
 };
@@ -26,25 +27,6 @@ type BootstrapRow = RestaurantRow & {
 	table_restaurant_id: string;
 	table_code: string;
 	table_label: string;
-};
-
-type CreateSessionInput = {
-	organizationId: string;
-	restaurantId: string;
-	tableId: string;
-	languageTag: string;
-	preferences: Record<string, unknown>;
-};
-
-type CreateFallbackInput = {
-	organizationId: string;
-	restaurantId: string;
-	tableId: string;
-	sessionId?: string;
-	languageTag: string;
-	guestNeed: string;
-	summary: string;
-	priority: 'normal' | 'high';
 };
 
 type CreateFeedbackInput = {
@@ -63,30 +45,30 @@ export async function resolvePublicMenuBootstrap(
 	const base = await query<BootstrapRow>(
 		`
 			SELECT
-				r.id::text,
-				r.organization_id::text,
-				r.name,
-				r.slug,
-				COALESCE(r.public_host, '') AS public_host,
-				r.location,
-				r.segment,
-				r.language_tags,
-				r.hero_image_url,
-				r.menu_scan_url,
-				r.table_count,
-				r.menu_source_type,
-				r.description,
-				r.knowledge_highlights,
-				COALESCE(r.analytics, '{}'::jsonb) AS analytics,
+				o.id::text,
+				o.organization_id::text,
+				o.name,
+				o.slug,
+				COALESCE(o.public_host, '') AS public_host,
+				COALESCE(o.location, '') AS location,
+				COALESCE(o.business_type, 'other') AS segment,
+				COALESCE(o.language_tags, ARRAY['id']) AS language_tags,
+				COALESCE(o.hero_image_url, '') AS hero_image_url,
+				COALESCE(o.catalog_scan_url, '') AS menu_scan_url,
+				COALESCE(o.table_count, 0) AS table_count,
+				COALESCE(o.catalog_source_type, 'photo') AS menu_source_type,
+				COALESCE(o.description, '') AS description,
+				COALESCE(o.knowledge_highlights, ARRAY[]::text[]) AS knowledge_highlights,
+				COALESCE(o.analytics, '{}'::jsonb) AS analytics,
 				t.id::text AS table_id,
 				t.organization_id::text AS table_organization_id,
-				t.restaurant_id::text AS table_restaurant_id,
+				t.outlet_id::text AS table_restaurant_id,
 				t.code AS table_code,
 				t.label AS table_label
-			FROM restaurants r
-			JOIN restaurant_tables t ON t.restaurant_id = r.id
-			WHERE r.slug = $1
-				AND r.status = 'active'
+			FROM outlets o
+			JOIN outlet_tables t ON t.outlet_id = o.id
+			WHERE o.slug = $1
+				AND o.status = 'active'
 				AND t.code = $2
 				AND t.is_active = true
 			LIMIT 1
@@ -111,17 +93,13 @@ export async function resolvePublicMenuBootstrap(
 		itemsByRestaurant.get(row.id) ?? []
 	);
 
-	if (restaurant.menuItems.length === 0) {
-		return null;
-	}
-
 	return {
 		restaurant,
 		table: {
 			id: row.table_id,
 			code: row.table_code,
 			label: row.table_label,
-			restaurantId: row.table_restaurant_id,
+			outletId: row.table_restaurant_id,
 			organizationId: row.table_organization_id,
 			isActive: true,
 			qrPath: ''
@@ -135,24 +113,24 @@ export async function loadPublishedRestaurantBySlug(
 	const base = await query<RestaurantRow>(
 		`
 			SELECT
-				r.id::text,
-				r.organization_id::text,
-				r.name,
-				r.slug,
-				COALESCE(r.public_host, '') AS public_host,
-				r.location,
-				r.segment,
-				r.language_tags,
-				r.hero_image_url,
-				r.menu_scan_url,
-				r.table_count,
-				r.menu_source_type,
-				r.description,
-				r.knowledge_highlights,
-				COALESCE(r.analytics, '{}'::jsonb) AS analytics
-			FROM restaurants r
-			WHERE r.slug = $1
-				AND r.status = 'active'
+				o.id::text,
+				o.organization_id::text,
+				o.name,
+				o.slug,
+				COALESCE(o.public_host, '') AS public_host,
+				COALESCE(o.location, '') AS location,
+				COALESCE(o.business_type, 'other') AS segment,
+				COALESCE(o.language_tags, ARRAY['id']) AS language_tags,
+				COALESCE(o.hero_image_url, '') AS hero_image_url,
+				COALESCE(o.catalog_scan_url, '') AS menu_scan_url,
+				COALESCE(o.table_count, 0) AS table_count,
+				COALESCE(o.catalog_source_type, 'photo') AS menu_source_type,
+				COALESCE(o.description, '') AS description,
+				COALESCE(o.knowledge_highlights, ARRAY[]::text[]) AS knowledge_highlights,
+				COALESCE(o.analytics, '{}'::jsonb) AS analytics
+			FROM outlets o
+			WHERE o.slug = $1
+				AND o.status = 'active'
 			LIMIT 1
 		`,
 		[restaurantSlug]
@@ -191,13 +169,13 @@ export async function findActiveTableByRestaurantSlug(
 			SELECT
 				t.id::text,
 				t.organization_id::text,
-				t.restaurant_id::text,
+				t.outlet_id::text AS restaurant_id,
 				t.code,
 				t.label
-			FROM restaurant_tables t
-			JOIN restaurants r ON r.id = t.restaurant_id
-			WHERE r.slug = $1
-				AND r.status = 'active'
+			FROM outlet_tables t
+			JOIN outlets o ON o.id = t.outlet_id
+			WHERE o.slug = $1
+				AND o.status = 'active'
 				AND t.code = $2
 				AND t.is_active = true
 			LIMIT 1
@@ -215,81 +193,11 @@ export async function findActiveTableByRestaurantSlug(
 		id: row.id,
 		code: row.code,
 		label: row.label,
-		restaurantId: row.restaurant_id,
+		outletId: row.restaurant_id,
 		organizationId: row.organization_id,
 		isActive: true,
 		qrPath: ''
 	};
-}
-
-export async function createCustomerSession(input: CreateSessionInput) {
-	const id = crypto.randomUUID();
-
-	await query(
-		`
-			INSERT INTO customer_sessions (
-				id,
-				organization_id,
-				restaurant_id,
-				table_id,
-				language_tag,
-				preferences
-			)
-			VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, $5, $6::jsonb)
-		`,
-		[
-			id,
-			input.organizationId,
-			input.restaurantId,
-			input.tableId,
-			input.languageTag,
-			JSON.stringify(input.preferences)
-		]
-	);
-
-	return { id };
-}
-
-export async function createFallbackRequest(input: CreateFallbackInput) {
-	const runInsert = async (client: DatabaseClient) => {
-		const result = await client.query<{ id: string; status: string }>(
-			`
-				INSERT INTO fallback_requests (
-					organization_id,
-					restaurant_id,
-					session_id,
-					table_id,
-					status,
-					priority,
-					language_tag,
-					guest_need,
-					summary
-				)
-				VALUES ($1::uuid, $2::uuid, $3::uuid, $4::uuid, 'new', $5, $6, $7, $8)
-				RETURNING id::text, status
-			`,
-			[
-				input.organizationId,
-				input.restaurantId,
-				input.sessionId ?? null,
-				input.tableId,
-				input.priority,
-				input.languageTag,
-				input.guestNeed,
-				input.summary
-			]
-		);
-
-		return result.rows[0];
-	};
-
-	// When a session id is present set app.public_session_id inside the transaction
-	// so the hardened RLS policy (0004) can verify ownership at the DB layer.
-	if (input.sessionId) {
-		return withPublicSessionContext(input.sessionId, runInsert);
-	}
-
-	return withTransaction(runInsert);
 }
 
 export async function createFeedback(input: CreateFeedbackInput) {
@@ -326,3 +234,4 @@ export async function createFeedback(input: CreateFeedbackInput) {
 
 	return withTransaction(runInsert);
 }
+

@@ -5,9 +5,9 @@ export type FallbackPriority = 'normal' | 'high';
 
 export type StaffRequest = {
 	id: string;
-	restaurantId: string;
-	restaurantSlug: string;
-	restaurantName: string;
+	outletId: string;
+	outletSlug: string;
+	outletName: string;
 	tableId: string;
 	tableCode: string;
 	language: LanguageTag;

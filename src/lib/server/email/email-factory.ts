@@ -21,7 +21,7 @@ export function getEmailProvider(): EmailProvider {
 			port: appEnv.smtpPort ?? 587,
 			user: appEnv.smtpUser ?? '',
 			pass: appEnv.smtpPass ?? '',
-			from: appEnv.smtpFrom ?? `Lingua <noreply@${smtpHost}>`
+			from: appEnv.smtpFrom ?? `Ainything <noreply@${smtpHost}>`
 		});
 		return _provider;
 	}

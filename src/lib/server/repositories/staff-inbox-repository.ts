@@ -40,9 +40,9 @@ type FallbackRequestRow = {
 function mapRowToStaffRequest(row: FallbackRequestRow): StaffRequest {
 	return {
 		id: row.id,
-		restaurantId: row.restaurant_id,
-		restaurantSlug: row.restaurant_slug,
-		restaurantName: row.restaurant_name,
+		outletId: row.restaurant_id,
+		outletSlug: row.restaurant_slug,
+		outletName: row.restaurant_name,
 		tableId: row.table_id,
 		tableCode: row.table_code,
 		// language_tag from DB is a valid LanguageTag; cast safely

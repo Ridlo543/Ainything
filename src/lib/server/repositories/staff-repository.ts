@@ -105,14 +105,20 @@ export async function createInvite(params: {
 	return rows[0];
 }
 
-export async function deleteMembership(membershipId: string): Promise<void> {
+export async function deleteMembership(membershipId: string, organizationId: string): Promise<void> {
 	const pool = getPool();
-	await pool.query('DELETE FROM memberships WHERE id = $1', [membershipId]);
+	await pool.query('DELETE FROM memberships WHERE id = $1 AND organization_id = $2', [
+		membershipId,
+		organizationId
+	]);
 }
 
-export async function deleteInvite(inviteId: string): Promise<void> {
+export async function deleteInvite(inviteId: string, organizationId: string): Promise<void> {
 	const pool = getPool();
-	await pool.query('DELETE FROM invites WHERE id = $1', [inviteId]);
+	await pool.query('DELETE FROM invites WHERE id = $1 AND organization_id = $2', [
+		inviteId,
+		organizationId
+	]);
 }
 
 export async function findInviteByToken(token: string): Promise<InviteRow | null> {
@@ -132,9 +138,106 @@ export async function markInviteAccepted(inviteId: string): Promise<void> {
 	await pool.query('UPDATE invites SET accepted_at = now() WHERE id = $1', [inviteId]);
 }
 
-export async function updateMembershipRole(membershipId: string, role: string): Promise<void> {
+export async function updateMembershipRole(
+	membershipId: string,
+	organizationId: string,
+	role: string
+): Promise<void> {
 	const pool = getPool();
-	await pool.query('UPDATE memberships SET role = $1 WHERE id = $2', [role, membershipId]);
+	await pool.query('UPDATE memberships SET role = $1 WHERE id = $2 AND organization_id = $3', [
+		role,
+		membershipId,
+		organizationId
+	]);
+}
+
+export type NewUserRow = {
+	id: string;
+	email: string;
+	name: string;
+};
+
+/**
+ * Atomically creates an app_user with password_hash and a membership in one transaction.
+ * Uses a client from the pool to wrap both inserts in BEGIN/COMMIT.
+ */
+export async function createUserWithMembership(params: {
+	email: string;
+	name: string;
+	passwordHash: string;
+	organizationId: string;
+	role: string;
+}): Promise<NewUserRow> {
+	const pool = getPool();
+	const client = await pool.connect();
+	try {
+		await client.query('BEGIN');
+
+		// Check for duplicate email first (app_users.email has a unique constraint)
+		const existing = await client.query<{ id: string }>(
+			'SELECT id FROM app_users WHERE email = $1 LIMIT 1',
+			[params.email]
+		);
+		if (existing.rows.length > 0) {
+			throw new Error('EMAIL_ALREADY_EXISTS');
+		}
+
+		const { rows: userRows } = await client.query<NewUserRow>(
+			`INSERT INTO app_users (email, name, external_auth_id, password_hash, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, now(), now())
+			 RETURNING id, email, name`,
+			[params.email, params.name, `local:${params.email}`, params.passwordHash]
+		);
+		const user = userRows[0];
+
+		await client.query(
+			`INSERT INTO memberships (user_id, organization_id, role, created_at, updated_at)
+			 VALUES ($1, $2, $3, now(), now())`,
+			[user.id, params.organizationId, params.role]
+		);
+
+		await client.query('COMMIT');
+		return user;
+	} catch (err) {
+		await client.query('ROLLBACK');
+		throw err;
+	} finally {
+		client.release();
+	}
+}
+
+/**
+ * Updates a user's name and optionally their password hash.
+ * Scoped by organizationId to prevent cross-tenant edits.
+ */
+export async function updateUserProfile(params: {
+	membershipId: string;
+	organizationId: string;
+	name: string;
+	passwordHash?: string;
+}): Promise<void> {
+	const pool = getPool();
+	if (params.passwordHash) {
+		await pool.query(
+			`UPDATE app_users u
+			 SET name = $1, password_hash = $2, updated_at = now()
+			 FROM memberships m
+			 WHERE m.id = $3
+			   AND m.organization_id = $4
+			   AND u.id = m.user_id`,
+			[params.name, params.passwordHash, params.membershipId, params.organizationId]
+		);
+	} else {
+		await pool.query(
+			`UPDATE app_users u
+			 SET name = $1, updated_at = now()
+			 FROM memberships m
+			 WHERE m.id = $2
+			   AND m.organization_id = $3
+			   AND u.id = m.user_id`,
+			[params.name, params.membershipId, params.organizationId]
+		);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -155,13 +258,14 @@ export type RestaurantSettingsRow = {
 };
 
 export async function getRestaurantSettings(
-	restaurantId: string
+	restaurantId: string,
+	organizationId: string
 ): Promise<RestaurantSettingsRow | null> {
 	const pool = getPool();
 	const result = await pool.query<RestaurantSettingsRow>(
-		`SELECT id, name, slug, location, segment, timezone, default_language_tag, language_tags, description, status
-		 FROM restaurants WHERE id = $1`,
-		[restaurantId]
+		`SELECT id, name, slug, location, business_type AS segment, timezone, default_language_tag, language_tags, description, status
+		 FROM outlets WHERE id = $1 AND organization_id = $2`,
+		[restaurantId, organizationId]
 	);
 	return result.rows[0] ?? null;
 }
@@ -180,8 +284,8 @@ export async function updateRestaurantSettings(
 ): Promise<void> {
 	const pool = getPool();
 	await pool.query(
-		`UPDATE restaurants
-		 SET name = $1, location = $2, segment = $3, timezone = $4,
+		`UPDATE outlets
+		 SET name = $1, location = $2, business_type = $3, timezone = $4,
 		     default_language_tag = $5, description = $6, updated_at = now()
 		 WHERE id = $7 AND organization_id = $8`,
 		[

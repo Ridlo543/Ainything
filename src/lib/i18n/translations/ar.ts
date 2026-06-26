@@ -102,9 +102,9 @@ export const ar: TranslationDict = {
 	'bootstrap.heading': 'اللغة وتفضيلات الطعام',
 	'bootstrap.subtitle': 'لا حاجة لتسجيل الدخول. التفضيلات تبقى في هذه الجلسة.',
 
-	'app.title': 'Lingua',
-	'app.titlePage': '{name} - Lingua',
-	'app.backLink': 'Lingua',
+	'app.title': 'Ainything',
+	'app.titlePage': '{name} - Ainything',
+	'app.backLink': 'Ainything',
 	'app.tableBadge': 'طاولة {code}',
 
 	// Landing Page (Marketing)
@@ -116,7 +116,7 @@ export const ar: TranslationDict = {
 	'page.landing.hero.cta.secondary': 'شاهد العرض التوضيحي',
 	'page.landing.hero.trust': 'لا حاجة لبطاقة ائتمان · الإعداد في 15 دقيقة · يعمل على أي هاتف',
 
-	'page.landing.value.title': 'لماذا تختار المطاعم Lingua',
+	'page.landing.value.title': 'لماذا تختار المطاعم Ainything',
 	'page.landing.value.multilingual.title': 'قائمة تتحدث لغتهم',
 	'page.landing.value.multilingual.description':
 		'ترجمة تلقائية بأكثر من 10 لغات. يمسح السياح رمز QR ويرون قائمتك فورا بالإنجليزية والصينية والكورية واليابانية والعربية والمزيد.',
@@ -160,7 +160,7 @@ export const ar: TranslationDict = {
 	'page.landing.testimonial.1.name': 'مادي ويجايا',
 	'page.landing.testimonial.1.role': 'مالك، وارونج نوسانتارا بالي',
 	'page.landing.testimonial.2.quote':
-		'كانت أسئلة الحلال ومسببات الحساسية أكبر مشكلة لدينا. Lingua يجيب فورا من بيانات قائمتنا الفعلية. لا مزيد من سوء التواصل ولا مزيد من طوارئ المطبخ.',
+		'كانت أسئلة الحلال ومسببات الحساسية أكبر مشكلة لدينا. Ainything يجيب فورا من بيانات قائمتنا الفعلية. لا مزيد من سوء التواصل ولا مزيد من طوارئ المطبخ.',
 	'page.landing.testimonial.2.name': 'سارة تاناكا',
 	'page.landing.testimonial.2.role': 'مديرة، سبايس جاردن جاكرتا',
 	'page.landing.testimonial.3.quote':
@@ -199,7 +199,7 @@ export const ar: TranslationDict = {
 	'page.landing.staffInbox': 'فتح صندوق وارد الموظفين',
 
 	// Staff inbox
-	'staff.inbox.title': 'صندوق وارد الموظفين - Lingua',
+	'staff.inbox.title': 'صندوق وارد الموظفين - Ainything',
 	'staff.inbox.workflow': 'سير عمل الموظفين',
 	'staff.inbox.heading': 'طلبات المساعدة',
 	'staff.inbox.description':
@@ -220,7 +220,7 @@ export const ar: TranslationDict = {
 	'staff.inbox.table': 'طاولة {code} —',
 
 	// Dashboard
-	'dashboard.title': 'لوحة الإدارة - Lingua',
+	'dashboard.title': 'لوحة الإدارة - Ainything',
 	'dashboard.heading': 'عمليات المطعم',
 	'dashboard.description':
 		'إدارة العديد من تجارب QR للمطاعم من مساحة عمل واحدة. كل صف يبقى محصورا في مطعم واحد حتى لا تختلط بيانات القائمة وطلبات الموظفين والتقارير.',
@@ -249,7 +249,7 @@ export const ar: TranslationDict = {
 	'dashboard.queue.openInbox': 'فتح صندوق وارد الموظفين ←',
 
 	// Analytics
-	'analytics.title': 'التقارير - Lingua',
+	'analytics.title': 'التقارير - Ainything',
 	'analytics.heading': 'تقارير المطعم',
 	'analytics.description.live': 'مقاييس مباشرة من آخر {days} أيام.',
 	'analytics.description.preview': 'بيانات معاينة — اتصل بقاعدة البيانات لرؤية المقاييس المباشرة.',
@@ -270,7 +270,7 @@ export const ar: TranslationDict = {
 	'analytics.breakdown.feedback': '{helpful}/{total} مفيد',
 
 	// Knowledge / Restaurant Facts
-	'knowledge.title': 'حقائق المطعم - Lingua',
+	'knowledge.title': 'حقائق المطعم - Ainything',
 	'knowledge.heading': 'ملاحظات معتمدة لإجابات الضيوف',
 	'knowledge.description':
 		'احتفظ بقواعد المطبخ وملاحظات النظام الغذائي والعروض وسياسات الخدمة منفصلة لكل مطعم.',
@@ -306,7 +306,7 @@ export const ar: TranslationDict = {
 	'knowledge.tenantsLabel': 'نطاق المستأجر:',
 
 	// QR Tables
-	'tables.title': 'طاولات QR - Lingua',
+	'tables.title': 'طاولات QR - Ainything',
 	'tables.eyebrow': 'مدير طاولات QR',
 	'tables.heading': 'بطاقات QR جاهزة للطباعة',
 	'tables.description':

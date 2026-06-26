@@ -6,7 +6,7 @@
 import { query } from '$lib/server/db/postgres';
 
 export type VitalsInsert = {
-	restaurantId: string | null;
+	outletId: string | null;
 	name: 'LCP' | 'FID' | 'INP' | 'CLS' | 'TTFB';
 	value: number;
 	rating: 'good' | 'needs-improvement' | 'poor';
@@ -24,12 +24,12 @@ export async function insertWebVitals(entries: VitalsInsert[]): Promise<void> {
 	const values: (string | number | null)[] = [];
 	const rows = entries.map((e, i) => {
 		const base = i * 5;
-		values.push(e.restaurantId, e.name, e.value, e.rating, e.path);
+		values.push(e.outletId, e.name, e.value, e.rating, e.path);
 		return `($${base + 1}::uuid, $${base + 2}::text, $${base + 3}::numeric, $${base + 4}::text, $${base + 5}::text)`;
 	});
 
 	await query(
-		`INSERT INTO web_vitals (restaurant_id, name, value, rating, path)
+		`INSERT INTO web_vitals (outlet_id, name, value, rating, path)
 		 VALUES ${rows.join(', ')}`,
 		values
 	);

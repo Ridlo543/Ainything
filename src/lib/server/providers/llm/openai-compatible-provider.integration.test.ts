@@ -36,8 +36,8 @@ const provider = new OpenAICompatibleProvider({
 });
 
 const baseContext: LlmChatContext = {
-	restaurantId: 'test-rest-1',
-	restaurantName: 'Uma Karang Bali',
+	outletId: 'test-rest-1',
+	outletName: 'Uma Karang Bali',
 	languageTag: 'en',
 	dietaryPreferences: ['halal'],
 	question: ''

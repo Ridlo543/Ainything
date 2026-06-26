@@ -1,9 +1,9 @@
-import type { PublicMenuBootstrap } from '$lib/domain/menu/types';
+import type { PublicCatalogBootstrap } from '$lib/domain/outlet/types';
 import {
 	createSessionInputSchema,
 	type CustomerSessionPreferences
 } from '$lib/domain/session/schema';
-import { createCustomerSession } from '$lib/server/repositories/public-menu-repository';
+import { createBuyerSession } from '$lib/server/repositories/public-catalog-repository';
 
 export type CreateCustomerSessionResult = {
 	sessionId: string;
@@ -12,15 +12,15 @@ export type CreateCustomerSessionResult = {
 };
 
 /**
- * Creates an anonymous customer session for a QR table.
+ * Creates an anonymous buyer session for a QR table.
  *
- * Tenant scope (organization/restaurant/table) is taken exclusively from the
+ * Tenant scope (organization/outlet/table) is taken exclusively from the
  * server-resolved `bootstrap`; only language and dietary preferences come from the
  * untrusted request body, and those are validated here before persistence. Routes must
  * call this service rather than the repository directly so this rule lives in one place.
  */
 export async function createCustomerSessionForTable(
-	bootstrap: PublicMenuBootstrap,
+	bootstrap: PublicCatalogBootstrap,
 	rawInput: unknown
 ): Promise<CreateCustomerSessionResult> {
 	const input = createSessionInputSchema.parse(rawInput);
@@ -30,9 +30,9 @@ export async function createCustomerSessionForTable(
 		...(input.allergenNotes ? { allergenNotes: input.allergenNotes } : {})
 	};
 
-	const created = await createCustomerSession({
+	const created = await createBuyerSession({
 		organizationId: bootstrap.table.organizationId,
-		restaurantId: bootstrap.table.restaurantId,
+		outletId: bootstrap.table.outletId,
 		tableId: bootstrap.table.id,
 		languageTag: input.languageTag,
 		preferences

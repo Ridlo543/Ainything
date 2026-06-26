@@ -49,7 +49,7 @@ export class KnowledgeNotFoundError extends Error {
  * resolved server-side from the authenticated user's membership.
  *
  * No `withUserContext` is needed for the read — the RLS SELECT policy from
- * migration 0001 already restricts `lingua_app` to rows where
+ * migration 0001 already restricts `ainything_app` to rows where
  * `app.has_restaurant_access(restaurant_id)`. The bare pool connection is
  * enough.
  */

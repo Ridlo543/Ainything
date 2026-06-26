@@ -6,7 +6,7 @@
 -- WORKAROUND: Run this SQL manually after db:reset to insert pantai-padi data
 --
 -- USAGE:
---   podman exec -i lingua-postgres psql -U lingua -d lingua < db/manual/insert-pantai-padi.sql
+--   podman exec -i ainything-postgres psql -U ainything -d ainything < db/manual/insert-pantai-padi.sql
 --
 -- Date: 2026-06-22
 -- Investigation: See git commit 2cd0859 for seed file additions
@@ -35,7 +35,7 @@ INSERT INTO restaurants (
     '10000000-0000-0000-0000-000000000001',
     'Pantai Padi',
     'pantai-padi',
-    'pantai-padi.lingua.app',
+    'pantai-padi.ainything.app',
     'Jimbaran, Bali',
     'casual-dining',
     ARRAY['en', 'id', 'ar']::text[],

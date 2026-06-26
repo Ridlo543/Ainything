@@ -13,12 +13,12 @@
 <header class="sticky top-0 z-50 border-b border-[#e7e5e4] bg-white/95 backdrop-blur-md">
 	<div class="app-container flex h-16 items-center">
 		<!-- Logo -->
-		<a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="Lingua beranda">
+		<a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="Ainything beranda">
 			<span
 				class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
 				>L</span
 			>
-			<span class="text-lg font-extrabold tracking-tight text-[#1a1a2e]">Lingua</span>
+			<span class="text-lg font-extrabold tracking-tight text-[#1a1a2e]">Ainything</span>
 		</a>
 
 		<!-- Desktop nav -->

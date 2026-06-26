@@ -1,4 +1,4 @@
-import type { MenuItem } from '$lib/domain/menu/types';
+import type { Product } from '$lib/domain/outlet/types';
 
 export type CartEntry = {
 	itemId: string;
@@ -11,7 +11,7 @@ export type CartEntry = {
 };
 
 function storageKey(slug: string): string {
-	return `lingua-cart-${slug}`;
+	return `ainything-cart-${slug}`;
 }
 
 function loadFromStorage(slug: string): CartEntry[] {
@@ -55,7 +55,7 @@ export function createCartStore(slug: string) {
 		get total() {
 			return entries.reduce((sum, e) => sum + e.price * e.qty, 0);
 		},
-		add(item: MenuItem, qty = 1) {
+		add(item: Product, qty = 1) {
 			const existing = entries.find((e) => e.itemId === item.id);
 			if (existing) {
 				entries = entries.map((e) => (e.itemId === item.id ? { ...e, qty: e.qty + qty } : e));
@@ -67,7 +67,7 @@ export function createCartStore(slug: string) {
 						name: item.name,
 						localName: item.localName,
 						price: item.price,
-						image: item.image,
+						image: item.imageUrl,
 						qty,
 						note: ''
 					}

@@ -1,5 +1,6 @@
 import { appEnv } from '$lib/server/config/env';
 import { MockWhatsappProvider } from './mock-provider';
+import { WahaProvider } from './waha-provider';
 import type { WhatsappProvider } from './types';
 
 export function getWhatsappProvider(): WhatsappProvider {
@@ -8,6 +9,15 @@ export function getWhatsappProvider(): WhatsappProvider {
 	switch (providerName) {
 		case 'mock':
 			return new MockWhatsappProvider();
+
+		case 'waha': {
+			const baseUrl = appEnv.wahaBaseUrl;
+			if (!baseUrl) {
+				console.warn('[whatsapp-factory] WAHA_BASE_URL not set — falling back to mock.');
+				return new MockWhatsappProvider();
+			}
+			return new WahaProvider(baseUrl, appEnv.wahaSession ?? 'default', appEnv.wahaApiKey);
+		}
 
 		default:
 			console.warn(

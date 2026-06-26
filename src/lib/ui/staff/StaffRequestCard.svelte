@@ -23,25 +23,27 @@
 
 <button
 	type="button"
-	class={`w-full rounded-lg border bg-lingua-surface p-4 text-left transition hover:border-lingua-primary ${
-		selected ? 'border-lingua-primary ring-2 ring-lingua-primary-soft' : 'border-lingua-border'
+	class={`w-full rounded-lg border bg-ainything-surface p-4 text-left transition hover:border-ainything-primary ${
+		selected
+			? 'border-ainything-primary ring-2 ring-ainything-primary-soft'
+			: 'border-ainything-border'
 	}`}
 	{onclick}
 >
 	<div class="flex items-start justify-between gap-3">
 		<div>
-			<p class="font-semibold text-lingua-text">{restaurant.name}</p>
-			<p class="mt-1 text-sm font-semibold text-lingua-text">
+			<p class="font-semibold text-ainything-text">{restaurant.name}</p>
+			<p class="mt-1 text-sm font-semibold text-ainything-text">
 				{request.tableCode} - {request.guestNeed}
 			</p>
-			<p class="mt-1 text-sm text-lingua-subtle">{request.summary}</p>
+			<p class="mt-1 text-sm text-ainything-subtle">{request.summary}</p>
 		</div>
 		{#if request.priority === 'high'}
-			<AlertTriangle class="shrink-0 text-lingua-warning" size={20} />
+			<AlertTriangle class="shrink-0 text-ainything-warning" size={20} />
 		{:else if request.status === 'resolved'}
-			<CheckCircle2 class="shrink-0 text-lingua-success" size={20} />
+			<CheckCircle2 class="shrink-0 text-ainything-success" size={20} />
 		{:else}
-			<Clock3 class="shrink-0 text-lingua-info" size={20} />
+			<Clock3 class="shrink-0 text-ainything-info" size={20} />
 		{/if}
 	</div>
 	<div class="mt-3 flex flex-wrap gap-2">

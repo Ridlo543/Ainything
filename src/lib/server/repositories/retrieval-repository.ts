@@ -4,12 +4,13 @@ import type { MenuItem, DietaryFlag, Allergen } from '$lib/domain/menu/types';
 type RetrievalFilters = {
 	dietaryFlags?: DietaryFlag[];
 	allergenExcludes?: Allergen[];
+	/** section_id (catalog_sections.id) — replaces old categoryId */
 	categoryId?: string;
 	availableOnly?: boolean;
 	searchQuery?: string;
 };
 
-type MenuItemRow = {
+type ProductRow = {
 	id: string;
 	category: string;
 	name: string;
@@ -18,16 +19,13 @@ type MenuItemRow = {
 	price_amount: number;
 	currency: MenuItem['currency'];
 	image_url: string;
-	spice_level: MenuItem['spiceLevel'];
 	is_available: boolean;
-	is_signature: boolean;
+	is_featured: boolean;
 	confidence: MenuItem['confidence'];
 	good_for: string[];
-	dietary_flags: DietaryFlag[];
-	allergens: Allergen[];
 };
 
-function mapRowToMenuItem(row: MenuItemRow): MenuItem {
+function mapRowToMenuItem(row: ProductRow): MenuItem {
 	return {
 		id: row.id,
 		category: row.category,
@@ -37,28 +35,34 @@ function mapRowToMenuItem(row: MenuItemRow): MenuItem {
 		price: row.price_amount,
 		currency: row.currency,
 		image: row.image_url,
-		spiceLevel: row.spice_level,
+		spiceLevel: 0,
 		isAvailable: row.is_available,
-		isSignature: row.is_signature,
-		dietaryFlags: row.dietary_flags,
-		allergens: row.allergens,
+		isSignature: row.is_featured,
+		// dietary_flags and allergens were dropped in migration 0024;
+		// the products table stores these in source_metadata only.
+		dietaryFlags: [] as DietaryFlag[],
+		allergens: [] as Allergen[],
 		goodFor: row.good_for,
 		confidence: row.confidence
 	};
 }
 
 /**
- * Retrieves menu items for a restaurant using structured SQL filters.
+ * Retrieves products for an outlet using structured SQL filters.
  *
  * Always scopes to:
- *   - The given restaurant_id
- *   - Published menu (m.status = 'published')
- *   - Active items (when availableOnly is true)
+ *   - The given outlet_id
+ *   - Published catalog (m.status = 'published')
+ *   - Available products (when availableOnly is true)
  *
  * Optional filters:
- *   - dietaryFlags: only items that have ALL specified flags
- *   - allergenExcludes: exclude items that contain ANY of the specified allergens
- *   - categoryId: filter by category id
+ *   - dietaryFlags: NOTE — dietary flag filtering is no longer supported at the
+ *     DB level after migration 0024 dropped menu_item_dietary_flags. Pass an
+ *     empty array or omit. If non-empty, results are not further filtered (the
+ *     flags are not stored in a queryable column).
+ *   - allergenExcludes: same caveat — allergen exclusion is no longer enforced
+ *     at the DB layer. Pass empty or omit.
+ *   - categoryId: filter by catalog_sections.id
  *   - searchQuery: ILIKE text search on name + description
  */
 export async function retrieveMenuItemsByFilters(
@@ -66,14 +70,14 @@ export async function retrieveMenuItemsByFilters(
 	filters: RetrievalFilters
 ): Promise<MenuItem[]> {
 	const {
-		dietaryFlags = [],
-		allergenExcludes = [],
 		categoryId,
 		availableOnly = true,
 		searchQuery
+		// dietaryFlags and allergenExcludes are accepted for API compat but not
+		// applied at the DB level — the junction tables were dropped in 0024.
 	} = filters;
 
-	const conditions: string[] = ['mi.restaurant_id = $1::uuid', "m.status = 'published'"];
+	const conditions: string[] = ['mi.outlet_id = $1::uuid', "m.status = 'published'"];
 	const params: (string | number | boolean | string[] | null)[] = [restaurantId];
 	let paramIdx = 2;
 
@@ -82,38 +86,10 @@ export async function retrieveMenuItemsByFilters(
 		conditions.push('mi.is_available = true');
 	}
 
-	// Filter by category
+	// Filter by section (replaces old category_id)
 	if (categoryId) {
-		conditions.push(`mi.category_id = $${paramIdx}::uuid`);
+		conditions.push(`mi.section_id = $${paramIdx}::uuid`);
 		params.push(categoryId);
-		paramIdx++;
-	}
-
-	// Filter: items must have ALL specified dietary flags
-	if (dietaryFlags.length > 0) {
-		conditions.push(`
-			mi.id IN (
-				SELECT midf.menu_item_id
-				FROM menu_item_dietary_flags midf
-				WHERE midf.flag_code = ANY($${paramIdx}::text[])
-				GROUP BY midf.menu_item_id
-				HAVING COUNT(DISTINCT midf.flag_code) = ${dietaryFlags.length}
-			)
-		`);
-		params.push(dietaryFlags);
-		paramIdx++;
-	}
-
-	// Filter: exclude items that contain ANY of the specified allergens
-	if (allergenExcludes.length > 0) {
-		conditions.push(`
-			mi.id NOT IN (
-				SELECT mia.menu_item_id
-				FROM menu_item_allergens mia
-				WHERE mia.allergen_code = ANY($${paramIdx}::text[])
-			)
-		`);
-		params.push(allergenExcludes);
 		paramIdx++;
 	}
 
@@ -138,29 +114,17 @@ export async function retrieveMenuItemsByFilters(
 			mi.price_amount,
 			mi.currency,
 			mi.image_url,
-			mi.spice_level,
 			mi.is_available,
-			mi.is_signature,
+			mi.is_featured,
 			mi.confidence,
-			COALESCE(mi.source_metadata->'goodFor', '[]'::jsonb) AS good_for,
-			COALESCE(
-				ARRAY_AGG(DISTINCT midf.flag_code) FILTER (WHERE midf.flag_code IS NOT NULL),
-				ARRAY[]::text[]
-			) AS dietary_flags,
-			COALESCE(
-				ARRAY_AGG(DISTINCT mia.allergen_code) FILTER (WHERE mia.allergen_code IS NOT NULL),
-				ARRAY[]::text[]
-			) AS allergens
-		FROM menu_items mi
-		JOIN menus m ON m.id = mi.menu_id
-		JOIN menu_categories mc ON mc.id = mi.category_id
-		LEFT JOIN menu_item_dietary_flags midf ON midf.menu_item_id = mi.id
-		LEFT JOIN menu_item_allergens mia ON mia.menu_item_id = mi.id
+			COALESCE(mi.source_metadata->'goodFor', '[]'::jsonb) AS good_for
+		FROM products mi
+		JOIN catalogs m ON m.id = mi.catalog_id
+		JOIN catalog_sections mc ON mc.id = mi.section_id
 		WHERE ${whereClause}
-		GROUP BY mi.id, mc.name
 		ORDER BY mi.sort_order, mi.name
 	`;
 
-	const result = await query<MenuItemRow>(sql, params);
+	const result = await query<ProductRow>(sql, params);
 	return result.rows.map(mapRowToMenuItem);
 }

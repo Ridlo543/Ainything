@@ -40,7 +40,7 @@ function mapRowToDoc(row: KnowledgeDocRow): KnowledgeDoc {
 	return {
 		id: row.id,
 		organizationId: row.organization_id,
-		restaurantId: row.restaurant_id,
+		outletId: row.restaurant_id,
 		title: row.title,
 		content: row.content,
 		visibility: row.visibility as KnowledgeVisibilityCode,
@@ -58,7 +58,7 @@ function mapRowToDoc(row: KnowledgeDocRow): KnowledgeDoc {
  * Lists all knowledge documents for a restaurant, newest first.
  * Uses the bare pool connection — RLS policy from migration 0001
  * (`knowledge_documents_tenant_select`) restricts to restaurants the
- * `lingua_app` role can see via `app.has_restaurant_access`.
+ * `ainything_app` role can see via `app.has_restaurant_access`.
  */
 export async function listKnowledgeDocsForRestaurant(
 	restaurantId: string

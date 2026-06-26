@@ -12,14 +12,14 @@
 					var cookies = document.cookie.split('; ');
 					for (var i = 0; i < cookies.length; i++) {
 						var parts = cookies[i].split('=');
-						if (parts[0] === 'lingua-theme') {
+						if (parts[0] === 'ainything-theme') {
 							mode = parts[1];
 							break;
 						}
 					}
 					if (mode !== 'light' && mode !== 'dark' && mode !== 'system') {
 						try {
-							var ls = localStorage.getItem('lingua-theme');
+							var ls = localStorage.getItem('ainything-theme');
 							if (ls === 'light' || ls === 'dark' || ls === 'system') mode = ls;
 						} catch (e) {}
 					}

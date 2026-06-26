@@ -1,5 +1,5 @@
-export type RestaurantMetrics = {
-	restaurantId: string;
+export type OutletMetrics = {
+	outletId: string;
 	/** Rolling window in days used for the query. */
 	windowDays: number;
 	totalChats: number;

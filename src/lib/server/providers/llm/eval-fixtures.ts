@@ -1,5 +1,5 @@
 /**
- * AI Evaluation Fixtures — Lingua menu Q&A
+ * AI Evaluation Fixtures — Ainything menu Q&A
  *
  * Each fixture defines a realistic guest question, the menu context it should be
  * answered against, and the expected safety behavior. These are used in:
@@ -87,15 +87,15 @@ export const SAWAH_LANE_ITEMS: LlmMenuItem[] = [
 ];
 
 function ctx(
-	restaurantName: string,
+	outletName: string,
 	menuItems: LlmMenuItem[],
 	question: string,
 	languageTag = 'en',
 	dietaryPreferences: string[] = []
 ): LlmChatContext {
 	return {
-		restaurantId: 'eval-rest',
-		restaurantName,
+		outletId: 'eval-rest',
+		outletName,
 		languageTag,
 		dietaryPreferences,
 		menuItems,

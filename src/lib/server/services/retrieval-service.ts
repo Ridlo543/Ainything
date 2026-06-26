@@ -10,7 +10,7 @@ type RetrievalPreferences = {
 };
 
 type RetrievalParams = {
-	restaurantId: string;
+	outletId: string;
 	query: string;
 	preferences?: RetrievalPreferences;
 	embeddingEnabled: boolean;
@@ -41,7 +41,7 @@ const MIN_SIMILARITY = 0.5;
  * 4. Final list is capped at MAX_CONTEXT_ITEMS.
  */
 export async function retrieveMenuContext(params: RetrievalParams): Promise<RetrievalResult> {
-	const { restaurantId, query, preferences, embeddingEnabled } = params;
+	const { outletId, query, preferences, embeddingEnabled } = params;
 
 	// Step 1: Always run structured retrieval with preferences and text search.
 	const structuredFilters = {
@@ -51,7 +51,7 @@ export async function retrieveMenuContext(params: RetrievalParams): Promise<Retr
 		searchQuery: query.trim() || undefined
 	};
 
-	const structuredItems = await retrieveMenuItemsByFilters(restaurantId, structuredFilters);
+	const structuredItems = await retrieveMenuItemsByFilters(outletId, structuredFilters);
 
 	// Step 2: If embeddings not enabled or no query, return structured results.
 	if (!embeddingEnabled || !query.trim()) {
@@ -83,7 +83,7 @@ export async function retrieveMenuContext(params: RetrievalParams): Promise<Retr
 		}
 
 		const queryEmbedding = embeddings[0];
-		const similarItems = await searchSimilarItems(restaurantId, queryEmbedding, MAX_CONTEXT_ITEMS);
+		const similarItems = await searchSimilarItems(outletId, queryEmbedding, MAX_CONTEXT_ITEMS);
 
 		// Filter semantic results by minimum similarity.
 		const relevantSimilar = similarItems.filter((item) => item.similarity >= MIN_SIMILARITY);
@@ -110,7 +110,7 @@ export async function retrieveMenuContext(params: RetrievalParams): Promise<Retr
 			// Retrieve these items without dietary/availability filters — they're
 			// semantically relevant and should be included even if they don't match
 			// the strict dietary filter (the model will handle recommendations).
-			semanticOnlyItems = await retrieveMenuItemsByFilters(restaurantId, {
+			semanticOnlyItems = await retrieveMenuItemsByFilters(outletId, {
 				availableOnly: true
 			});
 

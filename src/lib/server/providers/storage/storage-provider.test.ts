@@ -4,7 +4,7 @@ import { MockStorageProvider } from './mock-provider';
 import type { StorageObjectMeta } from './types';
 
 const META: StorageObjectMeta = {
-	restaurantId: 'rest-001',
+	organizationId: 'org-001',
 	sourceType: 'menu-import',
 	fileName: 'menu-scan.png',
 	mimeType: 'image/png',
@@ -25,7 +25,7 @@ describe('MockStorageProvider', () => {
 
 		const result = await provider.storeFile(buf, META);
 
-		expect(result.objectKey).toMatch(/^mock\/rest-001\/menu-import\/\d+-menu-scan\.png$/);
+		expect(result.objectKey).toMatch(/^mock\/org-001\/menu-import\/\d+-menu-scan\.png$/);
 		expect(result.publicUrl).toContain(result.objectKey);
 		expect(result.provider).toBe('mock');
 	});
