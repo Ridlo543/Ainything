@@ -1,4 +1,4 @@
-# GitLab CI/CD Pipeline for Lingua
+# GitLab CI/CD Pipeline for Ainything
 # Optimized for Docker/Podman and Kubernetes deployment
 
 stages:

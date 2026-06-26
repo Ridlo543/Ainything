@@ -26,13 +26,13 @@ export default defineConfig({
 		stdout: 'pipe',
 		stderr: 'pipe',
 		env: {
+			NODE_ENV: 'test',
 			PUBLIC_APP_URL: 'http://localhost:4173',
-			// Use lingua_app (application role with RLS) instead of superuser
+			// Use ainything_app (application role with RLS) instead of superuser
 			// to validate actual security boundaries in E2E tests
-			DATABASE_URL: 'postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua',
-			DIRECT_URL: 'postgresql://lingua:lingua@127.0.0.1:5432/lingua',
-			AUTH_PROVIDER: 'mock',
-			USE_MOCK_BACKEND: 'true',
+			DATABASE_URL: 'postgresql://ainything_app:ainything_app@127.0.0.1:5432/ainything',
+			DIRECT_URL: 'postgresql://ainything:ainything@127.0.0.1:5432/ainything',
+			AUTH_PROVIDER: 'local',
 			SESSION_SECRET: 'e2e-test-session-secret',
 			LLM_PROVIDER: 'mock',
 			OCR_PROVIDER: 'mock',

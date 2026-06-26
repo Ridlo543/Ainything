@@ -1,10 +1,10 @@
-# Lingua Deployment Makefile
+# Ainything Deployment Makefile
 # Production deployment automation with Docker/Podman and Kubernetes
 
 .PHONY: help build push deploy k8s k8s-delete local local-down load-test check lint test
 
 help: ## Show this help
-	@echo "Lingua Deployment Commands"
+	@echo "Ainything Deployment Commands"
 	@echo ""
 	@echo "Usage: make [command]"
 	@echo ""
@@ -32,26 +32,26 @@ local-build: ## Build local Docker images
 
 build: ## Build production Docker image
 	@echo "Building production Docker image..."
-	@docker build -t lingua:latest .
-	@echo "Docker image built: lingua:latest"
+	@docker build -t ainything:latest .
+	@echo "Docker image built: ainything:latest"
 
 build-tag: ## Build with specific tag
 	@echo "Building Docker image with tag: $(tag)..."
-	@docker build -t lingua:$(tag) .
-	@echo "Docker image built: lingua:$(tag)"
+	@docker build -t ainything:$(tag) .
+	@echo "Docker image built: ainything:$(tag)"
 
 push: ## Push Docker image to registry
 	@echo "Pushing Docker image to registry..."
-	@docker push lingua:latest
+	@docker push ainything:latest
 
 podman-build: ## Build with Podman
 	@echo "Building with Podman..."
-	@podman build -t lingua:latest .
-	@echo "Podman image built: lingua:latest"
+	@podman build -t ainything:latest .
+	@echo "Podman image built: ainything:latest"
 
 podman-push: ## Push with Podman
 	@echo "Pushing with Podman..."
-	@podman push lingua:latest
+	@podman push ainything:latest
 
 # Kubernetes Commands
 
@@ -61,7 +61,7 @@ k8s: ## Deploy to Kubernetes
 	@kubectl apply -f k8s/secrets.yml
 	@kubectl apply -f k8s/rbac.yml
 	@kubectl apply -f k8s/storage.yml
-	@echo "Deployment complete. Check status: kubectl get pods -n lingua"
+	@echo "Deployment complete. Check status: kubectl get pods -n ainything"
 
 k8s-delete: ## Delete Kubernetes deployment
 	@echo "Deleting Kubernetes deployment..."
@@ -73,22 +73,22 @@ k8s-delete: ## Delete Kubernetes deployment
 
 k8s-scale: ## Scale Kubernetes deployment
 	@echo "Scaling Kubernetes deployment..."
-	@kubectl scale deployment/lingua -n lingua --replicas=$(replicas)
+	@kubectl scale deployment/ainything -n ainything --replicas=$(replicas)
 	@echo "Scaled to $(replicas) replicas."
 
 k8s-logs: ## Show Kubernetes logs
 	@echo "Showing Kubernetes logs..."
-	@kubectl logs -n lingua -l app=lingua --tail=100 -f
+	@kubectl logs -n ainything -l app=ainything --tail=100 -f
 
 # Testing Commands
 
 load-test: ## Run load tests
 	@echo "Running load tests..."
-	@k6 run tests/load/lingua-load-test.js
+	@k6 run tests/load/ainything-load-test.js
 
 load-test-docker: ## Run load tests with Docker
 	@echo "Running load tests with Docker..."
-	@docker run --rm -v $(PWD):/tests grafana/k6:latest run /tests/tests/load/lingua-load-test.js
+	@docker run --rm -v $(PWD):/tests grafana/k6:latest run /tests/tests/load/ainything-load-test.js
 
 check: ## Run TypeScript check
 	@echo "Running TypeScript check..."
@@ -123,11 +123,11 @@ monitoring-down: ## Stop monitoring stack
 status: ## Show deployment status
 	@echo "Deployment Status:"
 	@echo ""
-	@kubectl get pods -n lingua
+	@kubectl get pods -n ainything
 	@echo ""
-	@kubectl get svc -n lingua
+	@kubectl get svc -n ainything
 	@echo ""
-	@kubectl get hpa -n lingua
+	@kubectl get hpa -n ainything
 
 clean: ## Clean Docker artifacts
 	@echo "Cleaning Docker artifacts..."
@@ -136,9 +136,9 @@ clean: ## Clean Docker artifacts
 
 rollback: ## Rollback Kubernetes deployment
 	@echo "Rolling back Kubernetes deployment..."
-	@kubectl rollout undo deployment/lingua -n lingua
+	@kubectl rollout undo deployment/ainything -n ainything
 	@echo "Rollback complete."
 
 wait: ## Wait for deployment to complete
 	@echo "Waiting for deployment to complete..."
-	@kubectl rollout status deployment/lingua -n lingua --timeout=180s
+	@kubectl rollout status deployment/ainything -n ainything --timeout=180s

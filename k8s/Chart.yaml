@@ -1,8 +1,8 @@
-# Helm Chart for Lingua
+# Helm Chart for Ainything
 # Simplified Kubernetes deployment with Helm
 
 apiVersion: v2
-name: lingua
+name: Ainything
 description: QR-based AI menu assistant for tourist-heavy restaurants
 type: application
 version: 0.1.0
@@ -13,8 +13,8 @@ keywords:
   - qr-menu
   - multilingual
 maintainers:
-  - name: Lingua Team
-    url: https://lingua.app
+  - name: Ainything Team
+    url: https://Ainything.app
 
 dependencies:
   - name: postgresql
@@ -28,4 +28,4 @@ dependencies:
 
 # Values configuration
 # This file is part of the Helm chart package
-# Run: helm install lingua . -f values.yaml
+# Run: helm install Ainything . -f values.yaml

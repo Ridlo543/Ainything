@@ -1,13 +1,13 @@
-# Prometheus Configuration for Lingua
+# Prometheus Configuration for Ainything
 
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'lingua'
+  - job_name: 'Ainything'
     static_configs:
-      - targets: ['lingua:3000']
+      - targets: ['Ainything:3000']
     metrics_path: /metrics
     scrape_interval: 10s
     scrape_timeout: 10s

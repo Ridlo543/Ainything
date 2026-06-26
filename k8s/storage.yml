@@ -1,11 +1,11 @@
-# Kubernetes PersistentVolumeClaims for Lingua
+# Kubernetes PersistentVolumeClaims for Ainything
 # Storage configuration for PostgreSQL and Redis
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: lingua
+  namespace: Ainything
   labels:
     app: postgres
 spec:
@@ -22,7 +22,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-pvc
-  namespace: lingua
+  namespace: Ainything
   labels:
     app: redis
 spec:
@@ -40,7 +40,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: postgres-backup
-  namespace: lingua
+  namespace: Ainything
 spec:
   schedule: '0 2 * * *' # Daily at 2:00 AM
   jobTemplate:
@@ -54,8 +54,8 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  pg_dump -h postgres -U postgres lingua > /backup/lingua-$(date +%Y%m%d).sql
-                  gzip /backup/lingua-$(date +%Y%m%d).sql
+                  pg_dump -h postgres -U postgres Ainything > /backup/Ainything-$(date +%Y%m%d).sql
+                  gzip /backup/Ainything-$(date +%Y%m%d).sql
               volumeMounts:
                 - name: backup-volume
                   mountPath: /backup

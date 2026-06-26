@@ -1,4 +1,4 @@
-# Monitoring Stack for Lingua
+# Monitoring Stack for Ainything
 
 ## Overview
 
@@ -56,6 +56,6 @@ Configured in `monitoring/prometheus-rules.yml`:
 
 ## Grafana Dashboards
 
-1. Lingua Dashboard - Main application metrics
+1. Ainything Dashboard - Main application metrics
 2. PostgreSQL Dashboard - Database performance
 3. Redis Dashboard - Cache performance

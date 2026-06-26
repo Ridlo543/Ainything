@@ -1,38 +1,38 @@
-# Lingua local infrastructure.
+# ainything local infrastructure.
 # Works with both `docker compose` and `podman compose` (Compose Spec v2).
 # Podman is the default runtime used by `pnpm infra:*` scripts. See scripts/infra.mjs
 # for the runtime-detection wrapper, and docs/Technical_Specification.md §3 for
 # why we picked Podman-first for local development.
-name: lingua
+name: ainything
 
 services:
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: lingua-postgres
+    container_name: ainything-postgres
     environment:
-      POSTGRES_DB: lingua
-      POSTGRES_USER: lingua
-      POSTGRES_PASSWORD: lingua
+      POSTGRES_DB: ainything
+      POSTGRES_USER: ainything
+      POSTGRES_PASSWORD: ainything
     ports:
       - '5432:5432'
     volumes:
-      - lingua-postgres-data:/var/lib/postgresql/data
+      - ainything-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U lingua -d lingua']
+      test: ['CMD-SHELL', 'pg_isready -U ainything -d ainything']
       interval: 10s
       timeout: 5s
       retries: 5
     labels:
-      org.opencontainers.image.title: lingua-postgres
-      org.opencontainers.image.description: Local PostgreSQL 16 with pgvector for Lingua
+      org.opencontainers.image.title: ainything-postgres
+      org.opencontainers.image.description: Local PostgreSQL 16 with pgvector for ainything
 
   redis:
     image: redis:7-alpine
-    container_name: lingua-redis
+    container_name: ainything-redis
     ports:
       - '6379:6379'
     volumes:
-      - lingua-redis-data:/data
+      - ainything-redis-data:/data
     command: ['redis-server', '--appendonly', 'yes']
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
@@ -40,13 +40,13 @@ services:
       timeout: 5s
       retries: 5
     labels:
-      org.opencontainers.image.title: lingua-redis
-      org.opencontainers.image.description: Local Redis 7 cache/queue for Lingua
+      org.opencontainers.image.title: ainything-redis
+      org.opencontainers.image.description: Local Redis 7 cache/queue for ainything
 
 # Named volumes are managed by the runtime:
-#   - Docker:  docker volume ls       (in the default `lingua` engine)
+#   - Docker:  docker volume ls       (in the default `ainything` engine)
 #   - Podman:  podman volume ls       (rootless, in $HOME/.local/share/containers)
 # To reset infra cleanly: `pnpm infra:down -- -v`
 volumes:
-  lingua-postgres-data:
-  lingua-redis-data:
+  ainything-postgres-data:
+  ainything-redis-data:

@@ -1,11 +1,11 @@
-# Helm Values for Lingua
+# Helm Values for Ainything
 # Default configuration for Kubernetes deployment
 
 # Application configuration
 replicaCount: 3
 
 image:
-  repository: lingua
+  repository: Ainything
   tag: latest
   pullPolicy: IfNotPresent
 

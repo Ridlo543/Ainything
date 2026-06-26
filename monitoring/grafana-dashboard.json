@@ -103,7 +103,7 @@
 						"type": "prometheus",
 						"uid": "prometheus"
 					},
-					"expr": "http_requests_total{job=\"lingua\"}",
+					"expr": "http_requests_total{job=\"Ainything\"}",
 					"refId": "A"
 				}
 			],
@@ -167,7 +167,7 @@
 						"type": "prometheus",
 						"uid": "prometheus"
 					},
-					"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"lingua\"}[5m])) by (le)) * 1000",
+					"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"Ainything\"}[5m])) by (le)) * 1000",
 					"refId": "A"
 				}
 			],
@@ -256,7 +256,7 @@
 						"type": "prometheus",
 						"uid": "prometheus"
 					},
-					"expr": "go_goroutines{job=\"lingua\"}",
+					"expr": "go_goroutines{job=\"Ainything\"}",
 					"refId": "A"
 				}
 			],
@@ -320,7 +320,7 @@
 						"type": "prometheus",
 						"uid": "prometheus"
 					},
-					"expr": "go_memstats_heap_inuse_bytes{job=\"lingua\"}",
+					"expr": "go_memstats_heap_inuse_bytes{job=\"Ainything\"}",
 					"refId": "A"
 				}
 			],
@@ -330,7 +330,7 @@
 	],
 	"refresh": "5s",
 	"schemaVersion": 39,
-	"tags": ["lingua", "monitoring"],
+	"tags": ["Ainything", "monitoring"],
 	"templating": {
 		"list": []
 	},
@@ -340,8 +340,8 @@
 	},
 	"timepicker": {},
 	"timezone": "",
-	"title": "Lingua Dashboard",
-	"uid": "lingua-dashboard",
+	"title": "Ainything Dashboard",
+	"uid": "Ainything-dashboard",
 	"version": 1,
 	"weekStart": ""
 }

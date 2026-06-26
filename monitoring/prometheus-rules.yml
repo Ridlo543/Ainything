@@ -5,13 +5,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-rules
-  namespace: lingua
+  namespace: Ainything
   labels:
     app: prometheus
 data:
   rules.yml: |
     groups:
-      - name: lingua-alerts
+      - name: Ainything-alerts
         rules:
           - alert: HighErrorRate
             expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.01
@@ -55,7 +55,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: alertmanager-config
-  namespace: lingua
+  namespace: Ainything
 data:
   alertmanager.yml: |
     global:

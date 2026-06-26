@@ -2,7 +2,7 @@
 
 ## Overview
 
-Production-ready Kubernetes manifests for Lingua with Podman/Docker support.
+Production-ready Kubernetes manifests for Ainything with Podman/Docker support.
 
 ## Prerequisites
 
@@ -40,33 +40,33 @@ kubectl apply -f k8s/storage.yml
 
 ```bash
 # Check all pods
-kubectl get pods -n lingua
+kubectl get pods -n Ainything
 
 # Check services
-kubectl get svc -n lingua
+kubectl get svc -n Ainything
 
 # Check deployments
-kubectl get deployments -n lingua
+kubectl get deployments -n Ainything
 ```
 
 ## Update Deployment
 
 ```bash
 # Update deployment with new image
-kubectl set image deployment/lingua lingua=lingua:v1.2.3 -n lingua
+kubectl set image deployment/Ainything Ainything=Ainything:v1.2.3 -n Ainything
 
 # Rollout status
-kubectl rollout status deployment/lingua -n lingua
+kubectl rollout status deployment/Ainything -n Ainything
 ```
 
 ## Scaling
 
 ```bash
 # Manual scale
-kubectl scale deployment/lingua -n lingua --replicas=5
+kubectl scale deployment/Ainything -n Ainything --replicas=5
 
 # Check HPA
-kubectl get hpa -n lingua
+kubectl get hpa -n Ainything
 ```
 
 ## Podman-Specific Considerations
@@ -74,13 +74,13 @@ kubectl get hpa -n lingua
 ### Build with Podman
 
 ```bash
-podman build -t lingua:latest .
+podman build -t Ainything:latest .
 ```
 
 ### Push to Registry
 
 ```bash
-podman push lingua:latest registry.example.com/lingua:latest
+podman push Ainything:latest registry.example.com/Ainything:latest
 ```
 
 ### Run Locally with Podman
@@ -89,7 +89,7 @@ podman push lingua:latest registry.example.com/lingua:latest
 podman run -d \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data:Z \
-  lingua:latest
+  Ainything:latest
 ```
 
 ## Troubleshooting
@@ -97,19 +97,19 @@ podman run -d \
 ### Check Logs
 
 ```bash
-kubectl logs -n lingua -l app=lingua --tail=100
+kubectl logs -n Ainything -l app=Ainything --tail=100
 ```
 
 ### Describe Pod
 
 ```bash
-kubectl describe pod -n lingua -l app=lingua
+kubectl describe pod -n Ainything -l app=Ainything
 ```
 
 ### Exec into Pod
 
 ```bash
-kubectl exec -n lingua -it $(kubectl get pods -n lingua -o name | head -1) -- /bin/sh
+kubectl exec -n Ainything -it $(kubectl get pods -n Ainything -o name | head -1) -- /bin/sh
 ```
 
 ## Security Best Practices

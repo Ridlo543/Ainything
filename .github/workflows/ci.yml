@@ -22,13 +22,13 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_USER: lingua
-          POSTGRES_PASSWORD: lingua
-          POSTGRES_DB: lingua
+          POSTGRES_USER: ainything
+          POSTGRES_PASSWORD: ainything
+          POSTGRES_DB: ainything
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U lingua"
+          --health-cmd "pg_isready -U ainything"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -43,9 +43,9 @@ jobs:
           --health-retries 10
 
     env:
-      # DB access — lingua_app role is created by migration 0001
-      DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
-      DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+      # DB access — ainything_app role is created by migration 0001
+      DATABASE_URL: postgresql://ainything_app:ainything_app@127.0.0.1:5432/ainything
+      DIRECT_URL: postgresql://ainything:ainything@127.0.0.1:5432/ainything
       RUN_DB_TESTS: 'true'
       # Stub values for env.ts — real secrets not needed for unit tests
       PUBLIC_APP_URL: http://localhost:5173
@@ -75,7 +75,7 @@ jobs:
       - name: Apply migrations and seed
         run: pnpm db:seed
         env:
-          DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+          DIRECT_URL: postgresql://ainything:ainything@127.0.0.1:5432/ainything
 
       - name: Typecheck
         run: pnpm run check
@@ -142,20 +142,20 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_USER: lingua
-          POSTGRES_PASSWORD: lingua
-          POSTGRES_DB: lingua
+          POSTGRES_USER: ainything
+          POSTGRES_PASSWORD: ainything
+          POSTGRES_DB: ainything
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U lingua"
+          --health-cmd "pg_isready -U ainything"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql://lingua_app:lingua_app@127.0.0.1:5432/lingua
-      DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+      DATABASE_URL: postgresql://ainything_app:ainything_app@127.0.0.1:5432/ainything
+      DIRECT_URL: postgresql://ainything:ainything@127.0.0.1:5432/ainything
       PUBLIC_APP_URL: http://localhost:4173
       PUBLIC_SUPABASE_URL: http://localhost:54321
       PUBLIC_SUPABASE_ANON_KEY: stub
@@ -183,7 +183,7 @@ jobs:
       - name: Apply migrations and seed
         run: pnpm db:migrate && pnpm db:seed
         env:
-          DIRECT_URL: postgresql://lingua:lingua@127.0.0.1:5432/lingua
+          DIRECT_URL: postgresql://ainything:ainything@127.0.0.1:5432/ainything
 
       - name: Download build artifact
         uses: actions/download-artifact@v4

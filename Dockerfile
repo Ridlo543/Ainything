@@ -1,4 +1,4 @@
-# Multi-stage Docker build for Lingua
+# Multi-stage Docker build for Ainything
 # Optimized for production deployment with Podman/Docker
 
 # Stage 1: Build

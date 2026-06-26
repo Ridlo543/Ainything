@@ -1,21 +1,21 @@
-# Kubernetes Service Account and RBAC for Lingua
+# Kubernetes Service Account and RBAC for Ainything
 # Follows least privilege principle
 
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: lingua
-  namespace: lingua
+  name: Ainything
+  namespace: Ainything
   labels:
-    app: lingua
+    app: Ainything
 
 ---
-# Role for Lingua deployment
+# Role for Ainything deployment
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: lingua-role
-  namespace: lingua
+  name: Ainything-role
+  namespace: Ainything
 rules:
   - apiGroups: ['']
     resources: ['configmaps', 'secrets']
@@ -25,19 +25,19 @@ rules:
     verbs: ['get', 'list']
 
 ---
-# RoleBinding for Lingua service account
+# RoleBinding for Ainything service account
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: lingua-role-binding
-  namespace: lingua
+  name: Ainything-role-binding
+  namespace: Ainything
 subjects:
   - kind: ServiceAccount
-    name: lingua
-    namespace: lingua
+    name: Ainything
+    namespace: Ainything
 roleRef:
   kind: Role
-  name: lingua-role
+  name: Ainything-role
   apiGroup: rbac.authorization.k8s.io
 
 ---
@@ -45,7 +45,7 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: lingua-monitoring-role
+  name: Ainything-monitoring-role
 rules:
   - apiGroups: ['']
     resources: ['pods', 'services', 'endpoints']
@@ -59,12 +59,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: lingua-monitoring-role-binding
+  name: Ainything-monitoring-role-binding
 subjects:
   - kind: ServiceAccount
-    name: lingua
-    namespace: lingua
+    name: Ainything
+    namespace: Ainything
 roleRef:
   kind: ClusterRole
-  name: lingua-monitoring-role
+  name: Ainything-monitoring-role
   apiGroup: rbac.authorization.k8s.io

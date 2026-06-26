@@ -1,12 +1,12 @@
-# Kubernetes Manifests for Lingua
+# Kubernetes Manifests for Ainything
 # Optimized for Podman/Docker deployment
 
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: lingua
+  name: Ainything
   labels:
-    app: lingua
+    app: Ainything
     managed-by: k6-load-testing
 
 ---
@@ -14,14 +14,14 @@ metadata:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: lingua-config
-  namespace: lingua
+  name: Ainything-config
+  namespace: Ainything
 data:
   NODE_ENV: 'production'
   USE_MOCK_BACKEND: 'false'
   SESSION_SECRET: 'change-me-in-production-use-secrets-manager'
-  DATABASE_URL: 'postgresql://postgres:password@postgres:5432/lingua'
-  DIRECT_URL: 'postgresql://postgres:password@postgres:5432/lingua?sslmode=disable'
+  DATABASE_URL: 'postgresql://postgres:password@postgres:5432/Ainything'
+  DIRECT_URL: 'postgresql://postgres:password@postgres:5432/Ainything?sslmode=disable'
   REDIS_URL: 'redis://redis:6379'
   AUTH_PROVIDER: 'mock'
   LLM_PROVIDER: 'mock'
@@ -33,13 +33,13 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: lingua-secrets
-  namespace: lingua
+  name: Ainything-secrets
+  namespace: Ainything
 type: Opaque
 stringData:
   SESSION_SECRET: 'production-session-secret-rotate-regularly'
-  DATABASE_URL: 'postgresql://postgres:password@postgres:5432/lingua'
-  DIRECT_URL: 'postgresql://postgres:password@postgres:5432/lingua?sslmode=disable'
+  DATABASE_URL: 'postgresql://postgres:password@postgres:5432/Ainything'
+  DIRECT_URL: 'postgresql://postgres:password@postgres:5432/Ainything?sslmode=disable'
   REDIS_URL: 'redis://redis:6379'
 
 ---
@@ -48,7 +48,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: lingua
+  namespace: Ainything
 spec:
   serviceName: postgres
   replicas: 1
@@ -72,7 +72,7 @@ spec:
             - name: POSTGRES_PASSWORD
               value: password
             - name: POSTGRES_DB
-              value: lingua
+              value: Ainything
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
@@ -91,7 +91,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: lingua
+  namespace: Ainything
 spec:
   selector:
     app: postgres
@@ -106,7 +106,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis
-  namespace: lingua
+  namespace: Ainything
 spec:
   serviceName: redis
   replicas: 1
@@ -131,7 +131,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: lingua
+  namespace: Ainything
 spec:
   selector:
     app: redis
@@ -141,33 +141,33 @@ spec:
       name: redis
 
 ---
-# Lingua Application Deployment (part 1/2)
+# Ainything Application Deployment (part 1/2)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lingua
-  namespace: lingua
+  name: Ainything
+  namespace: Ainything
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: lingua
+      app: Ainything
   template:
     metadata:
       labels:
-        app: lingua
+        app: Ainything
     spec:
       containers:
-        - name: lingua
-          image: lingua:latest
+        - name: Ainything
+          image: Ainything:latest
           ports:
             - containerPort: 3000
               name: http
           envFrom:
             - configMapRef:
-                name: lingua-config
+                name: Ainything-config
             - secretRef:
-                name: lingua-secrets
+                name: Ainything-secrets
           readinessProbe:
             httpGet:
               path: /api/health
@@ -189,15 +189,15 @@ spec:
               cpu: '500m'
 
 ---
-# Lingua Service
+# Ainything Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: lingua
-  namespace: lingua
+  name: Ainything
+  namespace: Ainything
 spec:
   selector:
-    app: lingua
+    app: Ainything
   ports:
     - port: 80
       targetPort: 3000
@@ -205,24 +205,24 @@ spec:
   type: ClusterIP
 
 ---
-# Lingua Ingress (optional - for external access)
+# Ainything Ingress (optional - for external access)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: lingua
-  namespace: lingua
+  name: Ainything
+  namespace: Ainything
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: lingua.example.com
+    - host: Ainything.example.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: lingua
+                name: Ainything
                 port:
                   number: 80
 
@@ -231,13 +231,13 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: lingua-hpa
-  namespace: lingua
+  name: Ainything-hpa
+  namespace: Ainything
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: lingua
+    name: Ainything
   minReplicas: 2
   maxReplicas: 10
   metrics:

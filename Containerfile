@@ -1,7 +1,7 @@
 # =============================================================================
-# Lingua app image (template — switch to @sveltejs/adapter-node to use it).
-# Build:  podman build -t lingua-app -f Containerfile .
-# Run:    podman run --rm -p 3000:3000 --env-file .env lingua-app
+# ainything app image (template — switch to @sveltejs/adapter-node to use it).
+# Build:  podman build -t ainything-app -f Containerfile .
+# Run:    podman run --rm -p 3000:3000 --env-file .env ainything-app
 # Compose works with both `docker build` and `podman build`; OCI labels and
 # multi-stage layout follow Podman Build best practices.
 # =============================================================================
@@ -51,7 +51,7 @@ CMD ["node", "build"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-LABEL org.opencontainers.image.title="lingua-app" \
-      org.opencontainers.image.description="Lingua SvelteKit app (container template)" \
-      org.opencontainers.image.source="https://github.com/lingua/lingua" \
+LABEL org.opencontainers.image.title="ainything-app" \
+      org.opencontainers.image.description="ainything SvelteKit app (container template)" \
+      org.opencontainers.image.source="https://github.com/Ridlo543/Ainything" \
       org.opencontainers.image.licenses="UNLICENSED"
