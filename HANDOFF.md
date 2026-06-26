@@ -71,7 +71,7 @@ Ainything is a multi-tenant QR menu & AI guest assistant SaaS for tourist-heavy 
 
 | Path                              | Purpose                                            |
 | --------------------------------- | -------------------------------------------------- |
-| `docs/PRD_ainything.md`              | Product requirements                               |
+| `docs/PRD_ainything.md`           | Product requirements                               |
 | `docs/Technical_Specification.md` | Stack, data model, API, AI/RAG, security           |
 | `docs/ARCHITECTURE.md`            | Module boundaries, tenant isolation, testing rules |
 | `docs/DESIGN_SYSTEM.md`           | Colors, typography, spacing, component states      |

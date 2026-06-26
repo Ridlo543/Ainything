@@ -1,9 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
-import {
-	listOrdersWithItems,
-	updateOrderStatus
-} from '$lib/server/repositories/order-repository';
+import { listOrdersWithItems, updateOrderStatus } from '$lib/server/repositories/order-repository';
 import { getPool } from '$lib/server/db/postgres';
 import type { OrderStatus, OrderWithItems } from '$lib/domain/order/types';
 import {
@@ -126,7 +123,8 @@ export const actions: Actions = {
 			const tenantContext = await resolveTenantContext(user);
 
 			const role = tenantContext.membership?.role;
-			if (role === 'staff') return fail(403, { error: 'Tidak punya akses untuk konfirmasi pembayaran' });
+			if (role === 'staff')
+				return fail(403, { error: 'Tidak punya akses untuk konfirmasi pembayaran' });
 
 			const result = await getPool().query<{
 				id: string;
@@ -146,12 +144,7 @@ export const actions: Actions = {
 				   AND payment_proof_url IS NOT NULL
 				   AND payment_confirmed_at IS NULL
 				 RETURNING id, buyer_whatsapp, order_number, total`,
-				[
-					user.id,
-					orderId,
-					tenantContext.organization.id,
-					tenantContext.activeOutlet.id
-				]
+				[user.id, orderId, tenantContext.organization.id, tenantContext.activeOutlet.id]
 			);
 
 			if (result.rowCount === 0) {
@@ -194,7 +187,8 @@ export const actions: Actions = {
 			const tenantContext = await resolveTenantContext(user);
 
 			const role = tenantContext.membership?.role;
-			if (role === 'staff') return fail(403, { error: 'Tidak punya akses untuk menolak pembayaran' });
+			if (role === 'staff')
+				return fail(403, { error: 'Tidak punya akses untuk menolak pembayaran' });
 
 			const result = await getPool().query<{
 				id: string;
@@ -215,13 +209,7 @@ export const actions: Actions = {
 				   AND payment_proof_url IS NOT NULL
 				   AND payment_confirmed_at IS NULL
 				 RETURNING id, buyer_whatsapp, order_number, total`,
-				[
-					user.id,
-					notes,
-					orderId,
-					tenantContext.organization.id,
-					tenantContext.activeOutlet.id
-				]
+				[user.id, notes, orderId, tenantContext.organization.id, tenantContext.activeOutlet.id]
 			);
 
 			if (result.rowCount === 0) {

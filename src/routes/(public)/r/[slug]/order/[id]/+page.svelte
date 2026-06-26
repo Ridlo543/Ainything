@@ -4,7 +4,22 @@
 	import type { OrderStatus } from '$lib/domain/order/types';
 	import type { PaymentMethod, PaymentMethodType } from '$lib/domain/outlet/types';
 	import Button from '$lib/ui/button/button.svelte';
-	import { Check, ChefHat, Package, ArrowLeft, ChevronDown, ChevronUp, CreditCard, Banknote, Smartphone, QrCode, Upload, CheckCircle, Clock, RefreshCw } from '@lucide/svelte';
+	import {
+		Check,
+		ChefHat,
+		Package,
+		ArrowLeft,
+		ChevronDown,
+		ChevronUp,
+		CreditCard,
+		Banknote,
+		Smartphone,
+		QrCode,
+		Upload,
+		CheckCircle,
+		Clock,
+		RefreshCw
+	} from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount, onDestroy } from 'svelte';
@@ -90,7 +105,9 @@
 </script>
 
 <svelte:head>
-	<title>{tWithVars('order.title', { id: `#${String(order.orderNumber).padStart(4, '0')}` })} — {restaurant.name}</title>
+	<title
+		>{tWithVars('order.title', { id: `#${String(order.orderNumber).padStart(4, '0')}` })} — {restaurant.name}</title
+	>
 </svelte:head>
 
 <div class="mx-auto max-w-lg px-4 py-6">
@@ -131,13 +148,13 @@
 							{t(`order.status.${step.key}`)}
 						</span>
 					</div>
-				{#if i < statusSteps.length - 1}
-					<div
-						class="mx-1 mb-6 h-1 min-w-0 flex-1 self-start rounded-full transition-colors mt-6"
-						class:bg-emerald-500={i < statusIndex}
-						class:bg-gray-200={i >= statusIndex}
-					></div>
-				{/if}
+					{#if i < statusSteps.length - 1}
+						<div
+							class="mx-1 mb-6 h-1 min-w-0 flex-1 self-start rounded-full transition-colors mt-6"
+							class:bg-emerald-500={i < statusIndex}
+							class:bg-gray-200={i >= statusIndex}
+						></div>
+					{/if}
 				{/each}
 			</div>
 		</div>
@@ -307,7 +324,9 @@
 					}}
 					class="space-y-3"
 				>
-					<label class="block cursor-pointer rounded-xl border-2 border-dashed border-gray-200 p-4 text-center hover:border-ainything-primary">
+					<label
+						class="block cursor-pointer rounded-xl border-2 border-dashed border-gray-200 p-4 text-center hover:border-ainything-primary"
+					>
 						<input
 							type="file"
 							name="proofFile"
@@ -331,7 +350,9 @@
 						class="flex w-full min-h-[44px] items-center justify-center gap-2 rounded-xl bg-ainything-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-ainything-primary-strong disabled:opacity-50"
 					>
 						{#if uploading}
-							<div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+							<div
+								class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+							></div>
 							Mengunggah...
 						{:else}
 							Kirim Bukti Pembayaran

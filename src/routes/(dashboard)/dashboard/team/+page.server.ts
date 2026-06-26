@@ -47,8 +47,18 @@ function timeAgo(date: Date): string {
 
 function formatMonth(date: Date): string {
 	const months = [
-		'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-		'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'Mei',
+		'Jun',
+		'Jul',
+		'Agt',
+		'Sep',
+		'Okt',
+		'Nov',
+		'Des'
 	];
 	return `${months[date.getMonth()]} ${date.getFullYear()}`;
 }
@@ -98,7 +108,12 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 type ActionResult =
 	| { success: true; message: string }
-	| { success?: never; error: string; errors?: Record<string, string[]>; values?: Record<string, unknown> };
+	| {
+			success?: never;
+			error: string;
+			errors?: Record<string, string[]>;
+			values?: Record<string, unknown>;
+	  };
 
 function handleServiceError(err: unknown): ReturnType<typeof fail<ActionResult>> {
 	if (err instanceof StaffManagementInputError) {

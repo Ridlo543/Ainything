@@ -220,9 +220,7 @@ describe('createStaffAccount', () => {
 				})
 			).resolves.toBeDefined();
 
-			expect(createUserWithMembershipMock).toHaveBeenCalledWith(
-				expect.objectContaining({ role })
-			);
+			expect(createUserWithMembershipMock).toHaveBeenCalledWith(expect.objectContaining({ role }));
 		}
 	});
 });

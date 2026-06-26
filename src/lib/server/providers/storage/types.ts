@@ -1,7 +1,12 @@
 export type StorageObjectMeta = {
 	/** Organization (tenant) ID that owns this file. */
 	organizationId: string;
-	sourceType: 'menu-import' | 'item-image' | 'knowledge-attachment' | 'qris-image' | 'payment-proof';
+	sourceType:
+		| 'menu-import'
+		| 'item-image'
+		| 'knowledge-attachment'
+		| 'qris-image'
+		| 'payment-proof';
 	fileName: string;
 	mimeType: string;
 	sizeBytes: number;

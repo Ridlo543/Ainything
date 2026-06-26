@@ -105,7 +105,10 @@ export async function createInvite(params: {
 	return rows[0];
 }
 
-export async function deleteMembership(membershipId: string, organizationId: string): Promise<void> {
+export async function deleteMembership(
+	membershipId: string,
+	organizationId: string
+): Promise<void> {
 	const pool = getPool();
 	await pool.query('DELETE FROM memberships WHERE id = $1 AND organization_id = $2', [
 		membershipId,

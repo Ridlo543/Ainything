@@ -4,7 +4,18 @@
 	import * as Badge from '$lib/ui/badge';
 	import * as Button from '$lib/ui/button';
 	import * as Separator from '$lib/ui/separator';
-	import { ArrowLeft, Clock, CheckCircle, XCircle, ChefHat, Package, Phone, Image, Check, X } from '@lucide/svelte';
+	import {
+		ArrowLeft,
+		Clock,
+		CheckCircle,
+		XCircle,
+		ChefHat,
+		Package,
+		Phone,
+		Image,
+		Check,
+		X
+	} from '@lucide/svelte';
 	import OrderStatusTimeline from '$lib/ui/OrderStatusTimeline.svelte';
 	import type { PageData, ActionData } from './$types';
 	import type { OrderStatus } from '$lib/domain/order/types';
@@ -86,7 +97,7 @@
 			<ArrowLeft size={20} />
 		</a>
 		<div class="flex-1">
-			<h1 class="text-xl font-bold">Pesanan #{ String(order.orderNumber).padStart(4, '0')}</h1>
+			<h1 class="text-xl font-bold">Pesanan #{String(order.orderNumber).padStart(4, '0')}</h1>
 			<p class="text-sm text-muted-foreground">{formatDateTime(order.createdAt)}</p>
 		</div>
 		<Badge.Badge variant={config.variant}>

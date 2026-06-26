@@ -56,10 +56,7 @@ function toPercent(numerator: number, denominator: number): number {
  * safetyFlags is a text[] column. We check for 'needs-staff' or 'blocked'
  * using the PostgreSQL && (array overlap) operator.
  */
-async function fetchOutletMetrics(
-	outletId: string,
-	windowDays: number
-): Promise<OutletMetrics> {
+async function fetchOutletMetrics(outletId: string, windowDays: number): Promise<OutletMetrics> {
 	const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
 
 	// AI events query
@@ -128,10 +125,7 @@ async function fetchOutletMetrics(
  * Returns metrics for a single restaurant. Fail-open: on DB error returns
  * zeroed metrics so the analytics page never crashes.
  */
-export async function getOutletMetrics(
-	outletId: string,
-	windowDays = 7
-): Promise<OutletMetrics> {
+export async function getOutletMetrics(outletId: string, windowDays = 7): Promise<OutletMetrics> {
 	try {
 		return await fetchOutletMetrics(outletId, windowDays);
 	} catch (err) {
@@ -157,9 +151,7 @@ export async function getOrganizationMetrics(
 	outletIds: string[],
 	windowDays = 7
 ): Promise<Map<string, OutletMetrics>> {
-	const results = await Promise.all(
-		outletIds.map((id) => getOutletMetrics(id, windowDays))
-	);
+	const results = await Promise.all(outletIds.map((id) => getOutletMetrics(id, windowDays)));
 
 	return new Map(results.map((m: OutletMetrics) => [m.outletId, m]));
 }

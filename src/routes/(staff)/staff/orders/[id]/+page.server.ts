@@ -59,7 +59,7 @@ export const actions: Actions = {
 			throw err;
 		}
 
-			redirect(303, `/staff/orders/${params.id}`);
+		redirect(303, `/staff/orders/${params.id}`);
 	},
 
 	/**
@@ -99,12 +99,7 @@ export const actions: Actions = {
 				   AND payment_proof_url IS NOT NULL
 				   AND payment_confirmed_at IS NULL
 				 RETURNING id, buyer_whatsapp, order_number, total`,
-				[
-					user.id,
-					orderId,
-					tenantContext.organization.id,
-					tenantContext.activeOutlet.id
-				]
+				[user.id, orderId, tenantContext.organization.id, tenantContext.activeOutlet.id]
 			);
 
 			if (result.rowCount === 0) {
@@ -167,13 +162,7 @@ export const actions: Actions = {
 				   AND payment_proof_url IS NOT NULL
 				   AND payment_confirmed_at IS NULL
 				 RETURNING id, buyer_whatsapp, order_number`,
-				[
-					user.id,
-					notes,
-					orderId,
-					tenantContext.organization.id,
-					tenantContext.activeOutlet.id
-				]
+				[user.id, notes, orderId, tenantContext.organization.id, tenantContext.activeOutlet.id]
 			);
 
 			if (result.rowCount === 0) {

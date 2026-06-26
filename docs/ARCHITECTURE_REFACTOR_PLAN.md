@@ -93,6 +93,7 @@ CREATE TABLE outlets (
 ```
 
 **Key changes dari `restaurants`:**
+
 - `segment` (restaurant-specific: cafe/casual-dining/beach-club) → `business_type` (generik)
 - `menu_scan_url` dihapus (dicompute dari `slug` di app layer)
 - Tambah `logo_url`, `accepts_orders`, `requires_table`
@@ -210,6 +211,7 @@ Buat migration `0022_generalize_to_outlets.sql`:
 ```
 
 **Strategy view-based backward compat** memungkinkan:
+
 - Kode lama tetap jalan tanpa error
 - Kode baru bisa langsung pakai nama baru
 - Migrasi bertahap per service/repository
@@ -232,7 +234,7 @@ Urutan refactor di aplikasi:
 1. src/lib/domain/ — update types dulu
    - menu/ → catalog/
    - Tambah domain/outlet/ (ganti domain/restaurant/)
-   
+
 2. src/lib/server/repositories/ — satu per satu
    - public-menu-repository.ts → public-catalog-repository.ts
    - menu-repository.ts → catalog-repository.ts
@@ -267,16 +269,16 @@ Migration 0024_drop_old_tables.sql:
 
 Beberapa fitur hanya relevan untuk business type tertentu. Implementasi via `outlet.business_type`:
 
-| Fitur                          | restaurant | cafe | retail | service | salon |
-| ------------------------------ | ---------- | ---- | ------ | ------- | ----- |
-| Dietary flags / allergens      | ✓          | ✓    | -      | -       | -     |
-| Halal certification            | ✓          | ✓    | -      | -       | -     |
-| Spice level                    | ✓          | ✓    | -      | -       | -     |
-| Table management               | ✓          | ✓    | opt    | -       | -     |
-| Stock count                    | -          | -    | ✓      | -       | -     |
-| Service duration               | -          | -    | -      | ✓       | ✓     |
-| Booking / appointment          | -          | -    | -      | ✓       | ✓     |
-| Cart / orders                  | ✓          | ✓    | ✓      | ✓       | -     |
+| Fitur                     | restaurant | cafe | retail | service | salon |
+| ------------------------- | ---------- | ---- | ------ | ------- | ----- |
+| Dietary flags / allergens | ✓          | ✓    | -      | -       | -     |
+| Halal certification       | ✓          | ✓    | -      | -       | -     |
+| Spice level               | ✓          | ✓    | -      | -       | -     |
+| Table management          | ✓          | ✓    | opt    | -       | -     |
+| Stock count               | -          | -    | ✓      | -       | -     |
+| Service duration          | -          | -    | -      | ✓       | ✓     |
+| Booking / appointment     | -          | -    | -      | ✓       | ✓     |
+| Cart / orders             | ✓          | ✓    | ✓      | ✓       | -     |
 
 ---
 
@@ -285,6 +287,7 @@ Beberapa fitur hanya relevan untuk business type tertentu. Implementasi via `out
 Saat ini: `*.ainything.online/r/[slug]/menu`
 
 Opsi untuk multi-bisnis:
+
 1. **Tetap `/r/[slug]/`** — "/r" = "resource" bukan "restaurant" (sederhana, tidak break URL lama)
 2. **`/[slug]/`** tanpa prefix — lebih clean, tapi breaking change
 3. **`/b/[slug]/`** — "b" untuk "bisnis"
@@ -295,26 +298,26 @@ Opsi untuk multi-bisnis:
 
 ## Naming Conventions (Final)
 
-| Lama (restaurant-specific)   | Baru (generalized)                |
-| ---------------------------- | --------------------------------- |
-| `restaurants`                | `outlets`                         |
-| `restaurant_id`              | `outlet_id`                       |
-| `menus`                      | `catalogs`                        |
-| `menu_id`                    | `catalog_id`                      |
-| `menu_categories`            | `catalog_sections`                |
-| `menu_items`                 | `products`                        |
-| `menu_item_id`               | `product_id`                      |
-| `menu_item_translations`     | `product_translations`            |
-| `menu_item_dietary_flags`    | `product_dietary_flags`           |
-| `menu_item_allergens`        | `product_allergens`               |
-| `restaurant_locations`       | `outlet_locations`                |
-| `restaurant_tables`          | `outlet_tables`                   |
-| `customer_sessions`          | `buyer_sessions`                  |
-| `app.has_restaurant_access()`| `app.has_outlet_access()`         |
-| `menu-admin-service.ts`      | `catalog-admin-service.ts`        |
-| `public-menu-repository.ts`  | `public-catalog-repository.ts`    |
-| `menu_scan_url`              | (computed, hapus dari schema)     |
-| `segment` (cafe/casual-dining)| `business_type` (restaurant/retail/service) |
+| Lama (restaurant-specific)     | Baru (generalized)                          |
+| ------------------------------ | ------------------------------------------- |
+| `restaurants`                  | `outlets`                                   |
+| `restaurant_id`                | `outlet_id`                                 |
+| `menus`                        | `catalogs`                                  |
+| `menu_id`                      | `catalog_id`                                |
+| `menu_categories`              | `catalog_sections`                          |
+| `menu_items`                   | `products`                                  |
+| `menu_item_id`                 | `product_id`                                |
+| `menu_item_translations`       | `product_translations`                      |
+| `menu_item_dietary_flags`      | `product_dietary_flags`                     |
+| `menu_item_allergens`          | `product_allergens`                         |
+| `restaurant_locations`         | `outlet_locations`                          |
+| `restaurant_tables`            | `outlet_tables`                             |
+| `customer_sessions`            | `buyer_sessions`                            |
+| `app.has_restaurant_access()`  | `app.has_outlet_access()`                   |
+| `menu-admin-service.ts`        | `catalog-admin-service.ts`                  |
+| `public-menu-repository.ts`    | `public-catalog-repository.ts`              |
+| `menu_scan_url`                | (computed, hapus dari schema)               |
+| `segment` (cafe/casual-dining) | `business_type` (restaurant/retail/service) |
 
 ---
 
@@ -338,6 +341,7 @@ Tidak perlu perubahan schema untuk auth — cukup pastikan `external_auth_id` di
 ## Implementation Checklist
 
 ### Sprint DB-1: Schema Generalization ✅ SELESAI (25 Juni 2026)
+
 - [x] Buat migration `0022_generalize_to_outlets.sql`
   - [x] CREATE TABLE outlets
   - [x] Migrate data dari restaurants
@@ -350,12 +354,14 @@ Tidak perlu perubahan schema untuk auth — cukup pastikan `external_auth_id` di
 - [x] `pnpm db:reset` → semua 23 migrations + seed bersih (309/309 tests pass)
 
 ### Sprint APP-1: Domain Types ✅ SELESAI
+
 - [x] Buat `src/lib/domain/outlet/types.ts` — canonical types: Outlet, Catalog, CatalogSection, Product, OutletTable, BuyerSession, PublicCatalogBootstrap, TenantContext
 - [x] Buat `src/lib/domain/outlet/schema.ts` — Zod schemas untuk outlet/catalog/product
 - [x] Update `src/lib/domain/menu/types.ts` — backward-compat `@deprecated` markers + re-exports
 - [x] `pnpm check` → 0 errors
 
 ### Sprint APP-2: Repository Layer ✅ SELESAI
+
 - [x] `outlet-repository.ts` — admin CRUD outlets/catalogs/sections/products/tables
 - [x] `outlet-row-mapper.ts` — row mappers + loadPublishedSections/Products
 - [x] `public-catalog-repository.ts` — public QR buyer flow (outlets/buyer_sessions)
@@ -370,6 +376,7 @@ Tidak perlu perubahan schema untuk auth — cukup pastikan `external_auth_id` di
 - [x] `pnpm test` → 308/308 pass
 
 ### Sprint APP-3: Service Layer ✅ SELESAI
+
 - [x] `catalog-admin-service.ts` — new service untuk outlet-aware catalog CRUD
 - [x] `outlet-management-service.ts` — new service untuk outlet CRUD/settings
 - [x] `menu-admin-service.ts` — rewritten pakai outlet/catalog/product API
@@ -379,6 +386,7 @@ Tidak perlu perubahan schema untuk auth — cukup pastikan `external_auth_id` di
 - [x] `guest-interaction-service.ts` — migrated ke `createFallbackRequest`/`createBuyerFeedback`
 
 ### Sprint APP-4: Route Layer ✅ SELESAI
+
 - [x] `(dashboard)/+layout.server.ts` — pakai `?outlet=` param + `resolveOutletTenantContext`
 - [x] `settings/+page.server.ts` — migrated
 - [x] `api/internal/metrics`, `api/admin/embeddings`, `api/public/bootstrap`, `api/public/chat` — migrated
@@ -389,6 +397,7 @@ Tidak perlu perubahan schema untuk auth — cukup pastikan `external_auth_id` di
 - [x] `pnpm check` → 0 errors, `pnpm test` → 308/308 pass
 
 ### Sprint CLEANUP: Drop Old Tables ✅ SELESAI
+
 - [x] Migration `0024_drop_old_tables.sql` — drops views + old tables (menu_items, menu_categories, menus, restaurants, dll); keeps feedback/fallback_requests/chat_messages/ai_events/knowledge_documents untuk migration 0026
 - [x] Migration `0025_membership_outlets.sql` — CREATE TABLE membership_outlets + RLS
 - [x] Migration `0026_migrate_operational_tables.sql` — ALTER knowledge_documents/chat_messages/fallback_requests/feedback/ai_events: restaurant_id→outlet_id, session_id→buyer_session_id; tambah FK ke outlets/buyer_sessions
@@ -404,10 +413,10 @@ Tidak perlu perubahan schema untuk auth — cukup pastikan `external_auth_id` di
 
 ## Risks dan Mitigasi
 
-| Risk                                            | Mitigasi                                             |
-| ----------------------------------------------- | ---------------------------------------------------- |
-| Seed data rusak setelah rename                  | Update seeds di awal migration, test dengan db:reset |
-| Tests referencing old table names               | Fix test fixtures setelah setiap migration           |
-| RLS policy gap antara old/new tables            | Review semua policies di 0023 sebelum drop old       |
-| Performance regression dari views               | Benchmark sebelum drop, views bisa jadi bottleneck   |
+| Risk                                             | Mitigasi                                             |
+| ------------------------------------------------ | ---------------------------------------------------- |
+| Seed data rusak setelah rename                   | Update seeds di awal migration, test dengan db:reset |
+| Tests referencing old table names                | Fix test fixtures setelah setiap migration           |
+| RLS policy gap antara old/new tables             | Review semua policies di 0023 sebelum drop old       |
+| Performance regression dari views                | Benchmark sebelum drop, views bisa jadi bottleneck   |
 | URL breaking untuk existing QR codes di lapangan | Jangan rename `/r/[slug]/` — backward compat forever |

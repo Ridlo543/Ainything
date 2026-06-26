@@ -199,11 +199,7 @@
 			<div class="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
 				<!-- QR Preview -->
 				<div class="flex shrink-0 flex-col items-center gap-3">
-					<QrCodeDisplay
-						url={catalogUrl}
-						label="Katalog {outlet.name}"
-						size={144}
-					/>
+					<QrCodeDisplay url={catalogUrl} label="Katalog {outlet.name}" size={144} />
 				</div>
 				<!-- Link info -->
 				<div class="flex-1 space-y-4">
@@ -270,7 +266,11 @@
 			<!-- Hidden fields carrying current state -->
 			<input type="hidden" name="checkoutMode" value={checkoutMode} />
 			<input type="hidden" name="requireBuyerWhatsapp" value={String(requireBuyerWhatsapp)} />
-			<input type="hidden" name="paymentConfirmationEnabled" value={String(paymentConfirmationEnabled)} />
+			<input
+				type="hidden"
+				name="paymentConfirmationEnabled"
+				value={String(paymentConfirmationEnabled)}
+			/>
 
 			<!-- Mode toggle -->
 			<div>
@@ -279,7 +279,8 @@
 					<button
 						type="button"
 						onclick={() => (checkoutMode = 'offline')}
-						class="flex flex-col items-start gap-1 rounded-xl border-2 px-4 py-3 text-left transition-colors {checkoutMode === 'offline'
+						class="flex flex-col items-start gap-1 rounded-xl border-2 px-4 py-3 text-left transition-colors {checkoutMode ===
+						'offline'
 							? 'border-[#059669] bg-[#ecfdf5]'
 							: 'border-[#f0eeec] hover:border-[#d6d3d1]'}"
 					>
@@ -289,7 +290,8 @@
 					<button
 						type="button"
 						onclick={() => (checkoutMode = 'online')}
-						class="flex flex-col items-start gap-1 rounded-xl border-2 px-4 py-3 text-left transition-colors {checkoutMode === 'online'
+						class="flex flex-col items-start gap-1 rounded-xl border-2 px-4 py-3 text-left transition-colors {checkoutMode ===
+						'online'
 							? 'border-[#059669] bg-[#ecfdf5]'
 							: 'border-[#f0eeec] hover:border-[#d6d3d1]'}"
 					>
@@ -308,11 +310,11 @@
 					<p class="text-xs text-[#78716c] mt-0.5">Pembeli harus isi nomor WA saat checkout</p>
 				</div>
 				<button
-						type="button"
-						role="switch"
-						aria-checked={requireBuyerWhatsapp}
-						aria-label="Wajib nomor WhatsApp"
-						onclick={() => (requireBuyerWhatsapp = !requireBuyerWhatsapp)}
+					type="button"
+					role="switch"
+					aria-checked={requireBuyerWhatsapp}
+					aria-label="Wajib nomor WhatsApp"
+					onclick={() => (requireBuyerWhatsapp = !requireBuyerWhatsapp)}
 					class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#059669] focus-visible:ring-offset-2 {requireBuyerWhatsapp
 						? 'bg-[#059669]'
 						: 'bg-[#d6d3d1]'}"
@@ -330,7 +332,9 @@
 				<label class="flex min-h-[44px] items-center justify-between gap-3 cursor-pointer">
 					<div>
 						<p class="text-sm font-semibold text-[#1a1a2e]">Konfirmasi pembayaran manual</p>
-						<p class="text-xs text-[#78716c] mt-0.5">Staf harus konfirmasi bukti bayar sebelum pesanan diproses</p>
+						<p class="text-xs text-[#78716c] mt-0.5">
+							Staf harus konfirmasi bukti bayar sebelum pesanan diproses
+						</p>
 					</div>
 					<button
 						type="button"
@@ -363,7 +367,9 @@
 				{#if checkoutSaved}
 					<Check size={16} /> Tersimpan
 				{:else if checkoutSaving}
-					<div class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+					<div
+						class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+					></div>
 					Menyimpan...
 				{:else}
 					<Save size={16} /> Simpan Pengaturan Checkout

@@ -45,8 +45,7 @@ export const actions: Actions = {
 		} catch (err) {
 			if (err instanceof StaffOrderError) {
 				if (err.code === 'NOT_FOUND') return fail(404, { error: 'Pesanan tidak ditemukan.' });
-				if (err.code === 'INVALID_TRANSITION')
-					return fail(400, { error: err.message });
+				if (err.code === 'INVALID_TRANSITION') return fail(400, { error: err.message });
 			}
 			console.error('[inbox] transition failed:', err);
 			return fail(500, { error: 'Gagal memperbarui status pesanan.' });

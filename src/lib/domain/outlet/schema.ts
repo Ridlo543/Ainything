@@ -166,8 +166,6 @@ export const createOutletSchema = z.object({
 
 export type CreateOutletInput = z.infer<typeof createOutletSchema>;
 
-export const updateOutletSchema = createOutletSchema
-	.omit({ organizationId: true })
-	.partial();
+export const updateOutletSchema = createOutletSchema.omit({ organizationId: true }).partial();
 
 export type UpdateOutletInput = z.infer<typeof updateOutletSchema>;

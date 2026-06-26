@@ -1,5 +1,11 @@
 import type { AuthUser, OrgMembership } from '$lib/domain/auth/types';
-import type { MenuItem, MenuImportIssue, TenantContext, Membership, Organization } from '$lib/domain/menu/types';
+import type {
+	MenuItem,
+	MenuImportIssue,
+	TenantContext,
+	Membership,
+	Organization
+} from '$lib/domain/menu/types';
 import { query, withUserContext, type DatabaseClient } from '$lib/server/db/postgres';
 import { mapRestaurantRow, type RestaurantRow } from '$lib/server/repositories/menu-row-mapper';
 
@@ -28,7 +34,6 @@ type OrganizationRow = {
 	workspace_host: string;
 	plan: Organization['plan'];
 };
-
 
 async function loadPublishedCategoriesForTenant(restaurantIds: string[]) {
 	// Queries catalog_sections (generalized schema). outletIds == restaurantIds (same UUIDs).
@@ -161,8 +166,7 @@ export async function resolveTenantContextFromDatabase(
 	const outlets: Outlet[] = outletRows.map((row) => mapOutletRow(row));
 	const outletIds = outlets.map((o) => o.id);
 
-	const activeOutlet =
-		outlets.find((o) => o.slug === selectedOutletSlug) ?? outlets[0];
+	const activeOutlet = outlets.find((o) => o.slug === selectedOutletSlug) ?? outlets[0];
 
 	const activeRestaurant =
 		mappedRestaurants.find((r) => r.slug === selectedOutletSlug) ?? mappedRestaurants[0];
@@ -319,8 +323,21 @@ export async function resolveOutletTenantContext(
 	selectedOutletSlug?: string
 ): Promise<{
 	user: AuthUser;
-	membership: { id: string; userId: string; organizationId: string; outletIds: string[]; role: 'owner' | 'manager' | 'staff' };
-	organization: { id: string; name: string; slug: string; workspaceHost: string; plan: Organization['plan']; outletIds: string[] };
+	membership: {
+		id: string;
+		userId: string;
+		organizationId: string;
+		outletIds: string[];
+		role: 'owner' | 'manager' | 'staff';
+	};
+	organization: {
+		id: string;
+		name: string;
+		slug: string;
+		workspaceHost: string;
+		plan: Organization['plan'];
+		outletIds: string[];
+	};
 	outlets: Outlet[];
 	activeOutlet: Outlet;
 } | null> {
@@ -336,8 +353,7 @@ export async function resolveOutletTenantContext(
 	const outlets: Outlet[] = outletRows.map((row) => mapOutletRow(row));
 	const outletIds = outlets.map((o) => o.id);
 
-	const activeOutlet =
-		outlets.find((o) => o.slug === selectedOutletSlug) ?? outlets[0];
+	const activeOutlet = outlets.find((o) => o.slug === selectedOutletSlug) ?? outlets[0];
 
 	return {
 		user: {

@@ -38,7 +38,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		error(400, 'Missing or invalid restaurant/table identity.');
 	}
 
-	const bootstrap = await resolvePublicCatalogMenu(parsed.data.restaurantSlug, parsed.data.tableCode);
+	const bootstrap = await resolvePublicCatalogMenu(
+		parsed.data.restaurantSlug,
+		parsed.data.tableCode
+	);
 
 	if (!bootstrap) {
 		error(404, 'Menu not found for this restaurant and table.');

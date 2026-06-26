@@ -19,7 +19,20 @@ function getDayLabel(date: Date): string {
 }
 
 function getMonthLabel(date: Date): string {
-	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+	const months = [
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'Mei',
+		'Jun',
+		'Jul',
+		'Agu',
+		'Sep',
+		'Okt',
+		'Nov',
+		'Des'
+	];
 	return `${months[date.getMonth()]} ${date.getDate()}`;
 }
 
@@ -39,10 +52,42 @@ const EMPTY_STATS = (windowDays: number, range: Range) => ({
 	range,
 	windowDays,
 	summaryStats: [
-		{ label: 'Total Pesanan', value: '0', trend: '+0%', up: true, color: 'text-[#059669]', bg: 'bg-[#d1fae5]', icon: 'ShoppingCart' },
-		{ label: 'Pendapatan', value: 'Rp 0', trend: '+0%', up: true, color: 'text-[#d97706]', bg: 'bg-[#fef3c7]', icon: 'TrendingUp' },
-		{ label: 'Kunjungan Katalog', value: '—', trend: '', up: true, color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]', icon: 'Eye' },
-		{ label: 'Rata-rata Pesanan', value: 'Rp 0', trend: '+0%', up: true, color: 'text-[#db2777]', bg: 'bg-[#fce7f3]', icon: 'BarChart3' }
+		{
+			label: 'Total Pesanan',
+			value: '0',
+			trend: '+0%',
+			up: true,
+			color: 'text-[#059669]',
+			bg: 'bg-[#d1fae5]',
+			icon: 'ShoppingCart'
+		},
+		{
+			label: 'Pendapatan',
+			value: 'Rp 0',
+			trend: '+0%',
+			up: true,
+			color: 'text-[#d97706]',
+			bg: 'bg-[#fef3c7]',
+			icon: 'TrendingUp'
+		},
+		{
+			label: 'Kunjungan Katalog',
+			value: '—',
+			trend: '',
+			up: true,
+			color: 'text-[#2563eb]',
+			bg: 'bg-[#eff6ff]',
+			icon: 'Eye'
+		},
+		{
+			label: 'Rata-rata Pesanan',
+			value: 'Rp 0',
+			trend: '+0%',
+			up: true,
+			color: 'text-[#db2777]',
+			bg: 'bg-[#fce7f3]',
+			icon: 'BarChart3'
+		}
 	],
 	dailyOrders: [] as { day: string; orders: number; rev: number }[],
 	topProducts: [] as { name: string; orders: number; rev: number; img: string | null }[]
@@ -87,7 +132,10 @@ function buildDailyBuckets(
 function buildTopProducts(
 	items: AnalyticsItem[]
 ): { productId: string | null; name: string; qty: number; rev: number }[] {
-	const map = new Map<string, { productId: string | null; name: string; qty: number; rev: number }>();
+	const map = new Map<
+		string,
+		{ productId: string | null; name: string; qty: number; rev: number }
+	>();
 
 	for (const item of items) {
 		const key = item.productId ?? item.name;
@@ -99,7 +147,9 @@ function buildTopProducts(
 		entry.rev += item.price * item.quantity;
 	}
 
-	return Array.from(map.values()).sort((a, b) => b.qty - a.qty).slice(0, 5);
+	return Array.from(map.values())
+		.sort((a, b) => b.qty - a.qty)
+		.slice(0, 5);
 }
 
 export const load: PageServerLoad = async ({ parent, url }) => {
@@ -118,7 +168,12 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 	try {
 		const [windowItems, prevItems] = await Promise.all([
 			listOrderItemsForAnalytics({ organizationId: org.id, outletId: outlet.id, from, to }),
-			listOrderItemsForAnalytics({ organizationId: org.id, outletId: outlet.id, from: prevFrom, to: from })
+			listOrderItemsForAnalytics({
+				organizationId: org.id,
+				outletId: outlet.id,
+				from: prevFrom,
+				to: from
+			})
 		]);
 
 		// ── Revenue ──────────────────────────────────────────────────────
@@ -161,10 +216,39 @@ export const load: PageServerLoad = async ({ parent, url }) => {
 		}));
 
 		const summaryStats = [
-			{ label: 'Total Pesanan', value: totalOrders.toString(), ...totalTrend, color: 'text-[#059669]', bg: 'bg-[#d1fae5]', icon: 'ShoppingCart' },
-			{ label: 'Pendapatan', value: formatCompact(totalRevenue), ...revTrend, color: 'text-[#d97706]', bg: 'bg-[#fef3c7]', icon: 'TrendingUp' },
-			{ label: 'Kunjungan Katalog', value: '—', trend: '', up: true, color: 'text-[#2563eb]', bg: 'bg-[#eff6ff]', icon: 'Eye' },
-			{ label: 'Rata-rata Pesanan', value: formatCompact(avgOrder), ...avgTrend, color: 'text-[#db2777]', bg: 'bg-[#fce7f3]', icon: 'BarChart3' }
+			{
+				label: 'Total Pesanan',
+				value: totalOrders.toString(),
+				...totalTrend,
+				color: 'text-[#059669]',
+				bg: 'bg-[#d1fae5]',
+				icon: 'ShoppingCart'
+			},
+			{
+				label: 'Pendapatan',
+				value: formatCompact(totalRevenue),
+				...revTrend,
+				color: 'text-[#d97706]',
+				bg: 'bg-[#fef3c7]',
+				icon: 'TrendingUp'
+			},
+			{
+				label: 'Kunjungan Katalog',
+				value: '—',
+				trend: '',
+				up: true,
+				color: 'text-[#2563eb]',
+				bg: 'bg-[#eff6ff]',
+				icon: 'Eye'
+			},
+			{
+				label: 'Rata-rata Pesanan',
+				value: formatCompact(avgOrder),
+				...avgTrend,
+				color: 'text-[#db2777]',
+				bg: 'bg-[#fce7f3]',
+				icon: 'BarChart3'
+			}
 		];
 
 		return { range, windowDays, summaryStats, dailyOrders, topProducts };

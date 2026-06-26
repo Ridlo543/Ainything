@@ -35,7 +35,9 @@ export const actions: Actions = {
 
 		if (qrImageFile && qrImageFile.size > 0) {
 			if (!['image/png', 'image/jpeg', 'image/webp'].includes(qrImageFile.type)) {
-				return fail(400, { error: 'Format gambar QRIS tidak didukung. Gunakan PNG, JPG, atau WebP.' });
+				return fail(400, {
+					error: 'Format gambar QRIS tidak didukung. Gunakan PNG, JPG, atau WebP.'
+				});
 			}
 			if (qrImageFile.size > 2 * 1024 * 1024) {
 				return fail(400, { error: 'Ukuran gambar QRIS maksimal 2MB.' });

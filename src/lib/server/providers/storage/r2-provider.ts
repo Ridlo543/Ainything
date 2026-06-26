@@ -40,13 +40,21 @@ async function signRequest(
 	const endpoint = new URL(url);
 	const now = new Date();
 	const datestamp = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
-	const amzdate = now.toISOString().replace(/[:-]|\.\d{3}/g, '').slice(0, 15) + 'Z'; // YYYYMMDDTHHmmssZ
+	const amzdate =
+		now
+			.toISOString()
+			.replace(/[:-]|\.\d{3}/g, '')
+			.slice(0, 15) + 'Z'; // YYYYMMDDTHHmmssZ
 
 	const region = 'auto'; // R2 uses 'auto'
 	const service = 's3';
 
 	// Canonical headers (lowercase, sorted)
-	const signedHeaders: Record<string, string> = { ...headers, 'x-amz-date': amzdate, host: endpoint.host };
+	const signedHeaders: Record<string, string> = {
+		...headers,
+		'x-amz-date': amzdate,
+		host: endpoint.host
+	};
 	const canonicalHeadersStr = Object.keys(signedHeaders)
 		.sort()
 		.map((k) => `${k.toLowerCase()}:${signedHeaders[k].trim()}`)
@@ -82,7 +90,10 @@ async function signRequest(
 	].join('\n');
 
 	// Signing key
-	const kDate = await hmacSha256(new TextEncoder().encode(`AWS4${config.secretAccessKey}`), datestamp);
+	const kDate = await hmacSha256(
+		new TextEncoder().encode(`AWS4${config.secretAccessKey}`),
+		datestamp
+	);
 	const kRegion = await hmacSha256(kDate, region);
 	const kService = await hmacSha256(kRegion, service);
 	const kSigning = await hmacSha256(kService, 'aws4_request');
@@ -155,7 +166,10 @@ export class R2StorageProvider implements StorageProvider {
 		const response = await fetch(url, {
 			method: 'PUT',
 			headers: signedHeaders,
-			body: buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer
+			body: buffer.buffer.slice(
+				buffer.byteOffset,
+				buffer.byteOffset + buffer.byteLength
+			) as ArrayBuffer
 		});
 
 		if (!response.ok) {

@@ -27,14 +27,16 @@ const { listOrderItemsForAnalytics } = await import('./order-repository');
 const ORG_ID = '10000000-0000-0000-0000-000000000001';
 const OUTLET_ID = '40000000-0000-0000-0000-000000000001';
 
-function makeRow(overrides: Partial<{
-	product_id: string | null;
-	name: string;
-	quantity: number;
-	price: number;
-	order_status: string;
-	order_created_at: Date;
-}> = {}) {
+function makeRow(
+	overrides: Partial<{
+		product_id: string | null;
+		name: string;
+		quantity: number;
+		price: number;
+		order_status: string;
+		order_created_at: Date;
+	}> = {}
+) {
 	return {
 		product_id: 'prod-001',
 		name: 'Nasi Goreng',
@@ -63,7 +65,12 @@ describe('listOrderItemsForAnalytics', () => {
 		const from = new Date('2026-01-01T00:00:00Z');
 		const to = new Date('2026-02-01T00:00:00Z');
 
-		const result = await listOrderItemsForAnalytics({ organizationId: ORG_ID, outletId: OUTLET_ID, from, to });
+		const result = await listOrderItemsForAnalytics({
+			organizationId: ORG_ID,
+			outletId: OUTLET_ID,
+			from,
+			to
+		});
 
 		expect(result).toHaveLength(2);
 		expect(result[0]).toMatchObject({
@@ -107,10 +114,7 @@ describe('listOrderItemsForAnalytics', () => {
 
 	it('includes non-completed statuses in the output (status filter is server-side, not here)', async () => {
 		queryMock.mockResolvedValueOnce({
-			rows: [
-				makeRow({ order_status: 'processing' }),
-				makeRow({ order_status: 'cancelled' })
-			]
+			rows: [makeRow({ order_status: 'processing' }), makeRow({ order_status: 'cancelled' })]
 		});
 
 		const result = await listOrderItemsForAnalytics({

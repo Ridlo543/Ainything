@@ -23,9 +23,9 @@ describe('resolveMockTenantContext', () => {
 		const tenant = resolveMockTenantContext(ownerBali);
 
 		expect(tenant.organization.id).toBe('org-bali-table-group');
-		expect(
-			tenant.outlets.every((outlet) => outlet.organizationId === tenant.organization.id)
-		).toBe(true);
+		expect(tenant.outlets.every((outlet) => outlet.organizationId === tenant.organization.id)).toBe(
+			true
+		);
 		expect(tenant.outlets.some((outlet) => outlet.slug === 'outlet-rempah-terrace')).toBe(false);
 	});
 

@@ -283,7 +283,9 @@
 									{#if selectedOrder.paymentConfirmedAt}
 										<div class="flex items-center gap-2 rounded-xl bg-[#d1fae5] px-4 py-2.5">
 											<Check size={14} class="text-[#059669]" />
-											<span class="text-xs font-semibold text-[#059669]">Pembayaran dikonfirmasi</span>
+											<span class="text-xs font-semibold text-[#059669]"
+												>Pembayaran dikonfirmasi</span
+											>
 										</div>
 									{:else if selectedOrder.paymentRejectedAt}
 										<div class="flex items-center gap-2 rounded-xl bg-[#fef2f2] px-4 py-2.5">

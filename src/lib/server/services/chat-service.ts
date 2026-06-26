@@ -112,7 +112,7 @@ export async function handleChatTurn(
 	try {
 		const embeddingEnabled = appEnv.embeddingEnabled;
 
-	const result = await retrieveMenuContext({
+		const result = await retrieveMenuContext({
 			outletId: bootstrap.table.outletId,
 			query: input.content,
 			preferences: {
@@ -188,9 +188,7 @@ export async function handleChatTurn(
  * Product uses `section` (category name string) instead of `category`.
  * `spiceLevel` is not on Product (only on legacy MenuItem) — default to 0.
  */
-function productsToLlmItems(
-	products: import('$lib/domain/outlet/types').Product[]
-): LlmMenuItem[] {
+function productsToLlmItems(products: import('$lib/domain/outlet/types').Product[]): LlmMenuItem[] {
 	return products
 		.filter((p) => p.isAvailable)
 		.map((p) => ({
@@ -246,7 +244,10 @@ export async function handleCatalogChatTurn(
 
 		menuItems = retrievalItemsToLlmItems(result.items);
 	} catch (err) {
-		console.error('[chat-service] Retrieval service failed, falling back to catalog snapshot:', err);
+		console.error(
+			'[chat-service] Retrieval service failed, falling back to catalog snapshot:',
+			err
+		);
 		menuItems = productsToLlmItems(bootstrap.outlet.products).slice(0, 80);
 	}
 

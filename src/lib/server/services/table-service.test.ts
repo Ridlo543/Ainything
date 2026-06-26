@@ -22,9 +22,7 @@ const USER = {
 	email: 'admin@test.com',
 	name: 'Admin',
 	platformRole: 'outlet_admin' as const,
-	memberships: [
-		{ organizationId: 'org-1', outletIds: ['rest-1'], role: 'outlet_admin' as const }
-	]
+	memberships: [{ organizationId: 'org-1', outletIds: ['rest-1'], role: 'outlet_admin' as const }]
 };
 
 const TENANT = {

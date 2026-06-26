@@ -73,9 +73,7 @@ test.describe('Onboarding wizard', () => {
 		}
 
 		await page.goto('/dashboard/onboarding?step=3');
-		await expect(
-			page.getByRole('button', { name: /create draft|katalog|menu/i })
-		).toBeVisible();
+		await expect(page.getByRole('button', { name: /create draft|katalog|menu/i })).toBeVisible();
 	});
 
 	test('step 4 shows completion and action links', async ({ page }) => {

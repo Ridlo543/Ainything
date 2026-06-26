@@ -143,9 +143,9 @@ test.describe('Offline checkout — Taman Sate', () => {
 		}
 
 		// Offline mode shows a "pay at cashier" banner — not a payment proof upload section
-		await expect(
-			page.getByText(/kasir|bayar langsung|cashier|offline/i).first()
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.getByText(/kasir|bayar langsung|cashier|offline/i).first()).toBeVisible({
+			timeout: 5000
+		});
 
 		// No payment proof upload section for offline mode
 		const uploadSection = page.getByText(/upload bukti|upload proof|unggah bukti/i);
@@ -215,8 +215,14 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		});
 
 		// Page should show a WA-related error or the WA input should now be invalid
-		const hasError = await page.getByText(/whatsapp|wa number|nomor wa/i).first().isVisible();
-		const hasFormError = await page.getByRole('alert').isVisible().catch(() => false);
+		const hasError = await page
+			.getByText(/whatsapp|wa number|nomor wa/i)
+			.first()
+			.isVisible();
+		const hasFormError = await page
+			.getByRole('alert')
+			.isVisible()
+			.catch(() => false);
 		expect(hasError || hasFormError).toBe(true);
 	});
 
@@ -371,9 +377,9 @@ test.describe('Online checkout no WA required — Senja Ramen Bali', () => {
 		}
 
 		// No payment proof upload for senja-ramen (paymentConfirmationEnabled = false)
-		await expect(
-			page.getByText(/upload bukti|upload proof|unggah bukti/i)
-		).not.toBeVisible({ timeout: 3000 });
+		await expect(page.getByText(/upload bukti|upload proof|unggah bukti/i)).not.toBeVisible({
+			timeout: 3000
+		});
 	});
 });
 
@@ -400,9 +406,9 @@ test.describe('Staff payment confirmation — Uma Karang dashboard', () => {
 		await page.goto('/dashboard/orders');
 
 		// At least the tab bar or order list heading should be visible
-		await expect(
-			page.getByRole('heading', { name: /pesanan|orders/i }).first()
-		).toBeVisible({ timeout: 8000 });
+		await expect(page.getByRole('heading', { name: /pesanan|orders/i }).first()).toBeVisible({
+			timeout: 8000
+		});
 	});
 
 	test('orders displayed with #XXXX format, not UUID', async ({ page }) => {

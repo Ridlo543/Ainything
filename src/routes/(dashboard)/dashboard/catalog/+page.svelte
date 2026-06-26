@@ -272,7 +272,9 @@
 										method="POST"
 										action="?/deleteProduct"
 										use:enhance={() => {
-											if (!confirm(`Hapus "${product.name}"? Tindakan ini tidak bisa dibatalkan.`)) {
+											if (
+												!confirm(`Hapus "${product.name}"? Tindakan ini tidak bisa dibatalkan.`)
+											) {
 												return () => {};
 											}
 											openMenuId = null;

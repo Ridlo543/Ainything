@@ -50,12 +50,18 @@
 
 	function statusVariant(status: OrderStatus): StatusMeta {
 		switch (status) {
-			case 'new':        return { variant: 'default',     label: 'Baru' };
-			case 'processing': return { variant: 'secondary',   label: 'Diproses' };
-			case 'ready':      return { variant: 'outline',     label: 'Siap' };
-			case 'completed':  return { variant: 'outline',     label: 'Selesai' };
-			case 'cancelled':  return { variant: 'destructive', label: 'Dibatalkan' };
-			default:           return { variant: 'secondary',   label: status };
+			case 'new':
+				return { variant: 'default', label: 'Baru' };
+			case 'processing':
+				return { variant: 'secondary', label: 'Diproses' };
+			case 'ready':
+				return { variant: 'outline', label: 'Siap' };
+			case 'completed':
+				return { variant: 'outline', label: 'Selesai' };
+			case 'cancelled':
+				return { variant: 'destructive', label: 'Dibatalkan' };
+			default:
+				return { variant: 'secondary', label: status };
 		}
 	}
 
@@ -71,10 +77,14 @@
 
 	function nextTransition(status: OrderStatus): NextTransition | null {
 		switch (status) {
-			case 'new':        return { status: 'processing', label: 'Proses',  icon: ChefHat };
-			case 'processing': return { status: 'ready',      label: 'Siap',    icon: Package };
-			case 'ready':      return { status: 'completed',  label: 'Selesai', icon: CheckCircle };
-			default:           return null;
+			case 'new':
+				return { status: 'processing', label: 'Proses', icon: ChefHat };
+			case 'processing':
+				return { status: 'ready', label: 'Siap', icon: Package };
+			case 'ready':
+				return { status: 'completed', label: 'Selesai', icon: CheckCircle };
+			default:
+				return null;
 		}
 	}
 
@@ -102,12 +112,14 @@
 				onclick={() => setFilter(val)}
 				class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors
 					{statusFilter === val
-						? 'bg-background shadow-sm text-foreground'
-						: 'text-muted-foreground hover:text-foreground'}"
+					? 'bg-background shadow-sm text-foreground'
+					: 'text-muted-foreground hover:text-foreground'}"
 			>
 				{lbl}
 				{#if val === 'active' && activeCount > 0}
-					<span class="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">
+					<span
+						class="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground"
+					>
 						{activeCount}
 					</span>
 				{/if}
@@ -137,10 +149,13 @@
 									<span class="font-semibold">{order.tableCode ?? '—'}</span>
 									<span
 										class="rounded-full px-2 py-0.5 text-xs font-medium
-											{sv.variant === 'default' ? 'bg-primary text-primary-foreground' :
-											 sv.variant === 'secondary' ? 'bg-secondary text-secondary-foreground' :
-											 sv.variant === 'destructive' ? 'bg-destructive text-destructive-foreground' :
-											 'border text-foreground'}"
+											{sv.variant === 'default'
+											? 'bg-primary text-primary-foreground'
+											: sv.variant === 'secondary'
+												? 'bg-secondary text-secondary-foreground'
+												: sv.variant === 'destructive'
+													? 'bg-destructive text-destructive-foreground'
+													: 'border text-foreground'}"
 									>
 										{sv.label}
 									</span>

@@ -75,8 +75,7 @@ export function resolveMockTenantContext(
 		}
 	}));
 
-	const activeOutlet =
-		mockOutlets.find((o) => o.slug === selectedOutletSlug) ?? mockOutlets[0];
+	const activeOutlet = mockOutlets.find((o) => o.slug === selectedOutletSlug) ?? mockOutlets[0];
 
 	if (!activeOutlet) {
 		throw new Error(`No outlets available for user ${user.id}`);

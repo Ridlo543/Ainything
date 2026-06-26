@@ -100,9 +100,7 @@
 							<div class="rounded-lg border border-ainything-border bg-ainything-surface px-3 py-2">
 								<p class="font-semibold text-ainything-text">{outlet.name}</p>
 								<p class="text-sm text-ainything-subtle">
-									{outlet.publicHost || outlet.slug}{outlet.location
-										? ` · ${outlet.location}`
-										: ''}
+									{outlet.publicHost || outlet.slug}{outlet.location ? ` · ${outlet.location}` : ''}
 								</p>
 							</div>
 						{/each}

@@ -106,7 +106,8 @@ export const actions: Actions = {
 			const tenantContext = await resolveTenantContext(user);
 
 			const role = tenantContext.membership?.role;
-			if (role === 'staff') return fail(403, { error: 'Tidak punya akses mengubah pengaturan checkout' });
+			if (role === 'staff')
+				return fail(403, { error: 'Tidak punya akses mengubah pengaturan checkout' });
 
 			await updateOutletCheckoutSettings(
 				tenantContext.activeOutlet.id,

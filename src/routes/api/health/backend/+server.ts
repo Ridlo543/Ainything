@@ -17,11 +17,11 @@ export const GET: RequestHandler = async () => {
 	return json(
 		{
 			ok: backendOk,
-		backend: {
-			database,
-			redis,
-			authProvider: appEnv.authProvider
-		}
+			backend: {
+				database,
+				redis,
+				authProvider: appEnv.authProvider
+			}
 		},
 		{ status: backendOk ? 200 : 503 }
 	);

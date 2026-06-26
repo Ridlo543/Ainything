@@ -75,9 +75,7 @@ const USER = {
 	email: 'admin@test.com',
 	name: 'Admin',
 	platformRole: 'outlet_admin' as const,
-	memberships: [
-		{ organizationId: 'org-1', outletIds: ['rest-1'], role: 'outlet_admin' as const }
-	]
+	memberships: [{ organizationId: 'org-1', outletIds: ['rest-1'], role: 'outlet_admin' as const }]
 };
 
 const TENANT = {
@@ -205,7 +203,9 @@ describe('publishDraftMenu', () => {
 
 	it('throws when no draft catalog exists', async () => {
 		resolveTenantContextMock.mockResolvedValue(TENANT);
-		loadCatalogsForOutletMock.mockResolvedValue([{ id: 'cat-pub', status: 'published', version: 1 }]);
+		loadCatalogsForOutletMock.mockResolvedValue([
+			{ id: 'cat-pub', status: 'published', version: 1 }
+		]);
 
 		await expect(publishDraftMenu(USER, { restaurantSlug: 'bali-kafe' })).rejects.toThrow(
 			'No draft catalog found'

@@ -27,7 +27,8 @@ export const GET: RequestHandler = async ({ url, request }) => {
 	await applyRateLimit('bootstrap', request);
 
 	// Accept `outlet` (new) or `restaurant` (legacy QR codes already printed).
-	const outletParam = url.searchParams.get('outlet')?.trim() ?? url.searchParams.get('restaurant')?.trim();
+	const outletParam =
+		url.searchParams.get('outlet')?.trim() ?? url.searchParams.get('restaurant')?.trim();
 
 	const parseResult = bootstrapParamsSchema.safeParse({
 		outlet: outletParam,

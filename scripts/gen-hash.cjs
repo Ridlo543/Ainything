@@ -16,10 +16,10 @@ const ok1 = b.compareSync(password, h1);
 const ok2 = b.compareSync(password, h2);
 
 if (!ok1 || !ok2) {
-  console.error('HASH VERIFICATION FAILED!');
-  console.error('H1:', h1, 'ok:', ok1);
-  console.error('H2:', h2, 'ok:', ok2);
-  process.exit(1);
+	console.error('HASH VERIFICATION FAILED!');
+	console.error('H1:', h1, 'ok:', ok1);
+	console.error('H2:', h2, 'ok:', ok2);
+	process.exit(1);
 }
 
 console.log('H1 (owner):', h1, '-> verify:', ok1);
@@ -32,14 +32,14 @@ let sql = fs.readFileSync(seedPath, 'utf8');
 // Replace owner hash (id = '20000000-0000-0000-0000-000000000001')
 // Use a function replacement to avoid $ being interpreted as capture group reference
 sql = sql.replace(
-  /UPDATE app_users SET password_hash = '[^']+'\s*\n(WHERE id = '20000000-0000-0000-0000-000000000001')/,
-  (_, whereClause) => `UPDATE app_users SET password_hash = '${h1}'\n${whereClause}`
+	/UPDATE app_users SET password_hash = '[^']+'\s*\n(WHERE id = '20000000-0000-0000-0000-000000000001')/,
+	(_, whereClause) => `UPDATE app_users SET password_hash = '${h1}'\n${whereClause}`
 );
 
 // Replace staff hash (id = '20000000-0000-0000-0000-000000000002')
 sql = sql.replace(
-  /UPDATE app_users SET password_hash = '[^']+'\s*\n(WHERE id = '20000000-0000-0000-0000-000000000002')/,
-  (_, whereClause) => `UPDATE app_users SET password_hash = '${h2}'\n${whereClause}`
+	/UPDATE app_users SET password_hash = '[^']+'\s*\n(WHERE id = '20000000-0000-0000-0000-000000000002')/,
+	(_, whereClause) => `UPDATE app_users SET password_hash = '${h2}'\n${whereClause}`
 );
 
 fs.writeFileSync(seedPath, sql, 'utf8');

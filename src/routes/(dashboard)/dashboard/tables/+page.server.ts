@@ -12,9 +12,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 	// Generate QR SVG server-side for each table.
 	// URL: https://<publicHost>/r/<slug>/table/<code>
 	// Falls back to relative path when publicHost is not configured.
-	const baseUrl = outlet.publicHost
-		? `https://${outlet.publicHost}`
-		: `http://localhost:5173`;
+	const baseUrl = outlet.publicHost ? `https://${outlet.publicHost}` : `http://localhost:5173`;
 
 	const tablesWithQr = await Promise.all(
 		tables.map(async (table) => {

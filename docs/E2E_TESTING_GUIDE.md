@@ -8,12 +8,12 @@ membuat atau memperbaiki E2E test di repo ini.
 
 ## Stack
 
-| Layer       | Tool                                |
-|-------------|-------------------------------------|
-| Test runner | Playwright (pnpm test:e2e)          |
+| Layer       | Tool                                    |
+| ----------- | --------------------------------------- |
+| Test runner | Playwright (pnpm test:e2e)              |
 | App server  | SvelteKit + adapter-node (vite preview) |
-| Database    | PostgreSQL lokal (via pnpm db:reset) |
-| Auth        | bcryptjs 2.4.3 + local auth provider |
+| Database    | PostgreSQL lokal (via pnpm db:reset)    |
+| Auth        | bcryptjs 2.4.3 + local auth provider    |
 
 ---
 
@@ -57,6 +57,7 @@ Svelte hydration (yang meng-attach `onclick` handlers) terjadi **setelah** event
 `page.goto()` — tapi hydration belum tentu selesai saat itu.
 
 Akibatnya:
+
 - Button ada di DOM (dari SSR)
 - CSS `:active` state terpicu saat click — terlihat seolah click berhasil
 - Tapi `onclick={(e) => quickAdd(item, e)}` belum di-attach oleh Svelte
@@ -69,14 +70,14 @@ bergantung pada Svelte reactivity:
 
 ```typescript
 async function addFirstItemToCart(page: Page) {
-    // Tunggu sampai Svelte hydration selesai
-    await page.waitForLoadState('networkidle', { timeout: 10000 });
+	// Tunggu sampai Svelte hydration selesai
+	await page.waitForLoadState('networkidle', { timeout: 10000 });
 
-    const quickAddBtn = page.getByRole('button', { name: /^add .+ to cart$/i }).first();
-    await quickAddBtn.waitFor({ state: 'visible', timeout: 10000 });
-    await quickAddBtn.click();
+	const quickAddBtn = page.getByRole('button', { name: /^add .+ to cart$/i }).first();
+	await quickAddBtn.waitFor({ state: 'visible', timeout: 10000 });
+	await quickAddBtn.click();
 
-    await page.waitForTimeout(300); // flush Svelte reactivity
+	await page.waitForTimeout(300); // flush Svelte reactivity
 }
 ```
 
@@ -128,10 +129,10 @@ butuh user context:
 
 ```typescript
 // JANGAN — RLS blokir ainything_app
-const order = await withTransaction(client => findOrderById(client, id));
+const order = await withTransaction((client) => findOrderById(client, id));
 
 // BENAR — bypass RLS untuk public routes
-const order = await withDirectTransaction(client => findOrderById(client, id));
+const order = await withDirectTransaction((client) => findOrderById(client, id));
 ```
 
 ---
@@ -168,28 +169,31 @@ Tanpa ini, private class methods (`#resolveUser` dll.) tidak bisa diakses.
 ### aria-label i18n
 
 Quick-add button di catalog menggunakan **hardcoded English** aria-label:
+
 ```svelte
 aria-label="Add {item.name} to cart"
 ```
 
 Test bisa match dengan regex case-insensitive:
+
 ```typescript
-page.getByRole('button', { name: /^add .+ to cart$/i })
+page.getByRole('button', { name: /^add .+ to cart$/i });
 ```
 
 ### Label teks i18n
 
-| Key                    | ID                      | EN                      |
-|------------------------|-------------------------|-------------------------|
-| `cart.customerName`    | Nama Anda (opsional)    | Your name (optional)    |
-| `cart.whatsapp`        | Nomor WhatsApp          | WhatsApp number         |
-| `cart.placeOrder`      | Pesan Sekarang          | Place Order             |
-| `cart.trackOrder`      | Lacak pesanan           | Track order             |
+| Key                 | ID                   | EN                   |
+| ------------------- | -------------------- | -------------------- |
+| `cart.customerName` | Nama Anda (opsional) | Your name (optional) |
+| `cart.whatsapp`     | Nomor WhatsApp       | WhatsApp number      |
+| `cart.placeOrder`   | Pesan Sekarang       | Place Order          |
+| `cart.trackOrder`   | Lacak pesanan        | Track order          |
 
 Gunakan regex OR untuk support kedua bahasa:
+
 ```typescript
-page.getByLabel(/nama anda|your name/i)
-page.getByRole('button', { name: /pesan sekarang|place order/i })
+page.getByLabel(/nama anda|your name/i);
+page.getByRole('button', { name: /pesan sekarang|place order/i });
 ```
 
 ### Password input strict mode
@@ -243,7 +247,7 @@ const pool = new Pool({ connectionString: env.DATABASE_URL }); // top-level
 
 // BENAR
 function getPool() {
-    return new Pool({ connectionString: env.DATABASE_URL }); // lazy, inside function
+	return new Pool({ connectionString: env.DATABASE_URL }); // lazy, inside function
 }
 ```
 
@@ -253,13 +257,14 @@ function getPool() {
 
 File: `db/seeds/0001_demo_multi_tenant_data.sql`
 
-| Outlet        | Slug            | checkout_mode | require_wa | payment_confirmation |
-|---------------|-----------------|---------------|------------|----------------------|
-| Taman Sate    | taman-sate      | offline       | false      | false                |
-| Uma Karang    | uma-karang      | online        | true       | true                 |
-| Senja Ramen   | senja-ramen-bali| online        | false      | false                |
+| Outlet      | Slug             | checkout_mode | require_wa | payment_confirmation |
+| ----------- | ---------------- | ------------- | ---------- | -------------------- |
+| Taman Sate  | taman-sate       | offline       | false      | false                |
+| Uma Karang  | uma-karang       | online        | true       | true                 |
+| Senja Ramen | senja-ramen-bali | online        | false      | false                |
 
 Login untuk dashboard test:
+
 - Email: `owner@bali-table.test`
 - Password: `demo1234`
 

@@ -159,7 +159,10 @@ test.describe('Create staff account', () => {
 		await page.getByLabel(/password/i).fill('testpass1234');
 
 		// Submit the form
-		await page.getByRole('button', { name: /tambah|simpan/i }).last().click();
+		await page
+			.getByRole('button', { name: /tambah|simpan/i })
+			.last()
+			.click();
 
 		// Expect success toast: role=status with green background
 		await expect(page.getByRole('status')).toBeVisible({ timeout: 8000 });
@@ -182,7 +185,10 @@ test.describe('Create staff account', () => {
 		await page.getByLabel(/email/i).fill('owner@bali-table.test');
 		await page.getByLabel(/password/i).fill('testpass1234');
 
-		await page.getByRole('button', { name: /tambah|simpan/i }).last().click();
+		await page
+			.getByRole('button', { name: /tambah|simpan/i })
+			.last()
+			.click();
 
 		// Error alert should appear
 		await expect(page.getByRole('alert')).toBeVisible({ timeout: 5000 });
@@ -240,7 +246,10 @@ test.describe('Edit staff member', () => {
 		const newName = `Updated Name ${testId}`;
 
 		await page.getByLabel(/nama/i).fill(newName);
-		await page.getByRole('button', { name: /simpan/i }).last().click();
+		await page
+			.getByRole('button', { name: /simpan/i })
+			.last()
+			.click();
 
 		// Success toast
 		await expect(page.getByRole('status')).toBeVisible({ timeout: 8000 });
@@ -299,7 +308,10 @@ test.describe('Change member role', () => {
 		await expect(roleSelect).toBeVisible({ timeout: 3000 });
 		await roleSelect.selectOption('manager');
 
-		await page.getByRole('button', { name: /simpan|ubah/i }).last().click();
+		await page
+			.getByRole('button', { name: /simpan|ubah/i })
+			.last()
+			.click();
 
 		await expect(page.getByRole('status')).toBeVisible({ timeout: 8000 });
 	});
@@ -381,7 +393,10 @@ test.describe('Remove staff member', () => {
 		await page.getByLabel(/nama/i).fill(`Remove Test ${testId}`);
 		await page.getByLabel(/email/i).fill(throwawayEmail);
 		await page.getByLabel(/password/i).fill('testpass1234');
-		await page.getByRole('button', { name: /tambah|simpan/i }).last().click();
+		await page
+			.getByRole('button', { name: /tambah|simpan/i })
+			.last()
+			.click();
 
 		// Wait for member to appear
 		await expect(page.getByText(throwawayEmail)).toBeVisible({ timeout: 8000 });

@@ -71,9 +71,9 @@ export async function logAiEvent(input: AiEventInput): Promise<void> {
 			)
 		`,
 			[
-			input.organizationId,
-			input.outletId,
-			input.buyerSessionId ?? null,
+				input.organizationId,
+				input.outletId,
+				input.buyerSessionId ?? null,
 				input.provider,
 				input.model,
 				input.promptVersion ?? PROMPT_VERSION,

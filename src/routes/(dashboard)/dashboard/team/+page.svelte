@@ -1,7 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import { Plus, Mail, MoreHorizontal, X, Crown, Shield, User, Pencil, Trash2 } from '@lucide/svelte';
+	import {
+		Plus,
+		Mail,
+		MoreHorizontal,
+		X,
+		Crown,
+		Shield,
+		User,
+		Pencil,
+		Trash2
+	} from '@lucide/svelte';
 
 	// ActionData collapses to {} due to @ts-nocheck proxy — declare shape explicitly
 	type FormResult = {
@@ -92,12 +102,18 @@
 
 <!-- Global toast feedback -->
 {#if form?.success}
-	<div class="mb-4 rounded-xl bg-[#d1fae5] px-4 py-3 text-sm font-semibold text-[#065f46]" role="status">
+	<div
+		class="mb-4 rounded-xl bg-[#d1fae5] px-4 py-3 text-sm font-semibold text-[#065f46]"
+		role="status"
+	>
 		{form.message ?? 'Berhasil.'}
 	</div>
 {/if}
 {#if form?.error}
-	<div class="mb-4 rounded-xl bg-[#fee2e2] px-4 py-3 text-sm font-semibold text-[#991b1b]" role="alert">
+	<div
+		class="mb-4 rounded-xl bg-[#fee2e2] px-4 py-3 text-sm font-semibold text-[#991b1b]"
+		role="alert"
+	>
 		{form.error}
 	</div>
 {/if}
@@ -147,7 +163,9 @@
 					</div>
 					<div class="flex shrink-0 items-center gap-2">
 						<span
-							class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold {roleCfg[member.role].bg} {roleCfg[member.role].text}"
+							class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold {roleCfg[
+								member.role
+							].bg} {roleCfg[member.role].text}"
 						>
 							{#if member.role === 'owner'}<Crown size={11} />
 							{:else if member.role === 'manager'}<Shield size={11} />
@@ -218,13 +236,17 @@
 			<div class="divide-y divide-[#f5f5f4]">
 				{#each invites as invite (invite.id)}
 					<div class="flex items-center gap-4 px-5 py-4">
-						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4]">
+						<div
+							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f5f5f4]"
+						>
 							<Mail size={18} class="text-[#a8a29e]" />
 						</div>
 						<div class="min-w-0 flex-1">
 							<p class="text-sm font-bold text-[#1a1a2e]">{invite.email}</p>
 							<p class="mt-0.5 text-xs text-[#78716c]">
-								<span class="inline-flex items-center gap-1 rounded-full bg-[#f5f5f4] px-2 py-0.5 text-xs">
+								<span
+									class="inline-flex items-center gap-1 rounded-full bg-[#f5f5f4] px-2 py-0.5 text-xs"
+								>
 									{roleCfg[invite.role].label}
 								</span>
 								· dikirim {invite.sentAt}
@@ -269,7 +291,9 @@
 	<div
 		class="fixed inset-0 z-30 flex items-end justify-center bg-black/40 sm:items-center"
 		role="presentation"
-		onclick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+		onclick={(e) => {
+			if (e.target === e.currentTarget) closeModal();
+		}}
 	>
 		<div
 			class="w-full max-w-sm rounded-t-2xl bg-white p-6 shadow-xl sm:rounded-2xl"
@@ -284,8 +308,8 @@
 						type="button"
 						onclick={closeModal}
 						class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#f5f5f4]"
-						aria-label="Tutup"
-					><X size={18} /></button>
+						aria-label="Tutup"><X size={18} /></button
+					>
 				</div>
 				<form
 					method="POST"
@@ -372,7 +396,8 @@
 							type="button"
 							onclick={closeModal}
 							class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
-						>Batal</button>
+							>Batal</button
+						>
 						<button
 							type="submit"
 							disabled={submitting}
@@ -383,7 +408,7 @@
 					</div>
 				</form>
 
-			<!-- EDIT STAFF -->
+				<!-- EDIT STAFF -->
 			{:else if modalMode === 'edit'}
 				<div class="mb-5 flex items-center justify-between">
 					<h2 class="text-base font-extrabold text-[#1a1a2e]">Edit Anggota</h2>
@@ -391,8 +416,8 @@
 						type="button"
 						onclick={closeModal}
 						class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#f5f5f4]"
-						aria-label="Tutup"
-					><X size={18} /></button>
+						aria-label="Tutup"><X size={18} /></button
+					>
 				</div>
 				<p class="mb-4 text-xs text-[#78716c]">{selectedEmail}</p>
 				<form
@@ -427,7 +452,9 @@
 					</div>
 					<div>
 						<label for="edit-password" class="mb-1.5 block text-xs font-semibold text-[#44403c]">
-							Password Baru <span class="font-normal text-[#a8a29e]">(kosongkan jika tidak diubah)</span>
+							Password Baru <span class="font-normal text-[#a8a29e]"
+								>(kosongkan jika tidak diubah)</span
+							>
 						</label>
 						<input
 							id="edit-password"
@@ -448,7 +475,8 @@
 							type="button"
 							onclick={closeModal}
 							class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
-						>Batal</button>
+							>Batal</button
+						>
 						<button
 							type="submit"
 							disabled={submitting}
@@ -459,7 +487,7 @@
 					</div>
 				</form>
 
-			<!-- CHANGE ROLE -->
+				<!-- CHANGE ROLE -->
 			{:else if modalMode === 'changeRole'}
 				<div class="mb-5 flex items-center justify-between">
 					<h2 class="text-base font-extrabold text-[#1a1a2e]">Ubah Peran</h2>
@@ -467,8 +495,8 @@
 						type="button"
 						onclick={closeModal}
 						class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#f5f5f4]"
-						aria-label="Tutup"
-					><X size={18} /></button>
+						aria-label="Tutup"><X size={18} /></button
+					>
 				</div>
 				<p class="mb-4 text-sm text-[#78716c]">
 					Mengubah peran <span class="font-bold text-[#1a1a2e]">{selectedName}</span>
@@ -491,7 +519,10 @@
 						{#each ['staff', 'manager'] as roleOption}
 							{@const cfg = roleCfg[roleOption as Role]}
 							<label
-								class="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors {selectedRole === roleOption ? 'border-[#059669] bg-[#d1fae5] text-[#065f46]' : 'border-[#e7e5e4] text-[#44403c] hover:border-[#d1d5db]'}"
+								class="flex flex-1 cursor-pointer items-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors {selectedRole ===
+								roleOption
+									? 'border-[#059669] bg-[#d1fae5] text-[#065f46]'
+									: 'border-[#e7e5e4] text-[#44403c] hover:border-[#d1d5db]'}"
 							>
 								<input
 									type="radio"
@@ -509,7 +540,8 @@
 							type="button"
 							onclick={closeModal}
 							class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
-						>Batal</button>
+							>Batal</button
+						>
 						<button
 							type="submit"
 							disabled={submitting}
@@ -520,7 +552,7 @@
 					</div>
 				</form>
 
-			<!-- REMOVE MEMBER -->
+				<!-- REMOVE MEMBER -->
 			{:else if modalMode === 'remove'}
 				<div class="mb-5 flex items-center justify-between">
 					<h2 class="text-base font-extrabold text-[#1a1a2e]">Hapus Anggota</h2>
@@ -528,11 +560,12 @@
 						type="button"
 						onclick={closeModal}
 						class="flex h-8 w-8 items-center justify-center rounded-lg text-[#78716c] hover:bg-[#f5f5f4]"
-						aria-label="Tutup"
-					><X size={18} /></button>
+						aria-label="Tutup"><X size={18} /></button
+					>
 				</div>
 				<p class="mb-6 text-sm text-[#44403c]">
-					Hapus <span class="font-bold text-[#1a1a2e]">{selectedName}</span> dari tim? Mereka tidak akan bisa login ke dashboard lagi.
+					Hapus <span class="font-bold text-[#1a1a2e]">{selectedName}</span> dari tim? Mereka tidak akan
+					bisa login ke dashboard lagi.
 				</p>
 				<form
 					method="POST"
@@ -552,7 +585,8 @@
 							type="button"
 							onclick={closeModal}
 							class="flex-1 min-h-[44px] rounded-xl border border-[#e7e5e4] text-sm font-semibold text-[#78716c] hover:bg-[#f5f5f4] transition-colors"
-						>Batal</button>
+							>Batal</button
+						>
 						<button
 							type="submit"
 							disabled={submitting}

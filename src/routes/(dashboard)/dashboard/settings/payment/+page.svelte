@@ -14,10 +14,7 @@
 	} from '@lucide/svelte';
 	import type { PaymentMethod, PaymentMethodType } from '$lib/domain/outlet/types';
 
-	type FormResult =
-		| { success: true }
-		| { error: string }
-		| null;
+	type FormResult = { success: true } | { error: string } | null;
 
 	let { data, form }: { data: any; form: FormResult } = $props();
 
@@ -212,11 +209,7 @@
 
 					<!-- QRIS thumbnail -->
 					{#if pm.qrImageUrl}
-						<img
-							src={pm.qrImageUrl}
-							alt="QR {pm.label}"
-							class="h-10 w-10 rounded object-cover"
-						/>
+						<img src={pm.qrImageUrl} alt="QR {pm.label}" class="h-10 w-10 rounded object-cover" />
 					{/if}
 
 					<!-- Actions -->
@@ -321,7 +314,15 @@
 					name="label"
 					type="text"
 					bind:value={fLabel}
-					placeholder={fType === 'qris' ? 'QRIS BCA' : fType === 'bank_transfer' ? 'BCA' : fType === 'ewallet' ? 'GoPay' : fType === 'cash' ? 'Tunai' : 'Metode lain'}
+					placeholder={fType === 'qris'
+						? 'QRIS BCA'
+						: fType === 'bank_transfer'
+							? 'BCA'
+							: fType === 'ewallet'
+								? 'GoPay'
+								: fType === 'cash'
+									? 'Tunai'
+									: 'Metode lain'}
 					required
 					class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
 				/>
@@ -371,18 +372,18 @@
 							/>
 							<button
 								type="button"
-								onclick={() => { fQrPreview = ''; fQrImageFile = null; fQrImageUrl = ''; }}
+								onclick={() => {
+									fQrPreview = '';
+									fQrImageFile = null;
+									fQrImageUrl = '';
+								}}
 								class="text-sm text-red-500 hover:text-red-700"
 							>
 								Hapus gambar
 							</button>
 						</div>
 					{/if}
-					<input
-						type="hidden"
-						name="qrImageUrl"
-						value={fQrImageFile ? '' : fQrImageUrl}
-					/>
+					<input type="hidden" name="qrImageUrl" value={fQrImageFile ? '' : fQrImageUrl} />
 					<input
 						id="pm-qr-image"
 						type="file"

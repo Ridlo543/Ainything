@@ -106,7 +106,9 @@
 		<div
 			class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row"
 		>
-			<p class="text-xs text-white/30">&copy; {year} Ainything. Hak cipta dilindungi undang-undang.</p>
+			<p class="text-xs text-white/30">
+				&copy; {year} Ainything. Hak cipta dilindungi undang-undang.
+			</p>
 			<p class="text-xs text-white/30">Dibuat dengan ❤ untuk bisnis Indonesia</p>
 		</div>
 	</div>

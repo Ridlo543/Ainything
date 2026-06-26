@@ -57,12 +57,7 @@ describeDb('tenant repository with PostgreSQL RLS', () => {
 			// The public_active_select policy exposes ALL active outlets to ainything_app.
 			const slugs = result.rows.map((row) => row.slug);
 			expect(slugs).toEqual(
-				expect.arrayContaining([
-					'rempah-terrace',
-					'senja-ramen-bali',
-					'taman-sate',
-					'uma-karang'
-				])
+				expect.arrayContaining(['rempah-terrace', 'senja-ramen-bali', 'taman-sate', 'uma-karang'])
 			);
 			// Must not expose archived outlets
 			expect(slugs.every((s) => !s.includes('inactive'))).toBe(true);

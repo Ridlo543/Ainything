@@ -141,9 +141,9 @@
 					}}
 				>
 					<div class="aspect-square w-full overflow-hidden bg-ainything-muted">
-				<img
-						src={item.imageUrl}
-						alt={item.name}
+						<img
+							src={item.imageUrl}
+							alt={item.name}
 							class="h-full w-full object-cover transition-transform group-hover:scale-105"
 							loading="lazy"
 						/>
@@ -170,18 +170,21 @@
 							<span class="text-sm font-bold text-ainything-primary">
 								{formatPrice(item.price)}
 							</span>
-						<button
-							type="button"
-							class="flex h-7 w-7 items-center justify-center rounded-full text-white transition-all active:scale-95 {lastAddedId === item.id ? 'bg-emerald-500 scale-110' : 'bg-ainything-primary hover:bg-ainything-primary-strong'}"
-							onclick={(e) => quickAdd(item, e)}
-							aria-label="Add {item.name} to cart"
-						>
-							{#if lastAddedId === item.id}
-								<Check size={14} />
-							{:else}
-								<Plus size={16} />
-							{/if}
-						</button>
+							<button
+								type="button"
+								class="flex h-7 w-7 items-center justify-center rounded-full text-white transition-all active:scale-95 {lastAddedId ===
+								item.id
+									? 'bg-emerald-500 scale-110'
+									: 'bg-ainything-primary hover:bg-ainything-primary-strong'}"
+								onclick={(e) => quickAdd(item, e)}
+								aria-label="Add {item.name} to cart"
+							>
+								{#if lastAddedId === item.id}
+									<Check size={14} />
+								{:else}
+									<Plus size={16} />
+								{/if}
+							</button>
 						</div>
 					</div>
 				</div>
@@ -215,18 +218,18 @@
 	{#if detailItem}
 		<DialogContent class="max-h-[90vh] overflow-y-auto p-0 sm:max-w-md">
 			<div class="relative">
-			<div class="aspect-video w-full overflow-hidden bg-ainything-muted">
-				<img src={detailItem.imageUrl} alt={detailItem.name} class="h-full w-full object-cover" />
-			</div>
+				<div class="aspect-video w-full overflow-hidden bg-ainything-muted">
+					<img src={detailItem.imageUrl} alt={detailItem.name} class="h-full w-full object-cover" />
+				</div>
 
-			{#if detailItem.isSignature}
-				<span
-					class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-ainything-primary/90 px-2 py-1 text-xs font-bold text-white backdrop-blur-sm"
-				>
-					<Star size={12} />
-					{t('badge.signature')}
-				</span>
-			{/if}
+				{#if detailItem.isSignature}
+					<span
+						class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-ainything-primary/90 px-2 py-1 text-xs font-bold text-white backdrop-blur-sm"
+					>
+						<Star size={12} />
+						{t('badge.signature')}
+					</span>
+				{/if}
 			</div>
 
 			<div class="space-y-4 px-5 pb-5">

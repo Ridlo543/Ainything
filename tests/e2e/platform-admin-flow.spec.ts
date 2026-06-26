@@ -54,9 +54,9 @@ test.describe('Platform admin — overview', () => {
 			return;
 		}
 
-		await expect(
-			page.getByRole('heading', { name: /platform|admin|overview/i })
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole('heading', { name: /platform|admin|overview/i })).toBeVisible({
+			timeout: 5000
+		});
 	});
 });
 

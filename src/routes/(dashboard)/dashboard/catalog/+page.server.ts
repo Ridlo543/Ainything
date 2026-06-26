@@ -103,7 +103,8 @@ export const actions: Actions = {
 		const status = formData.get('status')?.toString() ?? 'active';
 		const catalogId = formData.get('catalogId')?.toString().trim() || null;
 		const sectionId = formData.get('sectionId')?.toString().trim() || null;
-		const imageFile = formData.get('image') instanceof File ? (formData.get('image') as File) : null;
+		const imageFile =
+			formData.get('image') instanceof File ? (formData.get('image') as File) : null;
 
 		// Validate required fields.
 		if (!name) return fail(400, { errors: { name: ['Nama produk wajib diisi.'] } });

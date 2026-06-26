@@ -69,7 +69,9 @@ export class WahaProvider implements WhatsappProvider {
 			const data = (await res.json()) as { id?: { id?: string }; key?: { id?: string } };
 			// WAHA response shape varies by version: { key: { id: '...' } } or { id: { id: '...' } }
 			const messageId =
-				data?.key?.id ?? data?.id?.id ?? `waha-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+				data?.key?.id ??
+				data?.id?.id ??
+				`waha-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 			return {
 				messageId,

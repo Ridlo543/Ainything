@@ -1413,6 +1413,7 @@ Full application audit of the checkout, payment proof, WA notification, and orde
 `mapOrderForUI` in `+page.server.ts` already exposed `buyerWhatsapp`, `paymentProofUrl`, `paymentConfirmedAt`, `paymentRejectedAt`, and `paymentNotes` on every order object. The detail panel in the svelte file did not render any of these fields, so staff had no way to see the buyer's WA number or view/confirm/reject the payment proof from the orders screen.
 
 **Fix:** Added a "Pembayaran" section to the detail panel that:
+
 - Shows buyer WA number as a `wa.me/` link (tap to open WhatsApp directly)
 - Shows payment proof image (thumbnail + link to full image)
 - Shows payment status: confirmed (green), rejected (red), or pending with Konfirmasi/Tolak buttons
@@ -1443,23 +1444,27 @@ Full application audit of the checkout, payment proof, WA notification, and orde
 The success state after order placement showed only a tracking link. The server already returned `orderNumber` in the action response (`cart/+page.server.ts:164`) but the svelte file never rendered it. Also, the local `form` type annotation was missing `orderNumber?: number`, causing a real `pnpm check` error.
 
 **Fix:**
+
 - Added `orderNumber?: number` to the `form` prop type annotation (line 14)
 - Added `#XXXX` display in the success block using `String(form.orderNumber).padStart(4, '0')`
 
 ### 2. `staff/orders/[id]` — confirm/reject payment + wa.me link
 
 **Files:**
+
 - `src/routes/(staff)/staff/orders/[id]/+page.server.ts`
 - `src/routes/(staff)/staff/orders/[id]/+page.svelte`
 
 Staff could view order status and items but had no way to action payments or contact the buyer from the staff order detail page. They had to navigate to `/dashboard/orders` for payment confirmation.
 
 **Fix — server:**
+
 - Added imports: `resolveTenantContext`, `getPool`, `notifyBuyerPaymentConfirmed`, `notifyBuyerPaymentRejected`
 - Added `confirmPayment` action: scopes to tenant, blocks `staff` role, UPDATEs `payment_confirmed_at`, fires WA notification, redirects back
 - Added `rejectPayment` action: same pattern, UPDATEs `payment_rejected_at` + `payment_notes`, fires WA notification
 
 **Fix — svelte:**
+
 - Added `Phone`, `Check`, `X` to lucide imports
 - Added "Pembayaran" `Card` between notes and action buttons that shows:
   - Buyer WA as `wa.me/` tap link (green button, 44px touch target)
@@ -1474,6 +1479,7 @@ Staff could view order status and items but had no way to action payments or con
 The blue info banner for online mode without `paymentConfirmationEnabled` only showed when `paymentMethods.length === 0`. When methods existed, buyers saw the methods list but no instructions — confusing for bank transfer where they need to know what to do after transferring.
 
 **Fix:** Removed the `paymentMethods.length === 0` guard from the banner condition. The banner now shows for all online-no-confirmation orders with context-aware text:
+
 - When methods exist: "Silakan transfer ke salah satu rekening di atas, lalu tunjukkan buktinya ke staf."
 - When no methods: "Silakan lakukan pembayaran sesuai instruksi staf."
 

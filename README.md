@@ -64,29 +64,29 @@ On Windows/WSL2 use `127.0.0.1` (not `localhost`) for `DATABASE_URL` / `REDIRECT
 
 ## Test Credentials (mock auth — local dev only)
 
-| Role           | Email                         | Password  | Access                    |
-| -------------- | ----------------------------- | --------- | ------------------------- |
-| Owner          | owner@bali-table.test         | password  | Warung Sari, 1 outlet     |
-| Staff          | staff@bali-table.test         | password  | Warung Sari staff inbox   |
-| Platform Admin | admin@ainything.test          | password  | Super admin, all tenants  |
+| Role           | Email                 | Password | Access                   |
+| -------------- | --------------------- | -------- | ------------------------ |
+| Owner          | owner@bali-table.test | password | Warung Sari, 1 outlet    |
+| Staff          | staff@bali-table.test | password | Warung Sari staff inbox  |
+| Platform Admin | admin@ainything.test  | password | Super admin, all tenants |
 
 Create accounts via `/register` or run `pnpm db:seed`.
 
 ## Useful Routes
 
-| Route                             | Description                        |
-| --------------------------------- | ---------------------------------- |
-| `/`                               | Marketing landing page             |
-| `/login`                          | Sign in                            |
-| `/register`                       | Register new account               |
-| `/dashboard`                      | Owner dashboard                    |
-| `/dashboard/catalog`              | Product CRUD                       |
-| `/dashboard/orders`               | Order management                   |
-| `/dashboard/analytics`            | Sales analytics                    |
-| `/staff/inbox`                    | Staff order queue (real-time)      |
-| `/platform`                       | Platform admin (super_admin only)  |
-| `/r/[slug]`                       | Public product catalog (QR/link)   |
-| `/r/[slug]/cart`                  | Cart review + send order           |
+| Route                  | Description                       |
+| ---------------------- | --------------------------------- |
+| `/`                    | Marketing landing page            |
+| `/login`               | Sign in                           |
+| `/register`            | Register new account              |
+| `/dashboard`           | Owner dashboard                   |
+| `/dashboard/catalog`   | Product CRUD                      |
+| `/dashboard/orders`    | Order management                  |
+| `/dashboard/analytics` | Sales analytics                   |
+| `/staff/inbox`         | Staff order queue (real-time)     |
+| `/platform`            | Platform admin (super_admin only) |
+| `/r/[slug]`            | Public product catalog (QR/link)  |
+| `/r/[slug]/cart`       | Cart review + send order          |
 
 ## Quality Commands
 

@@ -11,6 +11,7 @@ Legend: `[ ]` todo, `[/]` in progress, `[x]` done, `[!]` blocked
 Work top to bottom within each severity level. Do not skip to lower severity while CRITICAL items remain open.
 
 Every fix must:
+
 1. Pass `pnpm check` (TypeScript)
 2. Pass `pnpm run lint`
 3. Pass relevant `pnpm test` (unit + affected DB tests)
@@ -26,12 +27,14 @@ These bugs can cause data leakage, privilege escalation, or price manipulation. 
 
 **File:** `db/migrations/0010_platform_admin_role_bridge.sql:46`
 **Problem:** Two SELECT policies on `app_users` are both active after 0010:
+
 - `app_users_platform_admin_select` (from 0010)
 - `app_users_self_or_platform_select` (older)
 
 Migration 0020 does not DROP the old one. Having two permissive policies means PostgreSQL evaluates both — the more permissive one wins. Creates unintended access surface.
 
 **Fix:** In a new migration (0021), explicitly DROP the old policy:
+
 ```sql
 DROP POLICY IF EXISTS app_users_self_or_platform_select ON app_users;
 DROP POLICY IF EXISTS app_users_platform_admin_select ON app_users;
@@ -58,6 +61,7 @@ CREATE POLICY app_users_self_or_platform_select_v2 ON app_users
 **Problem:** The insert policy uses `WITH CHECK (true)` meaning any authenticated user can insert an `app_users` row with any `external_auth_id`, including one belonging to another user.
 
 **Fix:** Change the `WITH CHECK` to enforce the calling user's own identity:
+
 ```sql
 DROP POLICY IF EXISTS app_users_self_insert ON app_users;
 CREATE POLICY app_users_self_insert_v2 ON app_users
@@ -77,6 +81,7 @@ Add this to migration 0021.
 **Problem:** Query is `WHERE id = $1` only. Any tenant knowing a restaurant UUID can read another tenant's settings.
 
 **Fix:**
+
 ```typescript
 // Before
 WHERE id = $1
@@ -96,6 +101,7 @@ WHERE id = $1 AND organization_id = $2
 **Problem:** All three mutations use only `id` or `user_id` without scoping to the caller's organization. An org_owner can delete memberships belonging to another org.
 
 **Fix:** Add `AND organization_id = $N` to all three queries:
+
 ```typescript
 // deleteMembership
 DELETE FROM memberships WHERE id = $1 AND organization_id = $2
@@ -117,13 +123,14 @@ UPDATE memberships SET role = $1 WHERE id = $2 AND organization_id = $3
 **Problem:** Order item prices are read from the request body. Any buyer can submit an order with `price: 0` or `price: 1`.
 
 **Fix:** Never trust client-supplied prices. Always fetch from DB:
+
 ```typescript
 // After resolving cart items from request body (product_id + quantity only),
 // load canonical prices from the DB:
 const items = await menuRepository.getItemsByIds(productIds, restaurantId);
-const orderItems = cartItems.map(ci => ({
-  ...ci,
-  price: items.find(i => i.id === ci.productId)!.price // server-authoritative
+const orderItems = cartItems.map((ci) => ({
+	...ci,
+	price: items.find((i) => i.id === ci.productId)!.price // server-authoritative
 }));
 ```
 
@@ -137,11 +144,12 @@ const orderItems = cartItems.map(ci => ({
 **Problem:** `sessionId` supplied by client is not verified to belong to the resolved restaurant. A guest from Restaurant A can pass a session_id belonging to Restaurant B.
 
 **Fix:** When creating or using a session, always validate that `customer_sessions.restaurant_id = resolvedRestaurantId`:
+
 ```typescript
 // Before using a sessionId from client:
 const session = await db.query(
-  `SELECT * FROM customer_sessions WHERE id = $1 AND restaurant_id = $2`,
-  [sessionId, resolvedRestaurantId]
+	`SELECT * FROM customer_sessions WHERE id = $1 AND restaurant_id = $2`,
+	[sessionId, resolvedRestaurantId]
 );
 if (!session.rows[0]) throw new Error('Invalid session for this outlet');
 ```
@@ -160,9 +168,10 @@ These bugs are exploitable but require authenticated access or specific conditio
 **Problem:** Handler checks user exists but does not check role. Any authenticated user (including `staff`) can see metrics for all tenants.
 
 **Fix:** Add explicit role guard:
+
 ```typescript
 if (!['super_admin', 'org_owner', 'restaurant_admin'].includes(user.role)) {
-  return json({ error: 'Forbidden' }, { status: 403 });
+	return json({ error: 'Forbidden' }, { status: 403 });
 }
 // Additionally scope by the user's restaurant_id unless super_admin
 ```
@@ -175,6 +184,7 @@ if (!['super_admin', 'org_owner', 'restaurant_admin'].includes(user.role)) {
 **Problem:** `getRecentHistory` does not filter by `restaurant_id` or `organization_id`. LLM context window may contain messages from other tenants.
 
 **Fix:**
+
 ```typescript
 // Add restaurant_id filter:
 WHERE session_id = $1 AND restaurant_id = $2
@@ -198,6 +208,7 @@ ORDER BY created_at DESC LIMIT $3
 **Problem:** UPDATE policy uses `USING (true)` — any public session can update any customer session row.
 
 **Fix:** In migration 0021, tighten to `USING (id = app.current_public_session_id())`:
+
 ```sql
 DROP POLICY IF EXISTS customer_sessions_public_update ON customer_sessions;
 CREATE POLICY customer_sessions_public_update_v2 ON customer_sessions

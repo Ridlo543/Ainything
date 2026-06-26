@@ -76,7 +76,9 @@ test.describe('Dashboard overview', () => {
 
 		// At least one nav link should be visible in the dashboard
 		await expect(
-			page.getByRole('link', { name: /catalog|katalog|orders|pesanan|settings|pengaturan/i }).first()
+			page
+				.getByRole('link', { name: /catalog|katalog|orders|pesanan|settings|pengaturan/i })
+				.first()
 		).toBeVisible({ timeout: 5000 });
 	});
 });
@@ -95,9 +97,9 @@ test.describe('Dashboard catalog', () => {
 
 		await page.goto('/dashboard/catalog');
 
-		await expect(
-			page.getByRole('heading', { name: /catalog|katalog|menu/i })
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole('heading', { name: /catalog|katalog|menu/i })).toBeVisible({
+			timeout: 5000
+		});
 	});
 
 	test('catalog shows seeded products', async ({ page }) => {
@@ -110,7 +112,9 @@ test.describe('Dashboard catalog', () => {
 		await page.goto('/dashboard/catalog');
 
 		// Seeder plants at least 3 products for Uma Karang (owner's primary outlet)
-		const items = page.locator('[data-testid="product-row"], [data-testid="product-card"], tbody tr');
+		const items = page.locator(
+			'[data-testid="product-row"], [data-testid="product-card"], tbody tr'
+		);
 		await expect(items.first()).toBeVisible({ timeout: 8000 });
 		expect(await items.count()).toBeGreaterThanOrEqual(1);
 	});
@@ -130,9 +134,9 @@ test.describe('Dashboard orders', () => {
 
 		await page.goto('/dashboard/orders');
 
-		await expect(
-			page.getByRole('heading', { name: /pesanan|orders/i })
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole('heading', { name: /pesanan|orders/i })).toBeVisible({
+			timeout: 5000
+		});
 	});
 });
 
@@ -150,9 +154,9 @@ test.describe('Dashboard settings', () => {
 
 		await page.goto('/dashboard/settings');
 
-		await expect(
-			page.getByRole('heading', { name: /settings|pengaturan/i })
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole('heading', { name: /settings|pengaturan/i })).toBeVisible({
+			timeout: 5000
+		});
 	});
 });
 
@@ -170,9 +174,9 @@ test.describe('Dashboard analytics', () => {
 
 		await page.goto('/dashboard/analytics');
 
-		await expect(
-			page.getByRole('heading', { name: /analytics|analitik/i })
-		).toBeVisible({ timeout: 5000 });
+		await expect(page.getByRole('heading', { name: /analytics|analitik/i })).toBeVisible({
+			timeout: 5000
+		});
 
 		// Range selector buttons (7d / 30d / 90d)
 		await expect(page.getByRole('button', { name: /7d|30d|90d/i }).first()).toBeVisible();

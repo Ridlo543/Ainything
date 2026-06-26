@@ -375,7 +375,9 @@ describe('POST /api/public/chat — handleCatalogChatTurn', () => {
 	});
 
 	it('rejects missing content → throws', async () => {
-		await expect(handleCatalogChatTurn(bootstrap, { ...validInput, content: '' })).rejects.toThrow();
+		await expect(
+			handleCatalogChatTurn(bootstrap, { ...validInput, content: '' })
+		).rejects.toThrow();
 		expect(chatProviderMock).not.toHaveBeenCalled();
 	});
 
