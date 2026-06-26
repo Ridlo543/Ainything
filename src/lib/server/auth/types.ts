@@ -9,7 +9,7 @@ export interface AuthProvider {
 	getSessionUser(cookies: Cookies, request: Request): Promise<AuthUser | null>;
 
 	/**
-	 * Signs in with email + password. Creates Supabase session cookies.
+	 * Signs in with email + password. Creates a server-side session cookie.
 	 * Throws on invalid credentials.
 	 */
 	login(email: string, password: string, cookies: Cookies): Promise<AuthUser>;
