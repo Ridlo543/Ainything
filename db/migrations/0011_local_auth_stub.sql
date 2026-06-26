@@ -1,15 +1,15 @@
--- Migration 0011-local: Auth schema stub for local PostgreSQL testing
+-- Migration 0011: Local auth stub
 --
 -- Supabase provides auth.users automatically, but local PostgreSQL does not.
--- This migration creates a minimal auth schema + users table so migration 0011
--- (supabase_auth_bridge) and seed data can run locally.
+-- This migration creates a minimal auth schema + users table so that
+-- 0012_supabase_auth_bridge.sql and seed data can run locally without error.
 -- Supabase environments skip this file because auth.* already exists.
 
 DO $$
 BEGIN
 	IF NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'auth') THEN
 		CREATE SCHEMA auth;
-		GRANT USAGE ON SCHEMA auth TO lingua_app, lingua;
+		GRANT USAGE ON SCHEMA auth TO PUBLIC;
 
 		CREATE TABLE auth.users (
 			id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
