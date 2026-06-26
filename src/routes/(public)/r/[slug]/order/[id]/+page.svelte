@@ -17,7 +17,7 @@
 		QrCode,
 		Upload,
 		CheckCircle,
-		Clock,
+		Clock
 	} from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
