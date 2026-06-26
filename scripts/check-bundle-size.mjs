@@ -3,7 +3,7 @@ import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 
 /**
- * Bundle size budget checker for Lingua PWA.
+ * Bundle size budget checker for Ainything PWA.
  *
  * Usage: node scripts/check-bundle-size.mjs [--build-dir <path>]
  *

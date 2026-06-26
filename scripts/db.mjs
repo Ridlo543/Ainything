@@ -6,7 +6,7 @@ import { Client } from 'pg';
 const rootDir = process.cwd();
 const migrationsDir = path.join(rootDir, 'db', 'migrations');
 const seedsDir = path.join(rootDir, 'db', 'seeds');
-const defaultDatabaseUrl = 'postgresql://lingua:lingua@localhost:5432/lingua';
+const defaultDatabaseUrl = 'postgresql://ainything:ainything@localhost:5432/ainything';
 
 loadEnvFile(path.join(rootDir, '.env'));
 
@@ -97,10 +97,11 @@ async function seed() {
 
 async function reset() {
 	await client.query('DROP SCHEMA public CASCADE');
+	await client.query('DROP SCHEMA IF EXISTS app CASCADE');
 	await client.query('CREATE SCHEMA public');
 	await client.query('GRANT ALL ON SCHEMA public TO CURRENT_USER');
 	await client.query('GRANT ALL ON SCHEMA public TO public');
-	console.log('dropped and recreated public schema');
+	console.log('dropped and recreated public and app schemas');
 	await migrate();
 	await seed();
 }
