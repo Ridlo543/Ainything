@@ -27,7 +27,7 @@ export type RestaurantRow = {
 	analytics: Restaurant['analytics'];
 };
 
-type MenuItemRow = {
+type _UnusedMenuItemRow = {
 	id: string;
 	restaurant_id: string;
 	category: string;
@@ -46,7 +46,7 @@ type MenuItemRow = {
 	allergens: Allergen[];
 };
 
-type ImportIssueRow = {
+type _UnusedImportIssueRow = {
 	id: string;
 	restaurant_id: string;
 	source_type: MenuSourceType;

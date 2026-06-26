@@ -52,7 +52,7 @@
 	let formDescription = $state('');
 	let formStatus = $state('active');
 	let formImgPreview = $state('');
-	let formImageFile = $state<File | null>(null);
+	let _formImageFile = $state<File | null>(null);
 
 	// Close modal after successful upsert
 	$effect(() => {
@@ -80,7 +80,7 @@
 		formDescription = '';
 		formStatus = 'active';
 		formImgPreview = '';
-		formImageFile = null;
+		_formImageFile = null;
 		showModal = true;
 	}
 
@@ -91,7 +91,7 @@
 		formDescription = p.description || '';
 		formStatus = p.status;
 		formImgPreview = p.img;
-		formImageFile = null;
+		_formImageFile = null;
 		showModal = true;
 		openMenuId = null;
 	}
@@ -104,7 +104,7 @@
 	function handleImageInput(e: Event) {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
-		formImageFile = file;
+		_formImageFile = file;
 		formImgPreview = URL.createObjectURL(file);
 	}
 </script>

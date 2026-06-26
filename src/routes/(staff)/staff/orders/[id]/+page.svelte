@@ -12,7 +12,6 @@
 		ChefHat,
 		Package,
 		Phone,
-		Image,
 		Check,
 		X
 	} from '@lucide/svelte';

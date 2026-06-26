@@ -1,7 +1,7 @@
 import type { Actions, PageServerLoad } from './$types';
 import { error, fail } from '@sveltejs/kit';
 import { resolvePublicCatalog } from '$lib/server/tenant/public-context';
-import { findOrderById, updateOrderStatus } from '$lib/server/repositories/order-repository';
+import { findOrderById } from '$lib/server/repositories/order-repository';
 import { listPaymentMethods } from '$lib/server/repositories/payment-method-repository';
 import { withDirectTransaction, getPool } from '$lib/server/db/postgres';
 import { getStorageProvider } from '$lib/server/providers/storage/factory';

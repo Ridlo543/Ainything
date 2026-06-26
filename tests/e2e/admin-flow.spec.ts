@@ -6,7 +6,7 @@
  * Owner: owner@bali-table.test / demo1234 → /dashboard
  */
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { loginAsOwner } from './fixtures';
 
 // ---------------------------------------------------------------------------

@@ -18,11 +18,10 @@
 		Upload,
 		CheckCircle,
 		Clock,
-		RefreshCw
 	} from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 
 	const { data, form } = $props();
 	const restaurant = $derived(data.restaurant);

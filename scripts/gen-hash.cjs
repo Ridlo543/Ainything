@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Run with: node scripts/gen-hash.cjs (from project root)
 // Generates bcrypt hashes for 'demo1234' and writes them directly to the seed file
 // This avoids PowerShell $-interpolation issues when passing hashes via shell strings

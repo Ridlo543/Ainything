@@ -1,4 +1,4 @@
-import { withPublicSessionContext, query, type DatabaseClient } from '$lib/server/db/postgres';
+import { withPublicSessionContext, type DatabaseClient } from '$lib/server/db/postgres';
 import type { ChatRole, ChatSafetyStatus } from '$lib/domain/ai/types';
 
 type ChatMessageRow = {
