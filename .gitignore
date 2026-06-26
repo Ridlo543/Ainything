@@ -52,3 +52,7 @@ docker-compose.*.yml
 log-*.log
 
 .resilient_write
+
+# opencode agent config (local dev)
+opencode.jsonc
+/.opencode/
