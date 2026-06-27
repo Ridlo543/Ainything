@@ -168,6 +168,30 @@ export const actions: Actions = {
 				}
 				const { resolveTenantContext } = await import('$lib/server/tenant/tenant-context');
 				const tenant = await resolveTenantContext(user);
+
+				// Resolve sectionId: if not provided by form, auto-assign the first section
+				// of the catalog ordered by sort_order. This satisfies the NOT NULL constraint
+				// without requiring a section picker in the add-product modal.
+				let resolvedSectionId = sectionId;
+				if (!resolvedSectionId) {
+					const sectionRow = await withTransaction((client) =>
+						client.query<{ id: string }>(
+							`SELECT id FROM catalog_sections
+						 WHERE catalog_id = $1::uuid
+						   AND organization_id = $2::uuid
+						 ORDER BY sort_order ASC
+						 LIMIT 1`,
+							[catalogId, tenant.organization.id]
+						)
+					);
+					if ((sectionRow.rows?.length ?? 0) === 0) {
+						return fail(400, {
+							error: 'Katalog belum memiliki seksi. Tambahkan seksi terlebih dahulu.'
+						});
+					}
+					resolvedSectionId = sectionRow.rows[0].id;
+				}
+
 				const productInput = productSchema.parse({
 					name,
 					description,
@@ -177,7 +201,7 @@ export const actions: Actions = {
 				});
 				await createProduct(
 					user,
-					{ outletId: tenant.activeOutlet.id, catalogId, sectionId: sectionId ?? undefined },
+					{ outletId: tenant.activeOutlet.id, catalogId, sectionId: resolvedSectionId },
 					productInput
 				);
 				return { success: true, action: 'created' as const };

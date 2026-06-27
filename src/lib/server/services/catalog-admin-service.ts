@@ -310,7 +310,7 @@ export async function createProduct(
 				params.catalogId,
 				params.sectionId ?? null,
 				input.name,
-				input.localName ?? null,
+				input.localName ?? '',
 				input.description ?? '',
 				input.price,
 				input.currency ?? 'IDR',
