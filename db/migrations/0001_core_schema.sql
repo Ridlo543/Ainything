@@ -16,12 +16,12 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ainything_app') THEN
-    CREATE ROLE ainything_app;
+    CREATE ROLE ainything_app WITH LOGIN PASSWORD 'ainything_app';
   END IF;
 END
 $$;
 
-GRANT CONNECT ON DATABASE postgres TO ainything_app;
+GRANT CONNECT ON DATABASE ainything TO ainything_app;
 
 -- ---------------------------------------------------------------------------
 -- Schema
