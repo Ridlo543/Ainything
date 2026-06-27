@@ -1,239 +1,437 @@
-# Production Deployment Checklist
+# Production Deployment Guide
 
-Deploy ainything ke VPS self-hosted (Hetzner CX23 Singapore atau setara).
-Selesaikan setiap section sebelum pilot.
+Target: **Tencent Lighthouse** — Ubuntu 22.04, Docker 26.1.3, 2 vCPU / 2GB RAM / 40GB SSD, Jakarta region.
+
+Selesaikan setiap section secara berurutan sebelum pilot.
 
 ---
 
 ## Prerequisites
 
 - [ ] Domain purchased, DNS dikelola via Cloudflare
-- [ ] VPS provisioned (Ubuntu 22.04+, min 2 vCPU / 4GB RAM)
-- [ ] PostgreSQL 16 dan Redis 7 siap (self-hosted di VPS yang sama atau terpisah)
-- [ ] Container registry access (GHCR, Docker Hub, atau self-hosted)
-- [ ] Podman atau Docker terinstall di server
-- [ ] Node 24+ dan pnpm 10+ di CI runner (atau gunakan container image)
-- [ ] SMTP provider dikonfigurasi (Resend, Postmark, atau Brevo) untuk email auth
+- [ ] VPS provisioned (Tencent Lighthouse Ubuntu 22.04 + Docker 26)
+- [ ] SSH key pair terdaftar di Tencent Cloud Console
+- [ ] GitHub account dengan akses ke repo ainything (untuk GHCR image pull)
+- [ ] SMTP provider dikonfigurasi: [Resend](https://resend.com) (gratis 3000 email/bulan)
+- [ ] Cloudflare R2 bucket (gratis 10GB) untuk file upload produk
 
 ---
 
-## Step 1 — DNS Setup
+## Step 0 — SSH ke Server
+
+Dari terminal lokal (PowerShell Windows atau macOS Terminal):
+
+```bash
+ssh ubuntu@43.133.138.28
+```
+
+Jika diminta password, cek Tencent Cloud Console → Lighthouse → instance → **Reset Password** untuk set password awal. Disarankan setup SSH key agar tidak perlu password.
+
+---
+
+## Step 1 — Server Hardening
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# WAJIB: Buat swap 2GB sebagai safety net (RAM hanya 2GB)
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# Turunkan swappiness (lebih agresif pakai RAM dulu)
+echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+
+# Verifikasi swap aktif
+free -h
+
+# Firewall — izinkan hanya SSH, HTTP, HTTPS
+sudo ufw allow ssh
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw --force enable
+sudo ufw status
+```
+
+---
+
+## Step 2 — Docker Setup
+
+Docker 26.1.3 sudah pre-installed di image Tencent Lighthouse. Verifikasi:
+
+```bash
+docker --version
+# Docker version 26.1.3, build ...
+
+docker compose version
+# Docker Compose version v2.x.x
+
+# Tambah user ubuntu ke group docker (tidak perlu sudo tiap run)
+sudo usermod -aG docker ubuntu
+newgrp docker
+
+# Verifikasi
+docker run --rm hello-world
+```
+
+---
+
+## Step 3 — Directory Structure
+
+```bash
+# Buat direktori project
+sudo mkdir -p /opt/ainything
+sudo chown ubuntu:ubuntu /opt/ainything
+cd /opt/ainything
+
+# Direktori untuk data persistent
+mkdir -p data/postgres data/redis certs
+```
+
+---
+
+## Step 4 — DNS Setup
+
+Di Cloudflare DNS, tambahkan:
 
 ```
 # Root domain
-A   ainything.example.com   → server IP
+A   ainything.yourdomain.com    →  43.133.138.28   (proxy ON)
 
-# Wildcard subdomain untuk multi-tenant
-# Setiap restaurant mendapat <slug>.ainything.example.com
-A   *.ainything.example.com → server IP
-
-# Optional: naked domain redirect
-A   example.com             → server IP
+# Wildcard untuk multi-tenant outlet
+A   *.ainything.yourdomain.com  →  43.133.138.28   (proxy ON)
 ```
 
-**Cloudflare:** Enable proxy (orange cloud) di kedua record untuk DDoS protection.
-Set SSL/TLS ke "Full (strict)" setelah origin certificate terpasang.
+**Cloudflare SSL/TLS mode:** Set ke **Full (strict)** setelah Caddy terinstall.
+
+TTL propagation bisa 1–5 menit dengan Cloudflare proxy aktif.
 
 ---
 
-## Step 2 — Database Setup
+## Step 5 — Environment File
+
+Buat `/opt/ainything/.env` (tidak pernah di-commit ke repo):
 
 ```bash
-# Buat user dan database PostgreSQL
-psql -U postgres <<'SQL'
-CREATE USER ainything_app WITH PASSWORD 'your-strong-password';
-CREATE DATABASE ainything OWNER ainything_app;
-\c ainything
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "vector";
-SQL
+nano /opt/ainything/.env
 ```
 
-Catat connection strings:
-
-- `DATABASE_URL=postgresql://ainything_app:password@localhost:5432/ainything`
-
----
-
-## Step 3 — Run Migrations
-
-```bash
-# Clone repo dan install deps
-git clone https://github.com/yourorg/ainything.git
-cd ainything
-pnpm install
-
-# Apply semua migrations (0001–0028)
-DATABASE_URL="postgresql://ainything_app:password@localhost:5432/ainything" \
-  pnpm db:migrate
-
-# Seed demo data (opsional — hapus untuk production bersih)
-DATABASE_URL="postgresql://ainything_app:password@localhost:5432/ainything" \
-  node scripts/db.mjs seed
-```
-
-Semua 28 migrations (0001–0028) harus menunjukkan status applied.
-
----
-
-## Step 4 — Environment Variables
-
-Buat file `.env` di server (jangan commit ke repo):
+Isi dengan:
 
 ```env
 # App
 NODE_ENV=production
-PUBLIC_APP_URL=https://ainything.example.com
-AUTH_SECRET=<random 32+ char string — gunakan: openssl rand -base64 32>
+PUBLIC_APP_URL=https://ainything.yourdomain.com
 
-# Auth
+# Auth.js
+AUTH_SECRET=        # generate: openssl rand -base64 32
 AUTH_PROVIDER=credentials
 
-# Database
-DATABASE_URL=postgresql://ainything_app:password@localhost:5432/ainything
+# Database — gunakan nama service Docker, bukan localhost
+DATABASE_URL=postgresql://ainything:GANTI_PASSWORD_KUAT@postgres:5432/ainything
 
-# Redis
-REDIS_URL=redis://localhost:6379
+# Redis — gunakan nama service Docker
+REDIS_URL=redis://redis:6379
 
-# Email (pilih salah satu provider)
+# Email (Resend)
 SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=resend
-SMTP_PASS=<resend api key>
-SMTP_FROM=noreply@ainything.example.com
+SMTP_PASS=re_xxxxxxxxxxxxxxxxxxxx
+SMTP_FROM=noreply@yourdomain.com
 
 # AI (opsional — untuk fitur AI chat)
-ANTHROPIC_API_KEY=<key>
-# atau
-OPENAI_API_KEY=<key>
+ANTHROPIC_API_KEY=sk-ant-...
+# OPENAI_API_KEY=sk-...   # alternatif
 
 # Storage (Cloudflare R2)
-R2_ACCOUNT_ID=<cloudflare account id>
-R2_ACCESS_KEY_ID=<r2 access key>
-R2_SECRET_ACCESS_KEY=<r2 secret key>
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
 R2_BUCKET_NAME=ainything-uploads
-R2_PUBLIC_URL=https://uploads.ainything.example.com
+R2_PUBLIC_URL=https://uploads.yourdomain.com
 
 # Error monitoring (opsional)
-PUBLIC_SENTRY_DSN=<sentry dsn>
-SENTRY_AUTH_TOKEN=<sentry auth token>
+# PUBLIC_SENTRY_DSN=
+# SENTRY_AUTH_TOKEN=
+
+# Internal — dipakai docker-compose untuk init postgres
+POSTGRES_PASSWORD=GANTI_PASSWORD_KUAT
 ```
 
----
-
-## Step 5 — Build and Push Container
+Generate `AUTH_SECRET`:
 
 ```bash
-# Build image
-podman build -t ghcr.io/yourorg/ainything-app:latest .
-
-# Push ke registry
-podman push ghcr.io/yourorg/ainything-app:latest
+openssl rand -base64 32
 ```
-
-Atau gunakan GitHub Actions CI yang sudah ada — setiap push ke `main` akan
-build dan push otomatis.
 
 ---
 
-## Step 6 — Run Container
+## Step 6 — Docker Compose
+
+Buat `/opt/ainything/compose.yml`:
 
 ```bash
-# Pull image terbaru
-podman pull ghcr.io/yourorg/ainything-app:latest
-
-# Run container
-podman run -d \
-  --name ainything-app \
-  --restart unless-stopped \
-  -p 3000:3000 \
-  --env-file /etc/ainything/.env \
-  ghcr.io/yourorg/ainything-app:latest
+nano /opt/ainything/compose.yml
 ```
+
+Isi:
+
+```yaml
+name: ainything
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ainything
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ainything
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5432:5432' # bind localhost only — tidak expose ke publik
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ainything']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - '127.0.0.1:6379:6379' # bind localhost only
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: ghcr.io/YOURORG/ainything-app:latest
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3000:3000' # Caddy forward ke sini
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/health/backend']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/data/caddy
+    depends_on:
+      - app
+```
+
+Ganti `YOURORG` dengan GitHub org/username kamu.
 
 ---
 
-## Step 7 — Reverse Proxy (Nginx atau Caddy)
+## Step 7 — Caddyfile (Auto TLS)
 
-### Caddy (direkomendasikan — auto TLS)
+Buat `/opt/ainything/Caddyfile`:
+
+```bash
+nano /opt/ainything/Caddyfile
+```
+
+Isi:
 
 ```caddyfile
-ainything.example.com, *.ainything.example.com {
-  reverse_proxy localhost:3000
-}
-```
-
-### Nginx
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name ainything.example.com *.ainything.example.com;
-
-    ssl_certificate     /etc/letsencrypt/live/ainything.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/ainything.example.com/privkey.pem;
-
-    # Penting untuk SSE (staff↔buyer chat)
-    proxy_buffering off;
-    proxy_cache off;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 86400; # untuk SSE connections
+ainything.yourdomain.com, *.ainything.yourdomain.com {
+    reverse_proxy app:3000 {
+        # Penting untuk SSE (staff↔buyer chat — flush langsung, tidak di-buffer)
+        flush_interval -1
+        transport http {
+            read_timeout 5m
+        }
     }
 }
 ```
 
+Caddy handle SSL otomatis via Let's Encrypt. Tidak perlu certbot.
+
 ---
 
-## Step 8 — Redis Setup
+## Step 8 — GitHub Container Registry (GHCR)
+
+App perlu di-build dan di-push ke GHCR agar server bisa pull image.
+
+**Di lokal (Windows):**
+
+```powershell
+# Login ke GHCR
+echo "GITHUB_PAT_TOKEN" | docker login ghcr.io -u YOURUSERNAME --password-stdin
+
+# Build image
+docker build -t ghcr.io/YOURORG/ainything-app:latest .
+
+# Push ke GHCR
+docker push ghcr.io/YOURORG/ainything-app:latest
+```
+
+**Di server:**
 
 ```bash
-# Via Podman
-podman run -d \
-  --name ainything-redis \
-  --restart unless-stopped \
-  -p 6379:6379 \
-  -v ainything-redis-data:/data \
-  redis:7-alpine redis-server --appendonly yes
+# Login ke GHCR di server (buat PAT di GitHub: Settings → Developer settings → Personal access tokens → read:packages)
+echo "GITHUB_PAT_TOKEN" | docker login ghcr.io -u YOURUSERNAME --password-stdin
 
-# Atau via system package
-sudo apt install redis-server
-sudo systemctl enable redis-server
+# Pull image
+docker pull ghcr.io/YOURORG/ainything-app:latest
+```
+
+Atau setup GitHub Actions CI agar setiap push ke `main` otomatis build + push. Lihat `.github/workflows/` jika sudah ada.
+
+---
+
+## Step 9 — Run Migrations
+
+```bash
+cd /opt/ainything
+
+# Start postgres + redis dulu, tunggu healthy
+docker compose up -d postgres redis
+sleep 10
+
+# Verifikasi postgres healthy
+docker compose ps
+
+# Jalankan migrations (0001–0028)
+docker compose run --rm app pnpm db:migrate
+
+# Seed demo data (OPSIONAL — skip untuk production bersih)
+# docker compose run --rm app node scripts/db.mjs seed
+```
+
+Output harus menunjukkan semua 28 migrations applied.
+
+---
+
+## Step 10 — Start Semua Services
+
+```bash
+cd /opt/ainything
+
+# Start semua services
+docker compose up -d
+
+# Cek status semua container
+docker compose ps
+
+# Pantau logs app saat startup
+docker compose logs -f app
+```
+
+Tunggu hingga `app` menunjukkan healthy (sekitar 30 detik).
+
+---
+
+## Step 11 — Set Super Admin
+
+Setelah register akun pertama via `/register`:
+
+```bash
+cd /opt/ainything
+
+docker compose exec postgres \
+  psql -U ainything -d ainything -c \
+  "UPDATE app_users SET platform_role = 'super_admin' WHERE email = 'your@email.com';"
 ```
 
 ---
 
-## Step 9 — First Super Admin
+## Step 12 — Health Check
 
-Setelah app berjalan, set platform role di database:
+```bash
+# Dari server
+curl http://localhost:3000/api/health/backend
 
-```sql
--- Jalankan via psql di server
-UPDATE app_users SET platform_role = 'super_admin'
-WHERE email = 'your@email.com';
+# Dari luar (setelah DNS propagate)
+curl https://ainything.yourdomain.com/api/health/backend
+```
+
+Response harus `{"status":"ok"}`.
+
+---
+
+## Deployment Update (Rutin)
+
+Setelah ada perubahan kode baru:
+
+```bash
+cd /opt/ainything
+
+# Pull image terbaru
+docker compose pull app
+
+# Restart app saja — postgres + redis tetap berjalan
+docker compose up -d --no-deps app
+
+# Pantau startup
+docker compose logs -f app
 ```
 
 ---
 
-## Step 10 — Health Check
+## Backup Database
+
+Jalankan sebelum setiap migration atau release besar:
 
 ```bash
-# App health
-curl https://ainything.example.com/api/health/backend
+cd /opt/ainything
 
-# Verify container running
-podman ps
+# Backup ke file dengan timestamp
+docker compose exec postgres \
+  pg_dump -U ainything ainything \
+  > backup-$(date +%Y%m%d-%H%M%S).sql
 
-# View logs
-podman logs ainything-app --tail 50
+# Verifikasi backup ada
+ls -lh backup-*.sql
+```
+
+---
+
+## Rollback
+
+```bash
+cd /opt/ainything
+
+# Rollback ke image sebelumnya (ganti tag sesuai versi)
+docker compose pull app ghcr.io/YOURORG/ainything-app:v1.2.3
+sed -i 's|:latest|:v1.2.3|' compose.yml
+docker compose up -d --no-deps app
+
+# Atau jika perlu rollback database juga:
+docker compose exec postgres \
+  psql -U ainything -d ainything < backup-20260628-120000.sql
 ```
 
 ---
@@ -249,9 +447,9 @@ podman logs ainything-app --tail 50
 | `DATABASE_URL`         | Yes      | PostgreSQL connection string                    |
 | `REDIS_URL`            | Yes      | Redis connection string                         |
 | `SMTP_HOST`            | Yes      | SMTP host untuk email auth                      |
-| `SMTP_PORT`            | Yes      | SMTP port (587 untuk TLS)                       |
+| `SMTP_PORT`            | Yes      | SMTP port (587 untuk STARTTLS)                  |
 | `SMTP_USER`            | Yes      | SMTP username                                   |
-| `SMTP_PASS`            | Yes      | SMTP password/key                               |
+| `SMTP_PASS`            | Yes      | SMTP password/API key                           |
 | `SMTP_FROM`            | Yes      | From address untuk email                        |
 | `ANTHROPIC_API_KEY`    | No       | Untuk AI chat (Anthropic Claude)                |
 | `OPENAI_API_KEY`       | No       | Alternatif untuk AI chat (OpenAI-compatible)    |
@@ -261,51 +459,55 @@ podman logs ainything-app --tail 50
 | `R2_BUCKET_NAME`       | No       | Nama R2 bucket                                  |
 | `R2_PUBLIC_URL`        | No       | Public URL untuk R2 bucket                      |
 | `PUBLIC_SENTRY_DSN`    | No       | Sentry DSN untuk error monitoring               |
+| `POSTGRES_PASSWORD`    | Yes      | Password postgres (dipakai compose untuk init)  |
 
 ---
 
 ## Pre-Pilot Checklist
 
-- [ ] `GET /api/health/backend` mengembalikan 200
-- [ ] Login sebagai org_owner → `/dashboard` berfungsi
+- [ ] `curl https://ainything.yourdomain.com/api/health/backend` → `{"status":"ok"}`
+- [ ] Register akun org_owner → `/dashboard` berfungsi
 - [ ] Login sebagai staff → `/staff/inbox` berfungsi
 - [ ] QR scan `/r/[slug]/table/T01` berfungsi tanpa login
 - [ ] Checkout flow end-to-end berhasil
-- [ ] Staff↔buyer chat SSE berfungsi
-- [ ] Platform admin login (`/platform`) berhasil
+- [ ] Staff↔buyer chat SSE berfungsi (kirim pesan, pesan muncul real-time)
+- [ ] Platform admin login (`/platform`) berhasil setelah set `super_admin`
 - [ ] Password reset flow (forgot → email → update) berhasil
 - [ ] Upload foto produk ke R2 berhasil
-- [ ] Sentry menerima error (trigger 404, konfirmasi di Sentry)
-- [ ] Load test: `k6 run tests/load/k6-public-endpoints.js -e BASE_URL=https://ainything.example.com`
+- [ ] `docker compose ps` → semua services `healthy`
 
 ---
 
-## Rollback
+## Troubleshooting
+
+**App tidak bisa konek ke database:**
 
 ```bash
-# Pull image versi sebelumnya
-podman pull ghcr.io/yourorg/ainything-app:previous-tag
+# Cek apakah postgres healthy
+docker compose ps
 
-# Restart dengan image lama
-podman stop ainything-app
-podman rm ainything-app
-podman run -d --name ainything-app \
-  --restart unless-stopped \
-  -p 3000:3000 \
-  --env-file /etc/ainything/.env \
-  ghcr.io/yourorg/ainything-app:previous-tag
+# Cek network — app harus bisa resolve "postgres"
+docker compose exec app ping -c 1 postgres
 ```
 
-Database rollback manual — selalu buat `pg_dump` sebelum setiap migration:
+**Out of memory (OOM):**
 
 ```bash
-pg_dump $DATABASE_URL > backup-$(date +%Y%m%d-%H%M%S).sql
+# Cek memory usage
+free -h
+docker stats --no-stream
+
+# Cek swap aktif
+swapon --show
 ```
 
----
+**Caddy tidak dapat TLS certificate:**
 
-## Support
+- Pastikan DNS sudah propagate: `dig ainything.yourdomain.com`
+- Pastikan port 80 dan 443 tidak diblock di Tencent Lighthouse firewall rules
+- Cek Caddy logs: `docker compose logs caddy`
+
+**Support**
 
 - Internal docs: `docs/`
 - Issue tracker: GitHub Issues
-- Email: support@ainything.ai
