@@ -22,6 +22,7 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import BuyerChatWindow from '$lib/ui/chat/BuyerChatWindow.svelte';
 
 	const { data, form } = $props();
 	const restaurant = $derived(data.restaurant);
@@ -375,4 +376,9 @@
 			{t('order.backToCatalog')}
 		</Button>
 	</div>
+
+	<!-- Chat widget — only shown when a fallback_request exists for this order's buyer session -->
+	{#if data.fallbackRequestId}
+		<BuyerChatWindow roomId={data.fallbackRequestId} />
+	{/if}
 </div>

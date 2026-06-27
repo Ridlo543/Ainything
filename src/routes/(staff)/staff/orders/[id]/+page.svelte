@@ -16,6 +16,7 @@
 		X
 	} from '@lucide/svelte';
 	import OrderStatusTimeline from '$lib/ui/OrderStatusTimeline.svelte';
+	import StaffChatWindow from '$lib/ui/chat/StaffChatWindow.svelte';
 	import type { PageData, ActionData } from './$types';
 	import type { OrderStatus } from '$lib/domain/order/types';
 
@@ -256,5 +257,10 @@
 		<p class="text-center text-xs text-muted-foreground">
 			Selesai: {formatDateTime(order.completedAt)}
 		</p>
+	{/if}
+
+	<!-- Chat panel — only shown when a fallback_request exists for this order's buyer session -->
+	{#if data.fallbackRequestId}
+		<StaffChatWindow roomId={data.fallbackRequestId} />
 	{/if}
 </div>

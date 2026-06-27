@@ -5,6 +5,7 @@ import { findOrderById } from '$lib/server/repositories/order-repository';
 import { listPaymentMethods } from '$lib/server/repositories/payment-method-repository';
 import { withDirectTransaction, getPool } from '$lib/server/db/postgres';
 import { getStorageProvider } from '$lib/server/providers/storage/factory';
+import { findRoomByBuyerSession } from '$lib/server/repositories/staff-chat-repository';
 
 const ALLOWED_PROOF_MIME = ['image/jpeg', 'image/png', 'image/webp'] as const;
 type AllowedMime = (typeof ALLOWED_PROOF_MIME)[number];
@@ -35,12 +36,22 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(404, 'Pesanan tidak ditemukan');
 	}
 
+	// Look up the chat room (fallback_request) linked to this order's buyer session.
+	// Returns null when the buyer never triggered the AI fallback flow.
+	const fallbackRequestId = order.buyerSessionId
+		? await findRoomByBuyerSession({
+				buyerSessionId: order.buyerSessionId,
+				outletId: outlet.id
+			})
+		: null;
+
 	return {
 		restaurant: outlet,
 		order,
 		paymentMethods,
 		checkoutMode: outlet.checkoutSettings.checkoutMode,
-		paymentConfirmationEnabled: outlet.checkoutSettings.paymentConfirmationEnabled
+		paymentConfirmationEnabled: outlet.checkoutSettings.paymentConfirmationEnabled,
+		fallbackRequestId
 	};
 };
 

@@ -233,7 +233,7 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 - [x] **Items list:** name, quantity, notes (e.g., "tidak pedas")
 - [x] **Total**
 - [x] **Status buttons:** [🟡 Proses] [🟢 Selesai] (big, tap-friendly)
-- [ ] **Chat button** (if enabled) — deferred to 4.4
+- [x] **Chat button** (if enabled) — implemented in 4.4 (StaffChatWindow embedded in staff order detail)
 - [x] **Status timeline** (visual progress)
 
 ### 3.3 Staff Settings (`/staff/settings`)
@@ -282,16 +282,16 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 - [x] **Status timeline** (visual: ✅ Received → 🔄 Processing → 🟢 Ready)
 - [x] **Items summary** (collapsed)
 - [x] **Total**
-- [ ] **[💬 Chat with Staff]** button (if enabled) — deferred to 4.4
+- [x] **[💬 Chat with Staff]** widget — implemented (BuyerChatWindow embedded in order tracking page)
 - [x] **[🔙 Kembali ke Katalog]** button
 
-### 4.4 Chat (Optional, Week 7-8)
+### 4.4 Chat ✅ DONE
 
-- [ ] **Chat interface** (simple, real-time)
-- [ ] **Message bubbles** (customer left, staff right)
-- [ ] **Input + send button**
-- [ ] **Auto-scroll to latest**
-- [ ] **Typing indicator** (optional)
+- [x] **Chat interface** (real-time SSE via Redis pub/sub, graceful degradation without Redis)
+- [x] **Message bubbles** (buyer left, staff right)
+- [x] **Input + send button**
+- [x] **Auto-scroll to latest**
+- [ ] **Typing indicator** (deferred — not in scope)
 
 ---
 

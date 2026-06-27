@@ -1612,3 +1612,40 @@ Two backend bugs discovered and fixed during test writing:
 - `pnpm build` — succeeded (adapter-node)
 - `register-product-flow.spec.ts` — 15/15 passed
 - Playwright full suite — 118 passed, 0 failed, 6 skipped (expected)
+
+---
+
+## 2026-06-28 (Chat sprint)
+
+### 4.4 Real-time staff↔buyer chat
+
+**Files changed:**
+
+- `db/migrations/0027_staff_chat.sql` — adds `fallback_request_id` FK + `sender_id` to `chat_messages`; RLS policies for staff/buyer access
+- `src/lib/domain/chat/types.ts` — `StaffChatMessage`, `ChatMessageEvent`, `ChatSSEEvent` domain types
+- `src/lib/domain/chat/schema.ts` — Zod schemas for buyer + staff message input
+- `src/lib/server/repositories/staff-chat-repository.ts` — `getMessagesByRoom`, `insertStaffMessage`, `insertBuyerMessage`, `getRoomContext`, `findRoomByBuyerSession`
+- `src/lib/server/services/staff-chat-service.ts` — `sendStaffReply`, `sendBuyerMessage`, `getChatHistory`, `createChatSSEStream`, `chatChannel`
+- `src/routes/api/chat/[roomId]/messages/+server.ts` — staff POST endpoint
+- `src/routes/api/chat/[roomId]/stream/+server.ts` — staff SSE endpoint
+- `src/routes/api/public/chat/[roomId]/messages/+server.ts` — buyer POST endpoint
+- `src/routes/api/public/chat/[roomId]/stream/+server.ts` — buyer SSE endpoint
+- `src/lib/ui/chat/StaffChatWindow.svelte` — staff chat panel (SSE + optimistic updates, Svelte 5 runes)
+- `src/lib/ui/chat/BuyerChatWindow.svelte` — buyer chat widget (collapsible, SSE, Enter-to-send)
+- `src/routes/(staff)/staff/orders/[id]/+page.server.ts` — loads `fallbackRequestId` via `findRoomByBuyerSession`
+- `src/routes/(staff)/staff/orders/[id]/+page.svelte` — integrates `StaffChatWindow` when `fallbackRequestId` is present
+- `src/routes/(public)/r/[slug]/order/[id]/+page.server.ts` — loads `fallbackRequestId` for buyer session
+- `src/routes/(public)/r/[slug]/order/[id]/+page.svelte` — integrates `BuyerChatWindow` when `fallbackRequestId` is present
+- `src/lib/server/services/staff-chat-service.test.ts` — unit tests: `chatChannel`, `getChatHistory`, `sendStaffReply`, `sendBuyerMessage` (12 tests)
+
+**Architecture decisions:**
+
+- Chat room = `fallback_request.id` — no new table; `chat_messages` reuses existing table with new FK
+- SSE over WebSocket — `ReadableStream` in `+server.ts`, Redis pub/sub channel `chat:{roomId}`
+- Redis failure is non-fatal — messages persisted; SSE degrades to heartbeat-only; clients reconnect automatically
+- `findRoomByBuyerSession` looks up fallback_request by `buyer_session_id + outlet_id` — avoids adding `fallbackRequestId` to `OrderWithItems` type (9+ callers)
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 38 passed, 2 skipped (364 tests total, includes 12 new chat tests)

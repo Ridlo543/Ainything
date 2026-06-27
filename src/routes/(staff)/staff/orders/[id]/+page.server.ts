@@ -13,6 +13,7 @@ import {
 	notifyBuyerPaymentConfirmed,
 	notifyBuyerPaymentRejected
 } from '$lib/server/services/order-notification-service';
+import { findRoomByBuyerSession } from '$lib/server/repositories/staff-chat-repository';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const user = locals.user;
@@ -20,7 +21,18 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	try {
 		const order = await getStaffOrder(user, { orderId: params.id });
-		return { order };
+
+		// Look up associated chat room (fallback_request) for this order's buyer session.
+		// Returns null when the buyer never triggered the AI fallback flow.
+		const fallbackRequestId =
+			order.buyerSessionId && order.outletId
+				? await findRoomByBuyerSession({
+						buyerSessionId: order.buyerSessionId,
+						outletId: order.outletId
+					})
+				: null;
+
+		return { order, fallbackRequestId };
 	} catch (err) {
 		if (err instanceof StaffOrderError && err.code === 'NOT_FOUND') {
 			redirect(303, '/staff/inbox');
