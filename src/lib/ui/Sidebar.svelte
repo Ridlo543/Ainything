@@ -94,8 +94,8 @@
 	];
 
 	// Track which groups are expanded — auto-expand the active group on mount only.
-	// SvelteSet is already reactive, so no $state wrapper needed.
-	// The initial value is computed once from currentPath; after that user toggles own it.
+	// SvelteSet is already reactive (from svelte/reactivity) — .add()/.delete() trigger
+	// reactivity without needing $state(). Initial value computed once from currentPath.
 	let expandedGroups = new SvelteSet<string>(
 		nav
 			.filter((item) => item.children && item.children.some((c) => currentPath.startsWith(c.href)))

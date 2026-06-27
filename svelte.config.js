@@ -15,11 +15,18 @@ const config = {
 	kit: {
 		adapter: adapter(),
 
-		// CSRF disabled — app uses SameSite session cookies which provide sufficient
-		// CSRF protection. The built-in Origin check breaks behind reverse proxies
-		// and during E2E tests where request Origin and url.origin differ.
+		// CSRF protection is enabled (default). Trusted origins whitelist covers:
+		// - local dev server (vite dev)
+		// - Playwright preview server (E2E tests)
+		// - production domain (set via PUBLIC_ORIGIN env var at deploy time)
+		// Behind reverse proxies the request URL already matches the public origin,
+		// so no additional entries are needed there.
 		csrf: {
-			checkOrigin: false
+			trustedOrigins: [
+				'http://localhost:5173',
+				'http://localhost:4173',
+				...(process.env.PUBLIC_ORIGIN ? [process.env.PUBLIC_ORIGIN] : [])
+			]
 		},
 
 		// Path aliases — SvelteKit auto-generates tsconfig paths from these.
