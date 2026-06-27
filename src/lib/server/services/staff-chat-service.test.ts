@@ -8,14 +8,14 @@ const getRoomContextMock = vi.fn();
 const getMessagesByRoomMock = vi.fn();
 const insertStaffMessageMock = vi.fn();
 const insertBuyerMessageMock = vi.fn();
-const verifyBuyerOwnsRoomMock = vi.fn();
+const getBuyerRoomContextMock = vi.fn();
 
 vi.mock('$lib/server/repositories/staff-chat-repository', () => ({
 	getRoomContext: (...args: unknown[]) => getRoomContextMock(...args),
 	getMessagesByRoom: (...args: unknown[]) => getMessagesByRoomMock(...args),
 	insertStaffMessage: (...args: unknown[]) => insertStaffMessageMock(...args),
 	insertBuyerMessage: (...args: unknown[]) => insertBuyerMessageMock(...args),
-	verifyBuyerOwnsRoom: (...args: unknown[]) => verifyBuyerOwnsRoomMock(...args)
+	getBuyerRoomContext: (...args: unknown[]) => getBuyerRoomContextMock(...args)
 }));
 
 // Redis — disabled in unit tests so publish path is a no-op
@@ -176,20 +176,18 @@ describe('sendStaffReply', () => {
 
 describe('sendBuyerMessage', () => {
 	beforeEach(() => {
-		getRoomContextMock.mockReset();
+		getBuyerRoomContextMock.mockReset();
 		insertBuyerMessageMock.mockReset();
-		verifyBuyerOwnsRoomMock.mockReset();
 	});
 
 	it('inserts and returns the message when buyer session matches', async () => {
-		getRoomContextMock.mockResolvedValue(makeRoomContext());
-		verifyBuyerOwnsRoomMock.mockResolvedValue(true);
+		getBuyerRoomContextMock.mockResolvedValue({ organizationId: ORG_ID, outletId: OUTLET_ID });
 		const msg = makeMessage('buyer');
 		insertBuyerMessageMock.mockResolvedValue(msg);
 
 		const result = await sendBuyerMessage(BUYER_SESSION_ID, ROOM_ID, 'Halo!');
 
-		expect(verifyBuyerOwnsRoomMock).toHaveBeenCalledWith(ROOM_ID, BUYER_SESSION_ID);
+		expect(getBuyerRoomContextMock).toHaveBeenCalledWith(ROOM_ID, BUYER_SESSION_ID);
 		expect(insertBuyerMessageMock).toHaveBeenCalledWith(
 			ROOM_ID,
 			BUYER_SESSION_ID,
@@ -200,18 +198,17 @@ describe('sendBuyerMessage', () => {
 		expect(result).toEqual(msg);
 	});
 
-	it('throws 404 when room does not exist', async () => {
-		getRoomContextMock.mockResolvedValue(null);
+	it('throws 403 when room does not exist', async () => {
+		getBuyerRoomContextMock.mockResolvedValue(null);
 
 		await expect(sendBuyerMessage(BUYER_SESSION_ID, ROOM_ID, 'test')).rejects.toMatchObject({
-			status: 404
+			status: 403
 		});
 		expect(insertBuyerMessageMock).not.toHaveBeenCalled();
 	});
 
 	it('throws 403 when buyer session does not own the room', async () => {
-		getRoomContextMock.mockResolvedValue(makeRoomContext());
-		verifyBuyerOwnsRoomMock.mockResolvedValue(false);
+		getBuyerRoomContextMock.mockResolvedValue(null);
 
 		await expect(sendBuyerMessage(BUYER_SESSION_ID, ROOM_ID, 'test')).rejects.toMatchObject({
 			status: 403

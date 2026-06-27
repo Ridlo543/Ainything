@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 					})
 				: null;
 
-		return { order, fallbackRequestId };
+		return { order, fallbackRequestId, staffName: user.name };
 	} catch (err) {
 		if (err instanceof StaffOrderError && err.code === 'NOT_FOUND') {
 			redirect(303, '/staff/inbox');

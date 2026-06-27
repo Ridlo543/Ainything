@@ -261,6 +261,6 @@
 
 	<!-- Chat panel — only shown when a fallback_request exists for this order's buyer session -->
 	{#if data.fallbackRequestId}
-		<StaffChatWindow roomId={data.fallbackRequestId} />
+		<StaffChatWindow roomId={data.fallbackRequestId} senderName={data.staffName} />
 	{/if}
 </div>

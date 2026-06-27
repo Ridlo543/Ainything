@@ -20,7 +20,7 @@ import {
 	insertBuyerMessage,
 	getMessagesByRoom,
 	getRoomContext,
-	verifyBuyerOwnsRoom
+	getBuyerRoomContext
 } from '$lib/server/repositories/staff-chat-repository';
 import { getRedisClient } from '$lib/server/cache/redis';
 import { appEnv } from '$lib/server/config/env';
@@ -120,14 +120,10 @@ export async function sendBuyerMessage(
 	roomId: string,
 	content: string
 ): Promise<StaffChatMessage> {
-	const ctx = await getRoomContext(roomId);
-	if (!ctx) error(404, 'Chat room not found');
-
-	// Validate the requesting session actually owns this room.
-	// ctx.buyerSessionId is buyer_sessions.id (UUID) — the cookie value is
-	// buyer_sessions.public_session_id (string), so we must JOIN to compare.
-	const owns = await verifyBuyerOwnsRoom(roomId, sessionId);
-	if (!owns) error(403, 'Access denied');
+	// Single query: validates session ownership AND returns org/outlet context.
+	// Replaces the previous two-query pattern (getRoomContext + verifyBuyerOwnsRoom).
+	const ctx = await getBuyerRoomContext(roomId, sessionId);
+	if (!ctx) error(403, 'Access denied');
 
 	const msg = await insertBuyerMessage(
 		roomId,

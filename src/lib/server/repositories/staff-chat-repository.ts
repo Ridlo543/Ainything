@@ -216,6 +216,40 @@ export async function verifyBuyerOwnsRoom(
 }
 
 /**
+ * Validate that a public session owns the room AND return the room context in
+ * one query — eliminates the double round-trip in sendBuyerMessage.
+ *
+ * Returns { organizationId, outletId } when the session owns the room,
+ * or null when the room doesn't exist or the session doesn't match.
+ */
+export async function getBuyerRoomContext(
+	roomId: string,
+	publicSessionId: string
+): Promise<{ organizationId: string; outletId: string } | null> {
+	const result = await query<{ organization_id: string; outlet_id: string }>(
+		`
+		SELECT
+			fr.organization_id::text,
+			fr.outlet_id::text
+		FROM   fallback_requests fr
+		JOIN   buyer_sessions bs ON bs.id = fr.buyer_session_id
+		WHERE  fr.id                = $1::uuid
+		  AND  bs.public_session_id = $2
+		LIMIT  1
+		`,
+		[roomId, publicSessionId]
+	);
+
+	if (result.rows.length === 0) return null;
+
+	const row = result.rows[0];
+	return {
+		organizationId: row.organization_id,
+		outletId: row.outlet_id
+	};
+}
+
+/**
  * Validate that a fallback_request belongs to the given outlet.
  * Used by the service layer to guard SSE subscriptions and message sends.
  * Returns the room's organization_id + outlet_id if valid, null otherwise.

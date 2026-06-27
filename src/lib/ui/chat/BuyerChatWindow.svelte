@@ -12,6 +12,7 @@
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { MessageCircle, X, Send, ChevronDown } from '@lucide/svelte';
 	import type { StaffChatMessage } from '$lib/domain/chat/types';
+	import { chatHistorySchema, chatMessageEventSchema } from '$lib/domain/chat/schema';
 
 	type Props = {
 		roomId: string;
@@ -47,15 +48,33 @@
 		eventSource = new EventSource(`/api/public/chat/${roomId}/stream`);
 
 		eventSource.addEventListener('history', (e) => {
-			const history = JSON.parse(e.data) as StaffChatMessage[];
-			messages = history;
+			const parsed = chatHistorySchema.safeParse(JSON.parse(e.data));
+			if (!parsed.success) {
+				console.error('[chat] Invalid history payload:', parsed.error);
+				return;
+			}
+			messages = parsed.data;
 			connected = true;
 			retryCount = 0; // Reset back-off on successful connection
 			scrollToBottom();
 		});
 
 		eventSource.addEventListener('message', (e) => {
-			const msg = JSON.parse(e.data) as StaffChatMessage;
+			const parsed = chatMessageEventSchema.safeParse(JSON.parse(e.data));
+			if (!parsed.success) {
+				console.error('[chat] Invalid message payload:', parsed.error);
+				return;
+			}
+			const ev = parsed.data;
+			const msg: StaffChatMessage = {
+				id: ev.id,
+				roomId: ev.roomId,
+				role: ev.role,
+				content: ev.content,
+				senderId: null,
+				senderName: ev.senderName,
+				createdAt: ev.createdAt
+			};
 			// Avoid duplicates (optimistic update already added buyer's own msg)
 			if (!messages.find((m) => m.id === msg.id)) {
 				messages = [...messages, msg];

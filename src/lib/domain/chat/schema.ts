@@ -22,3 +22,37 @@ export const staffSendMessageSchema = z.object({
 
 export type BuyerSendMessageInput = z.infer<typeof buyerSendMessageSchema>;
 export type StaffSendMessageInput = z.infer<typeof staffSendMessageSchema>;
+
+// ---------------------------------------------------------------------------
+// SSE runtime validation schemas
+// Used in both StaffChatWindow and BuyerChatWindow to validate SSE payloads
+// before they are applied to UI state. Prevents silent breakage on malformed
+// or unexpected server payloads.
+// ---------------------------------------------------------------------------
+
+/** Matches the StaffChatMessage domain type. */
+export const staffChatMessageSchema = z.object({
+	id: z.string(),
+	roomId: z.string(),
+	role: z.enum(['customer', 'staff', 'system']),
+	content: z.string(),
+	senderId: z.string().nullable(),
+	senderName: z.string().nullable(),
+	createdAt: z.string()
+});
+
+/** Array of messages sent as the initial `history` SSE event. */
+export const chatHistorySchema = z.array(staffChatMessageSchema);
+
+/** Single message sent as a `message` SSE event (ChatMessageEvent shape). */
+export const chatMessageEventSchema = z.object({
+	type: z.literal('message'),
+	id: z.string(),
+	roomId: z.string(),
+	role: z.enum(['customer', 'staff', 'system']),
+	content: z.string(),
+	senderName: z.string().nullable(),
+	createdAt: z.string()
+});
+
+export type ChatMessageEventPayload = z.infer<typeof chatMessageEventSchema>;
