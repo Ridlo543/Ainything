@@ -5,7 +5,10 @@ const MAX_CONTENT_LENGTH = 2000;
 
 /**
  * Buyer sends a message in their chat room.
- * sessionId proves ownership (validated against buyer_sessions at DB layer).
+ *
+ * `sessionId` is injected server-side from the session cookie — clients
+ * only need to send `content`. The field is kept here so the server can
+ * parse a merged object `{ ...body, sessionId }` in a single safeParse call.
  */
 export const buyerSendMessageSchema = z.object({
 	sessionId: z.string().uuid(),
@@ -56,3 +59,11 @@ export const chatMessageEventSchema = z.object({
 });
 
 export type ChatMessageEventPayload = z.infer<typeof chatMessageEventSchema>;
+
+/**
+ * Validates the JSON response body from POST /api/chat/[roomId]/messages
+ * and POST /api/public/chat/[roomId]/messages.
+ * Used in both StaffChatWindow and BuyerChatWindow to guard the
+ * optimistic-replace path against malformed server responses.
+ */
+export const chatMessageResponseSchema = staffChatMessageSchema;

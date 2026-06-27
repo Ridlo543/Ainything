@@ -12,7 +12,11 @@
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { MessageCircle, X, Send, ChevronDown } from '@lucide/svelte';
 	import type { StaffChatMessage } from '$lib/domain/chat/types';
-	import { chatHistorySchema, chatMessageEventSchema } from '$lib/domain/chat/schema';
+	import {
+		chatHistorySchema,
+		chatMessageEventSchema,
+		chatMessageResponseSchema
+	} from '$lib/domain/chat/schema';
 
 	type Props = {
 		roomId: string;
@@ -153,7 +157,7 @@
 				throw new Error(message);
 			}
 
-			const confirmed = (await res.json()) as StaffChatMessage;
+			const confirmed = chatMessageResponseSchema.parse(await res.json());
 			// Replace optimistic with confirmed
 			messages = messages.map((m) => (m.id === optimistic.id ? confirmed : m));
 		} catch (err) {

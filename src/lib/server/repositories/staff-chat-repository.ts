@@ -250,9 +250,10 @@ export async function getBuyerRoomContext(
 }
 
 /**
- * Validate that a fallback_request belongs to the given outlet.
- * Used by the service layer to guard SSE subscriptions and message sends.
- * Returns the room's organization_id + outlet_id if valid, null otherwise.
+ * Load context for a fallback_request room.
+ * Used by the service layer to guard SSE subscriptions and staff message sends.
+ * Returns the room's organization_id, outlet_id, and buyer_session_id if found, null otherwise.
+ * Note: buyer message sends use getBuyerRoomContext instead.
  */
 export async function getRoomContext(
 	roomId: string
