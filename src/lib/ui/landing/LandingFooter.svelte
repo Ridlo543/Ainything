@@ -73,11 +73,14 @@
 		<div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
 			<!-- Brand -->
 			<div class="lg:col-span-1">
-				<a href="/" class="flex items-center gap-2.5" aria-label="Ainything beranda">
-					<span
-						class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#059669] text-sm font-black text-white"
-						>L</span
-					>
+				<a href="/" class="flex items-center gap-2" aria-label="Ainything beranda">
+					<img
+						src="/images/ainything-logo-nobackground.png"
+						alt="Ainything"
+						class="h-8 w-8 brightness-0 invert"
+						width="32"
+						height="32"
+					/>
 					<span class="text-lg font-extrabold tracking-tight text-white">Ainything</span>
 				</a>
 				<p class="mt-4 text-sm leading-relaxed text-white/50">

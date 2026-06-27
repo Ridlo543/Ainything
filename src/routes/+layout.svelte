@@ -1,6 +1,6 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	// favicon handled via <svelte:head> below
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { getState, dir } from '$lib/i18n';
@@ -86,9 +86,12 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 	<link rel="manifest" href="/manifest.webmanifest" />
-	<meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)" />
+	<meta name="theme-color" content="#059669" media="(prefers-color-scheme: light)" />
 	<meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)" />
 	<meta
 		name="description"

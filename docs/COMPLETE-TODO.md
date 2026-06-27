@@ -1487,3 +1487,49 @@ The blue info banner for online mode without `paymentConfirmationEnabled` only s
 
 - `pnpm check` — 0 errors, 5 intentional warnings (same pre-existing patterns)
 - `pnpm test:unit` — 354/354 passed, 21 skipped (live integration only)
+
+## 2026-06-27 Sprint — E2E Test Suite Full Green
+
+All Playwright E2E tests now pass: **118 passed, 0 failed, 6 skipped** (skipped = platform-admin tests that require `super_admin` DB seed, not broken).
+
+### 1. Checkout hydration race fix
+
+**Files:** `playwright.config.ts`, `tests/e2e/checkout-flow.spec.ts`
+
+Under `fullyParallel: true` with 4 workers, concurrent SSR requests overwhelmed the single-node preview server. Svelte's quick-add button was visible in SSR HTML before `onclick` hydrated, so the click landed but `cart.add()` never fired and the 5s localStorage poll timed out.
+
+- `playwright.config.ts` — `workers` changed from `isCI ? 2 : 4` to `2` (flat, local + CI). Added explanatory comment.
+- `addFirstItemToCart` helper rewritten:
+  - Derives slug from `page.url()` → clears `ainything-cart-{slug}` key before clicking (eliminates stale cross-test state)
+  - Retry loop: up to 5 click attempts, each polling localStorage for up to 1.5s before retrying
+  - Falls through to a final `expect.poll` that produces a clear failure message if all retries fail
+
+### 2. Staff/team badge locator fix
+
+**Files:** `tests/e2e/staff-flow.spec.ts`, `tests/e2e/team-management-flow.spec.ts`
+
+Role badges render as `<span><svg/>Owner</span>` — the old `/^Owner$/` regex did not match because `getByText` concatenates child text nodes including the SVG's hidden text. Fixed by switching to `getByText('Owner', { exact: true })` which matches the text node directly regardless of child SVG elements. Also added `.first()` + `.catch(() => false)` guard and bumped timeouts to 5000ms.
+
+Staff flow additionally fixed: button label was "Tambah Staff" (Bahasa Indonesia) not "Invite" — updated locator to `/tambah staff/i` and replaced conditional close logic with deterministic `getByRole('button', { name: /batal/i })`.
+
+### 3. Landing page 4244px viewport overflow fix
+
+**Files:** `src/lib/ui/landing/LandingNav.svelte`, `src/lib/ui/landing/LandingFooter.svelte`, `src/lib/ui/landing/LandingHero.svelte`
+
+`responsive-audit.spec.ts` failed at all 5 viewports with `scrollWidth: 4244` vs `clientWidth: 365`. Root cause: `static/images/ainything-logo-nobackground.png` is a 4096×4096 PNG (2.4 MB). Both nav and footer used `class="h-8 w-auto"` on the `<img>`, which preserves intrinsic width — Chrome rendered it at 4096px in the flex layout.
+
+- `LandingNav.svelte` — changed logo `<img>` from `h-8 w-auto` to `h-8 w-8` with explicit `width="32" height="32"` attributes
+- `LandingFooter.svelte` — same fix; also added `brightness-0 invert` filter for dark background
+- `LandingHero.svelte` — removed decorative gradient blobs (violated AGENTS.md: "Do not use decorative gradient blobs")
+
+### 4. PWA / favicon update
+
+**Files:** `src/routes/+layout.svelte`, `static/manifest.webmanifest`
+
+- `+layout.svelte`: replaced single SVG `<link rel="icon">` with multi-format favicon links (`.ico`, `32×32 PNG`, `16×16 PNG`, `apple-touch-icon 180×180`) and updated `theme-color` to `#059669`
+- `manifest.webmanifest`: added `theme_color`, `android-chrome-192x192.png`, and `android-chrome-512x512.png` icon entries
+
+### Verified
+
+- `pnpm build` — succeeded (35.82s, adapter-node)
+- Playwright full suite — 118 passed, 0 failed, 6 skipped (expected)

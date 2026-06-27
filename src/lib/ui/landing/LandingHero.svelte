@@ -17,16 +17,6 @@
 </script>
 
 <section class="relative overflow-hidden bg-[#fafaf9] pb-16 pt-14 sm:pb-24 sm:pt-20">
-	<!-- Background blobs -->
-	<div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-		<div
-			class="absolute right-0 top-0 h-[600px] w-[600px] -translate-y-1/4 translate-x-1/4 rounded-full bg-[#d1fae5]/50 blur-3xl"
-		></div>
-		<div
-			class="absolute bottom-0 left-0 h-[400px] w-[400px] translate-y-1/4 -translate-x-1/4 rounded-full bg-[#fce7f3]/40 blur-3xl"
-		></div>
-	</div>
-
 	<div class="app-container">
 		<div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
 			<!-- Copy side -->
