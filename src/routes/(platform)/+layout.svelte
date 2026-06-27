@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { Home, Building2, Package, BarChart3, Settings, LogOut, Menu, X } from '@lucide/svelte';
+	import {
+		Home,
+		Building2,
+		Package,
+		BarChart3,
+		Settings,
+		LogOut,
+		Menu,
+		X,
+		Key
+	} from '@lucide/svelte';
 	import * as Separator from '$lib/ui/separator';
 	import type { LayoutData } from './$types';
 
@@ -16,6 +26,7 @@
 		{ href: '/platform/organizations', label: 'Organizations', icon: Building2 },
 		{ href: '/platform/tenants', label: 'Tenants', icon: Package },
 		{ href: '/platform/analytics', label: 'Analytics', icon: BarChart3 },
+		{ href: '/platform/api', label: 'API Keys', icon: Key },
 		{ href: '/platform/settings', label: 'Settings', icon: Settings }
 	] as const;
 

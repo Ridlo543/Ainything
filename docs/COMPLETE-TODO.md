@@ -1649,3 +1649,34 @@ Two backend bugs discovered and fixed during test writing:
 
 - `pnpm check` — 0 errors, 0 warnings
 - `pnpm test:unit` — 38 passed, 2 skipped (364 tests total, includes 12 new chat tests)
+
+---
+
+## Sprint: 2026-06-28 (5.3 API Keys)
+
+### 5.3 Platform API Keys
+
+**Files changed:**
+
+- `db/migrations/0028_api_keys.sql` — `api_keys` table; SHA-256 hash column; RLS (super_admin only); `REVOKE UPDATE(key_hash), DELETE` on `ainything_app`; `idx_api_keys_hash` index
+- `src/lib/domain/api-key/types.ts` — `ApiKey`, `ApiKeyStatus`, `GeneratedApiKey` domain types
+- `src/lib/domain/api-key/schema.ts` — Zod schemas: `generateApiKeySchema`, `revokeApiKeySchema`
+- `src/lib/server/repositories/api-key-repository.ts` — `listApiKeys`, `insertApiKey`, `revokeApiKey`, `findActiveKeyByHash` (UPDATE+RETURNING pattern for atomic last_used_at)
+- `src/lib/server/services/api-key-service.ts` — `getApiKeys`, `generateApiKey`, `revokeApiKey`, `verifyApiKey`; 403 guard for non-super_admin; raw key returned once only
+- `src/routes/(platform)/platform/api/+page.server.ts` — load + `generate` + `revoke` form actions
+- `src/routes/(platform)/platform/api/+page.svelte` — full UI: key table, generate dialog (name + optional expiry), copy-once reveal dialog, revoke confirm dialog, usage logs placeholder
+- `src/routes/(platform)/+layout.svelte` — added `Key` icon + "API Keys" nav entry
+- `src/lib/server/services/api-key-service.test.ts` — 15 unit tests: `getApiKeys`, `generateApiKey` (prefix/hash/expiry/403/uniqueness), `revokeApiKey` (success/404/403), `verifyApiKey` (prefix guard/hash isolation/not-found/no-raw-key-leak)
+
+**Architecture decisions:**
+
+- Never store plaintext keys — store `key_prefix` (first 16 chars, for display) + `key_hash` (SHA-256, for lookup) only
+- Raw key shown once in UI copy-to-clipboard dialog, then discarded (Stripe/GitHub pattern)
+- `findActiveKeyByHash` uses `UPDATE ... RETURNING` to atomically update `last_used_at` on lookup
+- `verifyApiKey` is intentionally a thin service function — designed for future use in `hooks.server.ts` middleware
+- Usage logs deferred to next sprint — placeholder shown in UI
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 39 passed, 2 skipped (379 tests total, includes 15 new API key tests)

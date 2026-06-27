@@ -313,14 +313,14 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
   - Actions: [Suspend] [Activate] [Delete]
 - [ ] **Bulk actions** (optional)
 
-### 5.3 API Keys (`/platform/api`) ⚠️ PLACEHOLDER
+### 5.3 API Keys (`/platform/api`) ✅ DONE
 
-- [ ] **Key list** (name, created, last used, status)
-- [ ] **Generate new key** (modal)
-- [ ] **Revoke key** (with confirmation)
-- [ ] **Usage logs** (table: endpoint, timestamp, status)
+- [x] **Key list** (name, prefix, created, last used, expires, status badge)
+- [x] **Generate new key** (dialog — name + optional expiry, key shown once with copy button)
+- [x] **Revoke key** (confirmation dialog, immediate invalidation)
+- [ ] **Usage logs** (table: endpoint, timestamp, status) — deferred, placeholder shown
 
-> **Note**: Full implementation requires database migration to create `api_keys` table. Placeholder page created with planned features documented.
+> **Note**: Migration `0028_api_keys.sql` creates the `api_keys` table with SHA-256 hashing, never-store-plaintext pattern, RLS for super_admin only.
 
 ### 5.4 Monitoring (`/platform/monitoring`) ✅ DONE
 
