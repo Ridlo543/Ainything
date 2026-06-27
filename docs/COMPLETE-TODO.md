@@ -1717,3 +1717,38 @@ Two backend bugs discovered and fixed during test writing:
 
 - `pnpm check` — 0 errors, 0 warnings
 - `pnpm test:unit` — 39 passed, 2 skipped (379 tests total, includes 15 new API key tests)
+
+---
+
+## Sprint: 2026-06-28 (Chat + API Keys — Second Audit)
+
+### Audit fixes applied
+
+**Chat feature:**
+
+- C-13: `retryTimer` guard prevents stacked reconnect timers in both SSE components — `if (retryTimer !== null) return;` before scheduling
+- C-15: `system` role messages styled distinctly (yellow-50 bg, yellow-800 text, italic) in both `StaffChatWindow` and `BuyerChatWindow`
+- C-16: optimistic message IDs use `crypto.randomUUID()` instead of `Date.now()` in both components
+- C-17: `StaffChatWindow` accepts `senderName?: string` prop (default `'Saya'`) — replaces hardcoded `'Kamu'`
+- C-18: `BuyerChatWindow` lazy-connects SSE on first open (`hasConnected` flag) instead of `onMount` — avoids wasted connections when chat widget is never opened
+- C-19: `SESSION_COOKIE` constant extracted to `src/lib/server/config/cookies.ts` — deduplicates `'ainything_session'` literal across both public buyer chat routes
+- `onDestroy` now calls `clearTimeout(retryTimer)` in both components to prevent post-unmount timer fires
+
+**API keys feature:**
+
+- K-08: clipboard fallback uses `bind:this` ref (`keyCodeEl`) instead of `document.querySelector('code[data-key]')` — robust against DOM structure changes
+
+**Files modified:**
+
+- `src/lib/ui/chat/BuyerChatWindow.svelte` — C-13/C-15/C-16/C-18 + onDestroy timer cleanup
+- `src/lib/ui/chat/StaffChatWindow.svelte` — C-13/C-15/C-16/C-17 + onDestroy timer cleanup
+- `src/lib/server/config/cookies.ts` — new shared constant `SESSION_COOKIE`
+- `src/routes/api/public/chat/[roomId]/messages/+server.ts` — import SESSION_COOKIE
+- `src/routes/api/public/chat/[roomId]/stream/+server.ts` — import SESSION_COOKIE
+- `src/routes/(platform)/platform/api/+page.server.ts` — minor cleanup
+- `src/routes/(platform)/platform/api/+page.svelte` — K-08 bind:this clipboard ref
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 39 passed, 2 skipped (380 tests total, 0 failed)
