@@ -653,3 +653,6 @@ pnpm exec playwright test --grep "nama test" --reporter=line
 - [ ] Setelah build: kill server lama di port 4173 sebelum `pnpm test:e2e`
 - [ ] Jalankan `pnpm build && pnpm test:e2e --grep "nama-spec"` sebelum commit
 - [ ] Jika test butuh DB write: pastikan repository function pakai `withUserContext(callerExternalId)`
+- [ ] Jika form action bisa menerima `null` untuk field required DB: tambahkan fallback di server action atau service layer, bukan di test
+- [ ] Untuk register form: gunakan `getByLabel('Your name')` (exact) — tidak ada password toggle, tidak ada ambiguity
+- [ ] Untuk catalog modal: `getByLabel('Nama Produk')`, `getByLabel('Harga')`, `getByLabel('Deskripsi')` — semua punya `id` eksplisit

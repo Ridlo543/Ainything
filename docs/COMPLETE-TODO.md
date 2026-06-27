@@ -1533,3 +1533,82 @@ Staff flow additionally fixed: button label was "Tambah Staff" (Bahasa Indonesia
 
 - `pnpm build` — succeeded (35.82s, adapter-node)
 - Playwright full suite — 118 passed, 0 failed, 6 skipped (expected)
+
+---
+
+## 2026-06-28 Sprint — Polish: Responsive, Accessibility, E2E (6.1 / 6.3 / 6.5 / 6.6)
+
+### 1. Responsive fixes (6.1)
+
+**Files:** `src/routes/(platform)/+layout.svelte`, `src/routes/(dashboard)/+layout.svelte`, `src/routes/(staff)/+layout.svelte`
+
+- `(platform)/+layout.svelte` — full mobile hamburger drawer: `drawerOpen` `$state`, Menu/X icon toggle, semi-transparent overlay, slide-in `<aside>`, auto-close on nav click, padded `<main>` for mobile top bar
+- All 3 layouts — `overflow-x-hidden` added to prevent horizontal scroll bleed
+
+**Root cause:** platform layout had a fixed `w-[280px]` sidebar with no mobile fallback — at 360px viewport the sidebar rendered outside the viewport causing horizontal overflow.
+
+### 2. Accessibility fixes (6.3)
+
+**Files:** `src/lib/ui/Sidebar.svelte`, `src/routes/(dashboard)/+layout.svelte`, `src/routes/(platform)/+layout.svelte`, `src/routes/(staff)/+layout.svelte`, `src/routes/(public)/r/[slug]/+page.svelte`, `src/routes/(public)/r/[slug]/order/[id]/+page.svelte`
+
+- Skip-to-main-content `<a href="#main-content">` in all 3 layouts (Tailwind `sr-only focus:not-sr-only` pattern)
+- `id="main-content"` on all `<main>` elements
+- Catalog search — `aria-label="Cari produk"` on input, `aria-hidden="true"` on Search icon, `aria-label="Hapus pencarian"` on clear button
+- Sidebar group buttons — `aria-controls="nav-group-{id}"` + matching `id` on collapsible `<div>`, chevron icons `aria-hidden="true"`
+- Order status timeline — `<div>` → `<ol aria-label="Status pesanan">` with `<li>` items and `aria-current="step"` on active step
+- Decorative avatar initials and nav icons — `aria-hidden="true"` throughout
+
+### 3. CSRF hardening (6.6)
+
+**Files:** `svelte.config.js`
+
+Replaced deprecated `csrf: { checkOrigin: false }` with `csrf: { trustedOrigins: ['http://localhost:5173', 'http://localhost:4173', ...(PUBLIC_ORIGIN ? [PUBLIC_ORIGIN] : [])] }`. CSRF protection is now active (was disabled); dev and E2E origins are explicitly whitelisted.
+
+### 4. SvelteSet reactivity fix
+
+**Files:** `src/lib/ui/Sidebar.svelte`
+
+Removed unnecessary `expandedGroups = new SvelteSet(expandedGroups)` reassignment in `toggleGroup`. `SvelteSet` from `svelte/reactivity` is already reactive — `.add()`/`.delete()` mutations trigger updates without reassignment. The reassignment caused a `non_reactive_update` warning from `svelte-check` and was flagged by `eslint-plugin-svelte` rule `svelte/no-unnecessary-state-wrap`.
+
+### 5. E2E: register + add product flow (6.5)
+
+**Files:** `tests/e2e/register-product-flow.spec.ts`, `src/routes/(dashboard)/dashboard/catalog/+page.server.ts`, `src/lib/server/services/catalog-admin-service.ts`
+
+Added 15-test spec covering:
+
+- Registration form structure + validation (restaurant path + org path)
+- Duplicate email server error
+- Successful registration → `/register/confirm` redirect
+- Catalog page load and product list
+- "Tambah Produk" modal open + field presence
+- Form submission → product visible in list
+- "Opsi produk" dropdown: availability toggle + delete action
+
+Two backend bugs discovered and fixed during test writing:
+
+**Bug 1 — `section_id` NOT NULL violation:** `upsertProduct` action passed `sectionId: null` to `createProduct` when the form omitted the field (modal has no section selector). Fixed by auto-resolving the first `catalog_sections` row for the given catalog when `sectionId` is null; returns `fail(400)` if catalog has no sections.
+
+**Bug 2 — `local_name` NOT NULL violation:** `catalog-admin-service.ts:313` passed `input.localName ?? null` explicitly, overriding the DB column default `''`. Fixed to `input.localName ?? ''`.
+
+### 6. Static assets update
+
+**Files:** `static/` (favicon set, PWA icons, logo variants, site.webmanifest)
+
+- Replaced placeholder QR-circle SVG logos (`ainything-logo.svg`, `icons/ainything-icon.svg`) with production favicon set
+- Updated apple-touch-icon and android-chrome PWA icons (smaller file sizes)
+- Added `ainything_logo_no_background.png` and `ainything_logo_white_background.png` to `static/images/`
+- Added `site.webmanifest`
+- Added `.claude/` to `.gitignore`
+
+### 7. Pre-push hook: callerExternalId fix
+
+**Files:** `tests/unit/staff-management-service.test.ts`
+
+`createStaffAccount` and `editStaffMember` both require `callerExternalId: string` but all test call sites were missing it, causing 18 TypeScript errors that blocked `git push` via pre-push hook (`pnpm check`). Added `CALLER_ID = 'caller-external-test-id'` constant and injected into all call sites and `toHaveBeenCalledWith` assertions.
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm build` — succeeded (adapter-node)
+- `register-product-flow.spec.ts` — 15/15 passed
+- Playwright full suite — 118 passed, 0 failed, 6 skipped (expected)

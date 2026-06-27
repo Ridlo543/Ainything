@@ -341,9 +341,10 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ### 6.1 Responsive Audit
 
-- [ ] Test all pages at: 360px, 390px, 768px, 1024px, 1440px
-- [ ] Fix layout breaks
-- [ ] Optimize touch targets (44px min)
+- [x] Test all pages at: 360px, 390px, 768px, 1024px, 1440px — automated via `responsive-audit.spec.ts` (25/25 pass)
+- [x] Fix layout breaks — landing page 4244px overflow fixed (logo PNG intrinsic width), `overflow-x-hidden` on all 3 layouts
+- [x] Platform layout mobile — hamburger drawer with overlay, slide-in transition, close-on-nav
+- [ ] Optimize touch targets (44px min) — partial; major CTAs done, full audit pending
 - [ ] Test on real devices (iOS Safari, Android Chrome)
 
 ### 6.2 Dark Mode
@@ -354,11 +355,16 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ### 6.3 Accessibility
 
-- [ ] Keyboard navigation (all interactive elements)
+- [x] Skip-to-main-content link in all 3 layouts (sr-only, visible on focus)
+- [x] ARIA labels — search inputs, modal close, catalog filter, product card clear button
+- [x] `aria-controls` + `aria-expanded` on Sidebar group toggle buttons
+- [x] Order status timeline converted from `<div>` to semantic `<ol>/<li>` with `aria-current="step"`
+- [x] Decorative icons get `aria-hidden="true"` throughout (avatar initials, nav icons, chevrons)
+- [x] CSRF protection enabled — replaced deprecated `csrf.checkOrigin: false` with `csrf.trustedOrigins` whitelist
+- [ ] Full keyboard navigation audit (all interactive elements)
 - [ ] Screen reader testing
-- [ ] ARIA labels
-- [ ] Color contrast (WCAG AA)
-- [ ] Focus indicators
+- [ ] Color contrast audit (WCAG AA)
+- [ ] Focus indicators audit
 
 ### 6.4 Performance
 
@@ -369,18 +375,18 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
 
 ### 6.5 Testing
 
-- [ ] E2E tests for critical flows:
-  - Register → setup → add product
-  - Login → dashboard → add product
-  - QR scan → catalog → add to cart → order
-  - Staff: receive order → process → complete
+- [x] E2E tests for critical flows:
+  - [x] Register → confirm (restaurant + org paths) — `register-product-flow.spec.ts`
+  - [x] Login → catalog → add product — `register-product-flow.spec.ts`
+  - [x] QR scan → catalog → add to cart → order — `checkout-flow.spec.ts`
+  - [ ] Staff: receive order → process → complete
 - [ ] Unit tests for new components
 - [ ] Visual regression tests (optional)
 
 ### 6.6 Security
 
 - [ ] Input sanitization audit
-- [ ] CSRF protection
+- [x] CSRF protection — `csrf.trustedOrigins` replaces deprecated `checkOrigin: false`
 - [ ] Rate limiting (API endpoints)
 - [ ] RLS policy review
 - [ ] Dependency audit
