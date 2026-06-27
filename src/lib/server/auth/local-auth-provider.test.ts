@@ -17,18 +17,18 @@ vi.mock('$lib/server/db/postgres', () => ({
 	directQuery: (...args: unknown[]) => directQueryMock(...args)
 }));
 
-// bcryptjs is a real dep — we mock only compare/hash to keep tests fast
+// bcryptjs is a real dep — we mock only compareSync/hash to keep tests fast
 vi.mock('bcryptjs', () => ({
 	default: {
-		compare: vi.fn(),
+		compareSync: vi.fn(),
 		hash: vi.fn()
 	},
-	compare: vi.fn(),
+	compareSync: vi.fn(),
 	hash: vi.fn()
 }));
 
 import bcrypt from 'bcryptjs';
-const bcryptCompare = vi.mocked(bcrypt.compare);
+const bcryptCompare = vi.mocked(bcrypt.compareSync);
 const bcryptHash = vi.mocked(bcrypt.hash);
 
 const { LocalAuthProvider, SESSION_COOKIE, hashPassword } = await import('./local-auth-provider');
@@ -52,6 +52,7 @@ function makeCookies(initial: Record<string, string> = {}) {
 
 const USER_ROW = {
 	id: 'user-001',
+	external_auth_id: 'user-001',
 	email: 'owner@bali-table.test',
 	name: 'Demo Owner',
 	platform_role: 'staff',
@@ -87,7 +88,7 @@ describe('LocalAuthProvider — login', () => {
 		// 4. memberships SELECT
 		directQueryMock.mockResolvedValueOnce({ rows: [MEMBERSHIP_ROW] });
 
-		bcryptCompare.mockResolvedValueOnce(true as never);
+		bcryptCompare.mockReturnValueOnce(true as never);
 
 		const cookies = makeCookies();
 		const user = await provider.login('owner@bali-table.test', 'demo1234', cookies as never);
@@ -121,7 +122,7 @@ describe('LocalAuthProvider — login', () => {
 
 	it('throws on wrong password', async () => {
 		directQueryMock.mockResolvedValueOnce({ rows: [USER_ROW] });
-		bcryptCompare.mockResolvedValueOnce(false as never);
+		bcryptCompare.mockReturnValueOnce(false as never);
 
 		const cookies = makeCookies();
 		await expect(
@@ -138,7 +139,7 @@ describe('LocalAuthProvider — login', () => {
 		directQueryMock.mockResolvedValueOnce({ rows: [USER_ROW] }); // resolve user
 		directQueryMock.mockResolvedValueOnce({ rows: [MEMBERSHIP_ROW] }); // memberships
 
-		bcryptCompare.mockResolvedValueOnce(true as never);
+		bcryptCompare.mockReturnValueOnce(true as never);
 
 		const cookies = makeCookies({ [SESSION_COOKIE]: oldToken });
 		await provider.login('owner@bali-table.test', 'demo1234', cookies as never);
@@ -293,7 +294,7 @@ describe('LocalAuthProvider — membership grouping (multi-outlet)', () => {
 			]
 		});
 
-		bcryptCompare.mockResolvedValueOnce(true as never);
+		bcryptCompare.mockReturnValueOnce(true as never);
 
 		const cookies = makeCookies();
 		const user = await provider.login('owner@bali-table.test', 'demo1234', cookies as never);
