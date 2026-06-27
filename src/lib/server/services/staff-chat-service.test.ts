@@ -61,6 +61,7 @@ const makeMessage = (role: 'staff' | 'customer' = 'staff') => ({
 	roomId: ROOM_ID,
 	role,
 	content: 'Halo, ada yang bisa dibantu?',
+	senderId: role === 'staff' ? USER_ID : null,
 	senderName: role === 'staff' ? 'Staff A' : null,
 	createdAt: '2026-06-28T12:00:00Z'
 });
@@ -198,16 +199,7 @@ describe('sendBuyerMessage', () => {
 		expect(result).toEqual(msg);
 	});
 
-	it('throws 403 when room does not exist', async () => {
-		getBuyerRoomContextMock.mockResolvedValue(null);
-
-		await expect(sendBuyerMessage(BUYER_SESSION_ID, ROOM_ID, 'test')).rejects.toMatchObject({
-			status: 403
-		});
-		expect(insertBuyerMessageMock).not.toHaveBeenCalled();
-	});
-
-	it('throws 403 when buyer session does not own the room', async () => {
+	it('throws 403 when getBuyerRoomContext returns null (room missing or session mismatch)', async () => {
 		getBuyerRoomContextMock.mockResolvedValue(null);
 
 		await expect(sendBuyerMessage(BUYER_SESSION_ID, ROOM_ID, 'test')).rejects.toMatchObject({

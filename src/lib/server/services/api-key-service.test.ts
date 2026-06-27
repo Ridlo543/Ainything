@@ -35,6 +35,7 @@ const { getApiKeys, generateApiKey, revokeApiKey, verifyApiKey } =
 
 const KEY_ID = 'k1k2k3k4-k5k6-4k7k-8k9k-kkkkkkkkkkkk';
 const USER_ID = 'u1u2u3u4-u5u6-4u7u-8u9u-uuuuuuuuuuuu';
+const STAFF_USER_ID = 's1s2s3s4-s5s6-4s7s-8s9s-ssssssssssss';
 
 import type { ApiKey } from '$lib/domain/api-key/types';
 import type { AuthUser } from '$lib/domain/auth/types';
@@ -42,7 +43,7 @@ import type { AuthUser } from '$lib/domain/auth/types';
 const MOCK_KEY: ApiKey = {
 	id: KEY_ID,
 	name: 'Test Integration Key',
-	keyPrefix: 'ak_live_abcd',
+	keyPrefix: 'ak_live_abcdef01',
 	createdById: USER_ID,
 	createdByName: 'Admin User',
 	lastUsedAt: null,
@@ -61,7 +62,7 @@ const SUPER_ADMIN: AuthUser = {
 };
 
 const STAFF_USER: AuthUser = {
-	id: USER_ID,
+	id: STAFF_USER_ID,
 	email: 'staff@example.com',
 	name: 'Staff User',
 	platformRole: 'staff',

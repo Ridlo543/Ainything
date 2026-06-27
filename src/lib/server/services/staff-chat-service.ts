@@ -10,8 +10,8 @@
  * 3. Published to Redis so all SSE subscribers receive it instantly
  *
  * If Redis is unavailable, messages are still persisted — only the
- * real-time push degrades gracefully. SSE clients use a 3s heartbeat
- * fallback poll in that case.
+ * real-time push degrades gracefully. The SSE heartbeat (every 25s)
+ * keeps the connection alive; clients reconnect automatically on drop.
  */
 
 import { error } from '@sveltejs/kit';

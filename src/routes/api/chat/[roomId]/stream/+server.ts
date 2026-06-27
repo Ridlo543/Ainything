@@ -16,12 +16,15 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 	const { roomId } = params;
 
-	// Validate the room exists and belongs to the staff member's organization
+	// Validate the room exists and belongs to one of the staff member's outlets.
+	// Mirror the same org+outlet check used in sendStaffReply so subscribe and
+	// send permissions are always in sync.
 	const ctx = await getRoomContext(roomId);
 	if (!ctx) error(404, 'Chat room not found');
 
 	const membership = user.memberships.find((m) => m.organizationId === ctx.organizationId);
 	if (!membership) error(403, 'Access denied');
+	if (!membership.outletIds.includes(ctx.outletId)) error(403, 'Access denied');
 
 	const stream = createChatSSEStream(roomId);
 
