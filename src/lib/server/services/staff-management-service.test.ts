@@ -92,6 +92,10 @@ const NEW_USER_ROW = {
 	name: 'Budi Santoso'
 };
 
+// callerExternalId is required by createStaffAccount and editStaffMember
+// for RLS-scoped repository calls — use a stable test value
+const CALLER_ID = 'caller-external-test-id';
+
 // ---------------------------------------------------------------------------
 // createStaffAccount
 // ---------------------------------------------------------------------------
@@ -109,7 +113,8 @@ describe('createStaffAccount', () => {
 			createStaffAccount({
 				input: VALID_CREATE_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'staff'
+				requesterRole: 'staff',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementPermissionError);
 
@@ -117,7 +122,8 @@ describe('createStaffAccount', () => {
 			createStaffAccount({
 				input: VALID_CREATE_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'manager'
+				requesterRole: 'manager',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementPermissionError);
 	});
@@ -126,7 +132,8 @@ describe('createStaffAccount', () => {
 		await createStaffAccount({
 			input: VALID_CREATE_INPUT,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		expect(bcryptHashMock).toHaveBeenCalledOnce();
@@ -137,7 +144,8 @@ describe('createStaffAccount', () => {
 		await createStaffAccount({
 			input: VALID_CREATE_INPUT,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		expect(createUserWithMembershipMock).toHaveBeenCalledOnce();
@@ -146,7 +154,8 @@ describe('createStaffAccount', () => {
 			name: 'Budi Santoso',
 			passwordHash: '$2b$12$fakehash',
 			organizationId: ORG_ID,
-			role: 'staff'
+			role: 'staff',
+			callerExternalId: CALLER_ID
 		});
 	});
 
@@ -154,7 +163,8 @@ describe('createStaffAccount', () => {
 		const result = await createStaffAccount({
 			input: VALID_CREATE_INPUT,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		expect(result).toEqual({ userId: 'user-abc', email: 'budi@bali-table.test' });
@@ -167,7 +177,8 @@ describe('createStaffAccount', () => {
 			createStaffAccount({
 				input: VALID_CREATE_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'owner'
+				requesterRole: 'owner',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementInputError);
 
@@ -175,7 +186,8 @@ describe('createStaffAccount', () => {
 			createStaffAccount({
 				input: VALID_CREATE_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'owner'
+				requesterRole: 'owner',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(/already exists/i);
 	});
@@ -188,7 +200,8 @@ describe('createStaffAccount', () => {
 			createStaffAccount({
 				input: VALID_CREATE_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'owner'
+				requesterRole: 'owner',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow('connection refused');
 	});
@@ -198,7 +211,8 @@ describe('createStaffAccount', () => {
 			createStaffAccount({
 				input: { name: '', email: 'not-an-email', password: '123', role: 'staff' },
 				organizationId: ORG_ID,
-				requesterRole: 'owner'
+				requesterRole: 'owner',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementInputError);
 
@@ -216,7 +230,8 @@ describe('createStaffAccount', () => {
 				createStaffAccount({
 					input: { ...VALID_CREATE_INPUT, role },
 					organizationId: ORG_ID,
-					requesterRole: 'owner'
+					requesterRole: 'owner',
+					callerExternalId: CALLER_ID
 				})
 			).resolves.toBeDefined();
 
@@ -240,7 +255,8 @@ describe('editStaffMember', () => {
 			editStaffMember({
 				input: VALID_EDIT_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'staff'
+				requesterRole: 'staff',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementPermissionError);
 
@@ -248,7 +264,8 @@ describe('editStaffMember', () => {
 			editStaffMember({
 				input: VALID_EDIT_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'manager'
+				requesterRole: 'manager',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementPermissionError);
 	});
@@ -257,7 +274,8 @@ describe('editStaffMember', () => {
 		await editStaffMember({
 			input: VALID_EDIT_INPUT,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		// bcrypt should NOT have been called
@@ -268,7 +286,8 @@ describe('editStaffMember', () => {
 			membershipId: MEMBERSHIP_ID,
 			organizationId: ORG_ID,
 			name: 'Budi Santoso Updated',
-			passwordHash: undefined
+			passwordHash: undefined,
+			callerExternalId: CALLER_ID
 		});
 	});
 
@@ -276,7 +295,8 @@ describe('editStaffMember', () => {
 		await editStaffMember({
 			input: VALID_EDIT_WITH_PASSWORD,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		expect(bcryptHashMock).toHaveBeenCalledOnce();
@@ -287,14 +307,16 @@ describe('editStaffMember', () => {
 		await editStaffMember({
 			input: VALID_EDIT_WITH_PASSWORD,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		expect(updateUserProfileMock).toHaveBeenCalledWith({
 			membershipId: MEMBERSHIP_ID,
 			organizationId: ORG_ID,
 			name: 'Budi Santoso Updated',
-			passwordHash: '$2b$12$newhash'
+			passwordHash: '$2b$12$newhash',
+			callerExternalId: CALLER_ID
 		});
 	});
 
@@ -304,7 +326,8 @@ describe('editStaffMember', () => {
 				// membershipId missing
 				input: { name: 'x' } as never,
 				organizationId: ORG_ID,
-				requesterRole: 'owner'
+				requesterRole: 'owner',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow(StaffManagementInputError);
 
@@ -315,7 +338,8 @@ describe('editStaffMember', () => {
 		const result = await editStaffMember({
 			input: VALID_EDIT_INPUT,
 			organizationId: ORG_ID,
-			requesterRole: 'owner'
+			requesterRole: 'owner',
+			callerExternalId: CALLER_ID
 		});
 
 		expect(result).toBeUndefined();
@@ -328,7 +352,8 @@ describe('editStaffMember', () => {
 			editStaffMember({
 				input: VALID_EDIT_INPUT,
 				organizationId: ORG_ID,
-				requesterRole: 'owner'
+				requesterRole: 'owner',
+				callerExternalId: CALLER_ID
 			})
 		).rejects.toThrow('DB write failed');
 	});
