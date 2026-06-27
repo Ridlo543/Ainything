@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// Guard is already enforced by (platform) layout server — user is super_admin
 	if (!locals.user) error(401, 'Unauthorized');
 
-	const keys = await getApiKeys();
+	const keys = await getApiKeys(locals.user);
 
 	return { keys };
 };

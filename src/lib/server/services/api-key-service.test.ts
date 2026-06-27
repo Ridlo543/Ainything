@@ -80,7 +80,7 @@ describe('getApiKeys', () => {
 	it('returns the list from the repository', async () => {
 		listApiKeysMock.mockResolvedValue([MOCK_KEY]);
 
-		const result = await getApiKeys();
+		const result = await getApiKeys(SUPER_ADMIN);
 
 		expect(result).toEqual([MOCK_KEY]);
 		expect(listApiKeysMock).toHaveBeenCalledOnce();
@@ -89,9 +89,15 @@ describe('getApiKeys', () => {
 	it('returns empty array when no keys exist', async () => {
 		listApiKeysMock.mockResolvedValue([]);
 
-		const result = await getApiKeys();
+		const result = await getApiKeys(SUPER_ADMIN);
 
 		expect(result).toEqual([]);
+	});
+
+	it('throws 403 when caller is not super_admin', async () => {
+		await expect(getApiKeys(STAFF_USER)).rejects.toMatchObject({ status: 403 });
+
+		expect(listApiKeysMock).not.toHaveBeenCalled();
 	});
 });
 

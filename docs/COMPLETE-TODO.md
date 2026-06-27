@@ -1654,6 +1654,43 @@ Two backend bugs discovered and fixed during test writing:
 
 ## Sprint: 2026-06-28 (5.3 API Keys)
 
+### 5.3 Platform API Key Management
+
+**Files added:**
+
+- `db/migrations/0028_api_keys.sql` — `api_keys` table (SHA-256 hash, RLS super_admin only, REVOKE DELETE + key_hash column-level, partial index on active keys)
+- `src/lib/domain/api-key/types.ts` — `ApiKey`, `ApiKeyStatus`, `GeneratedApiKey` domain types
+- `src/lib/domain/api-key/schema.ts` — Zod `generateApiKeySchema` (name + optional expiresAt with datetime-local preprocessing), `revokeApiKeySchema`
+- `src/lib/server/repositories/api-key-repository.ts` — `listApiKeys`, `insertApiKey` (CTE+JOIN for createdByName), `revokeApiKey` (WHERE revoked_at IS NULL → boolean), `findActiveKeyByHash` (UPDATE last_used_at + RETURNING, atomic)
+- `src/lib/server/services/api-key-service.ts` — `getApiKeys` (403 guard), `generateApiKey` (ak*live* prefix, 32-byte entropy, SHA-256, key returned once), `revokeApiKey` (403+404 guards), `verifyApiKey` (prefix shortcut + hash lookup)
+- `src/routes/(platform)/platform/api/+page.server.ts` — load + generate + revoke form actions
+- `src/routes/(platform)/platform/api/+page.svelte` — key table, generate dialog (copy-once reveal with clipboard fallback), revoke confirm dialog, usage logs placeholder
+- `src/lib/server/services/api-key-service.test.ts` — 16 unit tests: getApiKeys (list, empty, 403), generateApiKey (format, prefix+hash, expiresAt, 403, uniqueness), revokeApiKey (success, 404, 403), verifyApiKey (no prefix, empty, hash correctness, not found, hash-only to repo)
+
+**Files modified:**
+
+- `src/routes/(platform)/+layout.svelte` — added API Keys nav entry (Key icon)
+- `docs/REDESIGN_TODO.md` — 5.3 marked DONE
+
+**Architecture decisions:**
+
+- Never store plaintext keys — `key_prefix` (16 chars display) + `key_hash` (SHA-256 lookup only), Stripe/GitHub pattern
+- `UNIQUE` constraint on `key_hash` implicitly creates B-tree index — removed redundant explicit `CREATE INDEX api_keys_key_hash_idx`
+- `expiresAt` Zod schema uses `z.preprocess` to handle HTML `datetime-local` format (`YYYY-MM-DDTHH:mm`) by appending `:00.000Z`
+- `getApiKeys` takes `caller: AuthUser` and enforces 403 — defense in depth beyond layout guard
+- `findActiveKeyByHash` uses `UPDATE ... RETURNING` for atomic last_used_at touch
+- `verifyApiKey` ready for `hooks.server.ts` middleware use in a future sprint
+- clipboard copy has `try/catch` with Range API fallback for browsers without Clipboard API
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 39 passed, 2 skipped (380 tests total, includes 16 new api-key tests)
+
+---
+
+## Sprint: 2026-06-28 (5.3 API Keys)
+
 ### 5.3 Platform API Keys
 
 **Files changed:**

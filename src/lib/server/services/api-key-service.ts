@@ -46,9 +46,12 @@ function hashKey(rawKey: string): string {
 
 /**
  * List all platform API keys (no hashes, ordered newest first).
- * Caller must be super_admin — enforced by the route layer.
+ * @param caller  Authenticated user performing the action (must be super_admin)
  */
-export async function getApiKeys(): Promise<ApiKey[]> {
+export async function getApiKeys(caller: AuthUser): Promise<ApiKey[]> {
+	if (caller.platformRole !== 'super_admin') {
+		error(403, 'Only platform admins can list API keys');
+	}
 	return repoListApiKeys();
 }
 

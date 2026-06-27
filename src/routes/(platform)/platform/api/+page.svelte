@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { Key, Plus, Trash2, Copy, Check, Clock, AlertCircle, ShieldCheck } from '@lucide/svelte';
 	import * as Card from '$lib/ui/card';
 	import * as Dialog from '$lib/ui/dialog';
@@ -57,9 +58,21 @@
 	}
 
 	async function copyKey(key: string) {
-		await navigator.clipboard.writeText(key);
-		generatedKeyCopied = true;
-		setTimeout(() => (generatedKeyCopied = false), 2000);
+		try {
+			await navigator.clipboard.writeText(key);
+			generatedKeyCopied = true;
+			setTimeout(() => (generatedKeyCopied = false), 2000);
+		} catch {
+			// Clipboard API not available (HTTP context or permission denied)
+			// Fallback: select the text in the code element so user can copy manually
+			const el = document.querySelector('code[data-key]') as HTMLElement | null;
+			if (el) {
+				const range = document.createRange();
+				range.selectNodeContents(el);
+				window.getSelection()?.removeAllRanges();
+				window.getSelection()?.addRange(range);
+			}
+		}
 	}
 
 	function statusVariant(status: ApiKey['status']): 'default' | 'secondary' | 'destructive' {
@@ -279,7 +292,12 @@
   Generated key reveal dialog — shown once after successful generation
 ---------------------------------------------------------------------------- -->
 {#if generatedKey}
-	<Dialog.Root open={true} onOpenChange={() => {}}>
+	<Dialog.Root
+		open={true}
+		onOpenChange={() => {
+			void invalidateAll();
+		}}
+	>
 		<Dialog.Content class="sm:max-w-lg">
 			<Dialog.Header>
 				<Dialog.Title>API Key Berhasil Dibuat</Dialog.Title>
@@ -295,6 +313,7 @@
 					</p>
 					<div class="flex items-center gap-2">
 						<code
+							data-key
 							class="flex-1 overflow-x-auto rounded bg-background px-3 py-2 text-xs font-mono break-all"
 						>
 							{generatedKey.generatedKey}
@@ -326,11 +345,7 @@
 			</div>
 
 			<Dialog.Footer>
-				<form method="POST">
-					<Button type="button" onclick={() => window.location.reload()}>
-						Saya sudah menyimpan key ini
-					</Button>
-				</form>
+				<Button type="button" onclick={() => invalidateAll()}>Saya sudah menyimpan key ini</Button>
 			</Dialog.Footer>
 		</Dialog.Content>
 	</Dialog.Root>

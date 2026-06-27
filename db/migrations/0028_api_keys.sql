@@ -28,8 +28,8 @@ COMMENT ON TABLE public.api_keys IS
 -- ---------------------------------------------------------------------------
 -- Indexes
 -- ---------------------------------------------------------------------------
--- Fast lookup by hash on every incoming request
-CREATE INDEX api_keys_key_hash_idx ON public.api_keys (key_hash);
+-- NOTE: key_hash already has a B-tree index from the UNIQUE constraint.
+-- Additional indexes for common query patterns:
 -- Filter active/revoked keys quickly
 CREATE INDEX api_keys_revoked_at_idx ON public.api_keys (revoked_at) WHERE revoked_at IS NULL;
 -- Order by creation date for list view
