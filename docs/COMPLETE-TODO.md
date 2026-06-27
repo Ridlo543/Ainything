@@ -1788,3 +1788,37 @@ Two backend bugs discovered and fixed during test writing:
 
 - `pnpm check` — 0 errors, 0 warnings
 - `pnpm test:unit` — 39 passed, 2 skipped (380 tests total, 0 failed)
+
+---
+
+## Sprint: 2026-06-28 (Chat + API Keys — Fourth Audit)
+
+### Audit fixes applied
+
+**Chat feature — SSE authorization:**
+
+- Staff SSE stream endpoint (/api/chat/[roomId]/stream/+server.ts) now checks membership.outletIds.includes(ctx.outletId) in addition to organizationId — consistent with sendStaffReply; previously staff in org but different outlet could subscribe to another outlet's room stream
+
+**Service documentation:**
+
+- Corrected misleading comment in staff-chat-service.ts that claimed "SSE clients use a 3s heartbeat fallback poll" — clients auto-reconnect on drop; heartbeat is a 25s keepalive, not polling
+
+**Test quality:**
+
+- makeMessage fixture in staff-chat-service.test.ts now includes senderId: string | null field to match StaffChatMessage domain type — previously missing caused type mismatch in equality assertions
+- Duplicate sendBuyerMessage tests (identical setup, different name) merged into single canonical test: "throws 403 when getBuyerRoomContext returns null (room missing or session mismatch)"
+- STAFF_USER in pi-key-service.test.ts now uses distinct STAFF_USER_ID constant instead of sharing USER_ID with SUPER_ADMIN — fixture now reflects realistic distinct identities
+- MOCK_KEY.keyPrefix corrected from 'ak_live_abcd' (12 chars) to 'ak_live_abcdef01' (16 chars) matching service's
+  awKey.slice(0, 16)
+
+**Files modified:**
+
+- `src/routes/api/chat/[roomId]/stream/+server.ts` — added outlet membership check
+- `src/lib/server/services/staff-chat-service.ts` — corrected heartbeat comment
+- `src/lib/server/services/staff-chat-service.test.ts` — senderId in fixture, duplicate test removed
+- `src/lib/server/services/api-key-service.test.ts` — STAFF_USER_ID, MOCK_KEY.keyPrefix length
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 39 passed, 2 skipped (379 tests total, 0 failed)
