@@ -24,6 +24,8 @@
 	let generatedKeyCopied = $state(false);
 	let generatingKey = $state(false);
 	let revokingKey = $state(false);
+	/** bind:this ref for clipboard fallback — avoids fragile querySelector (K-08) */
+	let keyCodeEl = $state<HTMLElement | null>(null);
 
 	// When server returns a generated key, open the reveal dialog
 	const generatedKey = $derived(
@@ -64,11 +66,10 @@
 			setTimeout(() => (generatedKeyCopied = false), 2000);
 		} catch {
 			// Clipboard API not available (HTTP context or permission denied)
-			// Fallback: select the text in the code element so user can copy manually
-			const el = document.querySelector('code[data-key]') as HTMLElement | null;
-			if (el) {
+			// Fallback: select the text via bind:this ref (K-08 — avoids fragile querySelector)
+			if (keyCodeEl) {
 				const range = document.createRange();
-				range.selectNodeContents(el);
+				range.selectNodeContents(keyCodeEl);
 				window.getSelection()?.removeAllRanges();
 				window.getSelection()?.addRange(range);
 			}

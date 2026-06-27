@@ -13,9 +13,11 @@
 
 	type Props = {
 		roomId: string;
+		/** Display name for the current staff user — shown on optimistic messages. */
+		senderName?: string;
 	};
 
-	const { roomId }: Props = $props();
+	const { roomId, senderName = 'Saya' }: Props = $props();
 
 	// ---------------------------------------------------------------------------
 	// State
@@ -29,6 +31,7 @@
 
 	let eventSource: EventSource | null = null;
 	let retryCount = 0;
+	let retryTimer: ReturnType<typeof setTimeout> | null = null;
 	const MAX_RETRIES = 10;
 
 	// ---------------------------------------------------------------------------
@@ -61,10 +64,12 @@
 		eventSource.onerror = () => {
 			connected = false;
 			if (retryCount >= MAX_RETRIES) return; // Give up after 10 attempts
+			if (retryTimer !== null) return; // Prevent multiple pending timers (C-13)
 			retryCount += 1;
 			// Exponential back-off capped at 30s
 			const delay = Math.min(1000 * 2 ** retryCount, 30_000);
-			setTimeout(() => {
+			retryTimer = setTimeout(() => {
+				retryTimer = null;
 				eventSource?.close();
 				eventSource = null;
 				connect();
@@ -94,12 +99,12 @@
 		inputText = '';
 
 		const optimistic: StaffChatMessage = {
-			id: `optimistic-${Date.now()}`,
+			id: `optimistic-${crypto.randomUUID()}`,
 			roomId,
 			role: 'staff',
 			content,
 			senderId: null,
-			senderName: 'Kamu',
+			senderName,
 			createdAt: new Date().toISOString()
 		};
 		messages = [...messages, optimistic];
@@ -140,6 +145,7 @@
 	});
 
 	onDestroy(() => {
+		if (retryTimer !== null) clearTimeout(retryTimer);
 		disconnect();
 	});
 
@@ -190,6 +196,8 @@
 				>
 					{#if msg.role === 'customer'}
 						<p class="mb-1 text-xs font-medium text-gray-500">Pembeli</p>
+					{:else if msg.role === 'system'}
+						<p class="mb-1 text-xs font-medium text-yellow-600">Sistem</p>
 					{:else if msg.senderName}
 						<p class="mb-1 text-xs font-medium text-white/70">{msg.senderName}</p>
 					{/if}

@@ -9,8 +9,7 @@ import type { RequestHandler } from './$types';
 import { error, json } from '@sveltejs/kit';
 import { buyerSendMessageSchema } from '$lib/domain/chat/schema';
 import { sendBuyerMessage } from '$lib/server/services/staff-chat-service';
-
-const SESSION_COOKIE = 'ainything_session';
+import { SESSION_COOKIE } from '$lib/server/config/cookies';
 
 export const POST: RequestHandler = async ({ params, request, cookies }) => {
 	const sessionId = cookies.get(SESSION_COOKIE);

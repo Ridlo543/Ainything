@@ -30,9 +30,12 @@
 	let error = $state<string | null>(null);
 	let unreadCount = $state(0);
 	let scrollEl = $state<HTMLElement | null>(null);
+	/** Whether connect() has ever been called — used for lazy-connect on first open. */
+	let hasConnected = false;
 
 	let eventSource: EventSource | null = null;
 	let retryCount = 0;
+	let retryTimer: ReturnType<typeof setTimeout> | null = null;
 	const MAX_RETRIES = 10;
 
 	// ---------------------------------------------------------------------------
@@ -70,10 +73,12 @@
 		eventSource.onerror = () => {
 			connected = false;
 			if (retryCount >= MAX_RETRIES) return; // Give up after 10 attempts
+			if (retryTimer !== null) return; // Prevent multiple pending timers (C-13)
 			retryCount += 1;
 			// Exponential back-off capped at 30s
 			const delay = Math.min(1000 * 2 ** retryCount, 30_000);
-			setTimeout(() => {
+			retryTimer = setTimeout(() => {
+				retryTimer = null;
 				eventSource?.close();
 				eventSource = null;
 				connect();
@@ -106,7 +111,7 @@
 
 		// Optimistic local add
 		const optimistic: StaffChatMessage = {
-			id: `optimistic-${Date.now()}`,
+			id: `optimistic-${crypto.randomUUID()}`,
 			roomId,
 			role: 'customer',
 			content,
@@ -154,6 +159,11 @@
 		if (isOpen) {
 			unreadCount = 0;
 			scrollToBottom();
+			// Lazy-connect: only open SSE on first open (C-18)
+			if (!hasConnected) {
+				hasConnected = true;
+				connect();
+			}
 		}
 	}
 
@@ -161,10 +171,11 @@
 	// Lifecycle
 	// ---------------------------------------------------------------------------
 	onMount(() => {
-		connect();
+		// Do NOT connect eagerly — wait for first open (lazy-connect)
 	});
 
 	onDestroy(() => {
+		if (retryTimer !== null) clearTimeout(retryTimer);
 		disconnect();
 	});
 
@@ -228,10 +239,14 @@
 						<div
 							class="max-w-[80%] rounded-2xl px-3 py-2 text-sm {msg.role === 'customer'
 								? 'rounded-br-sm bg-ainything-primary text-white'
-								: 'rounded-bl-sm bg-gray-100 text-gray-900'}"
+								: msg.role === 'system'
+									? 'w-full rounded-lg bg-yellow-50 text-yellow-800 text-center text-xs italic'
+									: 'rounded-bl-sm bg-gray-100 text-gray-900'}"
 						>
 							{#if msg.role === 'staff' && msg.senderName}
 								<p class="mb-1 text-xs font-medium text-gray-500">{msg.senderName}</p>
+							{:else if msg.role === 'system'}
+								<p class="mb-1 text-xs font-medium text-yellow-600">Sistem</p>
 							{/if}
 							<p class="break-words">{msg.content}</p>
 							<p

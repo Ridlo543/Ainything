@@ -36,7 +36,9 @@ export const actions: Actions = {
 			locals.user
 		);
 
-		// Return the raw key once — it cannot be retrieved again
+		// Return the raw key once — it cannot be retrieved again.
+		// SvelteKit serialises form action results in the page HTML only temporarily;
+		// the key is never cached by the browser since form actions use POST.
 		return {
 			action: 'generate' as const,
 			generatedKey: generated.key,
