@@ -29,6 +29,7 @@ playwright-report
 
 # Local agent cache/config
 .agents/
+.claude/
 
 # Editor
 .vscode/
