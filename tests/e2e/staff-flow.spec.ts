@@ -40,21 +40,21 @@ test.describe('Staff management page', () => {
 		}
 
 		await page.goto('/dashboard/team');
-		const inviteBtn = page.getByRole('button', { name: /invite/i });
-		if (!(await inviteBtn.isVisible())) {
-			test.skip(true, 'Invite button not visible');
-			return;
-		}
+		await page.waitForLoadState('load');
 
-		await inviteBtn.click();
+		// Button is "Tambah Staff" — not "Invite"
+		const addBtn = page.getByRole('button', { name: /tambah staff/i });
+		await expect(addBtn).toBeVisible({ timeout: 5000 });
+
+		await addBtn.click();
 		const dialog = page.getByRole('dialog');
-		await expect(dialog).toBeVisible({ timeout: 3000 });
+		await expect(dialog).toBeVisible({ timeout: 5000 });
 
-		const closeBtn = dialog.getByRole('button', { name: /close|cancel|batal/i });
-		if (await closeBtn.isVisible()) {
-			await closeBtn.click();
-			await expect(dialog).not.toBeVisible({ timeout: 3000 });
-		}
+		// Close via Batal button
+		const closeBtn = dialog.getByRole('button', { name: /batal/i });
+		await expect(closeBtn).toBeVisible({ timeout: 3000 });
+		await closeBtn.click();
+		await expect(dialog).not.toBeVisible({ timeout: 3000 });
 	});
 
 	test('shows role badge for each member', async ({ page }) => {
@@ -65,9 +65,13 @@ test.describe('Staff management page', () => {
 		}
 
 		await page.goto('/dashboard/team');
-		// Role badge visible in member list — match standalone "Owner" only
-		const ownerBadge = page.getByText(/^Owner$/);
-		const badgeVisible = await ownerBadge.isVisible({ timeout: 3000 });
+		await page.waitForLoadState('load');
+		// Role badge renders as <span><svg/>Owner</span> — use exact text match
+		const ownerBadge = page.getByText('Owner', { exact: true });
+		const badgeVisible = await ownerBadge
+			.first()
+			.isVisible({ timeout: 5000 })
+			.catch(() => false);
 		if (!badgeVisible) {
 			test.skip(true, 'Owner badge not visible — check DB seed state');
 			return;

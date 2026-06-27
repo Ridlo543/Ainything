@@ -43,34 +43,49 @@ async function addFirstItemToCart(page: import('@playwright/test').Page) {
 	// Wait for full hydration — domcontentloaded isn't enough for Svelte client init.
 	await page.waitForLoadState('load');
 
+	// Derive the expected cart key from the current URL slug (e.g. /r/taman-sate → ainything-cart-taman-sate).
+	// Clear it first so stale data from a previous test run never produces a false positive.
+	const slug = new URL(page.url()).pathname.split('/r/')[1]?.split('/')[0] ?? '';
+	const cartKey = `ainything-cart-${slug}`;
+	await page.evaluate((key) => localStorage.removeItem(key), cartKey);
+
 	// The quick-add button aria-label is "Add {product name} to cart"
 	const quickAddBtn = page.getByRole('button', { name: /^add .+ to cart$/i }).first();
-	await quickAddBtn.waitFor({ state: 'visible', timeout: 10000 });
-	await quickAddBtn.click();
+	await quickAddBtn.waitFor({ state: 'visible', timeout: 15000 });
 
-	// Verify localStorage directly — cart.add() calls persist() synchronously,
-	// writing to ainything-cart-{slug}. The floating cart button only appears
-	// after Svelte state updates, so we poll localStorage as the ground truth.
+	// Under parallel load, the button is visible in SSR HTML before Svelte hydrates
+	// and attaches onclick. Retry clicking until localStorage is populated — up to 5
+	// attempts — rather than a single click that races hydration timing.
+	const checkCart = () =>
+		page.evaluate((key) => {
+			const val = localStorage.getItem(key);
+			try {
+				const parsed = JSON.parse(val ?? '[]');
+				return Array.isArray(parsed) && parsed.length > 0;
+			} catch {
+				return false;
+			}
+		}, cartKey);
+
+	for (let attempt = 0; attempt < 5; attempt++) {
+		await quickAddBtn.click();
+		// Poll for up to 1.5s — enough time for Svelte to call persist() after hydration
+		const populated = await expect
+			.poll(checkCart, { timeout: 1500, intervals: [100, 200, 300, 400, 500] })
+			.toBe(true)
+			.then(() => true)
+			.catch(() => false);
+		if (populated) return;
+		// Not populated yet: hydration is still in progress, wait briefly before retry
+		await page.waitForTimeout(300);
+	}
+
+	// Final assertion — if all retries failed, fail with a clear message
 	await expect
-		.poll(
-			() =>
-				page.evaluate(() => {
-					for (let i = 0; i < localStorage.length; i++) {
-						const key = localStorage.key(i);
-						if (key?.startsWith('ainything-cart-')) {
-							const val = localStorage.getItem(key);
-							try {
-								const parsed = JSON.parse(val ?? '[]');
-								if (Array.isArray(parsed) && parsed.length > 0) return true;
-							} catch {
-								// ignore
-							}
-						}
-					}
-					return false;
-				}),
-			{ timeout: 5000, message: 'cart localStorage not populated after clicking add-to-cart' }
-		)
+		.poll(checkCart, {
+			timeout: 3000,
+			message: `cart localStorage (${cartKey}) not populated after 5 click attempts — Svelte hydration issue`
+		})
 		.toBe(true);
 }
 

@@ -6,9 +6,11 @@ export default defineConfig({
 	testDir: 'tests/e2e',
 	testMatch: '**/*.spec.ts',
 	timeout: 60_000,
-	// Run tests in parallel across workers for speed
+	// Run tests in parallel across workers for speed.
+	// Max 2 workers — the preview server is a single Node.js process; more workers
+	// cause concurrent load that pushes the quick-add button waitFor over its timeout.
 	fullyParallel: true,
-	workers: isCI ? 2 : 4,
+	workers: 2,
 	// Retry flaky tests once in CI
 	retries: isCI ? 1 : 0,
 	reporter: isCI

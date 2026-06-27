@@ -108,9 +108,13 @@ test.describe('Team page', () => {
 			return;
 		}
 
-		// Role badge text — match only standalone "Owner" to avoid "Made Restaurant Owner"
-		const ownerBadge = page.getByText(/^Owner$/);
-		const badgeVisible = await ownerBadge.isVisible({ timeout: 3000 });
+		// Role badge renders as <span><svg/>Owner</span> — locate by exact text 'Owner'
+		// getByText with exact:true finds elements containing the text node, ignoring child SVG elements
+		const ownerBadge = page.getByText('Owner', { exact: true });
+		const badgeVisible = await ownerBadge
+			.first()
+			.isVisible({ timeout: 5000 })
+			.catch(() => false);
 		if (!badgeVisible) {
 			test.skip(true, 'Owner badge not visible — check DB seed state');
 			return;
