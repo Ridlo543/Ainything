@@ -93,6 +93,11 @@
 
 	function closeModal() {
 		modalMode = null;
+		// Do NOT manipulate history/URL here — any replaceState call (native or
+		// SvelteKit's) triggers a client-side navigation that remounts the component
+		// and re-runs the $effect, which would re-open the modal from the URL param.
+		// Leaving ?modal=create in the URL is cosmetic-only; it does not reopen
+		// the modal because _modalOpenedFromUrl stays true after the first open.
 	}
 </script>
 
@@ -289,7 +294,7 @@
 <!-- ===== MODAL OVERLAY ===== -->
 {#if modalMode !== null}
 	<div
-		class="fixed inset-0 z-30 flex items-end justify-center bg-black/40 sm:items-center"
+		class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
 		role="presentation"
 		onclick={(e) => {
 			if (e.target === e.currentTarget) closeModal();
@@ -319,7 +324,10 @@
 						return async ({ update }) => {
 							submitting = false;
 							await update();
-							if (!form?.errors) closeModal();
+							// Only close the modal on success — do NOT call closeModal() here
+							// because history.replaceState inside closeModal() triggers a SvelteKit
+							// navigation that wipes form state before the toast can render.
+							if (!form?.errors) modalMode = null;
 						};
 					}}
 					class="space-y-4"
@@ -428,7 +436,7 @@
 						return async ({ update }) => {
 							submitting = false;
 							await update();
-							if (!form?.errors) closeModal();
+							if (!form?.errors) modalMode = null;
 						};
 					}}
 					class="space-y-4"
@@ -509,7 +517,7 @@
 						return async ({ update }) => {
 							submitting = false;
 							await update();
-							if (!form?.error) closeModal();
+							if (!form?.error) modalMode = null;
 						};
 					}}
 					class="space-y-4"
@@ -575,7 +583,7 @@
 						return async ({ update }) => {
 							submitting = false;
 							await update();
-							closeModal();
+							modalMode = null;
 						};
 					}}
 				>

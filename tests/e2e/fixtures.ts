@@ -37,7 +37,7 @@ export const DEMO_STAFF = {
 export async function loginAsOwner(page: Page): Promise<boolean> {
 	await page.goto('/login');
 	await page.getByLabel('Email').fill(DEMO_OWNER.email);
-	await page.getByLabel('Password').fill(DEMO_OWNER.password);
+	await page.locator('#password').fill(DEMO_OWNER.password);
 	await page.getByRole('button', { name: /masuk/i }).click();
 	try {
 		await page.waitForURL(/\/dashboard/, { timeout: 10000 });
@@ -54,7 +54,7 @@ export async function loginAsOwner(page: Page): Promise<boolean> {
 export async function loginAsStaff(page: Page): Promise<boolean> {
 	await page.goto('/login');
 	await page.getByLabel('Email').fill(DEMO_STAFF.email);
-	await page.getByLabel('Password').fill(DEMO_STAFF.password);
+	await page.locator('#password').fill(DEMO_STAFF.password);
 	await page.getByRole('button', { name: /masuk/i }).click();
 	try {
 		await page.waitForURL(/\/staff\/inbox|\/dashboard/, { timeout: 10000 });

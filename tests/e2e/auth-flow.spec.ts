@@ -20,7 +20,7 @@ test.describe('Registration — restaurant path', () => {
 		await expect(page.getByRole('heading', { name: /register|daftar/i })).toBeVisible();
 		await expect(page.getByLabel(/your name/i)).toBeVisible();
 		await expect(page.getByLabel(/email/i)).toBeVisible();
-		await expect(page.getByLabel(/password/i)).toBeVisible();
+		await expect(page.getByLabel('Password')).toBeVisible();
 		await expect(page.getByLabel(/restaurant name/i)).toBeVisible();
 	});
 
@@ -47,7 +47,7 @@ test.describe('Registration — organization path', () => {
 		await expect(page.getByRole('heading', { name: /register|daftar/i })).toBeVisible();
 		await expect(page.getByLabel(/your name/i)).toBeVisible();
 		await expect(page.getByLabel(/email/i)).toBeVisible();
-		await expect(page.getByLabel(/password/i)).toBeVisible();
+		await expect(page.getByLabel('Password')).toBeVisible();
 		await expect(page.getByLabel(/organization name/i)).toBeVisible();
 	});
 
@@ -72,7 +72,7 @@ test.describe('Login', () => {
 		await page.goto('/login');
 
 		await expect(page.getByLabel('Email')).toBeVisible();
-		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.locator('#password')).toBeVisible();
 		await expect(page.getByRole('button', { name: /masuk/i })).toBeVisible();
 	});
 
@@ -88,7 +88,7 @@ test.describe('Login', () => {
 	test('invalid credentials show error message', async ({ page }) => {
 		await page.goto('/login');
 		await page.getByLabel('Email').fill('notexist@example.com');
-		await page.getByLabel('Password').fill('wrongpassword');
+		await page.locator('#password').fill('wrongpassword');
 		await page.getByRole('button', { name: /masuk/i }).click();
 
 		await expect(page).toHaveURL(/\/login/);
@@ -98,7 +98,7 @@ test.describe('Login', () => {
 	test('wrong password for valid email shows error', async ({ page }) => {
 		await page.goto('/login');
 		await page.getByLabel('Email').fill(DEMO_OWNER.email);
-		await page.getByLabel('Password').fill('wrongpassword');
+		await page.locator('#password').fill('wrongpassword');
 		await page.getByRole('button', { name: /masuk/i }).click();
 
 		await expect(page).toHaveURL(/\/login/);
@@ -117,14 +117,14 @@ test.describe('Login', () => {
 
 test.describe('Forgot password page', () => {
 	test('renders email field and submit button', async ({ page }) => {
-		await page.goto('/forgot-password');
+		await page.goto('/auth/forgot-password');
 
 		await expect(page.getByLabel(/email/i)).toBeVisible();
 		await expect(page.getByRole('button', { name: /reset|kirim|send/i })).toBeVisible();
 	});
 
 	test('has link back to login', async ({ page }) => {
-		await page.goto('/forgot-password');
+		await page.goto('/auth/forgot-password');
 		const link = page.getByRole('link', { name: /back.*login|sign in/i });
 		await expect(link).toBeVisible();
 	});

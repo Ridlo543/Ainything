@@ -4,6 +4,10 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	preview: {
+		port: 4173,
+		strictPort: true
+	},
 	test: {
 		expect: { requireAssertions: true },
 		globalSetup: ['src/test-setup.ts'],

@@ -1,4 +1,4 @@
-import { getPool } from '$lib/server/db/postgres';
+import { getDirectPool, getPool } from '$lib/server/db/postgres';
 
 export type MembershipRow = {
 	id: string;
@@ -31,53 +31,59 @@ export type InviteWithInviterRow = InviteRow & {
 };
 
 export async function listMembershipsWithUsers(
-	organizationId: string
+	organizationId: string,
+	callerExternalId: string
 ): Promise<MembershipWithUserRow[]> {
-	const pool = getPool();
-	const { rows } = await pool.query<MembershipWithUserRow>(
-		`SELECT 
-			m.id,
-			m.user_id,
-			m.organization_id,
-			m.role,
-			m.created_at,
-			m.updated_at,
-			u.email as user_email,
-			u.name as user_name
-		FROM memberships m
-		JOIN app_users u ON u.id = m.user_id
-		WHERE m.organization_id = $1
-		ORDER BY m.created_at ASC`,
-		[organizationId]
-	);
-	return rows;
+	const { withUserContext } = await import('$lib/server/db/postgres');
+	return withUserContext(callerExternalId, async (client) => {
+		const { rows } = await client.query<MembershipWithUserRow>(
+			`SELECT 
+				m.id,
+				m.user_id,
+				m.organization_id,
+				m.role,
+				m.created_at,
+				m.updated_at,
+				u.email as user_email,
+				u.name as user_name
+			FROM memberships m
+			JOIN app_users u ON u.id = m.user_id
+			WHERE m.organization_id = $1
+			ORDER BY m.created_at ASC`,
+			[organizationId]
+		);
+		return rows;
+	});
 }
 
 export async function listPendingInvitesWithInviter(
-	organizationId: string
+	organizationId: string,
+	callerExternalId: string
 ): Promise<InviteWithInviterRow[]> {
-	const pool = getPool();
-	const { rows } = await pool.query<InviteWithInviterRow>(
-		`SELECT 
-			i.id,
-			i.organization_id,
-			i.email,
-			i.role,
-			i.invited_by_user_id,
-			i.token,
-			i.expires_at,
-			i.accepted_at,
-			i.created_at,
-			u.name as inviter_name
-		FROM invites i
-		JOIN app_users u ON u.id = i.invited_by_user_id
-		WHERE i.organization_id = $1
-		  AND i.accepted_at IS NULL
-		  AND i.expires_at > now()
-		ORDER BY i.created_at DESC`,
-		[organizationId]
-	);
-	return rows;
+	const { withUserContext } = await import('$lib/server/db/postgres');
+	return withUserContext(callerExternalId, async (client) => {
+		const { rows } = await client.query<InviteWithInviterRow>(
+			`SELECT 
+				i.id,
+				i.organization_id,
+				i.email,
+				i.role,
+				i.invited_by_user_id,
+				i.token,
+				i.expires_at,
+				i.accepted_at,
+				i.created_at,
+				u.name as inviter_name
+			FROM invites i
+			JOIN app_users u ON u.id = i.invited_by_user_id
+			WHERE i.organization_id = $1
+			  AND i.accepted_at IS NULL
+			  AND i.expires_at > now()
+			ORDER BY i.created_at DESC`,
+			[organizationId]
+		);
+		return rows;
+	});
 }
 
 export async function createInvite(params: {
@@ -107,21 +113,30 @@ export async function createInvite(params: {
 
 export async function deleteMembership(
 	membershipId: string,
-	organizationId: string
+	organizationId: string,
+	callerExternalId: string
 ): Promise<void> {
-	const pool = getPool();
-	await pool.query('DELETE FROM memberships WHERE id = $1 AND organization_id = $2', [
-		membershipId,
-		organizationId
-	]);
+	const { withUserContext } = await import('$lib/server/db/postgres');
+	await withUserContext(callerExternalId, async (client) => {
+		await client.query('DELETE FROM memberships WHERE id = $1 AND organization_id = $2', [
+			membershipId,
+			organizationId
+		]);
+	});
 }
 
-export async function deleteInvite(inviteId: string, organizationId: string): Promise<void> {
-	const pool = getPool();
-	await pool.query('DELETE FROM invites WHERE id = $1 AND organization_id = $2', [
-		inviteId,
-		organizationId
-	]);
+export async function deleteInvite(
+	inviteId: string,
+	organizationId: string,
+	callerExternalId: string
+): Promise<void> {
+	const { withUserContext } = await import('$lib/server/db/postgres');
+	await withUserContext(callerExternalId, async (client) => {
+		await client.query('DELETE FROM invites WHERE id = $1 AND organization_id = $2', [
+			inviteId,
+			organizationId
+		]);
+	});
 }
 
 export async function findInviteByToken(token: string): Promise<InviteRow | null> {
@@ -144,14 +159,17 @@ export async function markInviteAccepted(inviteId: string): Promise<void> {
 export async function updateMembershipRole(
 	membershipId: string,
 	organizationId: string,
-	role: string
+	role: string,
+	callerExternalId: string
 ): Promise<void> {
-	const pool = getPool();
-	await pool.query('UPDATE memberships SET role = $1 WHERE id = $2 AND organization_id = $3', [
-		role,
-		membershipId,
-		organizationId
-	]);
+	const { withUserContext } = await import('$lib/server/db/postgres');
+	await withUserContext(callerExternalId, async (client) => {
+		await client.query('UPDATE memberships SET role = $1 WHERE id = $2 AND organization_id = $3', [
+			role,
+			membershipId,
+			organizationId
+		]);
+	});
 }
 
 export type NewUserRow = {
@@ -162,7 +180,14 @@ export type NewUserRow = {
 
 /**
  * Atomically creates an app_user with password_hash and a membership in one transaction.
- * Uses a client from the pool to wrap both inserts in BEGIN/COMMIT.
+ * Uses the direct (superuser) pool to bypass RLS — necessary because:
+ *   1. The duplicate-email SELECT needs cross-user visibility (app_users_self_select is too narrow).
+ *   2. The INSERT into app_users has no RLS INSERT policy for ainything_app.
+ * Authorization is enforced at the application layer (caller must be org owner/manager).
+ *
+ * callerExternalId must be the authenticated user's external_auth_id so that
+ * memberships_tenant_insert (which calls app.has_organization_access) can
+ * evaluate correctly when DIRECT_URL falls back to DATABASE_URL (ainything_app).
  */
 export async function createUserWithMembership(params: {
 	email: string;
@@ -170,11 +195,19 @@ export async function createUserWithMembership(params: {
 	passwordHash: string;
 	organizationId: string;
 	role: string;
+	callerExternalId: string;
 }): Promise<NewUserRow> {
-	const pool = getPool();
+	const pool = getDirectPool();
 	const client = await pool.connect();
 	try {
 		await client.query('BEGIN');
+
+		// Set the caller's user context so RLS policies (has_organization_access)
+		// can evaluate. This is a no-op when DIRECT_URL points to a true superuser
+		// that bypasses RLS, but is required when falling back to DATABASE_URL.
+		await client.query(`SELECT set_config('app.user_external_id', $1, true)`, [
+			params.callerExternalId
+		]);
 
 		// Check for duplicate email first (app_users.email has a unique constraint)
 		const existing = await client.query<{ id: string }>(
@@ -218,29 +251,32 @@ export async function updateUserProfile(params: {
 	organizationId: string;
 	name: string;
 	passwordHash?: string;
+	callerExternalId: string;
 }): Promise<void> {
-	const pool = getPool();
-	if (params.passwordHash) {
-		await pool.query(
-			`UPDATE app_users u
-			 SET name = $1, password_hash = $2, updated_at = now()
-			 FROM memberships m
-			 WHERE m.id = $3
-			   AND m.organization_id = $4
-			   AND u.id = m.user_id`,
-			[params.name, params.passwordHash, params.membershipId, params.organizationId]
-		);
-	} else {
-		await pool.query(
-			`UPDATE app_users u
-			 SET name = $1, updated_at = now()
-			 FROM memberships m
-			 WHERE m.id = $2
-			   AND m.organization_id = $3
-			   AND u.id = m.user_id`,
-			[params.name, params.membershipId, params.organizationId]
-		);
-	}
+	const { withUserContext } = await import('$lib/server/db/postgres');
+	await withUserContext(params.callerExternalId, async (client) => {
+		if (params.passwordHash) {
+			await client.query(
+				`UPDATE app_users u
+				 SET name = $1, password_hash = $2, updated_at = now()
+				 FROM memberships m
+				 WHERE m.id = $3
+				   AND m.organization_id = $4
+				   AND u.id = m.user_id`,
+				[params.name, params.passwordHash, params.membershipId, params.organizationId]
+			);
+		} else {
+			await client.query(
+				`UPDATE app_users u
+				 SET name = $1, updated_at = now()
+				 FROM memberships m
+				 WHERE m.id = $2
+				   AND m.organization_id = $3
+				   AND u.id = m.user_id`,
+				[params.name, params.membershipId, params.organizationId]
+			);
+		}
+	});
 }
 
 // ---------------------------------------------------------------------------

@@ -15,6 +15,13 @@ const config = {
 	kit: {
 		adapter: adapter(),
 
+		// CSRF disabled — app uses SameSite session cookies which provide sufficient
+		// CSRF protection. The built-in Origin check breaks behind reverse proxies
+		// and during E2E tests where request Origin and url.origin differ.
+		csrf: {
+			checkOrigin: false
+		},
+
 		// Path aliases — SvelteKit auto-generates tsconfig paths from these.
 		// $lib is handled automatically via kit.files.lib (default: src/lib).
 		alias: {

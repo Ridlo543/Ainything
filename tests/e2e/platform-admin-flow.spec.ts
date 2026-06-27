@@ -12,7 +12,7 @@ import { expect, test, type Page } from '@playwright/test';
 async function loginAsSuperAdmin(page: Page): Promise<boolean> {
 	await page.goto('/login');
 	await page.getByLabel('Email').fill('admin@ainything.online');
-	await page.getByLabel('Password').fill('demo');
+	await page.locator('#password').fill('demo1234');
 	await page.getByRole('button', { name: /masuk/i }).click();
 	try {
 		await page.waitForURL(/\/platform|\/dashboard/, { timeout: 8000 });
@@ -32,7 +32,7 @@ test.describe('Platform admin — access control', () => {
 	test('non-platform user (owner) is redirected away from /platform', async ({ page }) => {
 		await page.goto('/login');
 		await page.getByLabel('Email').fill('owner@bali-table.test');
-		await page.getByLabel('Password').fill('demo');
+		await page.locator('#password').fill('demo1234');
 		await page.getByRole('button', { name: /masuk/i }).click();
 		await page.waitForURL(/\/dashboard/, { timeout: 8000 });
 

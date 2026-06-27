@@ -70,8 +70,11 @@ function parseInput(input: unknown, schema: z.ZodTypeAny, label: string): unknow
 	return result.data;
 }
 
-export async function listStaffMembers(organizationId: string): Promise<StaffMember[]> {
-	const rows = await listMembershipsWithUsers(organizationId);
+export async function listStaffMembers(
+	organizationId: string,
+	callerExternalId: string
+): Promise<StaffMember[]> {
+	const rows = await listMembershipsWithUsers(organizationId, callerExternalId);
 	return rows.map((r: MembershipWithUserRow) => ({
 		id: r.id,
 		userId: r.user_id,
@@ -82,8 +85,11 @@ export async function listStaffMembers(organizationId: string): Promise<StaffMem
 	}));
 }
 
-export async function listPendingInvites(organizationId: string): Promise<PendingInvite[]> {
-	const rows = await listPendingInvitesWithInviter(organizationId);
+export async function listPendingInvites(
+	organizationId: string,
+	callerExternalId: string
+): Promise<PendingInvite[]> {
+	const rows = await listPendingInvitesWithInviter(organizationId, callerExternalId);
 	return rows.map((r: InviteWithInviterRow) => ({
 		id: r.id,
 		email: r.email,
@@ -144,6 +150,7 @@ export async function removeMember(params: {
 	membershipId: string;
 	organizationId: string;
 	requesterRole: string;
+	callerExternalId: string;
 }): Promise<void> {
 	const parsed = parseInput(
 		{ membershipId: params.membershipId },
@@ -156,13 +163,14 @@ export async function removeMember(params: {
 		throw new StaffManagementPermissionError('Only owners can remove members');
 	}
 
-	await deleteMembership(membershipId, params.organizationId);
+	await deleteMembership(membershipId, params.organizationId, params.callerExternalId);
 }
 
 export async function cancelInvite(params: {
 	inviteId: string;
 	organizationId: string;
 	requesterRole: string;
+	callerExternalId: string;
 }): Promise<void> {
 	const parsed = parseInput({ inviteId: params.inviteId }, cancelInviteSchema, 'cancel invite');
 	const { inviteId } = parsed as { inviteId: string };
@@ -171,7 +179,7 @@ export async function cancelInvite(params: {
 		throw new StaffManagementPermissionError('Only owners can cancel invites');
 	}
 
-	await deleteInvite(inviteId, params.organizationId);
+	await deleteInvite(inviteId, params.organizationId, params.callerExternalId);
 }
 
 export async function changeRole(params: {
@@ -179,6 +187,7 @@ export async function changeRole(params: {
 	organizationId: string;
 	role: string;
 	requesterRole: string;
+	callerExternalId: string;
 }): Promise<void> {
 	const parsed = parseInput(
 		{ membershipId: params.membershipId, role: params.role },
@@ -191,7 +200,7 @@ export async function changeRole(params: {
 		throw new StaffManagementPermissionError('Only owners can change roles');
 	}
 
-	await updateMembershipRole(membershipId, params.organizationId, role);
+	await updateMembershipRole(membershipId, params.organizationId, role, params.callerExternalId);
 }
 
 /**
@@ -203,6 +212,7 @@ export async function createStaffAccount(params: {
 	input: CreateStaffInput;
 	organizationId: string;
 	requesterRole: string;
+	callerExternalId: string;
 }): Promise<{ userId: string; email: string }> {
 	if (params.requesterRole !== 'owner') {
 		throw new StaffManagementPermissionError('Only owners can create staff accounts');
@@ -217,7 +227,8 @@ export async function createStaffAccount(params: {
 			name: parsed.name,
 			passwordHash,
 			organizationId: params.organizationId,
-			role: parsed.role
+			role: parsed.role,
+			callerExternalId: params.callerExternalId
 		});
 		return { userId: user.id, email: user.email };
 	} catch (err) {
@@ -236,6 +247,7 @@ export async function editStaffMember(params: {
 	input: EditStaffInput;
 	organizationId: string;
 	requesterRole: string;
+	callerExternalId: string;
 }): Promise<void> {
 	if (params.requesterRole !== 'owner') {
 		throw new StaffManagementPermissionError('Only owners can edit staff members');
@@ -248,6 +260,7 @@ export async function editStaffMember(params: {
 		membershipId: parsed.membershipId,
 		organizationId: params.organizationId,
 		name: parsed.name,
-		passwordHash
+		passwordHash,
+		callerExternalId: params.callerExternalId
 	});
 }

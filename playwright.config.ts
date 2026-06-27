@@ -16,12 +16,12 @@ export default defineConfig({
 		: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
 	outputDir: 'tests/e2e/test-results',
 	webServer: {
-		command: 'pnpm run build && pnpm run preview',
+		// In CI: always do a fresh build then start preview.
+		// Locally: just start preview (build manually first with `pnpm run build`).
+		// This avoids ENOTEMPTY on Windows when build/ is already populated.
+		command: isCI ? 'pnpm run build && pnpm run preview' : 'pnpm run preview',
 		port: 4173,
-		// In local dev: reuse a running preview server to skip rebuild.
-		// Start one manually with: pnpm run build && pnpm run preview
-		// In CI always do a fresh build.
-		reuseExistingServer: !isCI,
+		reuseExistingServer: false,
 		timeout: 180_000,
 		stdout: 'pipe',
 		stderr: 'pipe',

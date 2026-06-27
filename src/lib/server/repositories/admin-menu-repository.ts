@@ -211,7 +211,7 @@ export async function loadCatalogsForOutlet(
 			FROM catalogs
 			WHERE outlet_id = $1::uuid
 				AND organization_id = $2::uuid
-			ORDER BY sort_order ASC, name ASC
+			ORDER BY sort_order ASC, created_at ASC
 		`,
 		[outletId, organizationId]
 	);

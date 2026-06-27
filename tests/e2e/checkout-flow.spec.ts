@@ -40,19 +40,53 @@ const SENJA_RAMEN_CART = '/r/senja-ramen-bali/cart';
  * cart store without opening the detail dialog, which is reliable in Playwright.
  */
 async function addFirstItemToCart(page: import('@playwright/test').Page) {
-	// Wait for network idle to ensure Svelte has fully hydrated.
-	// Without this, the click registers on the SSR DOM but the onclick handler
-	// hasn't been attached yet, so cart.add() never fires.
-	await page.waitForLoadState('networkidle', { timeout: 10000 });
+	// Wait for full hydration — domcontentloaded isn't enough for Svelte client init.
+	await page.waitForLoadState('load');
 
 	// The quick-add button aria-label is "Add {product name} to cart"
 	const quickAddBtn = page.getByRole('button', { name: /^add .+ to cart$/i }).first();
 	await quickAddBtn.waitFor({ state: 'visible', timeout: 10000 });
 	await quickAddBtn.click();
 
-	// cart.add() → localStorage.setItem() are synchronous.
-	// A short pause lets Svelte flush cartCount reactivity to the DOM.
-	await page.waitForTimeout(300);
+	// Verify localStorage directly — cart.add() calls persist() synchronously,
+	// writing to ainything-cart-{slug}. The floating cart button only appears
+	// after Svelte state updates, so we poll localStorage as the ground truth.
+	await expect
+		.poll(
+			() =>
+				page.evaluate(() => {
+					for (let i = 0; i < localStorage.length; i++) {
+						const key = localStorage.key(i);
+						if (key?.startsWith('ainything-cart-')) {
+							const val = localStorage.getItem(key);
+							try {
+								const parsed = JSON.parse(val ?? '[]');
+								if (Array.isArray(parsed) && parsed.length > 0) return true;
+							} catch {
+								// ignore
+							}
+						}
+					}
+					return false;
+				}),
+			{ timeout: 5000, message: 'cart localStorage not populated after clicking add-to-cart' }
+		)
+		.toBe(true);
+}
+
+/**
+ * Wait for the cart page to hydrate and show cart items.
+ *
+ * The cart store reads localStorage client-side only — SSR renders with empty
+ * entries. The form fields (#customer-name, #buyer-whatsapp) only render inside
+ * the {:else} block (cart.entries.length > 0). We wait for a "Remove {name}"
+ * button to appear, which proves hydration is done and at least one item exists.
+ */
+async function waitForCartHydration(page: import('@playwright/test').Page) {
+	await page
+		.getByRole('button', { name: /^remove .+/i })
+		.first()
+		.waitFor({ state: 'visible', timeout: 8000 });
 }
 
 /**
@@ -95,27 +129,29 @@ test.describe('Offline checkout — Taman Sate', () => {
 		await page.goto(TAMAN_SATE_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(TAMAN_SATE_CART);
+		await waitForCartHydration(page);
 
-		// WA input should NOT be present for offline mode when not required
-		const waInput = page.getByLabel(/whatsapp|wa/i);
-		await expect(waInput).not.toBeVisible({ timeout: 3000 });
+		// WA input should NOT be present for offline mode
+		await expect(page.locator('#buyer-whatsapp')).not.toBeVisible({ timeout: 3000 });
 	});
 
 	test('customer name field is always shown', async ({ page }) => {
 		await page.goto(TAMAN_SATE_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(TAMAN_SATE_CART);
+		await waitForCartHydration(page);
 
-		// Customer name is always shown
-		await expect(page.getByLabel(/nama|name/i).first()).toBeVisible();
+		// Customer name is always shown after hydration
+		await expect(page.locator('#customer-name')).toBeVisible();
 	});
 
 	test('order submits and redirects to order page', async ({ page }) => {
 		await page.goto(TAMAN_SATE_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(TAMAN_SATE_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer Offline');
 		}
@@ -130,8 +166,9 @@ test.describe('Offline checkout — Taman Sate', () => {
 		await page.goto(TAMAN_SATE_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(TAMAN_SATE_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer Offline Banner');
 		}
@@ -156,8 +193,9 @@ test.describe('Offline checkout — Taman Sate', () => {
 		await page.goto(TAMAN_SATE_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(TAMAN_SATE_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer Number');
 		}
@@ -184,18 +222,19 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		await page.goto(UMA_KARANG_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(UMA_KARANG_CART);
+		await waitForCartHydration(page);
 
 		// WA field is shown (required or optional) for online mode
-		const waInput = page.getByLabel(/whatsapp|nomor wa|wa number/i);
-		await expect(waInput).toBeVisible({ timeout: 5000 });
+		await expect(page.locator('#buyer-whatsapp')).toBeVisible({ timeout: 5000 });
 	});
 
 	test('submitting without WA number shows validation error', async ({ page }) => {
 		await page.goto(UMA_KARANG_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(UMA_KARANG_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test No WA');
 		}
@@ -210,9 +249,7 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		await placeOrderBtn.click();
 
 		// Should stay on cart page and show an error — not navigate away
-		await page.waitForURL(/\/r\/uma-karang\/cart/, { timeout: 3000 }).catch(() => {
-			// May already be on cart, that's fine
-		});
+		await page.waitForURL(/\/r\/uma-karang\/cart/, { timeout: 3000 }).catch(() => {});
 
 		// Page should show a WA-related error or the WA input should now be invalid
 		const hasError = await page
@@ -230,13 +267,14 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		await page.goto(UMA_KARANG_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(UMA_KARANG_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer WA');
 		}
 
-		const waInput = page.getByLabel(/whatsapp|nomor wa/i);
+		const waInput = page.locator('#buyer-whatsapp');
 		if (await waInput.isVisible({ timeout: 3000 })) {
 			await waInput.fill('081234567890');
 		}
@@ -253,13 +291,14 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		await page.goto(UMA_KARANG_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(UMA_KARANG_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer Proof');
 		}
 
-		const waInput = page.getByLabel(/whatsapp|nomor wa/i);
+		const waInput = page.locator('#buyer-whatsapp');
 		if (await waInput.isVisible({ timeout: 3000 })) {
 			await waInput.fill('081234567890');
 		}
@@ -280,13 +319,14 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		await page.goto(UMA_KARANG_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(UMA_KARANG_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer Num');
 		}
 
-		const waInput = page.getByLabel(/whatsapp|nomor wa/i);
+		const waInput = page.locator('#buyer-whatsapp');
 		if (await waInput.isVisible({ timeout: 3000 })) {
 			await waInput.fill('081234567890');
 		}
@@ -305,6 +345,7 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 		await page.goto(UMA_KARANG_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(UMA_KARANG_CART);
+		await waitForCartHydration(page);
 
 		// Set localStorage directly to simulate a returning buyer
 		await page.evaluate(() => {
@@ -313,8 +354,9 @@ test.describe('Online checkout with WhatsApp — Uma Karang', () => {
 
 		// Reload to trigger the auto-fill $effect
 		await page.reload();
+		await waitForCartHydration(page);
 
-		const waInput = page.getByLabel(/whatsapp|nomor wa/i);
+		const waInput = page.locator('#buyer-whatsapp');
 		if (await waInput.isVisible({ timeout: 5000 })) {
 			await expect(waInput).toHaveValue('089999999999');
 		}
@@ -332,9 +374,10 @@ test.describe('Online checkout no WA required — Senja Ramen Bali', () => {
 		await page.goto(SENJA_RAMEN_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(SENJA_RAMEN_CART);
+		await waitForCartHydration(page);
 
 		// WA field visible (online mode always shows it) but marked optional
-		const waInput = page.getByLabel(/whatsapp|nomor wa/i);
+		const waInput = page.locator('#buyer-whatsapp');
 		if (await waInput.isVisible({ timeout: 5000 })) {
 			// Not required — can submit without it
 			await expect(waInput).not.toHaveAttribute('required');
@@ -345,8 +388,9 @@ test.describe('Online checkout no WA required — Senja Ramen Bali', () => {
 		await page.goto(SENJA_RAMEN_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(SENJA_RAMEN_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer No WA Senja');
 		}
@@ -364,8 +408,9 @@ test.describe('Online checkout no WA required — Senja Ramen Bali', () => {
 		await page.goto(SENJA_RAMEN_CATALOG);
 		await addFirstItemToCart(page);
 		await page.goto(SENJA_RAMEN_CART);
+		await waitForCartHydration(page);
 
-		const nameInput = page.getByLabel(/nama|name/i).first();
+		const nameInput = page.locator('#customer-name');
 		if (await nameInput.isVisible({ timeout: 3000 })) {
 			await nameInput.fill('Test Buyer No Proof Senja');
 		}
@@ -414,8 +459,10 @@ test.describe('Staff payment confirmation — Uma Karang dashboard', () => {
 	test('orders displayed with #XXXX format, not UUID', async ({ page }) => {
 		await page.goto('/dashboard/orders');
 
-		// Wait for order list to populate
-		await page.waitForTimeout(2000);
+		// Wait for any order ID (#XXXX) to appear, proving the order list has loaded
+		await expect(page.getByText(/^#\d{4,}$/).first())
+			.toBeVisible({ timeout: 8000 })
+			.catch(() => {});
 
 		// Any visible order ID should match #XXXX pattern, not a 36-char UUID
 		const orderIds = page.getByText(/^#\d{4,}$/);
@@ -431,7 +478,11 @@ test.describe('Staff payment confirmation — Uma Karang dashboard', () => {
 
 	test('selecting a pending order shows confirm/reject actions', async ({ page }) => {
 		await page.goto('/dashboard/orders');
-		await page.waitForTimeout(2000);
+
+		// Wait for order list to populate
+		await expect(page.getByText(/^#\d{4,}$/).first())
+			.toBeVisible({ timeout: 8000 })
+			.catch(() => {});
 
 		// Find and click the first pending order
 		const pendingOrders = page.locator('button').filter({ hasText: /pending|baru|new/i });

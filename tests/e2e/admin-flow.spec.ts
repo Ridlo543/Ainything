@@ -18,7 +18,7 @@ test.describe('Login page', () => {
 		await page.goto('/login');
 
 		await expect(page.getByLabel('Email')).toBeVisible();
-		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.locator('#password')).toBeVisible();
 		await expect(page.getByRole('button', { name: /masuk/i })).toBeVisible();
 	});
 
@@ -31,7 +31,7 @@ test.describe('Login page', () => {
 		await page.goto('/login');
 
 		await page.getByLabel('Email').fill('notexist@example.com');
-		await page.getByLabel('Password').fill('x');
+		await page.locator('#password').fill('x');
 		await page.getByRole('button', { name: /masuk/i }).click();
 
 		await expect(page).toHaveURL(/\/login/);
@@ -46,7 +46,7 @@ test.describe('Admin flow at 390px', () => {
 		await page.goto('/login');
 
 		await expect(page.getByLabel('Email')).toBeVisible();
-		await expect(page.getByLabel('Password')).toBeVisible();
+		await expect(page.locator('#password')).toBeVisible();
 		await expect(page.getByRole('button', { name: /masuk/i })).toBeVisible();
 	});
 });
@@ -111,10 +111,8 @@ test.describe('Dashboard catalog', () => {
 
 		await page.goto('/dashboard/catalog');
 
-		// Seeder plants at least 3 products for Uma Karang (owner's primary outlet)
-		const items = page.locator(
-			'[data-testid="product-row"], [data-testid="product-card"], tbody tr'
-		);
+		// Seeder plants at least 3 products — each card has an "Opsi produk" button
+		const items = page.getByRole('button', { name: /opsi produk/i });
 		await expect(items.first()).toBeVisible({ timeout: 8000 });
 		expect(await items.count()).toBeGreaterThanOrEqual(1);
 	});
@@ -154,7 +152,7 @@ test.describe('Dashboard settings', () => {
 
 		await page.goto('/dashboard/settings');
 
-		await expect(page.getByRole('heading', { name: /settings|pengaturan/i })).toBeVisible({
+		await expect(page.getByRole('heading', { name: /settings|pengaturan/i }).first()).toBeVisible({
 			timeout: 5000
 		});
 	});
@@ -179,7 +177,9 @@ test.describe('Dashboard analytics', () => {
 		});
 
 		// Range selector buttons (7d / 30d / 90d)
-		await expect(page.getByRole('button', { name: /7d|30d|90d/i }).first()).toBeVisible();
+		await expect(
+			page.getByRole('button', { name: /7 hari|30 hari|90 hari/i }).first()
+		).toBeVisible();
 	});
 
 	test('range selector changes URL param', async ({ page }) => {
@@ -190,7 +190,7 @@ test.describe('Dashboard analytics', () => {
 		}
 
 		await page.goto('/dashboard/analytics');
-		await page.getByRole('button', { name: /30d/i }).click();
+		await page.getByRole('button', { name: /30 hari|30d/i }).click();
 		await expect(page).toHaveURL(/range=30d/);
 	});
 });

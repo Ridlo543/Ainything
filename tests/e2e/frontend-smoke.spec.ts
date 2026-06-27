@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 async function loginAs(page: import('@playwright/test').Page, email: string) {
 	await page.goto('/login');
 	await page.getByLabel('Email').fill(email);
-	await page.getByLabel('Password').fill('demo');
+	await page.locator('#password').fill('demo1234');
 	await page.getByRole('button', { name: /masuk/i }).click();
 }
 

@@ -68,14 +68,19 @@ function mapRole(role: string): Role {
 	return 'staff';
 }
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ parent, locals }) => {
 	const { tenant } = await parent();
 	const org = tenant.organization;
+	const user = locals.user;
+
+	if (!user) {
+		return { members: [], invites: [] };
+	}
 
 	try {
 		const [memberships, pendingInvites] = await Promise.all([
-			listMembershipsWithUsers(org.id),
-			listPendingInvitesWithInviter(org.id)
+			listMembershipsWithUsers(org.id, user.id),
+			listPendingInvitesWithInviter(org.id, user.id)
 		]);
 
 		const members: Member[] = memberships.map((m) => ({
@@ -158,7 +163,8 @@ export const actions: Actions = {
 			await createStaffAccount({
 				input: parsed.data,
 				organizationId: tenant.organization.id,
-				requesterRole
+				requesterRole,
+				callerExternalId: user.id
 			});
 		} catch (err) {
 			return handleServiceError(err);
@@ -189,7 +195,8 @@ export const actions: Actions = {
 			await editStaffMember({
 				input: parsed.data,
 				organizationId: tenant.organization.id,
-				requesterRole
+				requesterRole,
+				callerExternalId: user.id
 			});
 		} catch (err) {
 			return handleServiceError(err);
@@ -220,7 +227,8 @@ export const actions: Actions = {
 				membershipId: parsed.data.membershipId,
 				organizationId: tenant.organization.id,
 				role: parsed.data.role,
-				requesterRole
+				requesterRole,
+				callerExternalId: user.id
 			});
 		} catch (err) {
 			return handleServiceError(err);
@@ -248,7 +256,8 @@ export const actions: Actions = {
 			await removeMember({
 				membershipId,
 				organizationId: tenant.organization.id,
-				requesterRole
+				requesterRole,
+				callerExternalId: user.id
 			});
 		} catch (err) {
 			return handleServiceError(err);
@@ -276,7 +285,8 @@ export const actions: Actions = {
 			await cancelInvite({
 				inviteId,
 				organizationId: tenant.organization.id,
-				requesterRole
+				requesterRole,
+				callerExternalId: user.id
 			});
 		} catch (err) {
 			return handleServiceError(err);

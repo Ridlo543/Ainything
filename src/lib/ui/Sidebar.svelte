@@ -93,18 +93,14 @@
 		}
 	];
 
-	// Track which groups are expanded — auto-expand the active group
-	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
-	let expandedGroups = $state(new SvelteSet<string>());
-
-	$effect(() => {
-		for (const item of nav) {
-			if (item.children && isGroupActive(item)) {
-				expandedGroups.add(item.href);
-				expandedGroups = new SvelteSet(expandedGroups);
-			}
-		}
-	});
+	// Track which groups are expanded — auto-expand the active group on mount only.
+	// SvelteSet is already reactive, so no $state wrapper needed.
+	// The initial value is computed once from currentPath; after that user toggles own it.
+	let expandedGroups = new SvelteSet<string>(
+		nav
+			.filter((item) => item.children && item.children.some((c) => currentPath.startsWith(c.href)))
+			.map((item) => item.href)
+	);
 
 	function isActive(href: string): boolean {
 		if (href === '/dashboard') return currentPath === '/dashboard';
