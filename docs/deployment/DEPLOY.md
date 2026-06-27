@@ -1,18 +1,19 @@
 # Production Deployment Checklist
 
-This document covers the steps to deploy ainything to production.
-Complete every section before going live with pilot restaurants.
+Deploy ainything ke VPS self-hosted (Hetzner CX23 Singapore atau setara).
+Selesaikan setiap section sebelum pilot.
 
 ---
 
 ## Prerequisites
 
-- [ ] Domain purchased and DNS managed (e.g. Cloudflare)
-- [ ] Supabase project created (free tier is sufficient for pilot)
-- [ ] Container registry access (GHCR, Docker Hub, or self-hosted)
-- [ ] Podman or Docker installed on the server
-- [ ] Node 22+ and pnpm 10+ on CI runner (or use the container image)
-- [ ] Redis 7+ instance (Upstash free tier or self-hosted)
+- [ ] Domain purchased, DNS dikelola via Cloudflare
+- [ ] VPS provisioned (Ubuntu 22.04+, min 2 vCPU / 4GB RAM)
+- [ ] PostgreSQL 16 dan Redis 7 siap (self-hosted di VPS yang sama atau terpisah)
+- [ ] Container registry access (GHCR, Docker Hub, atau self-hosted)
+- [ ] Podman atau Docker terinstall di server
+- [ ] Node 24+ dan pnpm 10+ di CI runner (atau gunakan container image)
+- [ ] SMTP provider dikonfigurasi (Resend, Postmark, atau Brevo) untuk email auth
 
 ---
 
@@ -22,294 +23,283 @@ Complete every section before going live with pilot restaurants.
 # Root domain
 A   ainything.example.com   → server IP
 
-# Wildcard subdomain for multi-tenant workspace hosts
-# Each restaurant gets  <slug>.ainything.example.com
+# Wildcard subdomain untuk multi-tenant
+# Setiap restaurant mendapat <slug>.ainything.example.com
 A   *.ainything.example.com → server IP
 
 # Optional: naked domain redirect
-A   example.com          → server IP
+A   example.com             → server IP
 ```
 
-**Cloudflare:** Enable proxy (orange cloud) on both records for DDoS protection.
-Set SSL/TLS to "Full (strict)" once the origin certificate is in place.
+**Cloudflare:** Enable proxy (orange cloud) di kedua record untuk DDoS protection.
+Set SSL/TLS ke "Full (strict)" setelah origin certificate terpasang.
 
 ---
 
-## Step 2 — Supabase Project
+## Step 2 — Database Setup
 
-1. Create a new project at <https://supabase.com>.
-2. Go to **Settings → Database → Connection string** and copy:
-   - `DATABASE_URL` — use the **pooled** (port 6543) connection string, replace `[YOUR-PASSWORD]`.
-   - `DIRECT_URL` — use the **direct** (port 5432) string for migrations.
-3. Go to **Settings → API** and copy:
-   - `PUBLIC_SUPABASE_URL`
-   - `PUBLIC_SUPABASE_PUBLISHABLE_KEY` (anon key)
-   - `SUPABASE_SERVICE_ROLE_KEY` (**secret, never expose to browser**)
-4. Go to **Authentication → URL Configuration** and set:
-   - Site URL: `https://ainything.example.com`
-   - Redirect URLs: `https://ainything.example.com/auth/callback`
-5. Enable **Email** provider under Authentication → Providers.
-   Optionally configure custom SMTP (Settings → Auth → SMTP) to send from your domain.
+```bash
+# Buat user dan database PostgreSQL
+psql -U postgres <<'SQL'
+CREATE USER ainything_app WITH PASSWORD 'your-strong-password';
+CREATE DATABASE ainything OWNER ainything_app;
+\c ainything
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "vector";
+SQL
+```
+
+Catat connection strings:
+
+- `DATABASE_URL=postgresql://ainything_app:password@localhost:5432/ainything`
 
 ---
 
 ## Step 3 — Run Migrations
 
 ```bash
-# Against Supabase DIRECT_URL (bypasses pgBouncer)
-DIRECT_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres" \
+# Clone repo dan install deps
+git clone https://github.com/yourorg/ainything.git
+cd ainything
+pnpm install
+
+# Apply semua migrations (0001–0028)
+DATABASE_URL="postgresql://ainything_app:password@localhost:5432/ainything" \
   pnpm db:migrate
 
-# Seed demo data (optional — remove for clean production start)
-DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres" \
+# Seed demo data (opsional — hapus untuk production bersih)
+DATABASE_URL="postgresql://ainything_app:password@localhost:5432/ainything" \
   node scripts/db.mjs seed
 ```
 
-All 15 migrations (0001–0015) should show as applied.
+Semua 28 migrations (0001–0028) harus menunjukkan status applied.
 
 ---
 
-## Step 4 — Build and Push Container
+## Step 4 — Environment Variables
+
+Buat file `.env` di server (jangan commit ke repo):
+
+```env
+# App
+NODE_ENV=production
+PUBLIC_APP_URL=https://ainything.example.com
+AUTH_SECRET=<random 32+ char string — gunakan: openssl rand -base64 32>
+
+# Auth
+AUTH_PROVIDER=credentials
+
+# Database
+DATABASE_URL=postgresql://ainything_app:password@localhost:5432/ainything
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# Email (pilih salah satu provider)
+SMTP_HOST=smtp.resend.com
+SMTP_PORT=587
+SMTP_USER=resend
+SMTP_PASS=<resend api key>
+SMTP_FROM=noreply@ainything.example.com
+
+# AI (opsional — untuk fitur AI chat)
+ANTHROPIC_API_KEY=<key>
+# atau
+OPENAI_API_KEY=<key>
+
+# Storage (Cloudflare R2)
+R2_ACCOUNT_ID=<cloudflare account id>
+R2_ACCESS_KEY_ID=<r2 access key>
+R2_SECRET_ACCESS_KEY=<r2 secret key>
+R2_BUCKET_NAME=ainything-uploads
+R2_PUBLIC_URL=https://uploads.ainything.example.com
+
+# Error monitoring (opsional)
+PUBLIC_SENTRY_DSN=<sentry dsn>
+SENTRY_AUTH_TOKEN=<sentry auth token>
+```
+
+---
+
+## Step 5 — Build and Push Container
 
 ```bash
-# Build
-podman build -t ghcr.io/yourorg/ainything-app:latest -f Containerfile .
+# Build image
+podman build -t ghcr.io/yourorg/ainything-app:latest .
 
-# Test locally
-podman run --rm -p 3000:3000 --env-file .env.production ainything-app
-
-# Push
+# Push ke registry
 podman push ghcr.io/yourorg/ainything-app:latest
 ```
 
-Or use the **GitHub Actions CI** workflow (`.github/workflows/ci.yml`) which
-builds and tests automatically on every push to `main`.
+Atau gunakan GitHub Actions CI yang sudah ada — setiap push ke `main` akan
+build dan push otomatis.
 
 ---
 
-## Step 5 — Environment Variables
-
-Create `.env.production.local` on the server (never commit this file):
+## Step 6 — Run Container
 
 ```bash
-cp .env.production .env.production.local
-# Then fill in all CHANGE_ME values
-```
+# Pull image terbaru
+podman pull ghcr.io/yourorg/ainything-app:latest
 
-See `.env.production` for the full template. Key values to set:
-
-| Variable                          | Where to get it                                                               |
-| --------------------------------- | ----------------------------------------------------------------------------- |
-| `PUBLIC_APP_URL`                  | Your domain, e.g. `https://ainything.example.com`                             |
-| `ORIGIN`                          | Same as `PUBLIC_APP_URL` (required for SvelteKit CSRF)                        |
-| `DATABASE_URL`                    | Supabase pooled connection string                                             |
-| `DIRECT_URL`                      | Supabase direct connection string                                             |
-| `REDIS_URL`                       | Upstash or self-hosted Redis URL                                              |
-| `SESSION_SECRET`                  | `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"` |
-| `PUBLIC_SUPABASE_URL`             | Supabase project URL                                                          |
-| `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon key                                                             |
-| `SUPABASE_SERVICE_ROLE_KEY`       | Supabase service role key (secret)                                            |
-| `AUTH_PROVIDER`                   | `supabase`                                                                    |
-| `LLM_PROVIDER`                    | `tokenrouter` or `openai`                                                     |
-| `TOKENROUTER_API_KEY`             | From tokenrouter.com                                                          |
-| `SMTP_HOST`                       | Your SMTP host (or leave blank to use MockEmailProvider)                      |
-| `SMTP_PORT`                       | Usually `587` (STARTTLS) or `465` (SSL)                                       |
-| `SMTP_USER`                       | SMTP username                                                                 |
-| `SMTP_PASS`                       | SMTP password                                                                 |
-| `SMTP_FROM`                       | `ainything <noreply@ainything.example.com>`                                   |
-
----
-
-## Step 6 — Run on Server
-
-### Option A: Podman (recommended)
-
-```bash
+# Run container
 podman run -d \
   --name ainything-app \
   --restart unless-stopped \
   -p 3000:3000 \
-  --env-file /etc/ainything/.env.production.local \
+  --env-file /etc/ainything/.env \
   ghcr.io/yourorg/ainything-app:latest
-
-# Check health
-podman ps --filter name=ainything-app
-podman logs ainything-app --tail 50
-```
-
-### Option B: Docker Compose
-
-```bash
-# Uses docker-compose.yml at repo root
-docker compose up -d ainything-app
-docker compose ps
-docker compose logs ainything-app --tail 50
-```
-
-### Option C: Systemd unit (rootless Podman)
-
-```bash
-podman generate systemd --name ainything-app --new --files
-mv container-ainything-app.service ~/.config/systemd/user/
-systemctl --user enable --now container-ainything-app
 ```
 
 ---
 
-## Step 7 — Reverse Proxy (nginx or Caddy)
+## Step 7 — Reverse Proxy (Nginx atau Caddy)
 
-### Caddy (recommended — auto HTTPS)
+### Caddy (direkomendasikan — auto TLS)
 
 ```caddyfile
-ainythingai.example.com *.ainythingai.example.com {
+ainything.example.com, *.ainything.example.com {
   reverse_proxy localhost:3000
-  tls {
-    dns cloudflare {env.CF_API_TOKEN}
-  }
 }
 ```
 
-### nginx
+### Nginx
 
 ```nginx
 server {
-  listen 443 ssl http2;
-  server_name ainything.example.com *.ainything.example.com;
+    listen 443 ssl;
+    server_name ainything.example.com *.ainything.example.com;
 
-  ssl_certificate     /etc/letsencrypt/live/ainything.example.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/ainything.example.com/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/ainything.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/ainything.example.com/privkey.pem;
 
-  location / {
-    proxy_pass         http://127.0.0.1:3000;
-    proxy_http_version 1.1;
-    proxy_set_header   Upgrade $http_upgrade;
-    proxy_set_header   Connection 'upgrade';
-    proxy_set_header   Host $host;
-    proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header   X-Forwarded-Proto $scheme;
-    proxy_cache_bypass $http_upgrade;
-  }
+    # Penting untuk SSE (staff↔buyer chat)
+    proxy_buffering off;
+    proxy_cache off;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400; # untuk SSE connections
+    }
 }
 ```
 
-> **Important:** Pass `X-Forwarded-For` so rate limiting keys on real IPs.
-
 ---
 
-## Step 8 — CDN & Caching
-
-ainything sets HTTP cache headers automatically via `src/lib/server/cache/cache-policy.ts` and the `cacheHandle` in `hooks.server.ts`. The CDN (Cloudflare, Fastly, etc.) respects these headers to cache public responses at the edge.
-
-### Cache Strategies
-
-| Strategy             | Applied to                           | s-maxage | stale-while-revalidate |
-| -------------------- | ------------------------------------ | -------- | ---------------------- |
-| `PUBLIC_CATALOG`     | `/api/public/bootstrap`, catalog API | 60 s     | 300 s                  |
-| `PUBLIC_PAGE`        | `/r/[slug]` public catalog pages     | 30 s     | 120 s                  |
-| `PUBLIC_API_DYNAMIC` | Other `/api/public/*` endpoints      | 10 s     | 60 s                   |
-| `PRIVATE_NO_STORE`   | All authenticated/private routes     | —        | — (no-store)           |
-
-### Cloudflare Configuration
-
-If using Cloudflare as CDN (recommended):
-
-1. **Page Rules** (or Cache Rules for Cloudflare Pro+):
-   - `ainything.example.com/r/*` → Cache Level: Cache Everything, Edge Cache TTL: 30 s
-   - `ainything.example.com/api/public/*` → Cache Level: Cache Everything, Edge Cache TTL: 60 s
-   - `ainything.example.com/_app/immutable/*` → Cache Level: Cache Everything, Edge Cache TTL: 1 year (immutable build assets)
-
-2. **Cache Purge:** After publishing a menu change, purge by URL pattern:
-
-   ```bash
-   # Purge a specific restaurant's cached data
-   curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" \
-     -H "Authorization: Bearer {CF_API_TOKEN}" \
-     -H "Content-Type: application/json" \
-     --data '{"prefixes":["https://ainything.example.com/r/{slug}","https://ainything.example.com/api/public/bootstrap?restaurant={slug}"]}'
-   ```
-
-3. **Always Online:** Enable in Cloudflare dashboard so cached pages remain available during origin downtime.
-
-### Verifying Cache Headers
+## Step 8 — Redis Setup
 
 ```bash
-# Check Cache-Control on a public catalog page
-curl -I https://ainything.example.com/r/uma-karang
-# Expected: Cache-Control: public, s-maxage=30, stale-while-revalidate=120
+# Via Podman
+podman run -d \
+  --name ainything-redis \
+  --restart unless-stopped \
+  -p 6379:6379 \
+  -v ainything-redis-data:/data \
+  redis:7-alpine redis-server --appendonly yes
 
-# Check Cache-Control on the bootstrap API
-curl -I 'https://ainything.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
-# Expected: Cache-Control: public, s-maxage=60, stale-while-revalidate=300
-
-# Check that private routes have no-store
-curl -I https://ainything.example.com/dashboard
-# Expected: Cache-Control: private, no-store, no-cache, must-revalidate
+# Atau via system package
+sudo apt install redis-server
+sudo systemctl enable redis-server
 ```
 
 ---
 
-## Step 9 — Smoke Test
+## Step 9 — First Super Admin
 
-```bash
-# Health check
-curl -I https://ainything.example.com/api/health/backend
+Setelah app berjalan, set platform role di database:
 
-# Public menu bootstrap (replace slug + table with your seed data)
-curl 'https://ainything.example.com/api/public/bootstrap?restaurant=uma-karang&table=T01'
-
-# Verify redirect
-curl -I https://ainything.example.com/dashboard     # should → /login
-curl -I https://ainything.example.com/platform      # should → /login
+```sql
+-- Jalankan via psql di server
+UPDATE app_users SET platform_role = 'super_admin'
+WHERE email = 'your@email.com';
 ```
 
 ---
 
-## Step 10 — Monitoring
+## Step 10 — Health Check
 
-- **Sentry:** Set `SENTRY_DSN` and `PUBLIC_SENTRY_DSN` in `.env.production.local`.
-  Both client and server errors will be captured automatically.
-- **Supabase logs:** Check **Logs → API** in the Supabase dashboard.
-- **Health endpoint:** `/api/health/backend` returns 200 when DB + Redis are reachable.
-  Wire this into UptimeRobot or Betterstack for uptime monitoring.
-- **Container logs:** `podman logs ainything-app --tail 100 --follow`
+```bash
+# App health
+curl https://ainything.example.com/api/health/backend
+
+# Verify container running
+podman ps
+
+# View logs
+podman logs ainything-app --tail 50
+```
 
 ---
 
-## Step 11 — Pre-Pilot Checklist
+## Environment Variables Reference
 
-Before handing to the first pilot restaurant:
+| Variable               | Required | Description                                     |
+| ---------------------- | -------- | ----------------------------------------------- |
+| `NODE_ENV`             | Yes      | `production`                                    |
+| `PUBLIC_APP_URL`       | Yes      | Base URL aplikasi (tanpa trailing slash)        |
+| `AUTH_SECRET`          | Yes      | Secret untuk JWT/session signing (min 32 chars) |
+| `AUTH_PROVIDER`        | Yes      | `credentials` (production) atau `mock` (dev)    |
+| `DATABASE_URL`         | Yes      | PostgreSQL connection string                    |
+| `REDIS_URL`            | Yes      | Redis connection string                         |
+| `SMTP_HOST`            | Yes      | SMTP host untuk email auth                      |
+| `SMTP_PORT`            | Yes      | SMTP port (587 untuk TLS)                       |
+| `SMTP_USER`            | Yes      | SMTP username                                   |
+| `SMTP_PASS`            | Yes      | SMTP password/key                               |
+| `SMTP_FROM`            | Yes      | From address untuk email                        |
+| `ANTHROPIC_API_KEY`    | No       | Untuk AI chat (Anthropic Claude)                |
+| `OPENAI_API_KEY`       | No       | Alternatif untuk AI chat (OpenAI-compatible)    |
+| `R2_ACCOUNT_ID`        | No       | Cloudflare R2 account ID (untuk file upload)    |
+| `R2_ACCESS_KEY_ID`     | No       | Cloudflare R2 access key                        |
+| `R2_SECRET_ACCESS_KEY` | No       | Cloudflare R2 secret key                        |
+| `R2_BUCKET_NAME`       | No       | Nama R2 bucket                                  |
+| `R2_PUBLIC_URL`        | No       | Public URL untuk R2 bucket                      |
+| `PUBLIC_SENTRY_DSN`    | No       | Sentry DSN untuk error monitoring               |
 
-- [ ] All migrations applied (`pnpm db:migrate` shows all skipped)
-- [ ] Registration flow tested end-to-end (register → verify email → setup → onboard)
-- [ ] At least one restaurant created with tables + published menu
-- [ ] QR codes printed and scanned from a real mobile device
-- [ ] Staff inbox tested (guest scans, sends request, staff sees it in inbox)
-- [ ] AI chat tested with a real question about a menu item
-- [ ] Password reset tested (forgot → email → update)
-- [ ] Invite a staff member → accept invite → verify dashboard access
-- [ ] Platform admin login tested (`/platform`)
-- [ ] Sentry receiving errors (trigger a 404, confirm in Sentry)
-- [ ] `/api/health/backend` returns 200
-- [ ] Load test run: `k6 run tests/load/k6-public-endpoints.js -e BASE_URL=https://ainything.example.com`
+---
+
+## Pre-Pilot Checklist
+
+- [ ] `GET /api/health/backend` mengembalikan 200
+- [ ] Login sebagai org_owner → `/dashboard` berfungsi
+- [ ] Login sebagai staff → `/staff/inbox` berfungsi
+- [ ] QR scan `/r/[slug]/table/T01` berfungsi tanpa login
+- [ ] Checkout flow end-to-end berhasil
+- [ ] Staff↔buyer chat SSE berfungsi
+- [ ] Platform admin login (`/platform`) berhasil
+- [ ] Password reset flow (forgot → email → update) berhasil
+- [ ] Upload foto produk ke R2 berhasil
+- [ ] Sentry menerima error (trigger 404, konfirmasi di Sentry)
+- [ ] Load test: `k6 run tests/load/k6-public-endpoints.js -e BASE_URL=https://ainything.example.com`
 
 ---
 
 ## Rollback
 
 ```bash
-# Pull previous image version
+# Pull image versi sebelumnya
 podman pull ghcr.io/yourorg/ainything-app:previous-tag
 
-# Restart with previous image
+# Restart dengan image lama
 podman stop ainything-app
 podman rm ainything-app
-podman run -d --name ainything-app ... ghcr.io/yourorg/ainything-app:previous-tag
+podman run -d --name ainything-app \
+  --restart unless-stopped \
+  -p 3000:3000 \
+  --env-file /etc/ainything/.env \
+  ghcr.io/yourorg/ainything-app:previous-tag
 ```
 
-Database rollbacks are manual — keep a `pg_dump` before each migration.
+Database rollback manual — selalu buat `pg_dump` sebelum setiap migration:
 
 ```bash
-pg_dump $DIRECT_URL > backup-$(date +%Y%m%d-%H%M%S).sql
+pg_dump $DATABASE_URL > backup-$(date +%Y%m%d-%H%M%S).sql
 ```
 
 ---

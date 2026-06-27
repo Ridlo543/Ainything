@@ -555,7 +555,7 @@ Tabs: [Active (3)] [Completed] [All]
 ## 11. Open Questions
 
 1. **Payment integration:** In-app payment atau cash-only untuk MVP?
-2. **Real-time:** WebSocket (Supabase Realtime) atau polling untuk order status?
+2. **Real-time:** SSE (sudah diimplementasikan untuk staff↔buyer chat) atau polling 15s (sudah diimplementasikan untuk order status di `/staff/inbox`) — keduanya sudah resolved.
 3. **Multi-language:** Apakah customer-facing catalog perlu i18n dari awal?
 4. **Offline:** Apakah staff dashboard perlu offline support (PWA)?
 5. **Notification:** Push notification untuk new orders? (PWA + browser notification)

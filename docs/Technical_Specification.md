@@ -209,7 +209,7 @@ SvelteKit is a strong fit, but the project must be intentional about its weaker 
 - Public menu bootstrap uses `+page.server.ts` and cached published menu data.
 - Customer UI hydrates only interactive islands: preferences, chat, feedback, fallback.
 - Admin dashboard uses server load for initial data and form actions for CRUD.
-- Staff inbox uses server load for initial list and Supabase Realtime for updates.
+- Staff inbox uses server load for initial list and 15s polling via `invalidate('app:inbox')` for updates.
 - Published restaurant/menu data should be cacheable. Chat, fallback, admin, and staff data are dynamic.
 - Prerender can be used for static docs/marketing pages, not tenant-specific private data.
 

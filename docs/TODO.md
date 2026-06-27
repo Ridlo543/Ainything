@@ -22,7 +22,7 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 - [x] Guest-derived tenant ids (organization/restaurant) must be resolved server-side from the QR resolution result, never read from the request body.
 - [x] Every new server input boundary (form action, `+server.ts`, public API) validates with a Zod schema.
 - [x] Every external provider (LLM, OCR, WhatsApp, storage, telemetry) sits behind an adapter interface with a mock implementation committed before the real one.
-- [x] Secrets stay server-only; never expose `SUPABASE_SERVICE_ROLE_KEY`, DB URLs, or session secret to the browser.
+- [x] Secrets stay server-only; never expose DB URLs, API keys, or session secret to the browser.
 
 ---
 
@@ -79,7 +79,7 @@ The first thing any user sees. Hotel/tourist restaurant owners must be able to d
 
 - [x] Replace `/login` with real Supabase email/password form.
 - [x] "Forgot password" link → `/auth/forgot-password`.
-- [x] Password reset flow: `/auth/forgot-password` (request email) + `/auth/update-password` (set new password via Supabase token).
+- [x] Password reset flow: `/auth/forgot-password` (request email) + `/auth/update-password` (set new password via email token).
 - [x] "Don't have an account? Register" link.
 - [x] Role-based redirect after login:
   - [x] `super_admin` → `/platform`

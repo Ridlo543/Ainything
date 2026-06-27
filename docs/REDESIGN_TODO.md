@@ -1,8 +1,8 @@
 # Redesign TODO — Action Items
 
 **Based on:** `docs/REDESIGN_PLAN.md`
-**Last Updated:** 24 Juni 2026
-**Status:** Ready for Implementation
+**Last Updated:** 28 Juni 2026
+**Status:** In Progress — Priority 0-4 selesai, Priority 5+ aktif
 
 ---
 
@@ -130,10 +130,12 @@ All components in `src/lib/ui/` with barrel exports in `index.ts`.
   - Top bar: logo, staff name, notifications
   - Single column, full-width
   - Big buttons, tap-friendly
-- [ ] **Order queue layout**
-  - Cards with status badges
-  - Tap card → detail view
-  - Floating action button (if needed)
+- [x] **Order queue layout** — implemented at `/staff/inbox`
+  - Cards with status badges (Baru/Diproses/Siap/Selesai/Dibatalkan)
+  - Filter tabs: Aktif / Selesai / Semua with active count
+  - Tap card → detail view at `/staff/orders/[id]`
+  - One-tap status transitions from card
+  - 15s polling via `invalidate('app:inbox')`
 
 ### 1.5 Platform Layout ✅ DONE
 
