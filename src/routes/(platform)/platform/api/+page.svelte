@@ -314,7 +314,7 @@
 					</p>
 					<div class="flex items-center gap-2">
 						<code
-							data-key
+							bind:this={keyCodeEl}
 							class="flex-1 overflow-x-auto rounded bg-background px-3 py-2 text-xs font-mono break-all"
 						>
 							{generatedKey.generatedKey}

@@ -56,7 +56,7 @@ const makeRoomContext = (override: Partial<{ buyerSessionId: string | null }> = 
 	...override
 });
 
-const makeMessage = (role: 'staff' | 'buyer' = 'staff') => ({
+const makeMessage = (role: 'staff' | 'customer' = 'staff') => ({
 	id: 'msg-1',
 	roomId: ROOM_ID,
 	role,
@@ -182,7 +182,7 @@ describe('sendBuyerMessage', () => {
 
 	it('inserts and returns the message when buyer session matches', async () => {
 		getBuyerRoomContextMock.mockResolvedValue({ organizationId: ORG_ID, outletId: OUTLET_ID });
-		const msg = makeMessage('buyer');
+		const msg = makeMessage('customer');
 		insertBuyerMessageMock.mockResolvedValue(msg);
 
 		const result = await sendBuyerMessage(BUYER_SESSION_ID, ROOM_ID, 'Halo!');
