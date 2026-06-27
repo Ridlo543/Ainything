@@ -8,7 +8,7 @@
 			name: 'Budi Santoso',
 			role: 'Owner, Warung Nusantara',
 			loc: 'Bali',
-			avatar: '/mock-images/photo-1507003211169-0a1dd7228f2d.jpg'
+			avatar: '/mock-images/photo-1507003211169-0a1dd7228f2d.webp'
 		},
 		{
 			quote:
@@ -16,7 +16,7 @@
 			name: 'Sari Dewi',
 			role: 'Pemilik, Butik Sari Mode',
 			loc: 'Jakarta',
-			avatar: '/mock-images/photo-1494790108377-be9c29b29330.jpg'
+			avatar: '/mock-images/photo-1494790108377-be9c29b29330.webp'
 		},
 		{
 			quote:
@@ -24,7 +24,7 @@
 			name: 'Kevin Halim',
 			role: 'Owner, Golden Lotus Dimsum',
 			loc: 'Surabaya',
-			avatar: '/mock-images/photo-1500648767791-00dcc994a43e.jpg'
+			avatar: '/mock-images/photo-1500648767791-00dcc994a43e.webp'
 		}
 	];
 </script>
@@ -65,6 +65,7 @@
 							width="44"
 							height="44"
 							loading="lazy"
+							decoding="async"
 						/>
 						<div>
 							<p class="text-sm font-bold text-[#1a1a2e]">{t.name}</p>

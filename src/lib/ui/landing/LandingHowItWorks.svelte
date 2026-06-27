@@ -4,28 +4,28 @@
 			num: '01',
 			title: 'Daftar & pilih jenis bisnis',
 			desc: 'Restoran, toko retail, atau bisnis jasa. Isi info dasar bisnis kamu dalam 2 menit — tidak perlu kartu kredit.',
-			img: '/mock-images/photo-1556742049-0cfed4f6a45d.jpg',
+			img: '/mock-images/photo-1556742049-0cfed4f6a45d.webp',
 			imgAlt: 'Layar pendaftaran bisnis'
 		},
 		{
 			num: '02',
 			title: 'Tambah produk & atur katalog',
 			desc: 'Upload foto dari HP, isi nama dan harga. Buat kategori, atur ketersediaan, dan katalog langsung siap dipublikasikan.',
-			img: '/mock-images/photo-1611532736597-de2d4265fba3.jpg',
+			img: '/mock-images/photo-1611532736597-de2d4265fba3.webp',
 			imgAlt: 'Menambahkan produk ke katalog'
 		},
 		{
 			num: '03',
 			title: 'Bagikan QR atau link',
 			desc: 'Cetak QR untuk meja atau counter, tempel di etalase, atau kirim link katalog lewat WhatsApp dan Instagram.',
-			img: '/mock-images/photo-1598300042247-d088f8ab3a91.jpg',
+			img: '/mock-images/photo-1598300042247-d088f8ab3a91.webp',
 			imgAlt: 'QR code untuk katalog digital'
 		},
 		{
 			num: '04',
 			title: 'Terima & kelola pesanan',
 			desc: 'Pesanan masuk ke dashboard real-time. Update status, koordinasi staff, dan lacak semua transaksi dari satu layar.',
-			img: '/mock-images/photo-1551288049-bebda4e38f71.jpg',
+			img: '/mock-images/photo-1551288049-bebda4e38f71.webp',
 			imgAlt: 'Dashboard manajemen pesanan'
 		}
 	];
@@ -57,6 +57,7 @@
 							width="480"
 							height="300"
 							loading="lazy"
+							decoding="async"
 						/>
 						<!-- Step number overlay -->
 						<div

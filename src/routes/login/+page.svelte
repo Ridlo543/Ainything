@@ -92,12 +92,14 @@
 					>
 				</div>
 				<img
-					src="/mock-images/photo-1551288049-bebda4e38f71.jpg"
+					src="/mock-images/photo-1551288049-bebda4e38f71.webp"
 					alt="Dashboard Ainything"
 					class="h-48 w-full object-cover object-top opacity-90"
 					width="640"
 					height="192"
 					loading="eager"
+					decoding="async"
+					fetchpriority="high"
 				/>
 			</div>
 

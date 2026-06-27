@@ -15,11 +15,13 @@
 		<!-- Logo -->
 		<a href="/" class="flex shrink-0 items-center gap-2" aria-label="Ainything beranda">
 			<img
-				src="/images/ainything-logo-nobackground.png"
+				src="/images/ainything-logo-nobackground.webp"
 				alt="Ainything"
 				class="h-8 w-8"
 				width="32"
 				height="32"
+				decoding="async"
+				fetchpriority="high"
 			/>
 			<span class="text-lg font-extrabold tracking-tight text-[#1a1a2e]">Ainything</span>
 		</a>

@@ -75,11 +75,13 @@
 			<div class="lg:col-span-1">
 				<a href="/" class="flex items-center gap-2" aria-label="Ainything beranda">
 					<img
-						src="/images/ainything-logo-nobackground.png"
+						src="/images/ainything-logo-nobackground.webp"
 						alt="Ainything"
 						class="h-8 w-8 brightness-0 invert"
 						width="32"
 						height="32"
+						loading="lazy"
+						decoding="async"
 					/>
 					<span class="text-lg font-extrabold tracking-tight text-white">Ainything</span>
 				</a>

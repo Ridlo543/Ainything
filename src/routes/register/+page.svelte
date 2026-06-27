@@ -75,11 +75,14 @@
 			<!-- Product image -->
 			<div class="mt-8 overflow-hidden rounded-2xl border border-white/20 shadow-2xl">
 				<img
-					src="/mock-images/photo-1600891964599-f61ba0e24092.jpg"
+					src="/mock-images/photo-1600891964599-f61ba0e24092.webp"
 					alt="Contoh katalog digital Ainything"
 					class="h-44 w-full object-cover"
 					width="560"
 					height="176"
+					loading="eager"
+					decoding="async"
+					fetchpriority="high"
 				/>
 				<div class="bg-white/10 px-4 py-3 backdrop-blur-sm">
 					<p class="text-xs font-semibold text-white">Warung Sari — Bali</p>
@@ -92,11 +95,13 @@
 				{#each proofItems as t (t.name)}
 					<div class="flex items-center gap-3 rounded-xl bg-white/10 p-3">
 						<img
-							src={t.avatar}
+							src={t.avatar.replace(/\.jpg$/, '.webp')}
 							alt={t.name}
 							class="h-9 w-9 shrink-0 rounded-full object-cover"
 							width="36"
 							height="36"
+							loading="lazy"
+							decoding="async"
 						/>
 						<div>
 							<p class="text-xs font-bold text-white">{t.name}</p>

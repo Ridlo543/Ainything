@@ -106,11 +106,14 @@
 					<!-- Banner image -->
 					<div class="relative bg-[#059669] px-4 pb-4 pt-1">
 						<img
-							src="/mock-images/photo-1555396273-367ea4eb4db5.jpg"
+							src="/mock-images/photo-1555396273-367ea4eb4db5.webp"
 							alt="Warung Sari"
 							class="h-20 w-full rounded-xl object-cover opacity-80"
 							width="320"
 							height="80"
+							loading="eager"
+							decoding="async"
+							fetchpriority="high"
 						/>
 						<p class="mt-2 text-sm font-bold text-white">Warung Sari</p>
 						<p class="text-[10px] text-white/80">Bali · Buka 08.00–21.00</p>
