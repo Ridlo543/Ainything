@@ -1822,3 +1822,35 @@ Two backend bugs discovered and fixed during test writing:
 
 - `pnpm check` — 0 errors, 0 warnings
 - `pnpm test:unit` — 39 passed, 2 skipped (379 tests total, 0 failed)
+
+---
+
+## Sprint: 2026-06-28 (Chat + API Keys — Fifth Audit)
+
+### Audit fixes applied
+
+**Chat feature — POST response validation:**
+
+- `StaffChatWindow` and `BuyerChatWindow` previously cast POST `/messages` response with `(await res.json()) as StaffChatMessage` — unsafe, silently broken on malformed server response
+- Added `chatMessageResponseSchema` export to `src/lib/domain/chat/schema.ts` (alias for `staffChatMessageSchema`)
+- Both components now call `chatMessageResponseSchema.parse(await res.json())` — throws on malformed payload, Zod error surfaces as caught error message to user
+
+**Chat feature — comment hygiene:**
+
+- `getRoomContext` JSDoc in `staff-chat-repository.ts` corrected: was "guard SSE subscriptions and message sends" — buyer message sends now use `getBuyerRoomContext`, not `getRoomContext`; comment updated accordingly
+
+**Schema documentation:**
+
+- `buyerSendMessageSchema` comment updated to clarify that `sessionId` is injected server-side from cookie — clients only send `content`; field exists so server can parse merged `{ ...body, sessionId }` in one `safeParse` call
+
+**Files modified:**
+
+- `src/lib/domain/chat/schema.ts` — added `chatMessageResponseSchema` export, clarified `buyerSendMessageSchema` comment
+- `src/lib/server/repositories/staff-chat-repository.ts` — corrected `getRoomContext` JSDoc
+- `src/lib/ui/chat/StaffChatWindow.svelte` — POST response validated via `chatMessageResponseSchema.parse()`
+- `src/lib/ui/chat/BuyerChatWindow.svelte` — POST response validated via `chatMessageResponseSchema.parse()`
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 39 passed, 2 skipped (379 tests total, 0 failed)
