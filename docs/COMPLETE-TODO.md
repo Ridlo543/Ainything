@@ -1752,3 +1752,39 @@ Two backend bugs discovered and fixed during test writing:
 
 - `pnpm check` — 0 errors, 0 warnings
 - `pnpm test:unit` — 39 passed, 2 skipped (380 tests total, 0 failed)
+
+---
+
+## Sprint: 2026-06-28 (Chat + API Keys — Third Audit)
+
+### Audit fixes applied
+
+**Chat feature:**
+
+- C-01: `sendBuyerMessage` now uses single `getBuyerRoomContext` query instead of two separate calls (`getRoomContext` + `verifyBuyerOwnsRoom`) — eliminates double DB round-trip
+- C-14: SSE event payloads now validated at runtime via Zod schemas (`chatHistorySchema`, `chatMessageEventSchema`) in both `StaffChatWindow` and `BuyerChatWindow` — replaces unsafe `JSON.parse(...) as T` casts
+- Staff order `+page.server.ts` now returns `staffName: user.name` from load; `+page.svelte` passes it as `senderName` prop to `StaffChatWindow` — replaces default `'Saya'` fallback with actual staff name
+- `getBuyerRoomContext` added to `staff-chat-repository.ts` — single JOIN query on `fallback_requests + buyer_sessions` returning `{ organizationId, outletId }` or null
+- `chatHistorySchema`, `chatMessageEventSchema`, `staffChatMessageSchema` added to `src/lib/domain/chat/schema.ts`
+- Test fixture `makeMessage` role corrected from `'buyer'` → `'customer'` to match domain type
+
+**API keys feature:**
+
+- `bind:this={keyCodeEl}` wired to `<code>` element in reveal dialog — clipboard fallback (`range.selectNodeContents`) was broken because `keyCodeEl` ref was never set (removed stale `data-key` attribute)
+
+**Files modified:**
+
+- `src/lib/domain/chat/schema.ts` — added `staffChatMessageSchema`, `chatHistorySchema`, `chatMessageEventSchema`
+- `src/lib/server/repositories/staff-chat-repository.ts` — added `getBuyerRoomContext`
+- `src/lib/server/services/staff-chat-service.ts` — `sendBuyerMessage` uses `getBuyerRoomContext`
+- `src/lib/ui/chat/StaffChatWindow.svelte` — SSE Zod validation for history + message events
+- `src/lib/ui/chat/BuyerChatWindow.svelte` — SSE Zod validation for history + message events
+- `src/routes/(staff)/staff/orders/[id]/+page.server.ts` — returns `staffName`
+- `src/routes/(staff)/staff/orders/[id]/+page.svelte` — passes `staffName` to `StaffChatWindow`
+- `src/routes/(platform)/platform/api/+page.svelte` — `bind:this={keyCodeEl}` on `<code>` element
+- `src/lib/server/services/staff-chat-service.test.ts` — `makeMessage` role `'buyer'` → `'customer'`
+
+### Verified
+
+- `pnpm check` — 0 errors, 0 warnings
+- `pnpm test:unit` — 39 passed, 2 skipped (380 tests total, 0 failed)
