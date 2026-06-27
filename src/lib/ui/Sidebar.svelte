@@ -118,7 +118,7 @@
 		} else {
 			expandedGroups.add(href);
 		}
-		expandedGroups = new SvelteSet(expandedGroups);
+		// SvelteSet mutations (.add/.delete) are already reactive — no reassignment needed.
 	}
 </script>
 
@@ -205,17 +205,18 @@
 							: 'text-foreground hover:bg-accent'}"
 						onclick={() => toggleGroup(item.href)}
 						aria-expanded={expandedGroups.has(item.href)}
+						aria-controls="nav-group-{item.href.replace(/\//g, '-')}"
 					>
-						<item.icon size={18} class="shrink-0" />
+						<item.icon size={18} class="shrink-0" aria-hidden="true" />
 						<span class="flex-1 text-left">{item.label}</span>
 						{#if expandedGroups.has(item.href)}
-							<ChevronDown size={14} class="shrink-0 text-muted-foreground" />
+							<ChevronDown size={14} class="shrink-0 text-muted-foreground" aria-hidden="true" />
 						{:else}
-							<ChevronRight size={14} class="shrink-0 text-muted-foreground" />
+							<ChevronRight size={14} class="shrink-0 text-muted-foreground" aria-hidden="true" />
 						{/if}
 					</button>
 					{#if expandedGroups.has(item.href)}
-						<div class="ml-6 mt-0.5 space-y-0.5">
+						<div id="nav-group-{item.href.replace(/\//g, '-')}" class="ml-6 mt-0.5 space-y-0.5">
 							{#each item.children as child (child.href)}
 								<a
 									href={child.href}
@@ -225,7 +226,7 @@
 										: 'text-muted-foreground hover:text-foreground hover:bg-accent'}"
 									aria-current={isActive(child.href) ? 'page' : undefined}
 								>
-									<Tag size={13} class="shrink-0 opacity-50" />
+									<Tag size={13} class="shrink-0 opacity-50" aria-hidden="true" />
 									{child.label}
 								</a>
 							{/each}
@@ -242,7 +243,7 @@
 						: 'text-foreground hover:bg-accent'}"
 					aria-current={isActive(item.href) ? 'page' : undefined}
 				>
-					<item.icon size={18} class="shrink-0" />
+					<item.icon size={18} class="shrink-0" aria-hidden="true" />
 					{item.label}
 				</a>
 			{/if}

@@ -80,21 +80,25 @@
 	<div class="relative">
 		<Search
 			size={18}
+			aria-hidden="true"
 			class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ainything-subtle"
 		/>
 		<input
+			id="catalog-search"
 			type="search"
 			bind:value={searchQuery}
 			placeholder={t('catalog.search.placeholder')}
+			aria-label={t('catalog.search.placeholder')}
 			class="tap-target w-full rounded-lg border border-ainything-border bg-ainything-surface py-2.5 pl-10 pr-4 text-sm text-ainything-text placeholder:text-ainything-subtle focus:border-ainything-primary focus:outline-none focus:ring-2 focus:ring-ainything-primary/20"
 		/>
 		{#if searchQuery}
 			<button
 				type="button"
 				onclick={() => (searchQuery = '')}
+				aria-label="Hapus pencarian"
 				class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-ainything-subtle hover:bg-ainything-muted hover:text-ainything-text"
 			>
-				<X size={16} />
+				<X size={16} aria-hidden="true" />
 			</button>
 		{/if}
 	</div>

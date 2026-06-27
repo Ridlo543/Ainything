@@ -8,12 +8,21 @@
 	const restaurant = $derived(tenant.activeRestaurant);
 </script>
 
-<div class="flex min-h-screen flex-col bg-background">
+<!-- Skip navigation link for keyboard/screen reader users -->
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
+>
+	Skip to main content
+</a>
+
+<div class="flex min-h-screen flex-col overflow-x-hidden bg-background">
 	<header
 		class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-card shadow-[0_1px_0_0_var(--color-ainything-border)] px-4"
 	>
 		<div
-			class="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground"
+			class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground"
+			aria-hidden="true"
 		>
 			{restaurant.name.charAt(0)}
 		</div>
@@ -31,7 +40,7 @@
 		</form>
 	</header>
 
-	<main class="flex-1 p-4 lg:p-8">
+	<main id="main-content" class="flex-1 p-4 lg:p-8">
 		{@render children()}
 	</main>
 

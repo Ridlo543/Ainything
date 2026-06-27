@@ -121,11 +121,11 @@
 	<!-- Status Timeline -->
 	{#if !isCancelled && !isCompleted}
 		<div class="mb-8">
-			<div class="flex items-center justify-between">
+			<ol class="flex items-center justify-between" aria-label="Status pesanan">
 				{#each statusSteps as step, i (step.key)}
 					{@const reached = i <= statusIndex}
 					{@const current = i === statusIndex}
-					<div class="flex flex-col items-center gap-2">
+					<li class="flex flex-col items-center gap-2">
 						<div
 							class="flex h-12 w-12 items-center justify-center rounded-full border-2 transition-colors"
 							class:border-emerald-500={reached}
@@ -136,8 +136,9 @@
 							class:text-gray-400={!reached}
 							class:ring-4={current}
 							class:ring-emerald-100={current}
+							aria-current={current ? 'step' : undefined}
 						>
-							<step.icon class="h-6 w-6" />
+							<step.icon class="h-6 w-6" aria-hidden="true" />
 						</div>
 						<span
 							class="text-xs font-medium"
@@ -146,16 +147,17 @@
 						>
 							{t(`order.status.${step.key}`)}
 						</span>
-					</div>
+					</li>
 					{#if i < statusSteps.length - 1}
-						<div
+						<li
+							role="presentation"
 							class="mx-1 mb-6 h-1 min-w-0 flex-1 self-start rounded-full transition-colors mt-6"
 							class:bg-emerald-500={i < statusIndex}
 							class:bg-gray-200={i >= statusIndex}
-						></div>
+						></li>
 					{/if}
 				{/each}
-			</div>
+			</ol>
 		</div>
 	{:else}
 		<div
