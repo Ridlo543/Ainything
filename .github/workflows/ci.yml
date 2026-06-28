@@ -48,6 +48,7 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
+      DIRECT_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
       REDIS_URL: redis://localhost:6379
       AUTH_PROVIDER: credentials
       SESSION_SECRET: ci-test-secret-32-chars-minimum-x
