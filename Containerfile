@@ -1,16 +1,14 @@
 # =============================================================================
-# ainything app image (template — switch to @sveltejs/adapter-node to use it).
-# Build:  podman build -t ainything-app -f Containerfile .
+# ainything app image
+# Build:  podman build -t ainything-app .
+#   atau: docker build -t ainything-app .
 # Run:    podman run --rm -p 3000:3000 --env-file .env ainything-app
-# Compose works with both `docker build` and `podman build`; OCI labels and
-# multi-stage layout follow Podman Build best practices.
 # =============================================================================
 
-# ---- 1. Dependencies (cached) ----------------------------------------------
+# ---- 1. Dependencies (cached layer) ----------------------------------------
 FROM docker.io/library/node:22-bookworm-slim AS deps
 WORKDIR /app
 
-# pnpm via Corepack (ships with Node 22). Pin to the version in package.json.
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN corepack enable \
@@ -20,38 +18,60 @@ RUN corepack enable \
 # ---- 2. Build --------------------------------------------------------------
 FROM docker.io/library/node:22-bookworm-slim AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN pnpm build
 
-# Prune dev dependencies for the runtime image.
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+# Activate corepack + pnpm in this stage (needed for RUN pnpm build)
+RUN corepack enable && corepack prepare pnpm@10.0.0 --activate
+
+# Copy installed node_modules from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy all source files needed for build
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY tsconfig.json svelte.config.js vite.config.ts ./
+COPY src ./src
+COPY static ./static
+
+# PUBLIC_* vars needed by SvelteKit at build time (static/public env)
+# Pass real values via --build-arg in CI/CD; empty string disables Sentry
+ARG PUBLIC_SENTRY_DSN=""
+ENV PUBLIC_SENTRY_DSN=$PUBLIC_SENTRY_DSN
+
+RUN pnpm build
 
 # ---- 3. Runtime ------------------------------------------------------------
 FROM docker.io/library/node:22-bookworm-slim AS runtime
 WORKDIR /app
 
-# Run as the unprivileged `node` user (uid 1000) — rootless-friendly.
+# Install tini for proper PID 1 signal handling (SIGTERM on graceful shutdown)
+RUN apt-get update -qq \
+ && apt-get install -y --no-install-recommends tini \
+ && rm -rf /var/lib/apt/lists/*
+
+# Run as unprivileged node user (uid 1000)
 USER node
 ENV NODE_ENV=production \
     PORT=3000 \
     HOST=0.0.0.0
 
+# adapter-node bundles all required deps into build/ — no node_modules needed
 COPY --chown=node:node --from=build /app/build ./build
-COPY --chown=node:node --from=build /app/node_modules ./node_modules
+
+# Migration scripts + SQL files (needed for: docker compose run --rm app node scripts/db.mjs migrate)
+COPY --chown=node:node scripts ./scripts
+COPY --chown=node:node db ./db
 COPY --chown=node:node package.json ./
 
 EXPOSE 3000
 
-# tini gives us proper PID 1 signal handling (SIGTERM, SIGINT) for graceful
-# shutdowns on Podman + systemd-less environments.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health/backend',(r)=>process.exit(r.statusCode===200?0:1))"
+
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["node", "build"]
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-
 LABEL org.opencontainers.image.title="ainything-app" \
-      org.opencontainers.image.description="ainything SvelteKit app (container template)" \
+      org.opencontainers.image.description="ainything SvelteKit app" \
       org.opencontainers.image.source="https://github.com/Ridlo543/Ainything" \
       org.opencontainers.image.licenses="UNLICENSED"
