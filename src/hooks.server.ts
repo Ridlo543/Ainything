@@ -21,6 +21,7 @@ const PUBLIC_ROUTES = ['/', '/login', '/register'];
 const PUBLIC_PREFIXES = [
 	'/auth/',
 	'/api/public/',
+	'/api/health/',
 	'/r/',
 	'/register/restaurant',
 	'/register/organization',
