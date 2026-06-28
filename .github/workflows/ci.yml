@@ -59,7 +59,6 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
-      DIRECT_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
       REDIS_URL: redis://localhost:6379
       AUTH_PROVIDER: credentials
       AUTH_SECRET: ci-test-secret-32-chars-minimum-x
@@ -175,24 +174,28 @@ jobs:
           cache-from: type=gha,scope=migrate
           cache-to: type=gha,mode=max,scope=migrate
 
-      - name: Setup pnpm (for Sentry source maps)
+      # Sentry source maps: only when SENTRY_AUTH_TOKEN secret is configured.
+      # Uses getsentry/action-release which handles CLI internally.
+      # Source maps are extracted from .svelte-kit/output after a local build —
+      # the runtime image does not contain them (adapter-node strips them at build time).
+      - name: Setup pnpm (Sentry)
         if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
         uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Setup Node.js (for Sentry source maps)
+      - name: Setup Node.js (Sentry)
         if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
-      - name: Install dependencies (for Sentry source maps)
+      - name: Install deps (Sentry)
         if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
         run: pnpm install --frozen-lockfile
 
-      - name: Build SvelteKit (for source maps)
+      - name: Build for source maps
         if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
         run: pnpm build
         env:
@@ -200,16 +203,16 @@ jobs:
 
       - name: Upload Sentry source maps
         if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
-        run: |
-          pnpm exec sentry-cli releases new "${{ github.sha }}"
-          pnpm exec sentry-cli releases files "${{ github.sha }}" \
-            upload-sourcemaps .svelte-kit/output/client --rewrite
-          pnpm exec sentry-cli releases finalize "${{ github.sha }}"
-          pnpm exec sentry-cli releases set-commits "${{ github.sha }}" --auto
+        uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          version: ${{ github.sha }}
+          sourcemaps: ./.svelte-kit/output/client
+          set_commits: auto
 
   # ---------------------------------------------------------------------------
   # Job 3: Deploy to VPS via SSH
@@ -254,8 +257,9 @@ jobs:
 
             echo "==> Waiting for health check (max 60s)"
             for i in $(seq 1 12); do
-              STATUS=$(docker inspect ainything-app-1 \
-                --format='{{.State.Health.Status}}' 2>/dev/null || echo "unknown")
+              STATUS=$(docker compose ps app --format json \
+                | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0].get('Health','unknown'))" \
+                2>/dev/null || echo "unknown")
               if [ "$STATUS" = "healthy" ]; then
                 echo "App is healthy after $((i * 5))s"
                 break

@@ -19,9 +19,16 @@
 
 ## Auth Modes
 
-### Mode 1: Mock Auth (Local Dev, Default)
+### Mode 1: Credentials Auth (Self-Hosted, Default)
 
-Set di `.env`: `AUTH_PROVIDER=mock`
+Set di `.env`: `AUTH_PROVIDER=credentials`
+
+Login di `/login` dengan email & password yang didaftarkan via `/register`.
+Database menyimpan password sebagai bcrypt hash di `app_users.password_hash`.
+
+### Mode 2: Mock Auth (Legacy Dev)
+
+Set di `.env`: `AUTH_PROVIDER=mock` (alias for `credentials` in auth-factory)
 
 Login di `/login` dengan:
 

@@ -91,11 +91,8 @@ ENV NODE_ENV=production \
   PORT=3000 \
   HOST=0.0.0.0
 
-# App bundle from SvelteKit adapter-node
+# App bundle from SvelteKit adapter-node (includes static assets — adapter bundles them into build/)
 COPY --chown=node:node --from=build /app/build ./build
-
-# Static assets
-COPY --chown=node:node static ./static
 
 # package.json required by adapter-node at runtime
 COPY --chown=node:node package.json ./
