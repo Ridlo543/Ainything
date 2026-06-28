@@ -30,22 +30,20 @@ Legend: `[x]` done, `[ ]` todo, `[~]` intentionally skipped/deferred, `[/]` in p
 
 The first thing any user sees. Hotel/tourist restaurant owners must be able to discover ainything, understand the value proposition, register, and start onboarding without manual intervention from the platform owner.
 
-### A1. Real Authentication (Supabase Auth)
+### A1. Authentication (self-hosted credentials)
 
-- [x] Install `@supabase/supabase-js` and `@supabase/ssr`.
+Production uses `AUTH_PROVIDER=credentials` (Auth.js with bcrypt + PostgreSQL).
+Supabase Auth adapter also available but is NOT the default. See `docs/Technical_Specification.md`.
+
 - [x] Auth provider adapter interface exists (`src/lib/server/auth/types.ts`).
 - [x] Auth factory exists (`src/lib/server/auth/auth-factory.ts`, switch via `AUTH_PROVIDER` env).
-- [x] Implement real `SupabaseAuthProvider` (`getSessionUser` via Supabase SSR cookie helpers, login, register, logout).
-- [x] Create `src/lib/server/auth/supabase-client.ts` — SSR-safe Supabase client factory.
-- [x] Add `auth.users` → `public.app_users` sync trigger (migration 0011).
-- [x] Add Supabase env vars: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (.env.development/.env.production).
-- [x] Registration: email/password sign-up with email verification (restaurant + org pathways).
-- [x] Login: email/password sign-in with Supabase session cookies.
+- [x] CredentialsAuthProvider: bcrypt password hash, PostgreSQL sessions.
+- [x] SupabaseAuthProvider: Supabase SSR cookie helpers (deprecated, kept for compatibility).
+- [x] Registration: email/password with restaurant + org pathways.
+- [x] Login: email/password with session cookies.
 - [x] Password reset flow (`/auth/forgot-password`, `/auth/update-password`).
-- [x] Email verification callback page (`/auth/callback`): handles type=recovery redirect to /auth/update-password.
-- [x] Remove mock demo auth session code (keep mock provider for tests only).
-- [x] Auth guard: redirect unauthenticated users to `/login` for all protected routes (hooks.server.ts + layout server loads).
-- [x] Platform role bridge: migration 0010 adds `platform_role` column, `has_platform_access()`, and platform admin SELECT policies.
+- [x] Auth guard: redirect unauthenticated users to `/login` (hooks.server.ts + layout server loads).
+- [x] Platform role bridge: `platform_role` column, `has_platform_access()`, admin SELECT policies.
 
 ### A2. Landing Page
 

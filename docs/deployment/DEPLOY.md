@@ -127,12 +127,16 @@ Isi dengan:
 NODE_ENV=production
 PUBLIC_APP_URL=https://ainything.online
 
-# Auth.js
-AUTH_SECRET=        # generate: openssl rand -base64 32
+# Auth — self-hosted credentials (Auth.js with bcrypt + PostgreSQL)
 AUTH_PROVIDER=credentials
 
-# Database — gunakan nama service Docker, bukan localhost
-DATABASE_URL=postgresql://ainything:GANTI_PASSWORD_KUAT@postgres:5432/ainything
+# Session signing — generate: openssl rand -base64 32
+SESSION_SECRET=
+
+# Database — app connection (user: ainything_app, RLS-enforced role)
+DATABASE_URL=postgresql://ainything_app:GANTI_PASSWORD_KUAT@postgres:5432/ainything
+# Database — migration connection (user: ainything, superuser for schema changes)
+DIRECT_URL=postgresql://ainything:GANTI_PASSWORD_KUAT@postgres:5432/ainything
 
 # Redis — gunakan nama service Docker
 REDIS_URL=redis://redis:6379
@@ -163,7 +167,7 @@ R2_PUBLIC_URL=https://uploads.yourdomain.com
 POSTGRES_PASSWORD=GANTI_PASSWORD_KUAT
 ```
 
-Generate `AUTH_SECRET`:
+Generate `SESSION_SECRET`:
 
 ```bash
 openssl rand -base64 32
@@ -246,9 +250,13 @@ services:
       - '443:443'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./certs:/data/caddy
+      - ./certs:/opt/certs:ro
+      - caddy_data:/data/caddy
     depends_on:
       - app
+
+volumes:
+  caddy_data:
 ```
 
 Ganti `Ridlo543` dengan GitHub username kamu jika berbeda.
@@ -362,7 +370,7 @@ Di GitHub repo → Settings → Secrets and variables → Actions → New reposi
 | Secret              | Value                                                    |
 | ------------------- | -------------------------------------------------------- |
 | `VPS_HOST`          | `43.133.138.28`                                          |
-| `VPS_USER`          | `ubuntu`                                                 |
+| `VPS_USER`          | `root` (atau `ubuntu` jika bind ke user ubuntu)          |
 | `VPS_SSH_KEY`       | private key SSH (isi dengan `Get-Content ~/.ssh/id_rsa`) |
 | `PUBLIC_SENTRY_DSN` | DSN dari Sentry dashboard (opsional)                     |
 | `SENTRY_AUTH_TOKEN` | Auth token dari Sentry (opsional, untuk source maps)     |
@@ -418,12 +426,15 @@ sleep 10
 # Verifikasi postgres healthy
 docker compose ps
 
-# Jalankan migrations (0001–0028)
-# pnpm tidak ada di runtime image — gunakan node langsung
-docker compose run --rm app node scripts/db.mjs migrate
+# Jalankan migrations via dedicated migrate image
+# (pakai network yang sama biar bisa resolve "postgres")
+docker pull ghcr.io/ridlo543/ainything-migrate:latest
+docker run --rm --network ainything_default --env-file .env \
+  ghcr.io/ridlo543/ainything-migrate:latest
 
 # Seed demo data (OPSIONAL — skip untuk production bersih)
-# docker compose run --rm app node scripts/db.mjs seed
+# docker run --rm --network ainything_default --env-file .env \
+#   ghcr.io/ridlo543/ainything-migrate:latest node scripts/db.mjs seed
 ```
 
 Output harus menunjukkan semua 28 migrations applied.
@@ -556,34 +567,35 @@ docker compose exec postgres \
 
 ## Environment Variables Reference
 
-| Variable               | Required | Description                                       |
-| ---------------------- | -------- | ------------------------------------------------- |
-| `NODE_ENV`             | Yes      | `production`                                      |
-| `PUBLIC_APP_URL`       | Yes      | Base URL aplikasi (tanpa trailing slash)          |
-| `AUTH_SECRET`          | Yes      | Secret untuk JWT/session signing (min 32 chars)   |
-| `AUTH_PROVIDER`        | Yes      | `credentials` (production) atau `mock` (dev only) |
-| `DATABASE_URL`         | Yes      | PostgreSQL connection string                      |
-| `REDIS_URL`            | Yes      | Redis connection string                           |
-| `SMTP_HOST`            | Yes      | SMTP host untuk email auth                        |
-| `SMTP_PORT`            | Yes      | SMTP port (587 untuk STARTTLS)                    |
-| `SMTP_USER`            | Yes      | SMTP username                                     |
-| `SMTP_PASS`            | Yes      | SMTP password/API key                             |
-| `SMTP_FROM`            | Yes      | From address untuk email                          |
-| `ANTHROPIC_API_KEY`    | No       | Untuk AI chat (Anthropic Claude)                  |
-| `OPENAI_API_KEY`       | No       | Alternatif untuk AI chat (OpenAI-compatible)      |
-| `R2_ACCOUNT_ID`        | No       | Cloudflare R2 account ID (untuk file upload)      |
-| `R2_ACCESS_KEY_ID`     | No       | Cloudflare R2 access key                          |
-| `R2_SECRET_ACCESS_KEY` | No       | Cloudflare R2 secret key                          |
-| `R2_BUCKET_NAME`       | No       | Nama R2 bucket                                    |
-| `R2_PUBLIC_URL`        | No       | Public URL untuk R2 bucket                        |
-| `PUBLIC_SENTRY_DSN`    | No       | Sentry DSN untuk error monitoring                 |
-| `POSTGRES_PASSWORD`    | Yes      | Password postgres (dipakai compose untuk init)    |
+| Variable               | Required | Description                                         |
+| ---------------------- | -------- | --------------------------------------------------- |
+| `NODE_ENV`             | Yes      | `production`                                        |
+| `PUBLIC_APP_URL`       | Yes      | Base URL aplikasi (tanpa trailing slash)            |
+| `SESSION_SECRET`       | Yes      | Secret untuk session signing (min 32 chars, base64) |
+| `DIRECT_URL`           | Yes      | Superuser connection string untuk migrasi schema    |
+| `AUTH_PROVIDER`        | Yes      | `credentials` (production) atau `mock` (dev only)   |
+| `DATABASE_URL`         | Yes      | PostgreSQL connection string                        |
+| `REDIS_URL`            | Yes      | Redis connection string                             |
+| `SMTP_HOST`            | No       | SMTP host untuk email auth                          |
+| `SMTP_PORT`            | No       | SMTP port (587 untuk STARTTLS)                      |
+| `SMTP_USER`            | No       | SMTP username                                       |
+| `SMTP_PASS`            | No       | SMTP password/API key                               |
+| `SMTP_FROM`            | No       | From address untuk email                            |
+| `ANTHROPIC_API_KEY`    | No       | Untuk AI chat (Anthropic Claude)                    |
+| `OPENAI_API_KEY`       | No       | Alternatif untuk AI chat (OpenAI-compatible)        |
+| `R2_ACCOUNT_ID`        | No       | Cloudflare R2 account ID (untuk file upload)        |
+| `R2_ACCESS_KEY_ID`     | No       | Cloudflare R2 access key                            |
+| `R2_SECRET_ACCESS_KEY` | No       | Cloudflare R2 secret key                            |
+| `R2_BUCKET_NAME`       | No       | Nama R2 bucket                                      |
+| `R2_PUBLIC_URL`        | No       | Public URL untuk R2 bucket                          |
+| `PUBLIC_SENTRY_DSN`    | No       | Sentry DSN untuk error monitoring                   |
+| `POSTGRES_PASSWORD`    | Yes      | Password postgres (dipakai compose untuk init)      |
 
 ---
 
 ## Pre-Pilot Checklist
 
-- [ ] `curl https://ainything.yourdomain.com/api/health/backend` → `{"status":"ok"}`
+- [ ] `curl https://ainything.online/api/health/backend` → `{"ok":true,"backend":{"database":"ok","redis":"ok","authProvider":"credentials"}}`
 - [ ] Register akun org_owner → `/dashboard` berfungsi
 - [ ] Login sebagai staff → `/staff/inbox` berfungsi
 - [ ] QR scan `/r/[slug]/table/T01` berfungsi tanpa login
