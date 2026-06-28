@@ -129,7 +129,7 @@ PUBLIC_APP_URL=https://ainything.online
 
 # Auth.js
 AUTH_SECRET=        # generate: openssl rand -base64 32
-AUTH_PROVIDER=credentials
+AUTH_PROVIDER=local
 
 # Database — gunakan nama service Docker, bukan localhost
 DATABASE_URL=postgresql://ainything:GANTI_PASSWORD_KUAT@postgres:5432/ainything
@@ -453,7 +453,7 @@ docker compose exec postgres \
 | `NODE_ENV`             | Yes      | `production`                                    |
 | `PUBLIC_APP_URL`       | Yes      | Base URL aplikasi (tanpa trailing slash)        |
 | `AUTH_SECRET`          | Yes      | Secret untuk JWT/session signing (min 32 chars) |
-| `AUTH_PROVIDER`        | Yes      | `credentials` (production) atau `mock` (dev)    |
+| `AUTH_PROVIDER`        | Yes      | `local` (production) atau `mock` (dev only)     |
 | `DATABASE_URL`         | Yes      | PostgreSQL connection string                    |
 | `REDIS_URL`            | Yes      | Redis connection string                         |
 | `SMTP_HOST`            | Yes      | SMTP host untuk email auth                      |
