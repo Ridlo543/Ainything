@@ -7,8 +7,9 @@ import type { AuthProvider } from './types';
  *
  * Supported values:
  * - 'credentials' (default) — bcrypt + PostgreSQL sessions. For self-hosted deployments.
- *   Alias: 'local' (legacy name, still accepted).
- * - 'supabase' — Supabase Auth (implementation pending).
+ * - 'mock'        — alias for 'credentials'. Used in tests and local dev.
+ * - 'local'       — legacy alias for 'credentials'. Kept for backwards compatibility.
+ * - 'supabase'    — Supabase Auth (implementation pending).
  *
  * The factory is called once per server startup (module-level singleton below).
  * Adding a new provider means adding a case here + a new implementation file; no
@@ -25,7 +26,8 @@ function createAuthProvider(): AuthProvider {
 
 	switch (provider) {
 		case 'credentials':
-		case 'local': // legacy alias
+		case 'mock': // alias — used in tests and local dev
+		case 'local': // legacy alias — kept for backwards compatibility
 			return new LocalAuthProvider();
 		case 'supabase':
 			// Supabase Auth implementation is on the roadmap.
@@ -38,7 +40,7 @@ function createAuthProvider(): AuthProvider {
 			return new LocalAuthProvider();
 		default:
 			throw new Error(
-				`[auth-factory] Unknown AUTH_PROVIDER "${provider}". Supported: "credentials", "supabase".`
+				`[auth-factory] Unknown AUTH_PROVIDER "${provider}". Supported: "credentials", "mock", "supabase".`
 			);
 	}
 }

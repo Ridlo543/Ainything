@@ -18,7 +18,7 @@ export const appEnv = {
 	redisUrl: env.REDIS_URL,
 
 	// Auth
-	authProvider: env.AUTH_PROVIDER || 'local',
+	authProvider: env.AUTH_PROVIDER || 'credentials',
 
 	// LLM — provider selector and per-provider keys.
 	// LLM_PROVIDER values: 'mock' | 'tokenrouter' | 'openai' | 'anthropic'
