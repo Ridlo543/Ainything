@@ -1,6 +1,6 @@
 # Production Deployment Guide
 
-Target: **Tencent Lighthouse** — Ubuntu 22.04, Docker 26.1.3, 2 vCPU / 2GB RAM / 40GB SSD, Jakarta region.
+Target: **Tencent Lighthouse** — Ubuntu 22.04, Docker 29.6.1 + Compose v5.2.0, 2 vCPU / 2GB RAM / 40GB SSD, Jakarta region.
 
 Selesaikan setiap section secara berurutan sebelum pilot.
 
@@ -9,11 +9,11 @@ Selesaikan setiap section secara berurutan sebelum pilot.
 ## Prerequisites
 
 - [ ] Domain purchased, DNS dikelola via Cloudflare
-- [ ] VPS provisioned (Tencent Lighthouse Ubuntu 22.04 + Docker 26)
+- [ ] VPS provisioned (Tencent Lighthouse Ubuntu 22.04 + Docker 29)
 - [ ] SSH key pair terdaftar di Tencent Cloud Console
 - [ ] GitHub account dengan akses ke repo ainything (untuk GHCR image pull)
 - [ ] SMTP provider dikonfigurasi: [Resend](https://resend.com) (gratis 3000 email/bulan)
-- [ ] Cloudflare R2 bucket (gratis 10GB) untuk file upload produk
+- [ ] Cloudflare R2 bucket (gratis 10GB) untuk file upload produk — **opsional, bisa setup nanti**
 
 ---
 
@@ -61,14 +61,14 @@ sudo ufw status
 
 ## Step 2 — Docker Setup
 
-Docker 26.1.3 sudah pre-installed di image Tencent Lighthouse. Verifikasi:
+Docker 29.6.1 sudah pre-installed di image Tencent Lighthouse. Verifikasi:
 
 ```bash
 docker --version
-# Docker version 26.1.3, build ...
+# Docker version 29.6.1, build ...
 
 docker compose version
-# Docker Compose version v2.x.x
+# Docker Compose version v5.x.x
 
 # Tambah user ubuntu ke group docker (tidak perlu sudo tiap run)
 sudo usermod -aG docker ubuntu
@@ -100,10 +100,10 @@ Di Cloudflare DNS, tambahkan:
 
 ```
 # Root domain
-A   ainything.yourdomain.com    →  43.133.138.28   (proxy ON)
+A   ainything.online    →  43.133.138.28   (proxy ON)
 
 # Wildcard untuk multi-tenant outlet
-A   *.ainything.yourdomain.com  →  43.133.138.28   (proxy ON)
+A   *.ainything.online  →  43.133.138.28   (proxy ON)
 ```
 
 **Cloudflare SSL/TLS mode:** Set ke **Full (strict)** setelah Caddy terinstall.
@@ -125,7 +125,7 @@ Isi dengan:
 ```env
 # App
 NODE_ENV=production
-PUBLIC_APP_URL=https://ainything.yourdomain.com
+PUBLIC_APP_URL=https://ainything.online
 
 # Auth.js
 AUTH_SECRET=        # generate: openssl rand -base64 32
@@ -142,7 +142,7 @@ SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=resend
 SMTP_PASS=re_xxxxxxxxxxxxxxxxxxxx
-SMTP_FROM=noreply@yourdomain.com
+SMTP_FROM=noreply@ainything.online
 
 # AI (opsional — untuk fitur AI chat)
 ANTHROPIC_API_KEY=sk-ant-...
@@ -221,7 +221,7 @@ services:
       retries: 5
 
   app:
-    image: ghcr.io/YOURORG/ainything-app:latest
+    image: ghcr.io/Ridlo543/ainything-app:latest
     restart: unless-stopped
     ports:
       - '127.0.0.1:3000:3000' # Caddy forward ke sini
@@ -251,7 +251,7 @@ services:
       - app
 ```
 
-Ganti `YOURORG` dengan GitHub org/username kamu.
+Ganti `Ridlo543` dengan GitHub username kamu jika berbeda.
 
 ---
 
@@ -266,7 +266,7 @@ nano /opt/ainything/Caddyfile
 Isi:
 
 ```caddyfile
-ainything.yourdomain.com, *.ainything.yourdomain.com {
+ainything.online, *.ainything.online {
     reverse_proxy app:3000 {
         # Penting untuk SSE (staff↔buyer chat — flush langsung, tidak di-buffer)
         flush_interval -1
@@ -292,10 +292,10 @@ App perlu di-build dan di-push ke GHCR agar server bisa pull image.
 echo "GITHUB_PAT_TOKEN" | docker login ghcr.io -u YOURUSERNAME --password-stdin
 
 # Build image
-docker build -t ghcr.io/YOURORG/ainything-app:latest .
+docker build -t ghcr.io/ridlo543/ainything-app:latest .
 
 # Push ke GHCR
-docker push ghcr.io/YOURORG/ainything-app:latest
+docker push ghcr.io/ridlo543/ainything-app:latest
 ```
 
 **Di server:**
@@ -305,7 +305,7 @@ docker push ghcr.io/YOURORG/ainything-app:latest
 echo "GITHUB_PAT_TOKEN" | docker login ghcr.io -u YOURUSERNAME --password-stdin
 
 # Pull image
-docker pull ghcr.io/YOURORG/ainything-app:latest
+docker pull ghcr.io/ridlo543/ainything-app:latest
 ```
 
 Atau setup GitHub Actions CI agar setiap push ke `main` otomatis build + push. Lihat `.github/workflows/` jika sudah ada.
@@ -425,7 +425,7 @@ ls -lh backup-*.sql
 cd /opt/ainything
 
 # Rollback ke image sebelumnya (ganti tag sesuai versi)
-docker compose pull app ghcr.io/YOURORG/ainything-app:v1.2.3
+docker compose pull app ghcr.io/ridlo543/ainything-app:v1.2.3
 sed -i 's|:latest|:v1.2.3|' compose.yml
 docker compose up -d --no-deps app
 
