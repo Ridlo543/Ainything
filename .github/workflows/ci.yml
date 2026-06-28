@@ -1,8 +1,13 @@
 name: CI / Build / Deploy
 
+# Flow:
+#   push dev  → check only (type check + unit tests)
+#   push main → check → build (GHCR) → deploy (VPS via SSH)
+#   PR → main → check only (build + deploy only on merge)
+
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
     branches: [main]
 
@@ -13,11 +18,13 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/ainything-app
+  MIGRATE_IMAGE_NAME: ${{ github.repository_owner }}/ainything-migrate
 
 jobs:
   # ---------------------------------------------------------------------------
   # Job 1: Type check + unit tests
-  # Must pass before image is built — gates every push to main
+  # Runs on every push (dev, main) and every PR targeting main.
+  # Must pass before any image is built or deployed.
   # ---------------------------------------------------------------------------
   check:
     name: Type check & unit tests
@@ -28,9 +35,9 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_USER: ainything_app
-          POSTGRES_PASSWORD: ainything_app
-          POSTGRES_DB: ainything
+          POSTGRES_USER: ainything_test
+          POSTGRES_PASSWORD: ainything_test
+          POSTGRES_DB: ainything_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -51,18 +58,19 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://ainything_app:ainything_app@localhost:5432/ainything
-      DIRECT_URL: postgresql://ainything_app:ainything_app@localhost:5432/ainything
+      DATABASE_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
+      DIRECT_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
       REDIS_URL: redis://localhost:6379
       AUTH_PROVIDER: credentials
-      SESSION_SECRET: ci-test-secret-not-real
+      AUTH_SECRET: ci-test-secret-32-chars-minimum-x
       LLM_PROVIDER: mock
       OCR_PROVIDER: mock
       WHATSAPP_PROVIDER: mock
       STORAGE_PROVIDER: mock
-      EMBEDDING_ENABLED: "false"
-      RUN_DB_TESTS: "true"
+      EMBEDDING_ENABLED: 'false'
+      RUN_DB_TESTS: 'true'
       PUBLIC_APP_URL: http://localhost:5173
+      PUBLIC_SENTRY_DSN: ''
 
     steps:
       - name: Checkout
@@ -89,14 +97,17 @@ jobs:
         run: pnpm check
 
       - name: Unit tests
-        run: pnpm test:unit
+        run: pnpm test:unit -- --run
 
   # ---------------------------------------------------------------------------
-  # Job 2: Build + push image to GHCR
-  # Only runs on push to main (not on PRs) and only if check job passes
+  # Job 2: Build app + migrate images and push to GHCR
+  # Only runs on push to main after check passes.
+  # Produces two images:
+  #   ghcr.io/<org>/ainything-app:latest    — SvelteKit runtime
+  #   ghcr.io/<org>/ainything-migrate:latest — migration runner (node + pg only)
   # ---------------------------------------------------------------------------
   build:
-    name: Build & push image
+    name: Build & push images
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: check
@@ -120,8 +131,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
+      - name: Extract metadata (app image)
+        id: meta-app
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -129,27 +140,86 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-,format=short
 
-      - name: Build and push
+      - name: Extract metadata (migrate image)
+        id: meta-migrate
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.MIGRATE_IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Build and push app image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Containerfile
+          target: runtime
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta-app.outputs.tags }}
+          labels: ${{ steps.meta-app.outputs.labels }}
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,mode=max,scope=app
           build-args: |
             PUBLIC_SENTRY_DSN=${{ secrets.PUBLIC_SENTRY_DSN }}
 
+      - name: Build and push migrate image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Containerfile
+          target: migrate
+          push: true
+          tags: ${{ steps.meta-migrate.outputs.tags }}
+          labels: ${{ steps.meta-migrate.outputs.labels }}
+          cache-from: type=gha,scope=migrate
+          cache-to: type=gha,mode=max,scope=migrate
+
+      - name: Setup pnpm (for Sentry source maps)
+        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js (for Sentry source maps)
+        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies (for Sentry source maps)
+        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Build SvelteKit (for source maps)
+        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        run: pnpm build
+        env:
+          PUBLIC_SENTRY_DSN: ${{ secrets.PUBLIC_SENTRY_DSN }}
+
+      - name: Upload Sentry source maps
+        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        run: |
+          pnpm exec sentry-cli releases new "${{ github.sha }}"
+          pnpm exec sentry-cli releases files "${{ github.sha }}" \
+            upload-sourcemaps .svelte-kit/output/client --rewrite
+          pnpm exec sentry-cli releases finalize "${{ github.sha }}"
+          pnpm exec sentry-cli releases set-commits "${{ github.sha }}" --auto
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
   # ---------------------------------------------------------------------------
-  # Job 3: Deploy — pull new image on VPS via SSH
-  # Only runs after image is built and pushed successfully
+  # Job 3: Deploy to VPS via SSH
+  # Pulls both images, runs migrations via dedicated migrate container,
+  # restarts app, verifies health. Fails fast on migration error.
   # ---------------------------------------------------------------------------
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -164,8 +234,39 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
           script: |
+            set -euo pipefail
             cd /opt/ainything
+
+            echo "==> Pulling latest images"
             docker pull ghcr.io/${{ github.repository_owner }}/ainything-app:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/ainything-migrate:latest
+
+            echo "==> Running database migrations"
+            docker run --rm \
+              --network ainything_default \
+              --env-file .env \
+              ghcr.io/${{ github.repository_owner }}/ainything-migrate:latest
+
+            echo "==> Restarting app container"
             docker compose up -d --no-deps app
+
+            echo "==> Waiting for health check (max 60s)"
+            for i in $(seq 1 12); do
+              STATUS=$(docker inspect ainything-app-1 \
+                --format='{{.State.Health.Status}}' 2>/dev/null || echo "unknown")
+              if [ "$STATUS" = "healthy" ]; then
+                echo "App is healthy after $((i * 5))s"
+                break
+              fi
+              if [ "$i" -eq 12 ]; then
+                echo "ERROR: Health check timed out after 60s"
+                docker compose logs app --tail=50
+                exit 1
+              fi
+              sleep 5
+            done
+
+            echo "==> Deploy complete"
             docker compose ps
