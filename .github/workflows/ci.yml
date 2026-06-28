@@ -61,7 +61,7 @@ jobs:
       DATABASE_URL: postgresql://ainything_test:ainything_test@localhost:5432/ainything_test
       REDIS_URL: redis://localhost:6379
       AUTH_PROVIDER: credentials
-      AUTH_SECRET: ci-test-secret-32-chars-minimum-x
+      SESSION_SECRET: ci-test-secret-32-chars-minimum-x
       LLM_PROVIDER: mock
       OCR_PROVIDER: mock
       WHATSAPP_PROVIDER: mock
