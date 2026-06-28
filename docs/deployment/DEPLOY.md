@@ -285,11 +285,19 @@ Caddy handle SSL otomatis via Let's Encrypt. Tidak perlu certbot.
 
 App perlu di-build dan di-push ke GHCR agar server bisa pull image.
 
-**Di lokal (Windows):**
+**Buat GitHub Personal Access Token (PAT) dulu:**
+
+- GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+- Generate new token → centang `write:packages` dan `read:packages`
+- Copy token-nya (hanya tampil sekali)
+
+**Di lokal (Windows) — build dan push:**
 
 ```powershell
 # Login ke GHCR
-echo "GITHUB_PAT_TOKEN" | docker login ghcr.io -u YOURUSERNAME --password-stdin
+docker login ghcr.io
+# Username: Ridlo543
+# Password: [paste PAT token]
 
 # Build image
 docker build -t ghcr.io/ridlo543/ainything-app:latest .
@@ -298,11 +306,13 @@ docker build -t ghcr.io/ridlo543/ainything-app:latest .
 docker push ghcr.io/ridlo543/ainything-app:latest
 ```
 
-**Di server:**
+**Di server — login dan pull:**
 
 ```bash
-# Login ke GHCR di server (buat PAT di GitHub: Settings → Developer settings → Personal access tokens → read:packages)
-echo "GITHUB_PAT_TOKEN" | docker login ghcr.io -u YOURUSERNAME --password-stdin
+# Login ke GHCR (PAT hanya butuh read:packages di server)
+docker login ghcr.io
+# Username: Ridlo543
+# Password: [paste PAT token]
 
 # Pull image
 docker pull ghcr.io/ridlo543/ainything-app:latest
