@@ -255,9 +255,56 @@ Ganti `Ridlo543` dengan GitHub username kamu jika berbeda.
 
 ---
 
-## Step 7 — Caddyfile (Auto TLS)
+## Step 7 — Cloudflare Origin Certificate + Caddyfile
 
-Buat `/opt/ainything/Caddyfile`:
+Dengan Cloudflare proxy aktif (orange cloud), Caddy tidak bisa pakai Let's Encrypt langsung karena HTTP-01 challenge diblok Cloudflare. Solusinya: pakai **Cloudflare Origin Certificate** — cert gratis 15 tahun yang di-issue Cloudflare khusus untuk origin server.
+
+### 7a — Buat Cloudflare Origin Certificate
+
+Di Cloudflare Dashboard → `ainything.online` → **SSL/TLS** → **Origin Server** → **Create Certificate**:
+
+- Key type: RSA (2048)
+- Hostnames: `ainything.online`, `*.ainything.online`
+- Validity: 15 years
+- Klik **Create**
+
+Copy dua value yang muncul:
+
+- **Origin Certificate** → simpan sebagai `origin.pem`
+- **Private Key** → simpan sebagai `origin.key`
+
+### 7b — Simpan cert di server
+
+```bash
+nano /opt/ainything/certs/origin.pem   # paste Origin Certificate
+nano /opt/ainything/certs/origin.key   # paste Private Key
+chmod 600 /opt/ainything/certs/origin.key
+chmod 644 /opt/ainything/certs/origin.pem
+```
+
+### 7c — Update compose.yml
+
+Tambahkan mount cert ke service `caddy` di `/opt/ainything/compose.yml`:
+
+```yaml
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/opt/certs:ro
+      - caddy_data:/data/caddy
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+```
+
+### 7d — Buat Caddyfile
 
 ```bash
 nano /opt/ainything/Caddyfile
@@ -267,6 +314,9 @@ Isi:
 
 ```caddyfile
 ainything.online, *.ainything.online {
+    # Cloudflare Origin Certificate — valid 15 tahun, tidak perlu ACME/Let's Encrypt
+    tls /opt/certs/origin.pem /opt/certs/origin.key
+
     reverse_proxy app:3000 {
         # Penting untuk SSE (staff↔buyer chat — flush langsung, tidak di-buffer)
         flush_interval -1
@@ -277,7 +327,19 @@ ainything.online, *.ainything.online {
 }
 ```
 
-Caddy handle SSL otomatis via Let's Encrypt. Tidak perlu certbot.
+### 7e — Set Cloudflare SSL/TLS ke Full (Strict)
+
+Di Cloudflare → SSL/TLS → Overview → pilih **Full (strict)**.
+
+Ini memastikan traffic Cloudflare → origin dienkripsi dan cert divalidasi. Hanya Cloudflare Origin Certificate atau cert dari trusted CA yang diterima.
+
+### 7f — Restart Caddy
+
+```bash
+cd /opt/ainything
+docker compose up -d caddy
+docker compose logs caddy --tail=20
+```
 
 ---
 
