@@ -56,8 +56,8 @@ jobs:
       OCR_PROVIDER: mock
       WHATSAPP_PROVIDER: mock
       STORAGE_PROVIDER: mock
-      EMBEDDING_ENABLED: "false"
-      RUN_DB_TESTS: "true"
+      EMBEDDING_ENABLED: 'false'
+      RUN_DB_TESTS: 'true'
       PUBLIC_APP_URL: http://localhost:5173
 
     steps:
