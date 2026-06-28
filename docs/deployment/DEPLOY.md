@@ -129,7 +129,7 @@ PUBLIC_APP_URL=https://ainything.online
 
 # Auth.js
 AUTH_SECRET=        # generate: openssl rand -base64 32
-AUTH_PROVIDER=local
+AUTH_PROVIDER=credentials
 
 # Database — gunakan nama service Docker, bukan localhost
 DATABASE_URL=postgresql://ainything:GANTI_PASSWORD_KUAT@postgres:5432/ainything
@@ -343,44 +343,66 @@ docker compose logs caddy --tail=20
 
 ---
 
-## Step 8 — GitHub Container Registry (GHCR)
+## Step 8 — CI/CD Setup (GitHub Actions + GHCR)
 
-App perlu di-build dan di-push ke GHCR agar server bisa pull image.
+GitHub Actions di `.github/workflows/ci.yml` mengelola seluruh build + deploy pipeline secara otomatis.
 
-**Buat GitHub Personal Access Token (PAT) dulu:**
+### Branch Strategy
 
-- GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
-- Generate new token → centang `write:packages` dan `read:packages`
-- Copy token-nya (hanya tampil sekali)
+| Branch | Trigger             | Jobs yang berjalan         |
+| ------ | ------------------- | -------------------------- |
+| `dev`  | push ke `dev`       | check only (type + test)   |
+| `main` | push ke `main`      | check → build → deploy VPS |
+| PR     | PR targeting `main` | check only                 |
 
-**Di lokal (Windows) — build dan push:**
+### Setup GitHub Secrets
 
-```powershell
-# Login ke GHCR
-docker login ghcr.io
-# Username: Ridlo543
-# Password: [paste PAT token]
+Di GitHub repo → Settings → Secrets and variables → Actions → New repository secret:
 
-# Build image
-docker build -t ghcr.io/ridlo543/ainything-app:latest .
+| Secret              | Value                                                    |
+| ------------------- | -------------------------------------------------------- |
+| `VPS_HOST`          | `43.133.138.28`                                          |
+| `VPS_USER`          | `ubuntu`                                                 |
+| `VPS_SSH_KEY`       | private key SSH (isi dengan `Get-Content ~/.ssh/id_rsa`) |
+| `PUBLIC_SENTRY_DSN` | DSN dari Sentry dashboard (opsional)                     |
+| `SENTRY_AUTH_TOKEN` | Auth token dari Sentry (opsional, untuk source maps)     |
+| `SENTRY_ORG`        | Nama org di Sentry (opsional)                            |
+| `SENTRY_PROJECT`    | Nama project di Sentry (opsional)                        |
 
-# Push ke GHCR
-docker push ghcr.io/ridlo543/ainything-app:latest
-```
+### Setup GHCR Login di Server (sekali saja)
 
-**Di server — login dan pull:**
+Server perlu login ke GHCR untuk bisa pull image private:
 
 ```bash
-# Login ke GHCR (PAT hanya butuh read:packages di server)
+# Buat PAT di GitHub: Settings → Developer settings → Personal access tokens
+# Centang: read:packages
 docker login ghcr.io
 # Username: Ridlo543
 # Password: [paste PAT token]
-
-# Pull image
-docker pull ghcr.io/ridlo543/ainything-app:latest
 ```
 
-Atau setup GitHub Actions CI agar setiap push ke `main` otomatis build + push. Lihat `.github/workflows/` jika sudah ada.
+### Manual Build (fallback tanpa CI)
+
+Jika perlu build manual dari lokal:
+
+```powershell
+# Build kedua image sekaligus
+docker build --target runtime  -t ghcr.io/ridlo543/ainything-app:latest .
+docker build --target migrate  -t ghcr.io/ridlo543/ainything-migrate:latest .
+
+# Login dan push
+docker login ghcr.io
+docker push ghcr.io/ridlo543/ainything-app:latest
+docker push ghcr.io/ridlo543/ainything-migrate:latest
+```
+
+Di server setelah push manual:
+
+```bash
+cd /opt/ainything
+docker pull ghcr.io/ridlo543/ainything-app:latest
+docker pull ghcr.io/ridlo543/ainything-migrate:latest
+```
 
 ---
 
@@ -397,7 +419,8 @@ sleep 10
 docker compose ps
 
 # Jalankan migrations (0001–0028)
-docker compose run --rm app pnpm db:migrate
+# pnpm tidak ada di runtime image — gunakan node langsung
+docker compose run --rm app node scripts/db.mjs migrate
 
 # Seed demo data (OPSIONAL — skip untuk production bersih)
 # docker compose run --rm app node scripts/db.mjs seed
@@ -447,22 +470,45 @@ docker compose exec postgres \
 curl http://localhost:3000/api/health/backend
 
 # Dari luar (setelah DNS propagate)
-curl https://ainything.yourdomain.com/api/health/backend
+curl https://ainything.online/api/health/backend
 ```
 
-Response harus `{"status":"ok"}`.
+Response harus `{"ok":true,"backend":{"database":"ok","redis":"ok","authProvider":"credentials"}}`.
 
 ---
 
 ## Deployment Update (Rutin)
 
-Setelah ada perubahan kode baru:
+### Via CI/CD (direkomendasikan)
+
+Push ke branch `main` — GitHub Actions akan otomatis:
+
+1. Run type check + unit tests
+2. Build + push kedua image ke GHCR (`ainything-app` + `ainything-migrate`)
+3. SSH ke VPS, pull image, run migrations, restart app, verifikasi health
+
+```bash
+git push origin main
+```
+
+Pantau progress di GitHub → Actions tab.
+
+### Manual (fallback)
+
+Jika CI/CD tidak tersedia:
 
 ```bash
 cd /opt/ainything
 
 # Pull image terbaru
-docker compose pull app
+docker pull ghcr.io/ridlo543/ainything-app:latest
+docker pull ghcr.io/ridlo543/ainything-migrate:latest
+
+# Run migrations
+docker run --rm \
+  --network ainything_default \
+  --env-file .env \
+  ghcr.io/ridlo543/ainything-migrate:latest
 
 # Restart app saja — postgres + redis tetap berjalan
 docker compose up -d --no-deps app
@@ -510,28 +556,28 @@ docker compose exec postgres \
 
 ## Environment Variables Reference
 
-| Variable               | Required | Description                                     |
-| ---------------------- | -------- | ----------------------------------------------- |
-| `NODE_ENV`             | Yes      | `production`                                    |
-| `PUBLIC_APP_URL`       | Yes      | Base URL aplikasi (tanpa trailing slash)        |
-| `AUTH_SECRET`          | Yes      | Secret untuk JWT/session signing (min 32 chars) |
-| `AUTH_PROVIDER`        | Yes      | `local` (production) atau `mock` (dev only)     |
-| `DATABASE_URL`         | Yes      | PostgreSQL connection string                    |
-| `REDIS_URL`            | Yes      | Redis connection string                         |
-| `SMTP_HOST`            | Yes      | SMTP host untuk email auth                      |
-| `SMTP_PORT`            | Yes      | SMTP port (587 untuk STARTTLS)                  |
-| `SMTP_USER`            | Yes      | SMTP username                                   |
-| `SMTP_PASS`            | Yes      | SMTP password/API key                           |
-| `SMTP_FROM`            | Yes      | From address untuk email                        |
-| `ANTHROPIC_API_KEY`    | No       | Untuk AI chat (Anthropic Claude)                |
-| `OPENAI_API_KEY`       | No       | Alternatif untuk AI chat (OpenAI-compatible)    |
-| `R2_ACCOUNT_ID`        | No       | Cloudflare R2 account ID (untuk file upload)    |
-| `R2_ACCESS_KEY_ID`     | No       | Cloudflare R2 access key                        |
-| `R2_SECRET_ACCESS_KEY` | No       | Cloudflare R2 secret key                        |
-| `R2_BUCKET_NAME`       | No       | Nama R2 bucket                                  |
-| `R2_PUBLIC_URL`        | No       | Public URL untuk R2 bucket                      |
-| `PUBLIC_SENTRY_DSN`    | No       | Sentry DSN untuk error monitoring               |
-| `POSTGRES_PASSWORD`    | Yes      | Password postgres (dipakai compose untuk init)  |
+| Variable               | Required | Description                                       |
+| ---------------------- | -------- | ------------------------------------------------- |
+| `NODE_ENV`             | Yes      | `production`                                      |
+| `PUBLIC_APP_URL`       | Yes      | Base URL aplikasi (tanpa trailing slash)          |
+| `AUTH_SECRET`          | Yes      | Secret untuk JWT/session signing (min 32 chars)   |
+| `AUTH_PROVIDER`        | Yes      | `credentials` (production) atau `mock` (dev only) |
+| `DATABASE_URL`         | Yes      | PostgreSQL connection string                      |
+| `REDIS_URL`            | Yes      | Redis connection string                           |
+| `SMTP_HOST`            | Yes      | SMTP host untuk email auth                        |
+| `SMTP_PORT`            | Yes      | SMTP port (587 untuk STARTTLS)                    |
+| `SMTP_USER`            | Yes      | SMTP username                                     |
+| `SMTP_PASS`            | Yes      | SMTP password/API key                             |
+| `SMTP_FROM`            | Yes      | From address untuk email                          |
+| `ANTHROPIC_API_KEY`    | No       | Untuk AI chat (Anthropic Claude)                  |
+| `OPENAI_API_KEY`       | No       | Alternatif untuk AI chat (OpenAI-compatible)      |
+| `R2_ACCOUNT_ID`        | No       | Cloudflare R2 account ID (untuk file upload)      |
+| `R2_ACCESS_KEY_ID`     | No       | Cloudflare R2 access key                          |
+| `R2_SECRET_ACCESS_KEY` | No       | Cloudflare R2 secret key                          |
+| `R2_BUCKET_NAME`       | No       | Nama R2 bucket                                    |
+| `R2_PUBLIC_URL`        | No       | Public URL untuk R2 bucket                        |
+| `PUBLIC_SENTRY_DSN`    | No       | Sentry DSN untuk error monitoring                 |
+| `POSTGRES_PASSWORD`    | Yes      | Password postgres (dipakai compose untuk init)    |
 
 ---
 
