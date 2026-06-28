@@ -70,6 +70,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: |
+          echo "=== env from shell ==="
+          echo "DATABASE_URL=$DATABASE_URL"
+          echo "DIRECT_URL=$DIRECT_URL"
+          echo "=== check .env file ==="
+          ls -la .env* 2>/dev/null || echo "no .env* files"
+          echo "=== node env ==="
+          node -e "console.log('DATABASE_URL:', process.env.DATABASE_URL); console.log('DIRECT_URL:', process.env.DIRECT_URL)"
       - run: node scripts/db.mjs migrate
       - run: pnpm check
       - run: pnpm test:unit -- --run
