@@ -6,8 +6,9 @@ import type { AuthProvider } from './types';
  * Returns the active auth provider based on the `AUTH_PROVIDER` env variable.
  *
  * Supported values:
- * - 'local' (default) — bcrypt + PostgreSQL sessions. For self-hosted deployments.
- * - 'supabase' — Supabase Auth (production path, implementation pending).
+ * - 'credentials' (default) — bcrypt + PostgreSQL sessions. For self-hosted deployments.
+ *   Alias: 'local' (legacy name, still accepted).
+ * - 'supabase' — Supabase Auth (implementation pending).
  *
  * The factory is called once per server startup (module-level singleton below).
  * Adding a new provider means adding a case here + a new implementation file; no
@@ -16,14 +17,15 @@ import type { AuthProvider } from './types';
  * NOTE: The singleton is created lazily (on first access) so that the
  * SvelteKit post-build analyse step — which imports server modules while
  * evaluating prerenderable routes — does not throw for a provider that is
- * configured but not yet implemented (e.g. 'supabase' in .env.production).
+ * configured but not yet implemented.
  * A misconfigured provider will still fail fast on the very first real request.
  */
 function createAuthProvider(): AuthProvider {
-	const provider = appEnv.authProvider ?? 'local';
+	const provider = appEnv.authProvider ?? 'credentials';
 
 	switch (provider) {
-		case 'local':
+		case 'credentials':
+		case 'local': // legacy alias
 			return new LocalAuthProvider();
 		case 'supabase':
 			// Supabase Auth implementation is on the roadmap.
@@ -36,7 +38,7 @@ function createAuthProvider(): AuthProvider {
 			return new LocalAuthProvider();
 		default:
 			throw new Error(
-				`[auth-factory] Unknown AUTH_PROVIDER "${provider}". Supported: "local", "supabase".`
+				`[auth-factory] Unknown AUTH_PROVIDER "${provider}". Supported: "credentials", "supabase".`
 			);
 	}
 }
